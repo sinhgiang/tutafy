@@ -55,7 +55,8 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && isAuthPage) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    const dest = user.email === ADMIN_EMAIL ? '/admin' : '/dashboard'
+    return NextResponse.redirect(new URL(dest, request.url))
   }
 
   return supabaseResponse
