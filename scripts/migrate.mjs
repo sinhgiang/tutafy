@@ -12,7 +12,7 @@ const client = new Client({
   port: 5432,
   database: 'postgres',
   user: 'postgres',
-  password: 'S1nh#*1997#*ee',
+  password: process.env.DB_PASSWORD ?? '',
   ssl: { rejectUnauthorized: false },
 })
 
