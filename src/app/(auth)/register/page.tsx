@@ -18,10 +18,6 @@ export default function RegisterPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  function generateSlug(name: string) {
-    return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Math.random().toString(36).slice(2, 6)
-  }
-
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
@@ -40,22 +36,29 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
-      const { error: profileError } = await supabase.from('tutors').insert({
-        id: data.user.id,
-        email,
-        name,
-        slug: generateSlug(name),
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: data.user.id, email, name }),
       })
 
-      if (profileError) {
-        setError(profileError.message)
+      if (!res.ok) {
+        const { error: msg } = await res.json()
+        setError(msg ?? 'Failed to create profile')
         setLoading(false)
         return
       }
     }
 
-    router.push('/dashboard')
-    router.refresh()
+    // If session exists = email confirmation disabled → go straight in
+    if (data.session) {
+      const dest = email === 'tubxeebyajtube@gmail.com' ? '/admin' : '/dashboard'
+      router.push(dest)
+      router.refresh()
+    } else {
+      setError('✅ Account created! Check your email to confirm, then sign in.')
+      setLoading(false)
+    }
   }
 
   return (
