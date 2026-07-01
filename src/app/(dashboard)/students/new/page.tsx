@@ -1,172 +1,69 @@
-'use client'
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { StudentForm } from './StudentForm'
+import { Zap } from 'lucide-react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
 
-const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Native']
-const COMMON_TAGS = ['Business English', 'IELTS', 'TOEFL', 'Conversation', 'Grammar', 'Kids', 'Exam Prep']
+const FREE_LIMIT = 10
 
-export default function NewStudentPage() {
-  const router = useRouter()
-  const supabase = createClient()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+export default async function NewStudentPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    country: '',
-    timezone: 'UTC',
-    level: 'A1',
-    native_language: '',
-    goals: '',
-    notes: '',
-  })
+  const [{ data: tutor }, { count }] = await Promise.all([
+    supabase.from('tutors').select('subscription_status').eq('id', user.id).single(),
+    supabase.from('students').select('id', { count: 'exact', head: true }).eq('tutor_id', user.id),
+  ])
 
-  function toggleTag(tag: string) {
-    setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+  const plan = tutor?.subscription_status ?? 'free'
+  const studentCount = count ?? 0
+  const isLimited = plan === 'free' && studentCount >= FREE_LIMIT
+
+  if (isLimited) {
+    return (
+      <div className="max-w-[520px] mx-auto py-16">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-indigo-500 px-8 py-10 text-center">
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Zap className="h-8 w-8 text-white" fill="white" />
+            </div>
+            <h2 className="text-[22px] font-bold text-white">Đã đạt giới hạn Free</h2>
+            <p className="text-[13px] text-indigo-200 mt-2">
+              Gói Free cho phép tối đa {FREE_LIMIT} học sinh.<br />
+              Bạn hiện có <strong className="text-white">{studentCount} học sinh</strong>.
+            </p>
+          </div>
+          <div className="p-8 space-y-4">
+            <div className="space-y-2.5">
+              {[
+                'Học sinh không giới hạn',
+                'AI lesson planning & content',
+                'Payment links (PayPal, Paddle, Stripe)',
+                'Analytics đầy đủ',
+              ].map(f => (
+                <div key={f} className="flex items-center gap-2.5">
+                  <div className="w-4 h-4 bg-indigo-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-indigo-500 text-[10px]">✓</span>
+                  </div>
+                  <span className="text-[13px] text-gray-700">{f}</span>
+                </div>
+              ))}
+            </div>
+            <Link href="/upgrade"
+              className="flex items-center justify-center gap-2 w-full mt-6 py-3.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[14px] font-bold rounded-xl transition-colors">
+              <Zap className="h-4 w-4" fill="white" />
+              Nâng cấp Pro — $12/tháng
+            </Link>
+            <Link href="/students"
+              className="block text-center text-[13px] text-gray-400 hover:text-gray-600 transition-colors">
+              ← Quay lại danh sách học sinh
+            </Link>
+          </div>
+        </div>
+      </div>
     )
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { error } = await supabase.from('students').insert({
-      ...form,
-      tutor_id: user.id,
-      tags: selectedTags,
-    })
-
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-      return
-    }
-
-    router.push('/students')
-    router.refresh()
-  }
-
-  return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/students">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Add Student</h1>
-          <p className="text-sm text-gray-500">Fill in the student details below</p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader><CardTitle className="text-base">Basic Info</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full name *</Label>
-              <Input id="name" placeholder="John Smith" value={form.name}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="john@example.com" value={form.email}
-                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" placeholder="+1 234 567 8900" value={form.phone}
-                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
-                <Input id="country" placeholder="Japan" value={form.country}
-                  onChange={e => setForm(f => ({ ...f, country: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="native_language">Native language</Label>
-                <Input id="native_language" placeholder="Japanese" value={form.native_language}
-                  onChange={e => setForm(f => ({ ...f, native_language: e.target.value }))} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader><CardTitle className="text-base">Learning Profile</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Current level</Label>
-              <Select value={form.level} onValueChange={v => setForm(f => ({ ...f, level: v ?? 'A1' }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="goals">Learning goals</Label>
-              <Textarea id="goals" placeholder="Prepare for IELTS exam, improve business communication..."
-                value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} rows={3} />
-            </div>
-            <div className="space-y-2">
-              <Label>Tags</Label>
-              <div className="flex flex-wrap gap-2">
-                {COMMON_TAGS.map(tag => (
-                  <button key={tag} type="button" onClick={() => toggleTag(tag)}
-                    className={`text-sm px-3 py-1 rounded-full border transition-colors ${
-                      selectedTags.includes(tag)
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
-                    }`}>
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Private notes</Label>
-              <Textarea id="notes" placeholder="Notes only you can see..."
-                value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} />
-            </div>
-          </CardContent>
-        </Card>
-
-        {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">{error}</p>}
-
-        <div className="flex gap-3">
-          <Link href="/students" className="flex-1">
-            <Button type="button" variant="outline" className="w-full">Cancel</Button>
-          </Link>
-          <Button type="submit" className="flex-1" disabled={loading}>
-            {loading ? 'Saving...' : 'Add Student'}
-          </Button>
-        </div>
-      </form>
-    </div>
-  )
+  return <StudentForm />
 }

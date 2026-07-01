@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Users, BookOpen, DollarSign, TrendingUp, ArrowRight, Plus, Clock, ChevronUp, ChevronDown, Minus } from 'lucide-react'
+import { Users, BookOpen, DollarSign, TrendingUp, ArrowRight, Plus, Clock, ChevronUp, ChevronDown, Minus, AlertTriangle } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -13,6 +13,7 @@ export default async function DashboardPage() {
     { data: lessons },
     { data: recentStudents },
     { data: upcomingLessons },
+    { data: activeStudentsFull },
   ] = await Promise.all([
     supabase.from('tutors').select('name').eq('id', user!.id).single(),
     supabase.from('students').select('*', { count: 'exact', head: true }).eq('tutor_id', user!.id),
@@ -20,9 +21,25 @@ export default async function DashboardPage() {
     supabase.from('lessons').select('starts_at, price, status').eq('tutor_id', user!.id),
     supabase.from('students').select('id, name, level, status, created_at').eq('tutor_id', user!.id).order('created_at', { ascending: false }).limit(5),
     supabase.from('lessons').select('id, starts_at, duration_minutes, status, students(name)').eq('tutor_id', user!.id).gte('starts_at', new Date().toISOString()).eq('status', 'scheduled').order('starts_at').limit(5),
+    supabase.from('students').select('id, name').eq('tutor_id', user!.id).eq('status', 'active'),
   ])
 
   const now = new Date()
+
+  // Churn risk: active students with no upcoming lesson in next 21 days
+  const next21Days = new Date(now.getTime() + 21 * 86400000).toISOString()
+  const { data: upcomingStudentIds } = activeStudentsFull && activeStudentsFull.length > 0
+    ? await supabase.from('lessons')
+        .select('student_id')
+        .eq('tutor_id', user!.id)
+        .eq('status', 'scheduled')
+        .gte('starts_at', now.toISOString())
+        .lte('starts_at', next21Days)
+    : { data: [] }
+
+  const bookedIds = new Set((upcomingStudentIds ?? []).map((l: any) => l.student_id))
+  const churnRisk = (activeStudentsFull ?? []).filter((s: any) => !bookedIds.has(s.id)).slice(0, 5)
+
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
 
@@ -195,8 +212,30 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {/* Churn Risk + Recent Students stacked */}
+        <div className="col-span-2 space-y-4">
+
+        {/* Churn Risk */}
+        {churnRisk.length > 0 && (
+          <div className="bg-white rounded-xl border border-amber-100">
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-amber-50">
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <h2 className="text-[13px] font-semibold text-gray-900">At Risk ({churnRisk.length})</h2>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {churnRisk.map((s: any) => (
+                <Link key={s.id} href={`/students/${s.id}`}
+                  className="flex items-center justify-between px-5 py-3 hover:bg-amber-50/50 transition-colors">
+                  <p className="text-[13px] font-medium text-gray-900">{s.name}</p>
+                  <span className="text-[11px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-medium">No lesson booked</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Recent Students */}
-        <div className="col-span-2 bg-white rounded-xl border border-gray-100">
+        <div className="bg-white rounded-xl border border-gray-100">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-gray-400" />
@@ -240,6 +279,8 @@ export default async function DashboardPage() {
             })}
           </div>
         </div>
+
+        </div>{/* end col-span-2 stack */}
       </div>
     </div>
   )

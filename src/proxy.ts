@@ -9,6 +9,25 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request })
   }
 
+  // White-label: if request comes from a custom domain, route to /book/[slug]
+  const hostname = request.headers.get('host') ?? ''
+  const isMain = hostname.includes('tutafy.vercel.app') || hostname.includes('localhost') || hostname.startsWith('127.')
+
+  if (!isMain) {
+    try {
+      const res = await fetch(
+        `${supabaseUrl}/rest/v1/tutors?custom_domain=eq.${encodeURIComponent(hostname)}&select=slug&limit=1`,
+        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+      )
+      const rows = await res.json() as { slug: string }[]
+      if (rows.length > 0 && rows[0].slug) {
+        const url = request.nextUrl.clone()
+        url.pathname = `/book/${rows[0].slug}`
+        return NextResponse.rewrite(url)
+      }
+    } catch { /* fail open */ }
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -43,7 +62,13 @@ export async function proxy(request: NextRequest) {
     path.startsWith('/payments') ||
     path.startsWith('/availability') ||
     path.startsWith('/ai') ||
-    path.startsWith('/settings')
+    path.startsWith('/settings') ||
+    path.startsWith('/referral') ||
+    path.startsWith('/subscriptions') ||
+    path.startsWith('/packages') ||
+    path.startsWith('/import') ||
+    path.startsWith('/messages') ||
+    path.startsWith('/upgrade')
   const isAdminPage = path.startsWith('/admin')
 
   if (!user && (isDashboardPage || isAdminPage)) {
@@ -63,5 +88,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|book|api|portal).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|book|api|portal|onboarding|sw.js|manifest.webmanifest|offline|icon-).*)'],
 }
