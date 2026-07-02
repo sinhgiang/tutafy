@@ -128,7 +128,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ les
   </button>
 
   <div class="footer">
-    <p>Powered by Tutafy · tutafy.vercel.app · Invoice issued ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+    <p>Powered by Tutafy · tutafy.com · Invoice issued ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
   </div>
 </div>
 </body>

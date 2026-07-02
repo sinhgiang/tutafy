@@ -44,7 +44,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     if (tutor?.email) {
       const resend = new Resend(process.env.RESEND_API_KEY)
       await resend.emails.send({
-        from: 'Tutafy <onboarding@resend.dev>',
+        from: 'Tutafy <noreply@tutafy.com>',
         to: tutor.email,
         subject: `New message from ${student.name}`,
         html: `
@@ -54,10 +54,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
             <div style="background:#f3f4f6;border-radius:12px;padding:16px;margin:20px 0;">
               <p style="margin:0;color:#374151;font-size:15px;">${content.trim()}</p>
             </div>
-            <a href="https://tutafy.vercel.app/messages" style="display:inline-block;background:#6366f1;color:white;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;">
+            <a href="https://tutafy.com/messages" style="display:inline-block;background:#6366f1;color:white;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;">
               Reply in Tutafy →
             </a>
-            <p style="color:#9ca3af;font-size:12px;margin-top:32px;">Tutafy · tutafy.vercel.app</p>
+            <p style="color:#9ca3af;font-size:12px;margin-top:32px;">Tutafy · tutafy.com</p>
           </div>
         `,
       }).catch(() => {})

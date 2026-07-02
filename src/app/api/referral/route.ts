@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 
-// GET /api/referral — get current tutor's referral stats
+// GET /api/referral â€” get current tutor's referral stats
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -15,7 +15,7 @@ export async function GET() {
 
   return NextResponse.json({
     referral_code: tutor.slug,
-    referral_link: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.vercel.app'}/register?ref=${tutor.slug}`,
+    referral_link: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/register?ref=${tutor.slug}`,
     referral_count: count ?? 0,
     credits: tutor.referral_credits ?? 0,
   })

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const { data: tutor } = await supabase.from('tutors').select('name').eq('id', user.id).single()
 
     await resend.emails.send({
-      from: 'Tutafy <onboarding@resend.dev>',
+      from: 'Tutafy <noreply@tutafy.com>',
       to: student.email,
       subject: `Missed lesson — ${dateLabel}`,
       html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         <p style="color:#374151;font-size:14px;">
           Please reach out to your tutor to reschedule or discuss next steps.
         </p>
-        <p style="color:#9ca3af;font-size:12px;margin-top:24px;text-align:center;">Tutafy · tutafy.vercel.app</p>
+        <p style="color:#9ca3af;font-size:12px;margin-top:24px;text-align:center;">Tutafy · tutafy.com</p>
       </div>`,
     }).catch(() => {})
   }

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { createCalendarEvent } from '@/lib/google-calendar'
@@ -151,30 +151,30 @@ export async function POST(request: Request) {
       const resend = new Resend(process.env.RESEND_API_KEY)
       const dateLabel = startsAt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
       const timeLabel = startsAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-      const from = 'Tutafy <onboarding@resend.dev>'
+      const from = 'Tutafy <noreply@tutafy.com>'
 
       // Email to student
       await resend.emails.send({
         from,
         to: email,
-        subject: `Booking Confirmed — ${tutor?.name ?? 'Your tutor'} on ${dateLabel}`,
+        subject: `Booking Confirmed â€” ${tutor?.name ?? 'Your tutor'} on ${dateLabel}`,
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
             <div style="background:#6366f1;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
-              <h1 style="color:white;margin:0;font-size:22px;">Booking Confirmed! ✓</h1>
+              <h1 style="color:white;margin:0;font-size:22px;">Booking Confirmed! âœ“</h1>
             </div>
             <p style="color:#374151;font-size:15px;">Hi <strong>${name}</strong>,</p>
             <p style="color:#374151;font-size:15px;">Your lesson with <strong>${tutor?.name ?? 'your tutor'}</strong> is confirmed.</p>
             <div style="background:#f3f4f6;border-radius:12px;padding:20px;margin:20px 0;">
-              <p style="margin:4px 0;color:#6b7280;font-size:13px;">📅 Date</p>
+              <p style="margin:4px 0;color:#6b7280;font-size:13px;">ðŸ“… Date</p>
               <p style="margin:0 0 12px;color:#111827;font-size:15px;font-weight:600;">${dateLabel}</p>
-              <p style="margin:4px 0;color:#6b7280;font-size:13px;">🕐 Time</p>
+              <p style="margin:4px 0;color:#6b7280;font-size:13px;">ðŸ• Time</p>
               <p style="margin:0 0 12px;color:#111827;font-size:15px;font-weight:600;">${timeLabel}</p>
-              <p style="margin:4px 0;color:#6b7280;font-size:13px;">⏱ Duration</p>
+              <p style="margin:4px 0;color:#6b7280;font-size:13px;">â± Duration</p>
               <p style="margin:0;color:#111827;font-size:15px;font-weight:600;">${duration} minutes</p>
             </div>
             ${message ? `<p style="color:#6b7280;font-size:13px;font-style:italic;">Your note: "${message}"</p>` : ''}
-            <p style="color:#9ca3af;font-size:12px;margin-top:32px;">Powered by Tutafy · tutafy.vercel.app</p>
+            <p style="color:#9ca3af;font-size:12px;margin-top:32px;">Powered by Tutafy Â· tutafy.com</p>
           </div>
         `,
       }).catch(() => {})
@@ -184,21 +184,21 @@ export async function POST(request: Request) {
         await resend.emails.send({
           from,
           to: tutor.email,
-          subject: `New booking from ${name} — ${dateLabel}`,
+          subject: `New booking from ${name} â€” ${dateLabel}`,
           html: `
             <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
-              <h2 style="color:#111827;">New Booking 📅</h2>
+              <h2 style="color:#111827;">New Booking ðŸ“…</h2>
               <p style="color:#374151;font-size:15px;"><strong>${name}</strong> has booked a lesson with you.</p>
               <div style="background:#f3f4f6;border-radius:12px;padding:20px;margin:20px 0;">
                 <p style="margin:4px 0;color:#6b7280;font-size:13px;">Student</p>
-                <p style="margin:0 0 12px;color:#111827;font-size:15px;font-weight:600;">${name} · ${email}</p>
+                <p style="margin:0 0 12px;color:#111827;font-size:15px;font-weight:600;">${name} Â· ${email}</p>
                 <p style="margin:4px 0;color:#6b7280;font-size:13px;">Date & Time</p>
                 <p style="margin:0 0 12px;color:#111827;font-size:15px;font-weight:600;">${dateLabel} at ${timeLabel}</p>
                 <p style="margin:4px 0;color:#6b7280;font-size:13px;">Duration</p>
                 <p style="margin:0;color:#111827;font-size:15px;font-weight:600;">${duration} minutes</p>
               </div>
               ${message ? `<p style="color:#374151;font-size:14px;">Student note: <em>"${message}"</em></p>` : ''}
-              <p style="color:#9ca3af;font-size:12px;margin-top:32px;">Tutafy · tutafy.vercel.app</p>
+              <p style="color:#9ca3af;font-size:12px;margin-top:32px;">Tutafy Â· tutafy.com</p>
             </div>
           `,
         }).catch(() => {})

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -83,7 +83,7 @@ export default function OnboardingPage() {
   }
 
   function copyLink() {
-    const link = `https://tutafy.vercel.app/book/${slug}`
+    const link = `https://tutafy.com/book/${slug}`
     navigator.clipboard.writeText(link)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -179,7 +179,7 @@ export default function OnboardingPage() {
                 <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className={inp} />
               </div>
             </div>
-            <p className="text-[11px] text-gray-400">You can fine-tune your schedule in Settings → Availability later.</p>
+            <p className="text-[11px] text-gray-400">You can fine-tune your schedule in Settings â†’ Availability later.</p>
             <div className="flex gap-2">
               <button onClick={() => setStep(1)} className="flex-1 text-[13px] font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 py-2.5 rounded-xl transition-colors">Back</button>
               <button onClick={saveAvailability} disabled={saving || availDays.length === 0}
@@ -201,7 +201,7 @@ export default function OnboardingPage() {
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto">
                 <Check className="h-6 w-6 text-indigo-600" />
               </div>
-              <p className="text-[14px] font-bold text-gray-900">You&apos;re all set! 🎉</p>
+              <p className="text-[14px] font-bold text-gray-900">You&apos;re all set! ðŸŽ‰</p>
               <p className="text-[12px] text-gray-500">Share your booking link and start getting students</p>
             </div>
             {slug && (
@@ -209,7 +209,7 @@ export default function OnboardingPage() {
                 <p className="text-[12px] font-medium text-gray-600 mb-2">Your booking link</p>
                 <div className="flex items-center gap-2 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200">
                   <p className="text-[12px] text-indigo-600 font-mono flex-1 truncate">
-                    tutafy.vercel.app/book/{slug}
+                    tutafy.com/book/{slug}
                   </p>
                   <button onClick={copyLink}
                     className="flex items-center gap-1 text-[11px] font-bold text-indigo-500 hover:text-indigo-700 flex-shrink-0">
@@ -222,7 +222,7 @@ export default function OnboardingPage() {
             <div className="grid grid-cols-1 gap-2">
               <button onClick={() => router.push('/dashboard')}
                 className="w-full text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 py-2.5 rounded-xl transition-colors">
-                Go to Dashboard →
+                Go to Dashboard â†’
               </button>
               <button onClick={() => router.push('/availability')}
                 className="w-full text-[13px] font-medium text-gray-500 hover:text-gray-700 py-2 transition-colors">

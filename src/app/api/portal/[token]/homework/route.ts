@@ -72,7 +72,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         ? new Date(lesson.starts_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
         : 'your lesson'
       await resend.emails.send({
-        from: 'Tutafy <onboarding@resend.dev>',
+        from: 'Tutafy <noreply@tutafy.com>',
         to: tutor.email,
         subject: `${student.name || 'Your student'} submitted homework`,
         html: `

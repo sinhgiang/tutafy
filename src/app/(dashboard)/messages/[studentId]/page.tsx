@@ -37,7 +37,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
     .is('read_at', null)
 
   const initials = student.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-  const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.vercel.app'}/portal/${student.portal_token}`
+  const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/portal/${student.portal_token}`
 
   return (
     <div className="max-w-[680px] flex flex-col h-[calc(100vh-120px)]">

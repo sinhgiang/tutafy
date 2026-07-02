@@ -61,7 +61,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     const timeLabel = startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
     await resend.emails.send({
-      from: 'Tutafy <onboarding@resend.dev>',
+      from: 'Tutafy <noreply@tutafy.com>',
       to: tutor.email,
       subject: `${student.name} cancelled their lesson on ${dateLabel}`,
       html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           <p style="margin:4px 0;color:#9ca3af;font-size:12px;">Cancelled lesson</p>
           <p style="margin:0;color:#111827;font-size:15px;font-weight:600;">${dateLabel} at ${timeLabel}</p>
         </div>
-        <p style="color:#9ca3af;font-size:12px;margin-top:24px;">Tutafy · tutafy.vercel.app</p>
+        <p style="color:#9ca3af;font-size:12px;margin-top:24px;">Tutafy · tutafy.com</p>
       </div>`,
     }).catch(() => {})
   }

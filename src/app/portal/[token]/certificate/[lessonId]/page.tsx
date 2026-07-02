@@ -129,7 +129,7 @@ export default async function CertificatePage({
 
           {/* Footer */}
           <p className="text-center text-[10px] text-gray-300 mt-8">
-            tutafy.vercel.app · Certificate ID: {certId}
+            tutafy.com · Certificate ID: {certId}
           </p>
         </div>
       </div>

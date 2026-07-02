@@ -49,7 +49,7 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
           </Link>
           {student.portal_token && (
             <a
-              href={`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.vercel.app'}/portal/${student.portal_token}`}
+              href={`${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/portal/${student.portal_token}`}
               target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-[12px] font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors px-3 py-1.5 rounded-lg">
               <ExternalLink className="h-3 w-3" /> Portal Link

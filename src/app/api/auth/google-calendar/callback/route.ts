@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.vercel.app'}/api/auth/google-calendar/callback`
+const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/api/auth/google-calendar/callback`
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')

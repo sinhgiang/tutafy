@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+﻿import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
 
   // White-label: if request comes from a custom domain, route to /book/[slug]
   const hostname = request.headers.get('host') ?? ''
-  const isMain = hostname.includes('tutafy.vercel.app') || hostname.includes('localhost') || hostname.startsWith('127.')
+  const isMain = hostname.includes('tutafy.com') || hostname.includes('localhost') || hostname.startsWith('127.')
 
   if (!isMain) {
     try {

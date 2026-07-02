@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       if (process.env.RESEND_API_KEY?.startsWith('re_')) {
         const resend = new Resend(process.env.RESEND_API_KEY)
         await resend.emails.send({
-          from: 'Tutafy <onboarding@resend.dev>',
+          from: 'Tutafy <noreply@tutafy.com>',
           to: email,
           subject: 'Welcome to Tutafy! 🎉',
           html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">

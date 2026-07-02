@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.vercel.app'
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'
 
   // Create or retrieve Stripe price for this plan
   let stripePriceId = plan.stripe_price_id
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Create a Stripe product + price on the connected account
     const product = await stripe.products.create(
       {
-        name: `${plan.name} — ${plan.lessons_per_period} lessons/${plan.period}`,
+        name: `${plan.name} â€” ${plan.lessons_per_period} lessons/${plan.period}`,
         description: plan.description ?? undefined,
         metadata: { plan_id: plan.id, tutor_id: tutor.id },
       },

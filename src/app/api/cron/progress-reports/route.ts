@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   const supabase = createAdminClient()
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const from = 'Tutafy <onboarding@resend.dev>'
+  const from = 'Tutafy <noreply@tutafy.com>'
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const monthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59)

@@ -149,9 +149,9 @@ export default function EditStudentPage() {
               <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200">
                 <Link2 className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
                 <p className="text-[12px] text-gray-500 flex-1 truncate">
-                  https://tutafy.vercel.app/portal/parent/{parentToken}
+                  https://tutafy.com/portal/parent/{parentToken}
                 </p>
-                <button type="button" onClick={() => navigator.clipboard.writeText(`https://tutafy.vercel.app/portal/parent/${parentToken}`)}
+                <button type="button" onClick={() => navigator.clipboard.writeText(`https://tutafy.com/portal/parent/${parentToken}`)}
                   className="flex-shrink-0 text-indigo-500 hover:text-indigo-700">
                   <Copy className="h-3.5 w-3.5" />
                 </button>

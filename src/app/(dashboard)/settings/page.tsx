@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -185,7 +185,7 @@ export default function SettingsPage() {
           {slug && (
             <div className="bg-gray-50 rounded-lg px-3 py-2.5">
               <p className="text-[11px] text-gray-400 mb-1">Your booking link</p>
-              <p className="text-[12px] font-mono text-indigo-600">tutafy.vercel.app/book/{slug}</p>
+              <p className="text-[12px] font-mono text-indigo-600">tutafy.com/book/{slug}</p>
             </div>
           )}
           <div>
@@ -212,16 +212,16 @@ export default function SettingsPage() {
               {BUFFER_OPTIONS.map(b => <SelectItem key={b.v} value={String(b.v)} className="text-[13px]">{b.l}</SelectItem>)}
             </SelectContent>
           </Select>
-          <p className="text-[11px] text-gray-400 mt-2">Prevents back-to-back bookings — adds a gap between lessons on your booking page.</p>
+          <p className="text-[11px] text-gray-400 mt-2">Prevents back-to-back bookings â€” adds a gap between lessons on your booking page.</p>
         </div>
       </div>
 
-      {/* Payment Methods — how tutor receives money from students */}
+      {/* Payment Methods â€” how tutor receives money from students */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
           <Wallet className="h-4 w-4 text-gray-400" />
           <p className="text-[13px] font-semibold text-gray-900">Payment Methods</p>
-          <span className="text-[11px] text-gray-400 ml-1">— how students pay you</span>
+          <span className="text-[11px] text-gray-400 ml-1">â€” how students pay you</span>
         </div>
         <div className="p-5 space-y-4">
           <div>
@@ -317,7 +317,7 @@ export default function SettingsPage() {
         <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
           <FileText className="h-4 w-4 text-gray-400" />
           <p className="text-[13px] font-semibold text-gray-900">Lesson Contract</p>
-          <span className="text-[11px] text-gray-400 ml-1">— optional</span>
+          <span className="text-[11px] text-gray-400 ml-1">â€” optional</span>
         </div>
         <div className="p-5 space-y-3">
           <p className="text-[12px] text-gray-500">
@@ -327,12 +327,12 @@ export default function SettingsPage() {
             value={form.contract_template}
             onChange={e => setForm(f => ({ ...f, contract_template: e.target.value }))}
             rows={6}
-            placeholder={`e.g.\n• Payment is due before each lesson\n• 24h cancellation notice required\n• Lessons are for personal use only\n• Materials shared are copyrighted`}
+            placeholder={`e.g.\nâ€¢ Payment is due before each lesson\nâ€¢ 24h cancellation notice required\nâ€¢ Lessons are for personal use only\nâ€¢ Materials shared are copyrighted`}
             className="w-full text-[12px] font-mono px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none"
           />
           {form.contract_template && (
             <p className="text-[11px] text-green-600">
-              ✓ Students must check &quot;I agree&quot; before booking a lesson.
+              âœ“ Students must check &quot;I agree&quot; before booking a lesson.
             </p>
           )}
         </div>
@@ -343,7 +343,7 @@ export default function SettingsPage() {
         <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
           <Star className="h-4 w-4 text-gray-400" />
           <p className="text-[13px] font-semibold text-gray-900">Trial Lesson</p>
-          <span className="text-[11px] text-gray-400 ml-1">— attract new students</span>
+          <span className="text-[11px] text-gray-400 ml-1">â€” attract new students</span>
         </div>
         <div className="p-5 space-y-4">
           <div className="flex items-center justify-between">
@@ -380,7 +380,7 @@ export default function SettingsPage() {
           <span className="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded-full ml-auto">PRO</span>
         </div>
         <div className="p-5 space-y-3">
-          <p className="text-[12px] text-gray-500">Use your own domain for your booking page (e.g., <span className="font-mono">booking.mariaenglish.com</span>). Your students go to your custom URL instead of tutafy.vercel.app.</p>
+          <p className="text-[12px] text-gray-500">Use your own domain for your booking page (e.g., <span className="font-mono">booking.mariaenglish.com</span>). Your students go to your custom URL instead of tutafy.com.</p>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Custom domain</label>
             <input value={form.custom_domain} onChange={e => setForm(f => ({ ...f, custom_domain: e.target.value }))}
@@ -392,9 +392,9 @@ export default function SettingsPage() {
               <p className="text-[12px] font-semibold text-blue-800">DNS Setup</p>
               <p className="text-[11px] text-blue-700">Add a CNAME record at your domain registrar:</p>
               <div className="font-mono text-[11px] bg-white border border-blue-100 rounded p-2 mt-1">
-                <span className="text-blue-600">{form.custom_domain}</span> → <span className="text-gray-600">cname.vercel-dns.com</span>
+                <span className="text-blue-600">{form.custom_domain}</span> â†’ <span className="text-gray-600">cname.vercel-dns.com</span>
               </div>
-              <p className="text-[11px] text-blue-600 mt-1">Then add the domain in your Vercel project dashboard → Domains.</p>
+              <p className="text-[11px] text-blue-600 mt-1">Then add the domain in your Vercel project dashboard â†’ Domains.</p>
             </div>
           )}
         </div>
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                 <CheckCircle className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="text-[13px] font-semibold text-white">Pro Plan — Active</p>
+                <p className="text-[13px] font-semibold text-white">Pro Plan â€” Active</p>
                 <p className="text-[11px] text-indigo-200">Unlimited students, AI tools, all features</p>
               </div>
             </div>
@@ -422,13 +422,13 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[13px] font-medium text-gray-900">Free Plan</p>
-                  <p className="text-[11px] text-gray-400">Limited to 10 students · Basic features</p>
+                  <p className="text-[11px] text-gray-400">Limited to 10 students Â· Basic features</p>
                 </div>
                 <span className="text-[11px] bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full font-medium">Free</span>
               </div>
               <NextLink href="/upgrade"
                 className="flex items-center justify-center gap-2 w-full text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors py-2.5 rounded-lg">
-                <Zap className="h-3.5 w-3.5" fill="currentColor" /> Upgrade to Pro — $12/month
+                <Zap className="h-3.5 w-3.5" fill="currentColor" /> Upgrade to Pro â€” $12/month
               </NextLink>
             </>
           )}
@@ -456,7 +456,7 @@ export default function SettingsPage() {
           </li>
           <li className="flex gap-2">
             <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-            Create a new cron job with URL: <code className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-[11px] font-mono">https://tutafy.vercel.app/api/cron/reminders</code>
+            Create a new cron job with URL: <code className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-[11px] font-mono">https://tutafy.com/api/cron/reminders</code>
           </li>
           <li className="flex gap-2">
             <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">3</span>

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   const supabase = createAdminClient()
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const from = 'Tutafy <onboarding@resend.dev>'
+  const from = 'Tutafy <noreply@tutafy.com>'
   const now = new Date()
 
   const win24h_start = new Date(now.getTime() + 23 * 3600 * 1000)
@@ -74,7 +74,7 @@ export async function GET(request: Request) {
       await resend.emails.send({
         from,
         to: student.email,
-        subject: `Your lesson starts in 1 hour — ${timeLabel}`,
+        subject: `Your lesson starts in 1 hour â€” ${timeLabel}`,
         html: reminderHtml({
           studentName: student.name,
           tutorName: tutor?.name ?? 'your tutor',
@@ -115,7 +115,7 @@ export async function GET(request: Request) {
       await resend.emails.send({
         from,
         to: student.email,
-        subject: `Payment reminder — ${tutor?.name ?? 'Your tutor'} lesson on ${lessonDate}`,
+        subject: `Payment reminder â€” ${tutor?.name ?? 'Your tutor'} lesson on ${lessonDate}`,
         html: paymentReminderHtml({
           studentName: student.name,
           tutorName: tutor?.name ?? 'your tutor',
@@ -148,7 +148,7 @@ function paymentReminderHtml({ studentName, tutorName, lessonDate, amount }: {
   return `
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
       <div style="background:#f59e0b;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
-        <h1 style="color:white;margin:0;font-size:20px;">💳 Payment Reminder</h1>
+        <h1 style="color:white;margin:0;font-size:20px;">ðŸ’³ Payment Reminder</h1>
       </div>
       <p style="color:#374151;font-size:15px;">Hi <strong>${studentName}</strong>,</p>
       <p style="color:#374151;font-size:15px;">
@@ -162,7 +162,7 @@ function paymentReminderHtml({ studentName, tutorName, lessonDate, amount }: {
         Please contact your tutor to arrange payment. Thank you!
       </p>
       <p style="color:#9ca3af;font-size:12px;margin-top:32px;text-align:center;">
-        Powered by Tutafy · tutafy.vercel.app
+        Powered by Tutafy Â· tutafy.com
       </p>
     </div>
   `
@@ -177,7 +177,7 @@ function reminderHtml({ studentName, tutorName, dateLabel, timeLabel, duration, 
   meetingLink: string | null
   hoursAway: number
 }) {
-  const urgency = hoursAway === 1 ? '⏰ Starting in 1 hour!' : '📅 Tomorrow'
+  const urgency = hoursAway === 1 ? 'â° Starting in 1 hour!' : 'ðŸ“… Tomorrow'
   return `
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
       <div style="background:#6366f1;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
@@ -188,22 +188,22 @@ function reminderHtml({ studentName, tutorName, dateLabel, timeLabel, duration, 
         Your lesson with <strong>${tutorName}</strong> is ${hoursAway === 1 ? 'starting soon' : 'tomorrow'}.
       </p>
       <div style="background:#f3f4f6;border-radius:12px;padding:20px;margin:20px 0;">
-        <p style="margin:4px 0;color:#6b7280;font-size:13px;">📅 Date</p>
+        <p style="margin:4px 0;color:#6b7280;font-size:13px;">ðŸ“… Date</p>
         <p style="margin:0 0 12px;color:#111827;font-size:15px;font-weight:600;">${dateLabel}</p>
-        <p style="margin:4px 0;color:#6b7280;font-size:13px;">🕐 Time</p>
+        <p style="margin:4px 0;color:#6b7280;font-size:13px;">ðŸ• Time</p>
         <p style="margin:0 0 12px;color:#111827;font-size:15px;font-weight:600;">${timeLabel}</p>
-        <p style="margin:4px 0;color:#6b7280;font-size:13px;">⏱ Duration</p>
+        <p style="margin:4px 0;color:#6b7280;font-size:13px;">â± Duration</p>
         <p style="margin:0;color:#111827;font-size:15px;font-weight:600;">${duration} minutes</p>
       </div>
       ${meetingLink ? `
         <div style="text-align:center;margin:24px 0;">
           <a href="${meetingLink}" style="background:#6366f1;color:white;text-decoration:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;">
-            Join Lesson →
+            Join Lesson â†’
           </a>
         </div>
       ` : ''}
       <p style="color:#9ca3af;font-size:12px;margin-top:32px;text-align:center;">
-        Powered by Tutafy · tutafy.vercel.app
+        Powered by Tutafy Â· tutafy.com
       </p>
     </div>
   `

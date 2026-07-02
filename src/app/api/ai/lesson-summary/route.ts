@@ -54,7 +54,7 @@ Write a warm, encouraging 3-4 sentence summary covering: what was covered, key t
   if (send_email && student?.email && process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from: 'Tutafy <onboarding@resend.dev>',
+      from: 'Tutafy <noreply@tutafy.com>',
       to: student.email,
       subject: `Lesson Summary — ${new Date(lesson.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
       html: `

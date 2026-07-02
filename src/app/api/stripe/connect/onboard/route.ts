@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+﻿import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 
@@ -28,7 +28,7 @@ export async function POST() {
     await supabase.from('tutors').update({ stripe_account_id: accountId }).eq('id', user.id)
   }
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.vercel.app'
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'
   const accountLink = await stripe.accountLinks.create({
     account: accountId,
     refresh_url: `${origin}/api/stripe/connect/onboard`,
