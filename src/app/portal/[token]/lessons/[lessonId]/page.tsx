@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, FileText, Video, Award } from 'lucide-react'
+import { ArrowLeft, BookOpen, FileText, Video, Award, MonitorPlay } from 'lucide-react'
 import { HomeworkChecker } from './HomeworkChecker'
 import { HomeworkSubmit } from '../../HomeworkSubmit'
 
@@ -23,7 +23,7 @@ export default async function PortalLessonPage({
 
   const { data: lesson } = await supabase
     .from('lessons')
-    .select('id, starts_at, duration_minutes, notes, homework, vocabulary, recording_url, status')
+    .select('id, starts_at, ends_at, duration_minutes, notes, homework, vocabulary, recording_url, status, tutors(name)')
     .eq('id', lessonId)
     .eq('student_id', student.id)
     .single()
@@ -31,6 +31,12 @@ export default async function PortalLessonPage({
   if (!lesson) notFound()
 
   const vocab = (lesson.vocabulary as { word: string; definition: string }[] | null) ?? []
+  const now = new Date()
+  const lessonStart = new Date(lesson.starts_at)
+  const lessonEnd = new Date((lesson as any).ends_at ?? lessonStart.getTime() + lesson.duration_minutes * 60 * 1000)
+  const isOngoing = now >= new Date(lessonStart.getTime() - 15 * 60 * 1000) && now <= lessonEnd
+  const showVideoCall = lesson.status === 'scheduled'
+  const tutorName = (lesson.tutors as any)?.name ?? 'your tutor'
 
   return (
     <div className="space-y-4">
@@ -48,6 +54,32 @@ export default async function PortalLessonPage({
           </p>
         </div>
       </div>
+
+      {showVideoCall && (
+        <Link
+          href={`/portal/${token}/lessons/${lessonId}/room`}
+          className={`flex items-center gap-3 rounded-xl p-4 transition-colors ${
+            isOngoing
+              ? 'bg-indigo-500 hover:bg-indigo-600'
+              : 'bg-indigo-50 hover:bg-indigo-100 border border-indigo-100'
+          }`}
+        >
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+            isOngoing ? 'bg-white/20' : 'bg-indigo-100'
+          }`}>
+            <MonitorPlay className={`h-4 w-4 ${isOngoing ? 'text-white' : 'text-indigo-500'}`} />
+          </div>
+          <div className="flex-1">
+            <p className={`text-[13px] font-bold ${isOngoing ? 'text-white' : 'text-indigo-800'}`}>
+              {isOngoing ? 'Lesson is live — Join now' : 'Join Video Room'}
+            </p>
+            <p className={`text-[11px] ${isOngoing ? 'text-indigo-100' : 'text-indigo-500'}`}>
+              Video call with {tutorName}
+            </p>
+          </div>
+          <span className={`text-[13px] font-bold ${isOngoing ? 'text-white' : 'text-indigo-400'}`}>→</span>
+        </Link>
+      )}
 
       {lesson.recording_url && (
         <a href={lesson.recording_url} target="_blank" rel="noopener noreferrer"

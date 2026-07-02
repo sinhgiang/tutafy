@@ -5,6 +5,21 @@ import { Resend } from 'resend'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+async function sendSMS(to: string, body: string) {
+  const sid = process.env.TWILIO_ACCOUNT_SID
+  const token = process.env.TWILIO_AUTH_TOKEN
+  const from = process.env.TWILIO_PHONE_NUMBER
+  if (!sid || !token || !from) return
+  await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString('base64')}`,
+    },
+    body: new URLSearchParams({ From: from, To: to, Body: body }).toString(),
+  }).catch(() => {})
+}
+
 export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization')
   if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -27,7 +42,7 @@ export async function GET(request: Request) {
 
   const { data: lessons } = await supabase
     .from('lessons')
-    .select('id, starts_at, duration_minutes, zoom_link, meet_link, reminder_24h_sent, reminder_1h_sent, students(name, email), tutors(name)')
+    .select('id, starts_at, duration_minutes, zoom_link, meet_link, reminder_24h_sent, reminder_1h_sent, students(name, email, phone, portal_token), tutors(name)')
     .eq('status', 'scheduled')
     .gte('starts_at', win24h_start.toISOString())
     .lte('starts_at', win1h_end.toISOString())
@@ -48,6 +63,10 @@ export async function GET(request: Request) {
     const timeLabel = lessonTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     const meetingLink = lesson.zoom_link || lesson.meet_link || null
 
+    const portalUrl = student.portal_token
+      ? `https://tutafy.com/portal/${student.portal_token}`
+      : 'https://tutafy.com'
+
     // 24h reminder
     if (!lesson.reminder_24h_sent && lessonTime >= win24h_start && lessonTime <= win24h_end) {
       await resend.emails.send({
@@ -65,6 +84,11 @@ export async function GET(request: Request) {
         }),
       }).catch(() => {})
 
+      if (student.phone) {
+        const smsBody = `Hi ${student.name}! Reminder: lesson with ${tutor?.name ?? 'your tutor'} tomorrow at ${timeLabel} (${lesson.duration_minutes}min). ${portalUrl}`
+        await sendSMS(student.phone, smsBody)
+      }
+
       await supabase.from('lessons').update({ reminder_24h_sent: true }).eq('id', lesson.id)
       sent++
     }
@@ -74,7 +98,7 @@ export async function GET(request: Request) {
       await resend.emails.send({
         from,
         to: student.email,
-        subject: `Your lesson starts in 1 hour â€” ${timeLabel}`,
+        subject: `Your lesson starts in 1 hour — ${timeLabel}`,
         html: reminderHtml({
           studentName: student.name,
           tutorName: tutor?.name ?? 'your tutor',
@@ -85,6 +109,11 @@ export async function GET(request: Request) {
           hoursAway: 1,
         }),
       }).catch(() => {})
+
+      if (student.phone) {
+        const smsBody = `Lesson starting in 1 hour! ${tutor?.name ?? 'Your tutor'} at ${timeLabel}. Join: ${portalUrl}`
+        await sendSMS(student.phone, smsBody)
+      }
 
       await supabase.from('lessons').update({ reminder_1h_sent: true }).eq('id', lesson.id)
       sent++
@@ -115,7 +144,7 @@ export async function GET(request: Request) {
       await resend.emails.send({
         from,
         to: student.email,
-        subject: `Payment reminder â€” ${tutor?.name ?? 'Your tutor'} lesson on ${lessonDate}`,
+        subject: `Payment reminder — ${tutor?.name ?? 'Your tutor'} lesson on ${lessonDate}`,
         html: paymentReminderHtml({
           studentName: student.name,
           tutorName: tutor?.name ?? 'your tutor',

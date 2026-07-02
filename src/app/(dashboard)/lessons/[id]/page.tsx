@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, Video, DollarSign, FileText, User, BookOpen, Mic, ExternalLink, Pencil } from 'lucide-react'
+import { ArrowLeft, Clock, Video, DollarSign, FileText, User, BookOpen, Mic, ExternalLink, Pencil, MonitorPlay } from 'lucide-react'
 import { LessonActions } from './LessonActions'
 import { GroupStudentsPanel } from './GroupStudentsPanel'
 import { HomeworkSubmissionsPanel } from './HomeworkSubmissionsPanel'
@@ -32,6 +32,12 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
     .single()
 
   if (!lesson) notFound()
+
+  const now = new Date()
+  const lessonStart = new Date(lesson.starts_at)
+  const lessonEnd = new Date(lesson.ends_at)
+  const isOngoing = now >= new Date(lessonStart.getTime() - 15 * 60 * 1000) && now <= lessonEnd
+  const showVideoCall = lesson.status === 'scheduled'
 
   // Fetch homework submissions for this lesson
   let homeworkSubmissions: any[] = []
@@ -83,6 +89,33 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
           </Link>
         </div>
       </div>
+
+      {/* Join Video Call Banner */}
+      {showVideoCall && (
+        <Link
+          href={`/lessons/${id}/room`}
+          className={`flex items-center gap-3 rounded-xl p-4 transition-colors ${
+            isOngoing
+              ? 'bg-indigo-500 hover:bg-indigo-600'
+              : 'bg-indigo-50 hover:bg-indigo-100 border border-indigo-100'
+          }`}
+        >
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+            isOngoing ? 'bg-white/20' : 'bg-indigo-100'
+          }`}>
+            <MonitorPlay className={`h-5 w-5 ${isOngoing ? 'text-white' : 'text-indigo-500'}`} />
+          </div>
+          <div className="flex-1">
+            <p className={`text-[14px] font-bold ${isOngoing ? 'text-white' : 'text-indigo-800'}`}>
+              {isOngoing ? 'Lesson is live — Join now' : 'Join Video Room'}
+            </p>
+            <p className={`text-[12px] ${isOngoing ? 'text-indigo-100' : 'text-indigo-500'}`}>
+              {isOngoing ? 'Your student can see this room is live' : 'Opens built-in video call with your student'}
+            </p>
+          </div>
+          <span className={`text-[14px] font-bold ${isOngoing ? 'text-white' : 'text-indigo-400'}`}>→</span>
+        </Link>
+      )}
 
       {/* Student / Group */}
       {isGroup ? (
