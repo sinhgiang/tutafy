@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Calendar, BookOpen, MessageCircle, ChevronRight, Video, Clock, Star, Award } from 'lucide-react'
 import { ReviewForm } from './ReviewForm'
 import { RescheduleCancel } from './RescheduleCancel'
+import PushSubscribe from '@/components/PushSubscribe'
 
 const LEVEL_COLOR: Record<string, string> = {
   A1: 'bg-slate-100 text-slate-500', A2: 'bg-blue-50 text-blue-600',
@@ -105,16 +106,19 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
             </span>
           </div>
         </div>
-        <Link href={`/portal/${token}/messages`}
-          className="relative flex items-center gap-1.5 text-[13px] font-semibold text-indigo-500 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors">
-          <MessageCircle className="h-4 w-4" />
-          Message
-          {(unreadCount ?? 0) > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white">
-              {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
-            </span>
-          )}
-        </Link>
+        <div className="flex items-center gap-2">
+          <PushSubscribe portalToken={token} />
+          <Link href={`/portal/${token}/messages`}
+            className="relative flex items-center gap-1.5 text-[13px] font-semibold text-indigo-500 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors">
+            <MessageCircle className="h-4 w-4" />
+            Message
+            {(unreadCount ?? 0) > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white">
+                {(unreadCount ?? 0) > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </Link>
+        </div>
       </div>
 
       {/* Progress Stats */}

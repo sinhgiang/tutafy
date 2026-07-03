@@ -5,6 +5,18 @@ export const dynamic = 'force-dynamic'
 
 const SUPABASE_REF = 'dkxngropifwsqsozerxb'
 
+const MIGRATION_014 = `
+ALTER TABLE public.tutors ADD COLUMN IF NOT EXISTS currency text DEFAULT 'USD';
+ALTER TABLE public.tutors ADD COLUMN IF NOT EXISTS push_subscription jsonb;
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS push_subscription jsonb;
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS zoom_link text;
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS recording_url text;
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS materials jsonb DEFAULT '[]';
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS contract_signed_name text;
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS reminder_24h_sent boolean DEFAULT false;
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS reminder_1h_sent boolean DEFAULT false;
+`
+
 const MIGRATION_013 = `
 ALTER TABLE public.homework_submissions ADD COLUMN IF NOT EXISTS tutor_feedback text;
 ALTER TABLE public.homework_submissions ADD COLUMN IF NOT EXISTS feedback_at timestamptz;
@@ -311,8 +323,17 @@ async function runViaPg(sql: string): Promise<{ ok: boolean; error?: string }> {
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== process.env.CRON_SECRET && !['tutafy-migrate-007','tutafy-migrate-008','tutafy-migrate-009','tutafy-migrate-010','tutafy-migrate-011','tutafy-migrate-012','tutafy-migrate-013'].includes(secret ?? '')) {
+  if (secret !== process.env.CRON_SECRET && !['tutafy-migrate-007','tutafy-migrate-008','tutafy-migrate-009','tutafy-migrate-010','tutafy-migrate-011','tutafy-migrate-012','tutafy-migrate-013','tutafy-migrate-014'].includes(secret ?? '')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Migration 014: push_subscription + currency + new lesson columns
+  if (secret === 'tutafy-migrate-014') {
+    const mgmt014 = await runViaMgmtApi(MIGRATION_014)
+    if (mgmt014.ok) return NextResponse.json({ ok: true, method: 'management-api', message: 'Migration 014 applied' })
+    const pg014 = await runViaPg(MIGRATION_014)
+    if (pg014.ok) return NextResponse.json({ ok: true, method: 'pg', message: 'Migration 014 applied' })
+    return NextResponse.json({ error: 'Migration 014 failed', mgmt_error: mgmt014.error, pg_error: pg014.error }, { status: 503 })
   }
 
   // Migration 013 only (schema additions to homework_submissions)

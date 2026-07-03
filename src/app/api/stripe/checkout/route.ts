@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
 export async function POST(request: Request) {
-  const { lessonId, portalToken, amount, tutorName, studentName, duration, origin } = await request.json()
+  const { lessonId, portalToken, amount, tutorName, studentName, duration, currency, origin } = await request.json()
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     payment_method_types: ['card'],
     line_items: [{
       price_data: {
-        currency: 'usd',
+        currency: (currency ?? 'USD').toLowerCase(),
         product_data: {
           name: `${duration}-min lesson with ${tutorName}`,
           description: studentName ? `Student: ${studentName}` : undefined,

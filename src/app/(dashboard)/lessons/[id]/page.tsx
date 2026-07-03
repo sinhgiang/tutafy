@@ -6,6 +6,8 @@ import { LessonActions } from './LessonActions'
 import { GroupStudentsPanel } from './GroupStudentsPanel'
 import { HomeworkSubmissionsPanel } from './HomeworkSubmissionsPanel'
 import { MaterialsPanel } from './MaterialsPanel'
+import { ZoomButton } from './ZoomButton'
+import { RecordingEmbed } from '@/components/RecordingEmbed'
 
 const STATUS_STYLE: Record<string, string> = {
   scheduled: 'bg-blue-50 text-blue-600 border-blue-100',
@@ -170,53 +172,65 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Meeting & Recording */}
-      {(lesson.zoom_link || lesson.meet_link || lesson.recording_url) && (
-        <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Links</p>
-          {lesson.zoom_link && (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Video className="h-4 w-4 text-blue-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-gray-400">Zoom</p>
-                <a href={lesson.zoom_link} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[12px] text-indigo-500 hover:underline truncate">
-                  {lesson.zoom_link} <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                </a>
-              </div>
+      <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Links</p>
+        {lesson.zoom_link ? (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Video className="h-4 w-4 text-blue-500" />
             </div>
-          )}
-          {lesson.meet_link && (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Video className="h-4 w-4 text-green-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-gray-400">Google Meet</p>
-                <a href={lesson.meet_link} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[12px] text-indigo-500 hover:underline truncate">
-                  {lesson.meet_link} <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                </a>
-              </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] text-gray-400">Zoom</p>
+              <a href={lesson.zoom_link} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1 text-[12px] text-indigo-500 hover:underline truncate">
+                {lesson.zoom_link} <ExternalLink className="h-3 w-3 flex-shrink-0" />
+              </a>
             </div>
-          )}
-          {lesson.recording_url && (
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Video className="h-4 w-4 text-blue-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] text-gray-400">Zoom</p>
+              <ZoomButton
+                lessonId={id}
+                topic={`Lesson with ${lesson.students?.name ?? 'student'}`}
+                startTime={lesson.starts_at}
+                duration={lesson.duration_minutes}
+              />
+            </div>
+          </div>
+        )}
+        {lesson.meet_link && (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Video className="h-4 w-4 text-green-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] text-gray-400">Google Meet</p>
+              <a href={lesson.meet_link} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1 text-[12px] text-indigo-500 hover:underline truncate">
+                {lesson.meet_link} <ExternalLink className="h-3 w-3 flex-shrink-0" />
+              </a>
+            </div>
+          </div>
+        )}
+        {lesson.recording_url && (
+          <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Mic className="h-4 w-4 text-red-500" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] text-gray-400">Recording</p>
-                <a href={lesson.recording_url} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[12px] text-indigo-500 hover:underline truncate">
-                  {lesson.recording_url} <ExternalLink className="h-3 w-3 flex-shrink-0" />
-                </a>
               </div>
             </div>
-          )}
-        </div>
-      )}
+            <RecordingEmbed url={lesson.recording_url} />
+          </div>
+        )}
+      </div>
 
       {/* Notes */}
       {lesson.notes && (

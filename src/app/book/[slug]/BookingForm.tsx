@@ -9,10 +9,15 @@ const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 const DURATIONS = [{ v: 30, l: '30 min' }, { v: 45, l: '45 min' }, { v: 60, l: '60 min' }, { v: 90, l: '90 min' }]
 
 interface Availability { day_of_week: number; start_time: string; end_time: string }
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$',
+  SGD: 'S$', JPY: '¥', INR: '₹', BRL: 'R$', MXN: 'MX$',
+}
+
 interface Tutor {
   id: string; name: string; timezone: string; cancellation_hours: number; buffer_minutes?: number
   paypal_link?: string; paddle_checkout_link?: string; stripe_account_id?: string
-  default_lesson_price?: number
+  default_lesson_price?: number; currency?: string
 }
 
 function toDS(y: number, m: number, d: number) {
@@ -71,6 +76,7 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
 }) {
   const [payingCard, setPayingCard] = useState(false)
   const price = tutor.default_lesson_price
+  const currencySymbol = CURRENCY_SYMBOLS[tutor.currency ?? 'USD'] ?? '$'
   const methods: { label: string; hint: string; color: string; link: string }[] = []
 
   if (tutor.paypal_link) {
@@ -93,7 +99,7 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
         <p className="text-[13px] font-semibold text-gray-900">Pay for your lesson</p>
         {price && (
           <p className="text-[12px] text-gray-400 mt-0.5">
-            ${price.toFixed(2)} · {duration} min session
+            {currencySymbol}{price.toFixed(2)} · {duration} min session
           </p>
         )}
       </div>
@@ -122,6 +128,7 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
                     tutorName: tutor.name,
                     studentName,
                     duration,
+                    currency: tutor.currency,
                     origin: window.location.origin,
                   }),
                 })
@@ -324,6 +331,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [lessonId, setLessonId] = useState<string | null>(null)
   const [studentTz, setStudentTz] = useState<string>('')
   const [termsAgreed, setTermsAgreed] = useState(false)
+  const [signatureName, setSignatureName] = useState('')
   const [isTrial, setIsTrial] = useState(false)
   const [couponCode, setCouponCode] = useState('')
   const [couponApplied, setCouponApplied] = useState<{ code: string; type: string; value: number } | null>(null)
@@ -347,7 +355,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const slots = getSlots(availability, date, duration, bufferMinutes)
-  const canBook = date && time && name.trim() && email.trim() && (!contractTemplate || termsAgreed)
+  const canBook = date && time && name.trim() && email.trim() && (!contractTemplate || (termsAgreed && signatureName.trim()))
   const showTzConvert = studentTz && studentTz !== tutorTz
 
   async function applyCoupon() {
@@ -422,6 +430,11 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
         <div className="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl px-6 py-3 text-[13px] text-emerald-700">
           Confirmation will be sent to <strong>{email}</strong>
         </div>
+        {signatureName && (
+          <div className="mt-3 bg-gray-50 border border-gray-100 rounded-xl px-6 py-3 text-[12px] text-gray-500">
+            Signed by: <strong className="text-gray-700">{signatureName}</strong>
+          </div>
+        )}
         {portalToken && (
           <a
             href={`/portal/${portalToken}`}
@@ -711,6 +724,17 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
                 I have read and agree to the terms above
               </span>
             </label>
+            <div>
+              <label className="block text-[12px] font-medium text-gray-600 mb-1.5">
+                Type your full name to sign <span className="text-red-400">*</span>
+              </label>
+              <input
+                value={signatureName}
+                onChange={e => setSignatureName(e.target.value)}
+                placeholder="Your full name as signature"
+                className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-colors"
+              />
+            </div>
           </div>
         </div>
       )}

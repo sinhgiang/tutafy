@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, BookOpen, FileText, Video, Award, MonitorPlay, Paperclip } from 'lucide-react'
 import { HomeworkChecker } from './HomeworkChecker'
 import { HomeworkSubmit } from '../../HomeworkSubmit'
+import { RecordingEmbed } from '@/components/RecordingEmbed'
 
 export default async function PortalLessonPage({
   params,
@@ -82,16 +83,18 @@ export default async function PortalLessonPage({
       )}
 
       {lesson.recording_url && (
-        <a href={lesson.recording_url} target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-3 bg-white rounded-xl border border-gray-100 p-4 hover:bg-gray-50 transition-colors">
-          <div className="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Video className="h-4 w-4 text-red-500" />
+        <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Video className="h-4 w-4 text-red-500" />
+            </div>
+            <div>
+              <p className="text-[13px] font-semibold text-gray-900">Recording</p>
+              <p className="text-[11px] text-gray-400">Watch the lesson recording</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[13px] font-semibold text-gray-900">Recording</p>
-            <p className="text-[11px] text-gray-400">Watch the lesson recording</p>
-          </div>
-        </a>
+          <RecordingEmbed url={lesson.recording_url} />
+        </div>
       )}
 
       {lesson.homework && (
@@ -146,6 +149,20 @@ export default async function PortalLessonPage({
             ))}
           </div>
         </div>
+      )}
+
+      {vocab.length > 0 && (
+        <Link href={`/portal/${token}/lessons/${lessonId}/quiz`}
+          className="flex items-center gap-3 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl p-4 transition-colors">
+          <div className="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span className="text-[18px]">🎯</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-[13px] font-bold text-indigo-800">Practice Vocabulary Quiz</p>
+            <p className="text-[11px] text-indigo-500">{vocab.length} words · Flashcard mode</p>
+          </div>
+          <span className="text-[13px] font-bold text-indigo-400">→</span>
+        </Link>
       )}
 
       {lesson.status === 'completed' && (

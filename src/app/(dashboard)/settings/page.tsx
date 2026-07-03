@@ -5,7 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { User, Globe, Link, CreditCard, Clock, CheckCircle, Wallet, Zap, Calendar, ExternalLink, FileText, Star, Code } from 'lucide-react'
+import { User, Globe, Link, CreditCard, Clock, CheckCircle, Wallet, Zap, Calendar, ExternalLink, FileText, Star, Code, Bell } from 'lucide-react'
+import PushSubscribe from '@/components/PushSubscribe'
 import NextLink from 'next/link'
 
 const TIMEZONES = [
@@ -37,7 +38,7 @@ export default function SettingsPage() {
     name: '', bio: '', timezone: 'UTC',
     cancellation_hours: 24, booking_url_active: true, buffer_minutes: 15,
     paypal_link: '', paddle_checkout_link: '', default_lesson_price: '', custom_domain: '',
-    contract_template: '', trial_enabled: false, trial_price: '',
+    contract_template: '', trial_enabled: false, trial_price: '', currency: 'USD',
   })
 
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function SettingsPage() {
           contract_template: (data as any).contract_template ?? '',
           trial_enabled: (data as any).trial_enabled ?? false,
           trial_price: (data as any).trial_price ? String((data as any).trial_price) : '',
+          currency: (data as any).currency ?? 'USD',
         })
       }
       setLoading(false)
@@ -86,13 +88,18 @@ export default function SettingsPage() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+    const { currency, ...rest } = form
     const { error } = await supabase.from('tutors').update({
-      ...form,
-      default_lesson_price: form.default_lesson_price ? parseFloat(form.default_lesson_price) : null,
-      trial_price: form.trial_price ? parseFloat(form.trial_price) : null,
+      ...rest,
+      default_lesson_price: rest.default_lesson_price ? parseFloat(rest.default_lesson_price) : null,
+      trial_price: rest.trial_price ? parseFloat(rest.trial_price) : null,
     }).eq('id', user.id)
-    if (error) toast.error(error.message)
-    else toast.success('Settings saved!')
+    if (error) { toast.error(error.message); setSaving(false); return }
+    // Currency column may not exist yet — update separately and swallow errors
+    try {
+      await supabase.from('tutors').update({ currency }).eq('id', user.id)
+    } catch { /* currency column pending migration */ }
+    toast.success('Settings saved!')
     setSaving(false)
   }
 
@@ -229,6 +236,21 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Push Notifications */}
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
+          <Bell className="h-4 w-4 text-gray-400" />
+          <p className="text-[13px] font-semibold text-gray-900">Push Notifications</p>
+        </div>
+        <div className="p-5 flex items-center gap-3">
+          <PushSubscribe />
+          <div>
+            <p className="text-[13px] text-gray-700 font-medium">Browser push notifications</p>
+            <p className="text-[12px] text-gray-400 mt-0.5">Get notified instantly when a student messages you, even when Tutafy is not open.</p>
+          </div>
+        </div>
+      </div>
+
       {/* Scheduling */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
@@ -286,11 +308,27 @@ export default function SettingsPage() {
             )}
           </div>
           <div>
-            <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Default lesson price (USD)</label>
+            <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Default lesson price</label>
             <input type="number" min="0" step="0.01" placeholder="e.g. 25.00" value={form.default_lesson_price}
               onChange={e => setForm(f => ({ ...f, default_lesson_price: e.target.value }))}
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
             <p className="text-[11px] text-gray-400 mt-1">Shown to students on your booking page</p>
+          </div>
+          <div>
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Default Currency</label>
+            <select value={form.currency ?? 'USD'} onChange={e => setForm(f => ({ ...f, currency: e.target.value }))}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="USD">USD — US Dollar ($)</option>
+              <option value="EUR">EUR — Euro (€)</option>
+              <option value="GBP">GBP — British Pound (£)</option>
+              <option value="AUD">AUD — Australian Dollar (A$)</option>
+              <option value="CAD">CAD — Canadian Dollar (C$)</option>
+              <option value="SGD">SGD — Singapore Dollar (S$)</option>
+              <option value="JPY">JPY — Japanese Yen (¥)</option>
+              <option value="INR">INR — Indian Rupee (₹)</option>
+              <option value="BRL">BRL — Brazilian Real (R$)</option>
+              <option value="MXN">MXN — Mexican Peso (MX$)</option>
+            </select>
           </div>
         </div>
       </div>

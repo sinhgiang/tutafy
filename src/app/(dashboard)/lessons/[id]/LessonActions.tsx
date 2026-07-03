@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Sparkles, Mail, Loader2, CheckCircle, Copy, UserX } from 'lucide-react'
+import { toast } from 'sonner'
 
 export function LessonActions({
   lessonId,
@@ -27,6 +28,8 @@ export function LessonActions({
   const [invoiceError, setInvoiceError] = useState('')
   const [noShowLoading, setNoShowLoading] = useState(false)
   const [noShowDone, setNoShowDone] = useState(lessonStatus === 'no_show')
+  const [notesLoading, setNotesLoading] = useState(false)
+  const [notesSent, setNotesSent] = useState(false)
 
   async function generateSummary(sendEmail = false) {
     if (sendEmail) {
@@ -158,6 +161,34 @@ export function LessonActions({
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Email Notes to Student */}
+      {isCompleted && studentEmail && (
+        <div className="bg-white rounded-xl border border-gray-100 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[13px] font-semibold text-gray-900">Lesson Notes</p>
+              <p className="text-[12px] text-gray-400 mt-0.5">Send notes &amp; homework to {studentEmail}</p>
+            </div>
+            <button onClick={async () => {
+              setNotesLoading(true)
+              const res = await fetch(`/api/lessons/${lessonId}/send-notes`, { method: 'POST' })
+              setNotesLoading(false)
+              if (res.ok) { setNotesSent(true); toast.success('Notes sent!') }
+              else toast.error('Failed to send notes')
+            }} disabled={notesLoading || notesSent}
+              className="flex items-center gap-2 text-[13px] font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-colors px-4 py-2.5 rounded-lg">
+              {notesSent ? (
+                <><CheckCircle className="h-4 w-4 text-emerald-500" /> Notes sent!</>
+              ) : notesLoading ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
+              ) : (
+                <><Mail className="h-4 w-4" /> Email Notes to Student</>
+              )}
+            </button>
+          </div>
         </div>
       )}
 

@@ -9,7 +9,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
 
   const { data: tutor } = await supabase
     .from('tutors')
-    .select('id, name, bio, avatar_url, timezone, languages, cancellation_hours, booking_url_active, buffer_minutes, paypal_link, paddle_checkout_link, stripe_account_id, default_lesson_price, average_rating, review_count, contract_template, trial_enabled, trial_price')
+    .select('id, name, bio, avatar_url, timezone, languages, cancellation_hours, booking_url_active, buffer_minutes, paypal_link, paddle_checkout_link, stripe_account_id, default_lesson_price, average_rating, review_count, contract_template, trial_enabled, trial_price, currency')
     .eq('slug', slug)
     .single()
 

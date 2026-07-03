@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { sendPushNotification } from '@/lib/push'
 
 // GET /api/messages?student_id=X  — tutor fetches conversation
 export async function GET(req: NextRequest) {
@@ -59,6 +60,22 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Push notification to student
+  const admin = createAdminClient()
+  const { data: studentFull } = await admin
+    .from('students')
+    .select('name, portal_token, push_subscription')
+    .eq('id', student_id)
+    .single()
+  if ((studentFull as any)?.push_subscription) {
+    const { data: tutorFull } = await admin.from('tutors').select('name').eq('user_id', user.id).single()
+    await sendPushNotification((studentFull as any).push_subscription, {
+      title: `New message from ${tutorFull?.name ?? 'your tutor'}`,
+      body: content.trim().slice(0, 100),
+      url: `/portal/${(studentFull as any)?.portal_token ?? ''}`,
+    })
+  }
 
   return NextResponse.json({ message })
 }

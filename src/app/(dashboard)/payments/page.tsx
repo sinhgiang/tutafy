@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { TrendingUp, Clock, CheckCircle, DollarSign, Users, XCircle, FileText } from 'lucide-react'
+import { TrendingUp, Clock, CheckCircle, DollarSign, Users, XCircle, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
 
 const STATUS_STYLE: Record<string, string> = {
@@ -70,9 +70,16 @@ export default async function PaymentsPage() {
 
   return (
     <div className="space-y-6 max-w-[900px]">
-      <div>
-        <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Payments & Analytics</h1>
-        <p className="text-[13px] text-gray-400 mt-0.5">Track your earnings and lesson performance</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Payments & Analytics</h1>
+          <p className="text-[13px] text-gray-400 mt-0.5">Track your earnings and lesson performance</p>
+        </div>
+        <a href={`/api/payments/export?year=${new Date().getFullYear()}`}
+          className="flex items-center gap-1.5 text-[13px] font-medium text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-colors px-3 py-1.5 rounded-lg flex-shrink-0">
+          <Download className="h-3.5 w-3.5" />
+          Export CSV
+        </a>
       </div>
 
       {/* Main stats */}
