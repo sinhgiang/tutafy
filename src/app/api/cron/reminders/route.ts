@@ -37,8 +37,9 @@ export async function GET(request: Request) {
 
   const win24h_start = new Date(now.getTime() + 23 * 3600 * 1000)
   const win24h_end = new Date(now.getTime() + 25 * 3600 * 1000)
-  const win1h_start = new Date(now.getTime() + 45 * 60 * 1000)
-  const win1h_end = new Date(now.getTime() + 75 * 60 * 1000)
+  // Daily cron at 9AM: "same-day" reminder for lessons in next 0–9 hours
+  const win1h_start = new Date(now.getTime() + 0 * 60 * 1000)
+  const win1h_end = new Date(now.getTime() + 9 * 3600 * 1000)
 
   const { data: lessons } = await supabase
     .from('lessons')
@@ -98,7 +99,7 @@ export async function GET(request: Request) {
       await resend.emails.send({
         from,
         to: student.email,
-        subject: `Your lesson starts in 1 hour — ${timeLabel}`,
+        subject: `Lesson today with ${tutor?.name ?? 'your tutor'} at ${timeLabel}`,
         html: reminderHtml({
           studentName: student.name,
           tutorName: tutor?.name ?? 'your tutor',
@@ -111,7 +112,7 @@ export async function GET(request: Request) {
       }).catch(() => {})
 
       if (student.phone) {
-        const smsBody = `Lesson starting in 1 hour! ${tutor?.name ?? 'Your tutor'} at ${timeLabel}. Join: ${portalUrl}`
+        const smsBody = `Lesson today with ${tutor?.name ?? 'your tutor'} at ${timeLabel}. Join: ${portalUrl}`
         await sendSMS(student.phone, smsBody)
       }
 
@@ -206,7 +207,7 @@ function reminderHtml({ studentName, tutorName, dateLabel, timeLabel, duration, 
   meetingLink: string | null
   hoursAway: number
 }) {
-  const urgency = hoursAway === 1 ? 'Starting in 1 hour!' : 'Lesson Tomorrow'
+  const urgency = hoursAway === 1 ? 'Lesson Today!' : 'Lesson Tomorrow'
   return `
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
       <div style="background:#6366f1;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
@@ -214,7 +215,7 @@ function reminderHtml({ studentName, tutorName, dateLabel, timeLabel, duration, 
       </div>
       <p style="color:#374151;font-size:15px;">Hi <strong>${studentName}</strong>,</p>
       <p style="color:#374151;font-size:15px;">
-        Your lesson with <strong>${tutorName}</strong> is ${hoursAway === 1 ? 'starting soon' : 'tomorrow'}.
+        Your lesson with <strong>${tutorName}</strong> is ${hoursAway === 1 ? 'today' : 'tomorrow'}.
       </p>
       <div style="background:#f3f4f6;border-radius:12px;padding:20px;margin:20px 0;">
         <p style="margin:4px 0;color:#6b7280;font-size:13px;">Date</p>
