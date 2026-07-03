@@ -205,7 +205,7 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, portal_token: (student as any)?.portal_token ?? null })
+    return NextResponse.json({ success: true, portal_token: (student as any)?.portal_token ?? null, lesson_id: createdLesson?.id ?? null })
   } catch (err) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

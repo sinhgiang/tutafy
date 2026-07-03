@@ -58,6 +58,35 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
   const pendingHomework = (recentLessons ?? []).filter(l => l.homework && l.status === 'completed').length
   const cancellationHours = (tutor as any)?.cancellation_hours ?? 24
 
+  // Progress stats
+  const { data: completedLessons } = await supabase
+    .from('lessons')
+    .select('id, vocabulary, homework')
+    .eq('student_id', student.id)
+    .eq('status', 'completed')
+
+  const totalLessons = completedLessons?.length ?? 0
+  const totalWords = (completedLessons ?? []).reduce((acc, l) => {
+    const vocab = Array.isArray(l.vocabulary) ? l.vocabulary : []
+    return acc + vocab.length
+  }, 0)
+
+  let homeworkSubs: { id: string }[] = []
+  try {
+    const { data } = await supabase
+      .from('homework_submissions')
+      .select('id')
+      .eq('student_id', student.id)
+    homeworkSubs = data ?? []
+  } catch {
+    homeworkSubs = []
+  }
+
+  const lessonsWithHomework = (completedLessons ?? []).filter(l => l.homework).length
+  const homeworkRate = lessonsWithHomework > 0
+    ? Math.round((homeworkSubs.length / lessonsWithHomework) * 100)
+    : 0
+
   return (
     <div className="space-y-5">
       {/* Welcome card */}
@@ -87,6 +116,27 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
           )}
         </Link>
       </div>
+
+      {/* Progress Stats */}
+      {totalLessons > 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 p-5">
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">Your Progress</p>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center">
+              <p className="text-[22px] font-bold text-indigo-600">{totalLessons}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Lessons</p>
+            </div>
+            <div className="text-center border-x border-gray-100">
+              <p className="text-[22px] font-bold text-indigo-600">{totalWords}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Words learned</p>
+            </div>
+            <div className="text-center">
+              <p className="text-[22px] font-bold text-indigo-600">{homeworkRate}%</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Homework done</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upcoming Lessons */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">

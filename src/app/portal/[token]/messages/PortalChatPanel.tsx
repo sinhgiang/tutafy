@@ -31,15 +31,15 @@ export function PortalChatPanel({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Poll for new messages every 8s
+  // Poll for new messages every 4s via dedicated endpoint
   useEffect(() => {
     const interval = setInterval(async () => {
-      const res = await fetch(`/api/portal/${token}`)
+      const res = await fetch(`/api/portal/${token}/messages`)
       if (res.ok) {
         const data = await res.json()
         setMessages(data.messages)
       }
-    }, 8000)
+    }, 4000)
     return () => clearInterval(interval)
   }, [token])
 

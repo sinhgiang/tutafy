@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, FileText, Video, Award, MonitorPlay } from 'lucide-react'
+import { ArrowLeft, BookOpen, FileText, Video, Award, MonitorPlay, Paperclip } from 'lucide-react'
 import { HomeworkChecker } from './HomeworkChecker'
 import { HomeworkSubmit } from '../../HomeworkSubmit'
 
@@ -23,7 +23,7 @@ export default async function PortalLessonPage({
 
   const { data: lesson } = await supabase
     .from('lessons')
-    .select('id, starts_at, ends_at, duration_minutes, notes, homework, vocabulary, recording_url, status, tutors(name)')
+    .select('id, starts_at, ends_at, duration_minutes, notes, homework, vocabulary, recording_url, status, materials, tutors(name)')
     .eq('id', lessonId)
     .eq('student_id', student.id)
     .single()
@@ -113,6 +113,24 @@ export default async function PortalLessonPage({
             <p className="text-[13px] font-semibold text-gray-900">Lesson Notes</p>
           </div>
           <p className="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap">{lesson.notes}</p>
+        </div>
+      )}
+
+      {Array.isArray(lesson.materials) && lesson.materials.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Paperclip className="h-4 w-4 text-gray-400" />
+            <p className="text-[13px] font-semibold text-gray-900">Materials</p>
+          </div>
+          <div className="space-y-2">
+            {(lesson.materials as any[]).map((m: any, i: number) => (
+              <a key={i} href={m.url} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-[13px] text-indigo-600 hover:underline">
+                <Paperclip className="h-3.5 w-3.5 flex-shrink-0" />
+                {m.name ?? 'Download file'}
+              </a>
+            ))}
+          </div>
         </div>
       )}
 

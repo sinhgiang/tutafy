@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 type Message = {
   id: string
@@ -30,16 +31,30 @@ export function ChatPanel({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Poll for new messages every 8s
+  // Subscribe to realtime inserts for this student's messages
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const res = await fetch(`/api/messages?student_id=${studentId}`)
-      if (res.ok) {
-        const data = await res.json()
-        setMessages(data.messages)
-      }
-    }, 8000)
-    return () => clearInterval(interval)
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`messages-${studentId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `student_id=eq.${studentId}`
+      }, (payload) => {
+        const newMsg = payload.new as Message
+        setMessages(prev => {
+          // Replace temp message if exists, otherwise append
+          const hasTmp = prev.some(m => m.sender_type === newMsg.sender_type && m.id.startsWith('tmp-'))
+          if (hasTmp && newMsg.sender_type === 'tutor') {
+            return prev.map(m => m.id.startsWith('tmp-') && m.sender_type === 'tutor' ? newMsg : m)
+          }
+          if (prev.some(m => m.id === newMsg.id)) return prev
+          return [...prev, newMsg]
+        })
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   }, [studentId])
 
   async function send() {

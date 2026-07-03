@@ -66,7 +66,10 @@ function fmt12(t: string) {
 }
 
 // Payment methods panel shown after booking is confirmed
-function PaymentPanel({ tutor, duration }: { tutor: Tutor; duration: number }) {
+function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
+  tutor: Tutor; duration: number; lessonId?: string | null; portalToken?: string | null; studentName?: string
+}) {
+  const [payingCard, setPayingCard] = useState(false)
   const price = tutor.default_lesson_price
   const methods: { label: string; hint: string; color: string; link: string }[] = []
 
@@ -80,11 +83,9 @@ function PaymentPanel({ tutor, duration }: { tutor: Tutor; duration: number }) {
     methods.push({ label: 'Pay via Paddle', hint: 'Credit card / local methods', color: 'bg-emerald-600 hover:bg-emerald-700 text-white', link: tutor.paddle_checkout_link })
   }
 
-  if (tutor.stripe_account_id) {
-    methods.push({ label: 'Pay via Card (Stripe)', hint: 'Visa, Mastercard, etc.', color: 'bg-indigo-500 hover:bg-indigo-600 text-white', link: '#stripe' })
-  }
+  const showStripeCard = !!(lessonId && price && price > 0)
 
-  if (methods.length === 0) return null
+  if (methods.length === 0 && !showStripeCard) return null
 
   return (
     <div className="mt-8 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -106,6 +107,42 @@ function PaymentPanel({ tutor, duration }: { tutor: Tutor; duration: number }) {
             </span>
           </a>
         ))}
+        {showStripeCard && (
+          <button
+            onClick={async () => {
+              setPayingCard(true)
+              try {
+                const res = await fetch('/api/stripe/checkout', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    lessonId,
+                    portalToken,
+                    amount: price,
+                    tutorName: tutor.name,
+                    studentName,
+                    duration,
+                    origin: window.location.origin,
+                  }),
+                })
+                const data = await res.json()
+                if (data.url) {
+                  window.location.href = data.url
+                } else {
+                  toast.error(data.error ?? 'Card payment unavailable')
+                  setPayingCard(false)
+                }
+              } catch {
+                toast.error('Card payment unavailable')
+                setPayingCard(false)
+              }
+            }}
+            disabled={payingCard}
+            className="flex items-center justify-center gap-2 w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white py-3 rounded-xl text-[14px] font-semibold transition-colors"
+          >
+            {payingCard ? 'Redirecting...' : 'Pay by Card'}
+          </button>
+        )}
         <p className="text-[11px] text-gray-400 text-center pt-1">
           You will pay directly to the tutor. Tutafy does not process this payment.
         </p>
@@ -284,6 +321,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [subscribing, setSubscribing] = useState(false)
   const [done, setDone] = useState(false)
   const [portalToken, setPortalToken] = useState<string | null>(null)
+  const [lessonId, setLessonId] = useState<string | null>(null)
   const [studentTz, setStudentTz] = useState<string>('')
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [isTrial, setIsTrial] = useState(false)
@@ -361,6 +399,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
     if (res.ok) {
       const d = await res.json()
       setPortalToken(d.portal_token ?? null)
+      setLessonId(d.lesson_id ?? null)
       setDone(true)
     } else {
       const e = await res.json(); toast.error(e.error ?? 'Booking failed')
@@ -392,7 +431,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           </a>
         )}
       </div>
-      <PaymentPanel tutor={tutor} duration={duration} />
+      <PaymentPanel tutor={tutor} duration={duration} lessonId={lessonId} portalToken={portalToken} studentName={name} />
     </div>
   )
 

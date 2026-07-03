@@ -1,7 +1,7 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { MessageCircle, Search } from 'lucide-react'
+import { MessageCircle, Search, Megaphone } from 'lucide-react'
 
 export default async function MessagesPage() {
   const supabase = await createClient()
@@ -77,6 +77,13 @@ export default async function MessagesPage() {
             {sorted.length} active student{sorted.length !== 1 ? 's' : ''}
           </p>
         </div>
+        <Link
+          href="/messages/broadcast"
+          className="flex items-center gap-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-[13px] font-medium px-3 py-2 rounded-lg transition-colors"
+        >
+          <Megaphone className="h-3.5 w-3.5" />
+          Broadcast
+        </Link>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">

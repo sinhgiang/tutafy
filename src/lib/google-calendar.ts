@@ -6,6 +6,12 @@ interface GCalEvent {
   start: { dateTime: string; timeZone?: string }
   end: { dateTime: string; timeZone?: string }
   location?: string
+  conferenceData?: {
+    createRequest: {
+      requestId: string
+      conferenceSolutionKey: { type: string }
+    }
+  }
 }
 
 async function getAccessToken(refreshToken: string): Promise<string | null> {
@@ -29,20 +35,30 @@ export async function createCalendarEvent(
   refreshToken: string,
   calendarId: string,
   event: GCalEvent
-): Promise<string | null> {
+): Promise<{ gcalEventId: string | null; meetLink: string | null }> {
   const accessToken = await getAccessToken(refreshToken)
-  if (!accessToken) return null
+  if (!accessToken) return { gcalEventId: null, meetLink: null }
 
-  const res = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
-    {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(event),
-    }
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`
   )
+  if (event.conferenceData) {
+    url.searchParams.set('conferenceDataVersion', '1')
+  }
+
+  const res = await fetch(url.toString(), {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(event),
+  })
   const data = await res.json()
-  return data.id ?? null
+
+  const meetLink: string | null =
+    data.conferenceData?.entryPoints?.find(
+      (ep: { entryPointType: string; uri?: string }) => ep.entryPointType === 'video'
+    )?.uri ?? null
+
+  return { gcalEventId: data.id ?? null, meetLink }
 }
 
 export async function updateCalendarEvent(
@@ -54,14 +70,17 @@ export async function updateCalendarEvent(
   const accessToken = await getAccessToken(refreshToken)
   if (!accessToken) return
 
-  await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${eventId}`,
-    {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(event),
-    }
+  // conferenceDataVersion=1 ensures an existing Meet link is preserved on PATCH
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${eventId}`
   )
+  url.searchParams.set('conferenceDataVersion', '1')
+
+  await fetch(url.toString(), {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(event),
+  })
 }
 
 export async function deleteCalendarEvent(

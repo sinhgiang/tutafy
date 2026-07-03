@@ -44,12 +44,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     summary: `Lesson with ${student?.name ?? 'Student'}`,
     description: [
       lesson.notes ?? '',
-      lesson.meet_link ? `Join: ${lesson.meet_link}` : '',
       lesson.zoom_link ? `Zoom: ${lesson.zoom_link}` : '',
     ].filter(Boolean).join('\n'),
     start: { dateTime: lesson.starts_at },
     end: { dateTime: endAt },
-    location: lesson.meet_link || lesson.zoom_link || undefined,
+    location: lesson.zoom_link || undefined,
+    // Request a Google Meet link — only honoured on create, ignored on PATCH
+    conferenceData: {
+      createRequest: {
+        requestId: `${lessonId}-meet`,
+        conferenceSolutionKey: { type: 'hangoutsMeet' },
+      },
+    },
   }
 
   const existingEventId = (lesson as any).google_event_id
@@ -60,7 +66,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     await updateCalendarEvent(refreshToken, calendarId, existingEventId, event)
     gcalEventId = existingEventId
   } else {
-    gcalEventId = await createCalendarEvent(refreshToken, calendarId, event)
+    try {
+      const { gcalEventId: newId, meetLink } = await createCalendarEvent(refreshToken, calendarId, event)
+      gcalEventId = newId
+
+      if (meetLink) {
+        await admin
+          .from('lessons')
+          .update({ meet_link: meetLink } as any)
+          .eq('id', lessonId)
+      }
+    } catch (err) {
+      console.error('[sync-gcal] Google Meet creation failed (non-fatal):', err)
+    }
   }
 
   if (gcalEventId) {

@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, Video, DollarSign, FileText, User, BookOpen, Mic, Ext
 import { LessonActions } from './LessonActions'
 import { GroupStudentsPanel } from './GroupStudentsPanel'
 import { HomeworkSubmissionsPanel } from './HomeworkSubmissionsPanel'
+import { MaterialsPanel } from './MaterialsPanel'
 
 const STATUS_STYLE: Record<string, string> = {
   scheduled: 'bg-blue-50 text-blue-600 border-blue-100',
@@ -238,6 +239,9 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
           <p className="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap">{lesson.homework}</p>
         </div>
       )}
+
+      {/* Materials */}
+      <MaterialsPanel lessonId={id} initialMaterials={Array.isArray(lesson.materials) ? lesson.materials : []} />
 
       {/* Student homework submissions */}
       {homeworkSubmissions.length > 0 && (

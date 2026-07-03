@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { User, Globe, Link, CreditCard, Clock, CheckCircle, Wallet, Zap, Calendar, ExternalLink, FileText, Star } from 'lucide-react'
+import { User, Globe, Link, CreditCard, Clock, CheckCircle, Wallet, Zap, Calendar, ExternalLink, FileText, Star, Code } from 'lucide-react'
 import NextLink from 'next/link'
 
 const TIMEZONES = [
@@ -195,6 +195,37 @@ export default function SettingsPage() {
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
             <p className="text-[11px] text-gray-400 mt-1">Students can cancel for free up to this many hours before a lesson</p>
           </div>
+        </div>
+      </div>
+
+      {/* Embed Widget */}
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
+          <Code className="h-4 w-4 text-gray-400" />
+          <p className="text-[13px] font-semibold text-gray-900">Booking Widget</p>
+        </div>
+        <div className="p-5 space-y-3">
+          <p className="text-[13px] text-gray-500">Embed your booking calendar on any website.</p>
+          {slug ? (
+            <>
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <code className="text-[12px] text-gray-700 break-all">
+                  {`<iframe src="https://tutafy.com/embed/${slug}" width="100%" height="700" frameborder="0" style="border:0;border-radius:12px"></iframe>`}
+                </code>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(`<iframe src="https://tutafy.com/embed/${slug}" width="100%" height="700" frameborder="0" style="border:0;border-radius:12px"></iframe>`)
+                  toast.success('Copied!')
+                }}
+                className="text-[13px] font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+              >
+                Copy embed code
+              </button>
+            </>
+          ) : (
+            <p className="text-[12px] text-gray-400">Save your settings to generate your embed code.</p>
+          )}
         </div>
       </div>
 

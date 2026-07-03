@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
+// GET /api/portal/[token]/messages  — student polls for messages
+export async function GET(req: Request, { params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
+  const supabase = createAdminClient()
+  const { data: student } = await supabase.from('students').select('id').eq('portal_token', token).single()
+  if (!student) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const { data: messages } = await supabase
+    .from('messages')
+    .select('id, sender_type, content, created_at, read_at')
+    .eq('student_id', student.id)
+    .order('created_at', { ascending: true })
+    .limit(100)
+  return NextResponse.json({ messages: messages ?? [] })
+}
+
 // POST /api/portal/[token]/messages  — student sends message to tutor
 export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
