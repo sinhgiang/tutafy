@@ -28,19 +28,19 @@ export default async function NewStudentPage() {
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Zap className="h-8 w-8 text-white" fill="white" />
             </div>
-            <h2 className="text-[22px] font-bold text-white">Đã đạt giới hạn Free</h2>
+            <h2 className="text-[22px] font-bold text-white">You've hit the Free limit</h2>
             <p className="text-[13px] text-indigo-200 mt-2">
-              Gói Free cho phép tối đa {FREE_LIMIT} học sinh.<br />
-              Bạn hiện có <strong className="text-white">{studentCount} học sinh</strong>.
+              The Free plan allows up to {FREE_LIMIT} students.<br />
+              You currently have <strong className="text-white">{studentCount} students</strong>.
             </p>
           </div>
           <div className="p-8 space-y-4">
             <div className="space-y-2.5">
               {[
-                'Học sinh không giới hạn',
+                'Unlimited students',
                 'AI lesson planning & content',
                 'Payment links (PayPal, Paddle, Stripe)',
-                'Analytics đầy đủ',
+                'Full analytics',
               ].map(f => (
                 <div key={f} className="flex items-center gap-2.5">
                   <div className="w-4 h-4 bg-indigo-50 rounded-full flex items-center justify-center flex-shrink-0">
@@ -53,11 +53,11 @@ export default async function NewStudentPage() {
             <Link href="/upgrade"
               className="flex items-center justify-center gap-2 w-full mt-6 py-3.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[14px] font-bold rounded-xl transition-colors">
               <Zap className="h-4 w-4" fill="white" />
-              Nâng cấp Pro — $12/tháng
+              Upgrade to Pro — $12/month
             </Link>
             <Link href="/students"
               className="block text-center text-[13px] text-gray-400 hover:text-gray-600 transition-colors">
-              ← Quay lại danh sách học sinh
+              ← Back to students
             </Link>
           </div>
         </div>

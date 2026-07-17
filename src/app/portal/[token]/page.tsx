@@ -1,10 +1,13 @@
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { cleanUrl } from '@/lib/url'
 import { Calendar, BookOpen, MessageCircle, ChevronRight, Video, Clock, Star, Award } from 'lucide-react'
 import { ReviewForm } from './ReviewForm'
 import { RescheduleCancel } from './RescheduleCancel'
 import PushSubscribe from '@/components/PushSubscribe'
+import { GamificationCard } from '@/components/GamificationCard'
+import { computeGamification } from '@/lib/gamification'
 
 const LEVEL_COLOR: Record<string, string> = {
   A1: 'bg-slate-100 text-slate-500', A2: 'bg-blue-50 text-blue-600',
@@ -62,7 +65,7 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
   // Progress stats
   const { data: completedLessons } = await supabase
     .from('lessons')
-    .select('id, vocabulary, homework')
+    .select('id, starts_at, vocabulary, homework')
     .eq('student_id', student.id)
     .eq('status', 'completed')
 
@@ -87,6 +90,14 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
   const homeworkRate = lessonsWithHomework > 0
     ? Math.round((homeworkSubs.length / lessonsWithHomework) * 100)
     : 0
+
+  // Gamification — computed from the stats above, no extra tables needed.
+  const gamification = computeGamification({
+    lessons: totalLessons,
+    words: totalWords,
+    homework: homeworkSubs.length,
+    lessonDates: (completedLessons ?? []).map(l => l.starts_at).filter(Boolean) as string[],
+  })
 
   return (
     <div className="space-y-5">
@@ -120,6 +131,11 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
           </Link>
         </div>
       </div>
+
+      {/* Gamification — level, XP, streak & badges */}
+      {totalLessons > 0 && (
+        <GamificationCard data={gamification} firstName={student.name.split(' ')[0]} />
+      )}
 
       {/* Progress Stats */}
       {totalLessons > 0 && (
@@ -157,7 +173,12 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
             {(upcomingLessons ?? []).map(lesson => {
               const date = new Date(lesson.starts_at)
               const isToday = date.toDateString() === new Date().toDateString()
-              const meetLink = lesson.zoom_link || lesson.meet_link
+              // Always route through Tutafy's own branded room (never the raw
+              // stored link, which may be an old/corrupted URL). Honor an explicit
+              // Zoom link if the tutor set one.
+              const joinHref = lesson.zoom_link
+                ? cleanUrl(lesson.zoom_link)
+                : `/portal/${token}/lessons/${lesson.id}/room`
               return (
                 <div key={lesson.id} className="flex items-center gap-4 px-5 py-4">
                   <div className={`text-center min-w-[44px] py-1.5 px-2 rounded-lg flex-shrink-0 ${isToday ? 'bg-indigo-500 text-white' : 'bg-gray-50 text-gray-700'}`}>
@@ -179,13 +200,11 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    {meetLink && (
-                      <a href={meetLink} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 px-3 py-1.5 rounded-lg transition-colors">
-                        <Video className="h-3.5 w-3.5" />
-                        Join
-                      </a>
-                    )}
+                    <a href={joinHref} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 px-3 py-1.5 rounded-lg transition-colors">
+                      <Video className="h-3.5 w-3.5" />
+                      Join
+                    </a>
                     <RescheduleCancel
                       lessonId={lesson.id}
                       token={token}

@@ -46,12 +46,12 @@ export async function POST(request: Request) {
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
             <div style="background:#6366f1;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
-              <h1 style="color:white;margin:0;font-size:22px;">Your Lessons ðŸ“š</h1>
+              <h1 style="color:white;margin:0;font-size:22px;">Your Lessons 📚</h1>
             </div>
             <p style="color:#374151;font-size:15px;">Hi <strong>${firstName}</strong>,</p>
             <p style="color:#374151;font-size:15px;">Click the button below to view all your upcoming lessons, homework, and progress.</p>
             <a href="${link}" style="display:block;background:#6366f1;color:white;text-align:center;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:bold;margin:24px 0;font-size:15px;">
-              View My Lessons â†’
+              View My Lessons →
             </a>
             <p style="color:#9ca3af;font-size:12px;">This link expires in 7 days. Do not share it with others.</p>
             <p style="color:#9ca3af;font-size:12px;margin-top:4px;">Powered by Tutafy</p>

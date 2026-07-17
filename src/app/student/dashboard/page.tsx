@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
+import { cleanUrl } from '@/lib/url'
 import { Calendar, BookOpen, Video, Clock, ChevronRight, Star } from 'lucide-react'
 
 function verifyToken(token: string): { email: string; valid: boolean } {
@@ -55,7 +56,7 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
   const { data: students } = await supabase
     .from('students')
     .select('id, name, tutor_id, portal_token')
-    .eq('email', email)
+    .ilike('email', email)
     .eq('status', 'active')
 
   if (!students?.length) {
@@ -133,7 +134,8 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
             {(upcoming ?? []).map(lesson => {
               const date = new Date(lesson.starts_at)
               const isToday = date.toDateString() === new Date().toDateString()
-              const meetLink = lesson.meet_link || lesson.zoom_link
+              // The tutor-chosen external platform (Zoom/Meet) wins over the built-in room.
+              const meetLink = cleanUrl(lesson.zoom_link || lesson.meet_link)
               const tutor = tutorMap[lesson.tutor_id]
               return (
                 <div key={lesson.id} className="flex items-center gap-4 px-5 py-4">

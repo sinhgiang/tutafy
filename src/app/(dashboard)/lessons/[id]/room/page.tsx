@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { VideoRoom } from '@/components/VideoRoom'
+import { mintJaasToken, getJaasAppId } from '@/lib/jaas'
 
 export default async function TutorVideoRoomPage({
   params,
@@ -28,12 +29,18 @@ export default async function TutorVideoRoomPage({
   const studentName = (lesson.students as any)?.name ?? 'Group lesson'
   const lessonLabel = `${studentName} · ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
 
+  // The tutor is always a moderator of their own lesson room.
+  const jwt = mintJaasToken({ userName: tutor?.name ?? 'Tutor', userId: user.id, moderator: true }) ?? undefined
+  const appId = getJaasAppId() ?? undefined
+
   return (
     <VideoRoom
       lessonId={id}
       displayName={tutor?.name ?? 'Tutor'}
       backUrl={`/lessons/${id}`}
       lessonLabel={lessonLabel}
+      jwt={jwt}
+      appId={appId}
     />
   )
 }

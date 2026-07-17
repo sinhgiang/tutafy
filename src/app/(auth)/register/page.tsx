@@ -72,6 +72,7 @@ function RegisterForm() {
   async function handleGoogleRegister() {
     setGoogleLoading(true)
     setError('')
+    document.cookie = `tutafy_oauth_role=tutor; path=/; max-age=600; samesite=lax`
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

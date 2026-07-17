@@ -179,7 +179,7 @@ export default function OnboardingPage() {
                 <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className={inp} />
               </div>
             </div>
-            <p className="text-[11px] text-gray-400">You can fine-tune your schedule in Settings â†’ Availability later.</p>
+            <p className="text-[11px] text-gray-400">You can fine-tune your schedule in Settings → Availability later.</p>
             <div className="flex gap-2">
               <button onClick={() => setStep(1)} className="flex-1 text-[13px] font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 py-2.5 rounded-xl transition-colors">Back</button>
               <button onClick={saveAvailability} disabled={saving || availDays.length === 0}
@@ -201,7 +201,7 @@ export default function OnboardingPage() {
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mx-auto">
                 <Check className="h-6 w-6 text-indigo-600" />
               </div>
-              <p className="text-[14px] font-bold text-gray-900">You&apos;re all set! ðŸŽ‰</p>
+              <p className="text-[14px] font-bold text-gray-900">You&apos;re all set! 🎉</p>
               <p className="text-[12px] text-gray-500">Share your booking link and start getting students</p>
             </div>
             {slug && (
@@ -222,7 +222,7 @@ export default function OnboardingPage() {
             <div className="grid grid-cols-1 gap-2">
               <button onClick={() => router.push('/dashboard')}
                 className="w-full text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 py-2.5 rounded-xl transition-colors">
-                Go to Dashboard â†’
+                Go to Dashboard →
               </button>
               <button onClick={() => router.push('/availability')}
                 className="w-full text-[13px] font-medium text-gray-500 hover:text-gray-700 py-2 transition-colors">

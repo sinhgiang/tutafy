@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const { error } = await resend.emails.send({
     from: 'Tutafy <noreply@tutafy.com>',
     to: student.email,
-    subject: `Invoice ${invoiceNum} â€” $${Number(lesson.price).toFixed(2)} due ${dueDate}`,
+    subject: `Invoice ${invoiceNum} — $${Number(lesson.price).toFixed(2)} due ${dueDate}`,
     html: `
       <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:32px;">
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
           <tbody>
             <tr style="border-bottom:1px solid #f3f4f6;">
               <td style="padding:12px;font-size:14px;color:#111827;">
-                Language lesson â€” ${dateLabel}<br>
+                Language lesson — ${dateLabel}<br>
                 <span style="color:#6b7280;font-size:12px;">${lesson.duration_minutes} minutes</span>
               </td>
               <td style="padding:12px;font-size:14px;color:#111827;text-align:right;font-weight:600;">
@@ -92,12 +92,12 @@ export async function POST(req: NextRequest) {
 
         <div style="background:#fef3c7;border-radius:10px;padding:16px;margin-bottom:24px;">
           <p style="margin:0;color:#92400e;font-size:13px;">
-            <strong>Due by ${dueDate}</strong> â€” please pay via your tutor's preferred payment method.
+            <strong>Due by ${dueDate}</strong> — please pay via your tutor's preferred payment method.
           </p>
         </div>
 
         <p style="color:#9ca3af;font-size:12px;text-align:center;margin:0;">
-          Sent via Tutafy Â· tutafy.com
+          Sent via Tutafy · tutafy.com
         </p>
       </div>`,
   })

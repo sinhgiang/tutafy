@@ -1,10 +1,9 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { originFromRequest } from '@/lib/app-url'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-
-const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/api/auth/google-calendar/callback`
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
@@ -18,6 +17,9 @@ export async function GET(req: NextRequest) {
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
     return NextResponse.redirect(new URL('/settings?gcal=not-configured', req.url))
   }
+
+  // Must be byte-for-byte identical to the redirect_uri used to start the flow.
+  const REDIRECT_URI = `${originFromRequest(req)}/api/auth/google-calendar/callback`
 
   // Exchange code for tokens
   const tokenRes = await fetch('https://oauth2.googleapis.com/token', {

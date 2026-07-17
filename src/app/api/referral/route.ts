@@ -1,7 +1,7 @@
 ﻿import { NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 
-// GET /api/referral â€” get current tutor's referral stats
+// GET /api/referral — get current tutor's referral stats
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

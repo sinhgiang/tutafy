@@ -1,6 +1,10 @@
+import { requireFeature } from '@/lib/guard'
 import { ImportTool } from './ImportTool'
 
-export default function ImportPage() {
+export default async function ImportPage() {
+  const locked = await requireFeature('pro', 'Import Students')
+  if (locked) return locked
+
   return (
     <div className="space-y-5">
       <div>

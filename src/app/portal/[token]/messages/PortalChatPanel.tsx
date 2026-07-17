@@ -26,18 +26,78 @@ export function PortalChatPanel({
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const prevLenRef = useRef<number>(initialMessages.length)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Poll for new messages every 4s via dedicated endpoint
+  // Lazily get / resume the shared AudioContext (browsers create it "suspended"
+  // when not made during a user gesture).
+  function getAudioCtx(): AudioContext | null {
+    try {
+      if (!audioCtxRef.current) {
+        const AC = window.AudioContext || (window as any).webkitAudioContext
+        if (!AC) return null
+        audioCtxRef.current = new AC()
+      }
+      if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume().catch(() => {})
+      return audioCtxRef.current
+    } catch { return null }
+  }
+
+  // Short two-tone "ting" — same sound the tutor hears, synthesized (no asset).
+  function playDing() {
+    try {
+      const ctx = getAudioCtx()
+      if (!ctx || ctx.state !== 'running') return
+      const now = ctx.currentTime
+      const o = ctx.createOscillator()
+      const g = ctx.createGain()
+      o.connect(g); g.connect(ctx.destination)
+      o.type = 'sine'
+      o.frequency.setValueAtTime(880, now)
+      o.frequency.setValueAtTime(1320, now + 0.11)
+      g.gain.setValueAtTime(0.0001, now)
+      g.gain.exponentialRampToValueAtTime(0.14, now + 0.02)
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.34)
+      o.start(now)
+      o.stop(now + 0.36)
+    } catch { /* audio unavailable */ }
+  }
+
+  // Unlock audio on the first interaction so later dings (from the poll timer) work
+  useEffect(() => {
+    function unlock() {
+      const ctx = getAudioCtx()
+      if (ctx && ctx.state === 'running') {
+        window.removeEventListener('pointerdown', unlock)
+        window.removeEventListener('keydown', unlock)
+      }
+    }
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('keydown', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+  }, [])
+
+  // Poll for new messages every 4s; play the "ting" when a new message from the
+  // tutor arrives (not on first load, and never for the student's own messages).
   useEffect(() => {
     const interval = setInterval(async () => {
-      const res = await fetch(`/api/portal/${token}/messages`)
+      const res = await fetch(`/api/portal/${token}/messages`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
-        setMessages(data.messages)
+        const msgs: Message[] = data.messages ?? []
+        if (msgs.length > prevLenRef.current) {
+          const added = msgs.slice(prevLenRef.current)
+          if (added.some(m => m.sender_type === 'tutor')) playDing()
+        }
+        prevLenRef.current = msgs.length
+        setMessages(msgs)
       }
     }, 4000)
     return () => clearInterval(interval)
@@ -103,7 +163,10 @@ export function PortalChatPanel({
         {messages.map((msg, i) => {
           const isMe = msg.sender_type === 'student'
           const prevMsg = messages[i - 1]
+          const nextMsg = messages[i + 1]
           const showTime = !prevMsg || (new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime()) > 5 * 60 * 1000
+          // Name only under the LAST message of a same-sender run (Facebook/Zalo style)
+          const isLastOfGroup = !nextMsg || nextMsg.sender_type !== msg.sender_type
 
           return (
             <div key={msg.id}>
@@ -112,17 +175,19 @@ export function PortalChatPanel({
                   {formatTime(msg.created_at)}
                 </p>
               )}
-              <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                 <div className={`max-w-[72%] rounded-2xl px-4 py-2.5 ${
                   isMe
                     ? 'bg-indigo-500 text-white rounded-br-sm'
                     : 'bg-gray-100 text-gray-800 rounded-bl-sm'
                 }`}>
-                  {!isMe && (
-                    <p className="text-[10px] font-semibold opacity-60 mb-0.5">{tutorName}</p>
-                  )}
                   <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                 </div>
+                {isLastOfGroup && (
+                  <p className={`text-[10px] text-gray-400 mt-1 ${isMe ? 'pr-1' : 'pl-1'}`}>
+                    {isMe ? 'You' : tutorName}
+                  </p>
+                )}
               </div>
             </div>
           )

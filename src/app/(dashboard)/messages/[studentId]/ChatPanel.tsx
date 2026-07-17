@@ -26,6 +26,55 @@ export function ChatPanel({
   const [sending, setSending] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const lastSigRef = useRef('')
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const knownIdsRef = useRef<Set<string>>(new Set(initialMessages.map(m => m.id)))
+
+  // Shared AudioContext for the "ting" (browsers create it suspended off-gesture)
+  function getAudioCtx(): AudioContext | null {
+    try {
+      if (!audioCtxRef.current) {
+        const AC = window.AudioContext || (window as any).webkitAudioContext
+        if (!AC) return null
+        audioCtxRef.current = new AC()
+      }
+      if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume().catch(() => {})
+      return audioCtxRef.current
+    } catch { return null }
+  }
+  function playDing() {
+    try {
+      const ctx = getAudioCtx()
+      if (!ctx || ctx.state !== 'running') return
+      const now = ctx.currentTime
+      const o = ctx.createOscillator()
+      const g = ctx.createGain()
+      o.connect(g); g.connect(ctx.destination)
+      o.type = 'sine'
+      o.frequency.setValueAtTime(880, now)
+      o.frequency.setValueAtTime(1320, now + 0.11)
+      g.gain.setValueAtTime(0.0001, now)
+      g.gain.exponentialRampToValueAtTime(0.14, now + 0.02)
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.34)
+      o.start(now)
+      o.stop(now + 0.36)
+    } catch { /* audio unavailable */ }
+  }
+  useEffect(() => {
+    function unlock() {
+      const ctx = getAudioCtx()
+      if (ctx && ctx.state === 'running') {
+        window.removeEventListener('pointerdown', unlock)
+        window.removeEventListener('keydown', unlock)
+      }
+    }
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('keydown', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -55,6 +104,45 @@ export function ChatPanel({
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
+  }, [studentId])
+
+  // Reliable sync: poll the conversation every 4s (Supabase Realtime isn't
+  // enabled for the messages table, so realtime alone silently drops the
+  // student's 2nd/3rd messages). Polling mirrors the student portal.
+  useEffect(() => {
+    let active = true
+    async function poll() {
+      try {
+        const res = await fetch(`/api/messages?student_id=${studentId}`, { cache: 'no-store' })
+        if (!res.ok || !active) return
+        const data = await res.json()
+        const server: Message[] = data.messages ?? []
+        const sig = server.map(m => m.id).join(',')
+        if (sig === lastSigRef.current) return // nothing new → don't churn/re-scroll
+        lastSigRef.current = sig
+        // Ding when a NEW message from the student arrives (mirror of the portal)
+        const freshStudent = server.some(m => m.sender_type === 'student' && !knownIdsRef.current.has(m.id))
+        server.forEach(m => knownIdsRef.current.add(m.id))
+        if (freshStudent) playDing()
+        setMessages(prev => {
+          // Keep optimistic messages that haven't been persisted yet
+          const pending = prev.filter(m => m.id.startsWith('tmp-') &&
+            !server.some(s => s.sender_type === m.sender_type && s.content === m.content))
+          return [...server, ...pending]
+        })
+      } catch { /* ignore transient errors */ }
+    }
+    poll()
+    const interval = setInterval(poll, 4000)
+    const onFocus = () => poll()
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onFocus)
+    return () => {
+      active = false
+      clearInterval(interval)
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onFocus)
+    }
   }, [studentId])
 
   async function send() {
@@ -123,7 +211,11 @@ export function ChatPanel({
         {messages.map((msg, i) => {
           const isMe = msg.sender_type === 'tutor'
           const prevMsg = messages[i - 1]
+          const nextMsg = messages[i + 1]
           const showTime = !prevMsg || (new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime()) > 5 * 60 * 1000
+          // Show the sender's name only under the LAST message of a run from the
+          // same sender (like Facebook/Zalo) — keeps it clean when many arrive.
+          const isLastOfGroup = !nextMsg || nextMsg.sender_type !== msg.sender_type
 
           return (
             <div key={msg.id}>
@@ -132,7 +224,7 @@ export function ChatPanel({
                   {formatTime(msg.created_at)}
                 </p>
               )}
-              <div className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                 <div className={`max-w-[72%] rounded-2xl px-4 py-2.5 ${
                   isMe
                     ? 'bg-indigo-500 text-white rounded-br-sm'
@@ -140,6 +232,11 @@ export function ChatPanel({
                 }`}>
                   <p className="text-[13px] leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                 </div>
+                {isLastOfGroup && (
+                  <p className={`text-[10px] text-gray-400 mt-1 ${isMe ? 'pr-1' : 'pl-1'}`}>
+                    {isMe ? 'You' : studentName}
+                  </p>
+                )}
               </div>
             </div>
           )

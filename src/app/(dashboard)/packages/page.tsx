@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { requireFeature } from '@/lib/guard'
 import Link from 'next/link'
 import { ArrowLeft, Package, Plus } from 'lucide-react'
 import { PackageManager } from './PackageManager'
@@ -8,6 +9,9 @@ export default async function PackagesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  const locked = await requireFeature('pro', 'Lesson Packages')
+  if (locked) return locked
 
   const { data: packages } = await supabase
     .from('packages')

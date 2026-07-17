@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import { VideoRoom } from '@/components/VideoRoom'
+import { mintJaasToken, getJaasAppId } from '@/lib/jaas'
 
 export default async function StudentVideoRoomPage({
   params,
@@ -31,12 +32,19 @@ export default async function StudentVideoRoomPage({
   const tutorName = (lesson.tutors as any)?.name ?? 'your tutor'
   const lessonLabel = `${tutorName} · ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
 
+  // Give the student moderator rights too, so a 1:1 lesson never gets stuck
+  // "waiting for a moderator" if the student joins first.
+  const jwt = mintJaasToken({ userName: student.name, userId: student.id, moderator: true }) ?? undefined
+  const appId = getJaasAppId() ?? undefined
+
   return (
     <VideoRoom
       lessonId={lessonId}
       displayName={student.name}
       backUrl={`/portal/${token}/lessons/${lessonId}`}
       lessonLabel={lessonLabel}
+      jwt={jwt}
+      appId={appId}
     />
   )
 }

@@ -1,13 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, Video, DollarSign, FileText, User, BookOpen, Mic, ExternalLink, Pencil, MonitorPlay } from 'lucide-react'
+import { ArrowLeft, Clock, DollarSign, FileText, User, BookOpen, Mic, Pencil, MonitorPlay } from 'lucide-react'
 import { LessonActions } from './LessonActions'
 import { GroupStudentsPanel } from './GroupStudentsPanel'
 import { HomeworkSubmissionsPanel } from './HomeworkSubmissionsPanel'
 import { MaterialsPanel } from './MaterialsPanel'
-import { ZoomButton } from './ZoomButton'
 import { RecordingEmbed } from '@/components/RecordingEmbed'
+import { cleanUrl } from '@/lib/url'
+import { VideoPlatformPicker } from './VideoPlatformPicker'
+import { inferVideoProvider, resolveJoinTarget } from '@/lib/video'
 
 const STATUS_STYLE: Record<string, string> = {
   scheduled: 'bg-blue-50 text-blue-600 border-blue-100',
@@ -41,6 +43,12 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
   const lessonEnd = new Date(lesson.ends_at)
   const isOngoing = now >= new Date(lessonStart.getTime() - 15 * 60 * 1000) && now <= lessonEnd
   const showVideoCall = lesson.status === 'scheduled'
+
+  // Resolve where "Join" goes: the tutor-chosen external platform (Zoom / Meet /
+  // custom, stored in zoom_link) if set, otherwise the built-in branded room.
+  const externalVideoUrl = cleanUrl(lesson.zoom_link) || null
+  const videoProvider = inferVideoProvider(externalVideoUrl)
+  const joinTarget = resolveJoinTarget({ externalUrl: externalVideoUrl, builtinRoomPath: `/lessons/${id}/room` })
 
   // Fetch homework submissions for this lesson
   let homeworkSubmissions: any[] = []
@@ -93,10 +101,12 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      {/* Join Video Call Banner */}
+      {/* Join Video Call Banner — routes to the chosen platform */}
       {showVideoCall && (
-        <Link
-          href={`/lessons/${id}/room`}
+        <a
+          href={joinTarget.href}
+          target={joinTarget.external ? '_blank' : undefined}
+          rel={joinTarget.external ? 'noopener noreferrer' : undefined}
           className={`flex items-center gap-3 rounded-xl p-4 transition-colors ${
             isOngoing
               ? 'bg-indigo-500 hover:bg-indigo-600'
@@ -110,14 +120,16 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
           </div>
           <div className="flex-1">
             <p className={`text-[14px] font-bold ${isOngoing ? 'text-white' : 'text-indigo-800'}`}>
-              {isOngoing ? 'Lesson is live — Join now' : 'Join Video Room'}
+              {isOngoing ? 'Lesson is live — Join now' : `Join ${joinTarget.external ? videoProvider.name : 'Video Room'}`}
             </p>
             <p className={`text-[12px] ${isOngoing ? 'text-indigo-100' : 'text-indigo-500'}`}>
-              {isOngoing ? 'Your student can see this room is live' : 'Opens built-in video call with your student'}
+              {joinTarget.external
+                ? `Opens your ${videoProvider.name} meeting`
+                : (isOngoing ? 'Your student can see this room is live' : 'Opens built-in video call with your student')}
             </p>
           </div>
           <span className={`text-[14px] font-bold ${isOngoing ? 'text-white' : 'text-indigo-400'}`}>→</span>
-        </Link>
+        </a>
       )}
 
       {/* Student / Group */}
@@ -171,66 +183,31 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      {/* Meeting & Recording */}
-      <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
-        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Links</p>
-        {lesson.zoom_link ? (
+      {/* Video platform — let the tutor pick built-in / Zoom / Google Meet */}
+      {showVideoCall && (
+        <VideoPlatformPicker
+          lessonId={id}
+          initialUrl={externalVideoUrl}
+          topic={`Lesson with ${lesson.students?.name ?? 'student'}`}
+          startTime={lesson.starts_at}
+          duration={lesson.duration_minutes}
+        />
+      )}
+
+      {/* Recording */}
+      {lesson.recording_url && (
+        <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-2">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Video className="h-4 w-4 text-blue-500" />
+            <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Mic className="h-4 w-4 text-red-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-gray-400">Zoom</p>
-              <a href={lesson.zoom_link} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[12px] text-indigo-500 hover:underline truncate">
-                {lesson.zoom_link} <ExternalLink className="h-3 w-3 flex-shrink-0" />
-              </a>
+              <p className="text-[11px] text-gray-400">Recording</p>
             </div>
           </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Video className="h-4 w-4 text-blue-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-gray-400">Zoom</p>
-              <ZoomButton
-                lessonId={id}
-                topic={`Lesson with ${lesson.students?.name ?? 'student'}`}
-                startTime={lesson.starts_at}
-                duration={lesson.duration_minutes}
-              />
-            </div>
-          </div>
-        )}
-        {lesson.meet_link && (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Video className="h-4 w-4 text-green-500" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-gray-400">Google Meet</p>
-              <a href={lesson.meet_link} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[12px] text-indigo-500 hover:underline truncate">
-                {lesson.meet_link} <ExternalLink className="h-3 w-3 flex-shrink-0" />
-              </a>
-            </div>
-          </div>
-        )}
-        {lesson.recording_url && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Mic className="h-4 w-4 text-red-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-gray-400">Recording</p>
-              </div>
-            </div>
-            <RecordingEmbed url={lesson.recording_url} />
-          </div>
-        )}
-      </div>
+          <RecordingEmbed url={lesson.recording_url} />
+        </div>
+      )}
 
       {/* Notes */}
       {lesson.notes && (

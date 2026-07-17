@@ -1,4 +1,4 @@
-﻿import { createServerClient } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
@@ -71,17 +71,54 @@ export async function proxy(request: NextRequest) {
     path.startsWith('/upgrade')
   const isAdminPage = path.startsWith('/admin')
 
+  // Helper: carry session cookies through redirects to prevent refresh-token loop
+  function redirect(dest: string) {
+    const res = NextResponse.redirect(new URL(dest, request.url))
+    supabaseResponse.cookies.getAll().forEach(c => res.cookies.set(c.name, c.value, c as any))
+    return res
+  }
+
   if (!user && (isDashboardPage || isAdminPage)) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return redirect('/login')
   }
 
-  if (user && isAdminPage && user.email !== ADMIN_EMAIL) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  // Admin bypass — the admin account can reach everything.
+  if (user && user.email === ADMIN_EMAIL) {
+    if (isAuthPage) return redirect('/admin')
+    return supabaseResponse
   }
 
-  if (user && isAuthPage) {
-    const dest = user.email === ADMIN_EMAIL ? '/admin' : '/dashboard'
-    return NextResponse.redirect(new URL(dest, request.url))
+  if (user && isAdminPage) {
+    return redirect('/dashboard')
+  }
+
+  // Is this signed-in account actually a tutor? A logged-in NON-tutor (e.g. a
+  // student who signed in with Google) must never be pushed into the tutor
+  // dashboard — the dashboard layout would redirect them back to /login, and
+  // the /login→/dashboard rule below would send them back again: an infinite
+  // ERR_TOO_MANY_REDIRECTS loop.
+  let isTutor = true
+  if (user && (isDashboardPage || isAuthPage)) {
+    try {
+      const r = await fetch(
+        `${supabaseUrl}/rest/v1/tutors?id=eq.${user.id}&select=id&limit=1`,
+        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+      )
+      const rows = await r.json() as unknown[]
+      isTutor = Array.isArray(rows) && rows.length > 0
+    } catch {
+      isTutor = true // fail open: never lock a real tutor out on a transient error
+    }
+  }
+
+  // Signed in but not a tutor → send to the student sign-in, not the tutor area.
+  if (user && isDashboardPage && !isTutor) {
+    return redirect('/student/login')
+  }
+
+  // Only bounce real tutors away from the login/register pages.
+  if (user && isAuthPage && isTutor) {
+    return redirect('/dashboard')
   }
 
   return supabaseResponse

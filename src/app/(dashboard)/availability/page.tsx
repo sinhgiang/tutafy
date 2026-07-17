@@ -114,7 +114,7 @@ export default function AvailabilityPage() {
           <div>
             <p className="text-[11px] text-gray-400 mb-1.5">Day</p>
             <Select value={newDay} onValueChange={v => setNewDay(v ?? '1')}>
-              <SelectTrigger className="w-36 text-[13px] border-gray-200 h-9"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-36 text-[13px] border-gray-200 h-9"><SelectValue>{(v: unknown) => DAYS[Number(v)] ?? 'Day'}</SelectValue></SelectTrigger>
               <SelectContent>{DAYS.map((d, i) => <SelectItem key={i} value={String(i)} className="text-[13px]">{d}</SelectItem>)}</SelectContent>
             </Select>
           </div>

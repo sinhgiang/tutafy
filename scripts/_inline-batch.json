@@ -1,0 +1,41 @@
+[
+  { "name": "bizplan-notebook-planning", "query": ["business planning notebook", "notebook business plan desk"] },
+  { "name": "bizplan-laptop-owner", "query": ["small business owner laptop", "entrepreneur laptop desk"] },
+  { "name": "bizplan-financial-chart", "query": ["financial planning chart", "budget spreadsheet chart"] },
+
+  { "name": "website-design-laptop", "query": ["web design laptop", "website design screen"] },
+  { "name": "website-homepage-layout", "query": ["website homepage design", "website mockup screen"] },
+  { "name": "website-typing-laptop", "query": ["person typing laptop", "typing computer keyboard"] },
+
+  { "name": "retain-student-studying-online", "query": ["student studying laptop", "online student learning"] },
+  { "name": "retain-teacher-notes-feedback", "query": ["teacher writing notes", "notebook pen writing"] },
+  { "name": "retain-happy-video-call", "query": ["video call happy", "online class smiling laptop"] },
+
+  { "name": "group-class-video-call", "query": ["group video call", "online group class"] },
+  { "name": "group-students-studying", "query": ["students group study", "study group table"] },
+  { "name": "group-classroom-whiteboard", "query": ["classroom whiteboard", "teacher whiteboard lesson"] },
+
+  { "name": "niche-language-teaching", "query": ["language teacher", "language lesson book"] },
+  { "name": "niche-math-whiteboard", "query": ["math whiteboard", "math tutor teaching"] },
+  { "name": "niche-exam-books", "query": ["exam prep books", "student books studying"] },
+
+  { "name": "contract-signing-document", "query": ["signing contract", "contract document pen"] },
+  { "name": "contract-calendar-reschedule", "query": ["calendar schedule desk", "planner calendar desk"] },
+  { "name": "contract-handshake-agreement", "query": ["handshake agreement", "business handshake"] },
+
+  { "name": "ai-teacher-laptop", "query": ["teacher laptop technology", "teacher computer classroom"] },
+  { "name": "ai-digital-notebook", "query": ["digital tablet notes", "tablet notebook writing"] },
+  { "name": "ai-desk-computer-work", "query": ["computer desk work", "laptop desk workspace"] },
+
+  { "name": "migrate-online-teacher-headset", "query": ["teacher headset laptop", "online tutor headset"] },
+  { "name": "migrate-calendar-planning", "query": ["calendar planning desk", "planner schedule notebook"] },
+  { "name": "migrate-checklist-notebook", "query": ["checklist notebook", "to-do list notebook"] },
+
+  { "name": "video-call-meeting-laptop", "query": ["video call meeting", "laptop video call"] },
+  { "name": "video-webcam-online-class", "query": ["webcam online class", "webcam laptop"] },
+  { "name": "video-headset-teaching", "query": ["headset online teaching", "headset microphone laptop"] },
+
+  { "name": "parent-child-laptop", "query": ["parent child laptop", "parent child computer"] },
+  { "name": "parent-progress-report", "query": ["progress report notebook", "report card notebook"] },
+  { "name": "parent-messaging-phone", "query": ["messaging app phone", "texting phone hand"] }
+]

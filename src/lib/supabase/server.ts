@@ -13,7 +13,7 @@ export async function createClient() {
   const cookieStore = await cookies()
 
   if (!isConfigured) {
-    throw new Error('Supabase chưa được cấu hình. Vui lòng điền .env.local')
+    throw new Error('Supabase is not configured. Please fill in .env.local')
   }
 
   return createServerClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -35,7 +35,7 @@ export async function createClient() {
 // Bypasses RLS — admin use only
 export function createAdminClient() {
   if (!isConfigured || !SERVICE_ROLE_KEY) {
-    throw new Error('Supabase admin client chưa được cấu hình')
+    throw new Error('Supabase admin client is not configured')
   }
   return createSupabaseClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },

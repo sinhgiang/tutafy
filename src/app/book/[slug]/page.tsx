@@ -15,6 +15,11 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
 
   if (!tutor || !tutor.booking_url_active) notFound()
 
+  // If a student is signed in (e.g. via "Continue with Google"), pre-fill the form
+  const { data: { user } } = await supabase.auth.getUser()
+  const prefillName = (user?.user_metadata?.full_name as string) ?? (user?.user_metadata?.name as string) ?? ''
+  const prefillEmail = user?.email ?? ''
+
   const { data: availability } = await supabase
     .from('availability')
     .select('*')
@@ -174,6 +179,8 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
             trialEnabled={(tutor as any).trial_enabled ?? false}
             trialPrice={(tutor as any).trial_price ?? null}
             tutorSlug={slug}
+            prefillName={prefillName}
+            prefillEmail={prefillEmail}
           />
         </div>
       </div>

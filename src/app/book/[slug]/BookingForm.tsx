@@ -3,6 +3,37 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { CheckCircle, ChevronLeft, ChevronRight, Globe, ExternalLink, RefreshCw, FileText, Package, Tag, Star, Users } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+
+// "Continue with Google" — signs the student in, then returns to this booking
+// page with their name + email pre-filled (handled server-side via the session).
+function GoogleContinueButton({ slug, label = 'Continue with Google' }: { slug: string; label?: string }) {
+  const [loading, setLoading] = useState(false)
+  async function go() {
+    setLoading(true)
+    // Carry role + destination in cookies; keep redirectTo as the plain
+    // allowlisted callback so Supabase doesn't bounce to the homepage.
+    document.cookie = `tutafy_oauth_role=student; path=/; max-age=600; samesite=lax`
+    document.cookie = `tutafy_oauth_next=${encodeURIComponent(`/book/${slug}`)}; path=/; max-age=600; samesite=lax`
+    const supabase = createClient()
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    })
+  }
+  return (
+    <button type="button" onClick={go} disabled={loading}
+      className="w-full flex items-center justify-center gap-2.5 border border-gray-200 rounded-xl px-4 py-2.5 text-[13px] font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-60">
+      <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+        <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+      </svg>
+      {loading ? 'Redirecting...' : label}
+    </button>
+  )
+}
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
@@ -258,11 +289,12 @@ function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans
   )
 }
 
-function WaitlistForm({ tutorId, onJoined }: { tutorId: string; onJoined: () => void }) {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', prefillEmail = '' }: { tutorId: string; onJoined: () => void; tutorSlug?: string; prefillName?: string; prefillEmail?: string }) {
+  const [name, setName] = useState(prefillName)
+  const [email, setEmail] = useState(prefillEmail)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const signedIn = Boolean(prefillEmail)
 
   async function join() {
     if (!name.trim() || !email.trim()) return
@@ -285,6 +317,20 @@ function WaitlistForm({ tutorId, onJoined }: { tutorId: string; onJoined: () => 
         <span className="text-[11px] text-gray-400 ml-1">— we&apos;ll notify you when slots open</span>
       </div>
       <div className="p-5 space-y-3">
+        {!signedIn && (
+          <>
+            <GoogleContinueButton slug={tutorSlug} label="Continue with Google — auto-fill" />
+            <div className="relative py-0.5">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
+              <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-400">or enter manually</span></div>
+            </div>
+          </>
+        )}
+        {signedIn && (
+          <div className="flex items-center gap-2 text-[12px] text-green-700 bg-green-50 rounded-lg px-3 py-2">
+            <CheckCircle className="h-3.5 w-3.5" /> Signed in as {prefillEmail}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[11px] font-medium text-gray-600 mb-1.5">Full name *</label>
@@ -312,7 +358,7 @@ function WaitlistForm({ tutorId, onJoined }: { tutorId: string; onJoined: () => 
   )
 }
 
-export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '' }: { tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string }) {
+export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '' }: { tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string }) {
   const today = new Date()
   const todayStr = toDS(today.getFullYear(), today.getMonth(), today.getDate())
 
@@ -321,8 +367,8 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   const [duration, setDuration] = useState(60)
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [name, setName] = useState(prefillName)
+  const [email, setEmail] = useState(prefillEmail)
   const [note, setNote] = useState('')
   const [loading, setLoading] = useState(false)
   const [subscribing, setSubscribing] = useState(false)
@@ -467,7 +513,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           <h2 className="text-[18px] font-bold text-gray-900">No availability right now</h2>
           <p className="text-[13px] text-gray-500 mt-2">This tutor doesn&apos;t have open slots at the moment. Join the waitlist and be the first to know.</p>
         </div>
-        <WaitlistForm tutorId={tutor.id} onJoined={() => setWaitlistJoined(true)} />
+        <WaitlistForm tutorId={tutor.id} onJoined={() => setWaitlistJoined(true)} tutorSlug={tutorSlug} prefillName={prefillName} prefillEmail={prefillEmail} />
       </div>
     )
   }
@@ -637,6 +683,20 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Your details</p>
         </div>
         <div className="p-5 space-y-4">
+          {!prefillEmail && (
+            <>
+              <GoogleContinueButton slug={tutorSlug} label="Continue with Google — auto-fill details" />
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
+                <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-400">or enter manually</span></div>
+              </div>
+            </>
+          )}
+          {prefillEmail && (
+            <div className="flex items-center gap-2 text-[12px] text-green-700 bg-green-50 rounded-lg px-3 py-2">
+              <CheckCircle className="h-3.5 w-3.5" /> Signed in as {prefillEmail}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Full name *</label>

@@ -284,6 +284,84 @@ CREATE INDEX IF NOT EXISTS hw_submissions_lesson_idx ON public.homework_submissi
 CREATE INDEX IF NOT EXISTS waitlist_tutor_idx ON public.waitlist(tutor_id);
 `
 
+// 015: Public API keys + outbound webhook subscriptions (Zapier / integrations)
+const MIGRATION_015 = `
+CREATE TABLE IF NOT EXISTS public.api_keys (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  tutor_id uuid REFERENCES public.tutors(id) ON DELETE CASCADE NOT NULL,
+  name text,
+  key_prefix text NOT NULL,
+  key_hash text NOT NULL,
+  last_used_at timestamptz,
+  created_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS api_keys_hash_idx ON public.api_keys(key_hash);
+CREATE INDEX IF NOT EXISTS api_keys_tutor_idx ON public.api_keys(tutor_id);
+ALTER TABLE public.api_keys ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='api_keys' AND policyname='Tutors manage api_keys') THEN
+    CREATE POLICY "Tutors manage api_keys" ON public.api_keys FOR ALL USING (tutor_id = auth.uid());
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.webhook_subscriptions (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  tutor_id uuid REFERENCES public.tutors(id) ON DELETE CASCADE NOT NULL,
+  event text NOT NULL,
+  target_url text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS webhook_subs_tutor_event_idx ON public.webhook_subscriptions(tutor_id, event);
+ALTER TABLE public.webhook_subscriptions ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='webhook_subscriptions' AND policyname='Tutors manage webhook_subscriptions') THEN
+    CREATE POLICY "Tutors manage webhook_subscriptions" ON public.webhook_subscriptions FOR ALL USING (tutor_id = auth.uid());
+  END IF;
+END $$;
+`
+
+// 016: Team members (Academy) + lesson assignment + payroll payouts
+const MIGRATION_016 = `
+CREATE TABLE IF NOT EXISTS public.team_members (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  owner_id uuid REFERENCES public.tutors(id) ON DELETE CASCADE NOT NULL,
+  name text NOT NULL,
+  email text,
+  pay_type text NOT NULL DEFAULT 'per_lesson' CHECK (pay_type IN ('per_lesson','per_hour','revenue_share')),
+  pay_rate decimal(10,2) NOT NULL DEFAULT 0,
+  active boolean DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS team_members_owner_idx ON public.team_members(owner_id);
+ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='team_members' AND policyname='Owners manage team_members') THEN
+    CREATE POLICY "Owners manage team_members" ON public.team_members FOR ALL USING (owner_id = auth.uid());
+  END IF;
+END $$;
+
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS assigned_to uuid REFERENCES public.team_members(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS lessons_assigned_to_idx ON public.lessons(assigned_to);
+
+CREATE TABLE IF NOT EXISTS public.payroll_payouts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  owner_id uuid REFERENCES public.tutors(id) ON DELETE CASCADE NOT NULL,
+  member_id uuid REFERENCES public.team_members(id) ON DELETE CASCADE NOT NULL,
+  amount decimal(10,2) NOT NULL,
+  period_start date,
+  period_end date,
+  note text,
+  paid_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS payroll_payouts_owner_idx ON public.payroll_payouts(owner_id);
+ALTER TABLE public.payroll_payouts ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='payroll_payouts' AND policyname='Owners manage payroll_payouts') THEN
+    CREATE POLICY "Owners manage payroll_payouts" ON public.payroll_payouts FOR ALL USING (owner_id = auth.uid());
+  END IF;
+END $$;
+`
+
 // Run SQL via Supabase Management API (requires SUPABASE_ACCESS_TOKEN)
 async function runViaMgmtApi(sql: string): Promise<{ ok: boolean; error?: string }> {
   const pat = process.env.SUPABASE_ACCESS_TOKEN
@@ -323,8 +401,26 @@ async function runViaPg(sql: string): Promise<{ ok: boolean; error?: string }> {
 
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== process.env.CRON_SECRET && !['tutafy-migrate-007','tutafy-migrate-008','tutafy-migrate-009','tutafy-migrate-010','tutafy-migrate-011','tutafy-migrate-012','tutafy-migrate-013','tutafy-migrate-014'].includes(secret ?? '')) {
+  if (secret !== process.env.CRON_SECRET && !['tutafy-migrate-007','tutafy-migrate-008','tutafy-migrate-009','tutafy-migrate-010','tutafy-migrate-011','tutafy-migrate-012','tutafy-migrate-013','tutafy-migrate-014','tutafy-migrate-015','tutafy-migrate-016'].includes(secret ?? '')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Migration 015: api_keys + webhook_subscriptions (public API / Zapier)
+  if (secret === 'tutafy-migrate-015') {
+    const mgmt015 = await runViaMgmtApi(MIGRATION_015)
+    if (mgmt015.ok) return NextResponse.json({ ok: true, method: 'management-api', message: 'Migration 015 applied' })
+    const pg015 = await runViaPg(MIGRATION_015)
+    if (pg015.ok) return NextResponse.json({ ok: true, method: 'pg', message: 'Migration 015 applied' })
+    return NextResponse.json({ error: 'Migration 015 failed', mgmt_error: mgmt015.error, pg_error: pg015.error }, { status: 503 })
+  }
+
+  // Migration 016: team_members + lessons.assigned_to + payroll_payouts (Academy payroll)
+  if (secret === 'tutafy-migrate-016') {
+    const mgmt016 = await runViaMgmtApi(MIGRATION_016)
+    if (mgmt016.ok) return NextResponse.json({ ok: true, method: 'management-api', message: 'Migration 016 applied' })
+    const pg016 = await runViaPg(MIGRATION_016)
+    if (pg016.ok) return NextResponse.json({ ok: true, method: 'pg', message: 'Migration 016 applied' })
+    return NextResponse.json({ error: 'Migration 016 failed', mgmt_error: mgmt016.error, pg_error: pg016.error }, { status: 503 })
   }
 
   // Migration 014: push_subscription + currency + new lesson columns

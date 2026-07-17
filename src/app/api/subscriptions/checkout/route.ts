@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Create a Stripe product + price on the connected account
     const product = await stripe.products.create(
       {
-        name: `${plan.name} â€” ${plan.lessons_per_period} lessons/${plan.period}`,
+        name: `${plan.name} — ${plan.lessons_per_period} lessons/${plan.period}`,
         description: plan.description ?? undefined,
         metadata: { plan_id: plan.id, tutor_id: tutor.id },
       },

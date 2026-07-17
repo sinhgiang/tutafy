@@ -1,10 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
+import { requireFeature } from '@/lib/guard'
 import { Users, Trash2, Mail } from 'lucide-react'
 import { WaitlistActions } from './WaitlistActions'
 
 export default async function WaitlistPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  const locked = await requireFeature('pro', 'Waitlist')
+  if (locked) return locked
 
   let entries: any[] = []
   try {

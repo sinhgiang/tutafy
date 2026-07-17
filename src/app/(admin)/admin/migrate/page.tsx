@@ -129,27 +129,27 @@ export default function AdminMigratePage() {
       <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-indigo-500" fill="currentColor" />
-          <p className="text-[13px] font-bold text-indigo-900">Cách tự động (làm 1 lần, dùng mãi mãi)</p>
+          <p className="text-[13px] font-bold text-indigo-900">Automatic method (set up once, use forever)</p>
         </div>
         <p className="text-[12px] text-indigo-700 leading-relaxed">
-          Thêm <strong>SUPABASE_ACCESS_TOKEN</strong> vào Vercel → sau đó click &quot;Run&quot; là xong. Lần sau có migration mới cũng chỉ cần click Run, không cần paste SQL nữa.
+          Add <strong>SUPABASE_ACCESS_TOKEN</strong> to Vercel → then click &quot;Run&quot; and you're done. Next time there's a new migration, just click Run again — no more pasting SQL.
         </p>
         <div className="space-y-3">
           <div className="flex items-start gap-3">
             <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
             <div>
-              <p className="text-[12px] text-indigo-800 font-medium">Lấy Personal Access Token</p>
+              <p className="text-[12px] text-indigo-800 font-medium">Get a Personal Access Token</p>
               <a href="https://supabase.com/dashboard/account/tokens" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-[12px] text-indigo-600 hover:text-indigo-800 font-semibold mt-0.5">
                 supabase.com/dashboard/account/tokens <ExternalLink className="h-3 w-3" />
               </a>
-              <p className="text-[11px] text-indigo-600 mt-0.5">Click &quot;Generate new token&quot; → đặt tên &quot;Tutafy Deploy&quot; → Copy token</p>
+              <p className="text-[11px] text-indigo-600 mt-0.5">Click &quot;Generate new token&quot; → name it &quot;Tutafy Deploy&quot; → Copy the token</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
             <div>
-              <p className="text-[12px] text-indigo-800 font-medium">Add vào Vercel Environment Variables</p>
+              <p className="text-[12px] text-indigo-800 font-medium">Add it to Vercel Environment Variables</p>
               <a href="https://vercel.com/sinh-giang-s-projects/tutafy/settings/environment-variables" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-[12px] text-indigo-600 hover:text-indigo-800 font-semibold mt-0.5">
                 vercel.com → tutafy → Settings → Env Vars <ExternalLink className="h-3 w-3" />
@@ -164,8 +164,8 @@ export default function AdminMigratePage() {
           <div className="flex items-start gap-3">
             <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
             <div>
-              <p className="text-[12px] text-indigo-800 font-medium">Click Run bên dưới</p>
-              <p className="text-[11px] text-indigo-600 mt-0.5">Migrations chạy qua Supabase Management API — không cần paste SQL bao giờ nữa</p>
+              <p className="text-[12px] text-indigo-800 font-medium">Click Run below</p>
+              <p className="text-[11px] text-indigo-600 mt-0.5">Migrations run via the Supabase Management API — no need to paste SQL ever again</p>
             </div>
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function AdminMigratePage() {
           <p className="text-[13px] font-semibold text-gray-900">Run Migrations 007 + 008</p>
         </div>
         <p className="text-[12px] text-gray-500">
-          Tự động chọn phương thức tốt nhất: Management API → pg fallback. Idempotent — chạy lại nhiều lần cũng không sao.
+          Automatically picks the best method: Management API → pg fallback. Idempotent — safe to run multiple times.
         </p>
 
         {result && (
@@ -223,7 +223,7 @@ export default function AdminMigratePage() {
             </a>
           </div>
         </div>
-        <p className="text-[12px] text-gray-500">Dùng khi chưa có SUPABASE_ACCESS_TOKEN. Copy → paste vào SQL Editor → Run.</p>
+        <p className="text-[12px] text-gray-500">Use this when SUPABASE_ACCESS_TOKEN isn't set yet. Copy → paste into the SQL Editor → Run.</p>
         <pre className="bg-gray-50 border border-gray-100 rounded-lg p-4 text-[11px] text-gray-700 overflow-auto max-h-[350px] font-mono leading-relaxed whitespace-pre-wrap">
           {SQL_007_008}
         </pre>
