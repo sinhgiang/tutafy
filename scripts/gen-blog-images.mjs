@@ -256,6 +256,29 @@ const HEROES = {
       <circle cx="130" cy="95" r="16" fill="#ec4899" opacity="0.8"/>
       <circle cx="180" cy="95" r="16" fill="#ec4899" opacity="0.4"/>
     </g>` }),
+
+  // Hiring tutors / team — overlapping avatars + plus badge
+  'how-to-hire-tutors-and-build-a-team': base({ from: '#0891b2', to: '#4338ca', label: 'Team', motif: `
+    <g transform="translate(770,150)" opacity="0.95">
+      <circle cx="70" cy="120" r="58" fill="#ffffff" opacity="0.35"/>
+      <circle cx="170" cy="100" r="58" fill="#ffffff" opacity="0.6"/>
+      <circle cx="270" cy="130" r="58" fill="#ffffff" opacity="0.9"/>
+      <circle cx="270" cy="130" r="24" fill="#4338ca"/>
+      <path d="M270 118 v24 M258 130 h24" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+    </g>` }),
+
+  // Referral program — connected network nodes + share arrow
+  'how-to-build-a-tutor-referral-program': base({ from: '#16a34a', to: '#65a30d', label: 'Growth', motif: `
+    <g transform="translate(780,140)" opacity="0.95">
+      <line x1="60" y1="150" x2="200" y2="60" stroke="#ffffff" stroke-width="6" opacity="0.6"/>
+      <line x1="60" y1="150" x2="200" y2="240" stroke="#ffffff" stroke-width="6" opacity="0.6"/>
+      <line x1="200" y1="60" x2="320" y2="130" stroke="#ffffff" stroke-width="6" opacity="0.6"/>
+      <line x1="200" y1="240" x2="320" y2="130" stroke="#ffffff" stroke-width="6" opacity="0.6"/>
+      <circle cx="60" cy="150" r="42" fill="#ffffff" opacity="0.95"/>
+      <circle cx="200" cy="60" r="30" fill="#ffffff" opacity="0.7"/>
+      <circle cx="200" cy="240" r="30" fill="#ffffff" opacity="0.7"/>
+      <circle cx="320" cy="130" r="34" fill="#ffffff" opacity="0.85"/>
+    </g>` }),
 }
 
 const out = []

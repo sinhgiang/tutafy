@@ -201,5 +201,47 @@
     "creator": "Artem Beliaikin",
     "source": "https://www.flickr.com/photos/157635012@N07/40851099253",
     "credit": null
+  },
+  "team-tutor-interview": {
+    "query": "interview two people talking",
+    "license": "by",
+    "creator": "Gangplank HQ",
+    "source": "https://www.flickr.com/photos/61212734@N02/5590138005",
+    "credit": "Photo: Gangplank HQ (CC BY) via Openverse"
+  },
+  "team-tutors-meeting": {
+    "query": "teachers meeting table",
+    "license": "by",
+    "creator": "Rex Pe",
+    "source": "https://www.flickr.com/photos/41087714@N00/250121794",
+    "credit": "Photo: Rex Pe (CC BY) via Openverse"
+  },
+  "team-payroll-paperwork": {
+    "query": "accounting paperwork",
+    "license": "by",
+    "creator": "slightly everything",
+    "source": "https://www.flickr.com/photos/51633081@N04/8169560070",
+    "credit": "Photo: slightly everything (CC BY) via Openverse"
+  },
+  "referral-word-of-mouth": {
+    "query": "two people talking coffee",
+    "license": "pdm",
+    "creator": "US Embassy Canada",
+    "source": "https://www.flickr.com/photos/38144472@N04/4112325047",
+    "credit": null
+  },
+  "referral-phone-share": {
+    "query": "woman smiling phone",
+    "license": "by",
+    "creator": "Emily Rachel Poisel",
+    "source": "https://www.flickr.com/photos/59773112@N07/5928253523",
+    "credit": "Photo: Emily Rachel Poisel (CC BY) via Openverse"
+  },
+  "referral-network-people": {
+    "query": "group of people network",
+    "license": "by",
+    "creator": "Fruitnet.com",
+    "source": "https://www.flickr.com/photos/11191108@N04/2849078727",
+    "credit": "Photo: Fruitnet.com (CC BY) via Openverse"
   }
 }
