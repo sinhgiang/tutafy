@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
-import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
+import { requireApiPlan } from '@/lib/api-guard'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const { supabase, userId } = gate
 
   const { lesson_id, send_email } = await req.json()
   if (!lesson_id) return NextResponse.json({ error: 'lesson_id required' }, { status: 400 })
@@ -15,13 +15,13 @@ export async function POST(req: NextRequest) {
     .from('lessons')
     .select('*, students(name, email)')
     .eq('id', lesson_id)
-    .eq('tutor_id', user.id)
+    .eq('tutor_id', userId)
     .single()
 
   if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
 
   const { data: tutor } = await supabase
-    .from('tutors').select('name').eq('id', user.id).single()
+    .from('tutors').select('name').eq('id', userId).single()
 
   if (!process.env.GROQ_API_KEY) {
     return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 503 })

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
 import { createAdminClient } from '@/lib/supabase/server'
+import { hasPlan } from '@/lib/plans'
 
 // Used from student portal (token auth) OR tutor dashboard (no token)
 export async function POST(req: NextRequest) {
@@ -19,9 +20,15 @@ export async function POST(req: NextRequest) {
   if (portal_token) {
     // Student accessing via portal
     const { data: student } = await supabase
-      .from('students').select('id, name').eq('portal_token', portal_token).single()
+      .from('students').select('id, name, tutor_id').eq('portal_token', portal_token).single()
     if (!student) return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     studentName = student.name
+
+    // This is one of the Pro-only AI tools — gated by the owning tutor's plan, not the student's.
+    const { data: tutor } = await supabase.from('tutors').select('subscription_status').eq('id', student.tutor_id).single()
+    if (!hasPlan(tutor?.subscription_status, 'pro')) {
+      return NextResponse.json({ error: 'upgrade_required' }, { status: 403 })
+    }
 
     if (lesson_id) {
       const { data: lesson } = await supabase

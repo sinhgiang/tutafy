@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiPlan } from '@/lib/api-guard'
 import { generateAccountingCsv, lessonToInvoiceRow, type AccountingProvider } from '@/lib/accounting'
 
 // GET /api/accounting/export?provider=xero|quickbooks&year=YYYY
 // Downloads an invoice CSV of completed, priced lessons ready to import into
 // Xero or QuickBooks Online.
 export async function GET(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const { supabase, userId: user } = gate
 
   const url = new URL(request.url)
   const provider = (url.searchParams.get('provider') === 'quickbooks' ? 'quickbooks' : 'xero') as AccountingProvider
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const { data: lessons } = await supabase
     .from('lessons')
     .select('id, starts_at, duration_minutes, price, status, students(name)')
-    .eq('tutor_id', user.id)
+    .eq('tutor_id', user)
     .eq('status', 'completed')
     .gte('starts_at', `${year}-01-01`)
     .lte('starts_at', `${year}-12-31T23:59:59`)

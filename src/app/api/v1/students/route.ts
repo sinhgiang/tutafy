@@ -49,7 +49,12 @@ export async function POST(request: Request) {
     })
     .select('id, name, email, level, goals, status, created_at')
     .single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    if (error.message === 'student_limit_reached') {
+      return NextResponse.json({ error: "Free plan is limited to 10 students — upgrade to Pro for unlimited students." }, { status: 403 })
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   fireWebhooks(caller.tutorId, 'student.created', { student: data })
   return NextResponse.json({ student: data }, { status: 201 })

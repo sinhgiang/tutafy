@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiPlan } from '@/lib/api-guard'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -96,9 +96,9 @@ function parsePreply(headers: string[], rows: string[][]): ParsedStudent[] {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const user = { id: gate.userId }
 
   const admin = createAdminClient()
 

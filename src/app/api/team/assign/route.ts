@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiPlan } from '@/lib/api-guard'
 
 // POST /api/team/assign — assign (or unassign) a lesson to a team member.
 // Body: { lessonId, memberId }  (memberId null/empty = unassign)
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const gate = await requireApiPlan('academy')
+  if ('error' in gate) return gate.error
+  const { supabase, userId: user } = gate
 
   let body: any
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   // The member (if any) must belong to this owner.
   if (memberId) {
-    const { data: m } = await supabase.from('team_members').select('id').eq('id', memberId).eq('owner_id', user.id).maybeSingle()
+    const { data: m } = await supabase.from('team_members').select('id').eq('id', memberId).eq('owner_id', user).maybeSingle()
     if (!m) return NextResponse.json({ error: 'team member not found' }, { status: 404 })
   }
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     .from('lessons')
     .update({ assigned_to: memberId })
     .eq('id', lessonId)
-    .eq('tutor_id', user.id)
+    .eq('tutor_id', user)
     .select('id, assigned_to')
     .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

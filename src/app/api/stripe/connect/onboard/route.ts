@@ -1,18 +1,19 @@
 ﻿import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiPlan } from '@/lib/api-guard'
 
 export async function POST() {
   if (!process.env.STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
   }
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const { supabase, userId: user } = gate
 
-  const { data: tutor } = await supabase.from('tutors').select('stripe_account_id, email, name').eq('id', user.id).single()
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
+  const { data: tutor } = await supabase.from('tutors').select('stripe_account_id, email, name').eq('id', user).single()
   if (!tutor) return NextResponse.json({ error: 'Tutor not found' }, { status: 404 })
 
   let accountId = tutor.stripe_account_id
@@ -25,7 +26,7 @@ export async function POST() {
       business_profile: { name: tutor.name },
     })
     accountId = account.id
-    await supabase.from('tutors').update({ stripe_account_id: accountId }).eq('id', user.id)
+    await supabase.from('tutors').update({ stripe_account_id: accountId }).eq('id', user)
   }
 
   const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'

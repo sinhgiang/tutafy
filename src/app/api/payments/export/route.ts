@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiPlan } from '@/lib/api-guard'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return new Response('Unauthorized', { status: 401 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const { supabase, userId: user } = gate
 
   const url = new URL(req.url)
   const year = url.searchParams.get('year') ?? new Date().getFullYear().toString()
@@ -14,7 +14,7 @@ export async function GET(req: Request) {
   const { data: lessons } = await supabase
     .from('lessons')
     .select('id, starts_at, duration_minutes, price, payment_status, students(name, email)')
-    .eq('tutor_id', user.id)
+    .eq('tutor_id', user)
     .eq('status', 'completed')
     .gte('starts_at', `${year}-01-01`)
     .lte('starts_at', `${year}-12-31`)

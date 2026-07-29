@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
+import { requireApiPlan } from '@/lib/api-guard'
 
 export async function POST(request: NextRequest) {
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+
   const { prompt, system } = await request.json()
   if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 })
 

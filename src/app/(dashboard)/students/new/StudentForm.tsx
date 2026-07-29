@@ -31,7 +31,13 @@ export function StudentForm() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     const { error } = await supabase.from('students').insert({ ...form, tutor_id: user.id, tags })
-    if (error) { toast.error(error.message); setLoading(false); return }
+    if (error) {
+      toast.error(error.message === 'student_limit_reached'
+        ? "You've reached the Free plan's 10-student limit — upgrade to Pro for unlimited students."
+        : error.message)
+      setLoading(false)
+      return
+    }
     toast.success('Student added!')
     router.push('/students')
     router.refresh()

@@ -9,6 +9,7 @@ import { User, Globe, Link, CreditCard, Clock, CheckCircle, Wallet, Zap, Calenda
 import PushSubscribe from '@/components/PushSubscribe'
 import NextLink from 'next/link'
 import { CustomDomainCard } from './CustomDomainCard'
+import { LockedFeature } from '@/components/plan/LockedFeature'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -47,6 +48,8 @@ export default function SettingsPage() {
   const [linkCopied, setLinkCopied] = useState(false)
   const [stripeConnected, setStripeConnected] = useState(false)
   const [subscriptionStatus, setSubscriptionStatus] = useState('free')
+  const [userId, setUserId] = useState('')
+  const [userEmail, setUserEmail] = useState('')
   const [form, setForm] = useState({
     name: '', bio: '', timezone: 'UTC',
     cancellation_hours: 24, booking_url_active: true, buffer_minutes: 15,
@@ -76,6 +79,8 @@ export default function SettingsPage() {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+      setUserId(user.id)
+      setUserEmail(user.email ?? '')
       const { data } = await supabase.from('tutors').select('*').eq('id', user.id).single()
       if (data) {
         setSlug(data.slug ?? '')
@@ -349,7 +354,15 @@ export default function SettingsPage() {
           </>)}
 
           {/* ── Payments ── */}
-          {tab === 'payments' && (
+          {tab === 'payments' && (!isPaid ? (
+            <LockedFeature
+              required="pro"
+              plan={subscriptionStatus as 'free' | 'pro' | 'academy'}
+              feature="Payments"
+              email={userEmail}
+              tutorId={userId}
+            />
+          ) : (
             <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
                 <Wallet className="h-4 w-4 text-gray-400" />
@@ -412,7 +425,7 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-          )}
+          ))}
 
           {/* ── Trial & Contract ── */}
           {tab === 'extras' && (<>
