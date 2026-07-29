@@ -4,6 +4,20 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Calculator, ArrowRight } from 'lucide-react'
 
+function Field({ label, value, set, min, max, step, suffix }: { label: string; value: number; set: (n: number) => void; min: number; max: number; step: number; suffix: string }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="text-[12px] font-medium text-gray-600">{label}</label>
+        <span className="text-[13px] font-bold text-indigo-600">{value}{suffix}</span>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={value}
+        onChange={e => set(Number(e.target.value))}
+        className="w-full accent-indigo-500" />
+    </div>
+  )
+}
+
 // Value-first lead magnet: the reader enters their own numbers and instantly
 // sees what a marketplace commission costs them per year vs Tutafy's flat price.
 // Honest by design — the numbers are the reader's own, nothing is fabricated.
@@ -17,18 +31,6 @@ export function CommissionCalculator({ initialCommission = 25, title }: { initia
   const tutafyYear = 144 // Pro, $12/mo
   const netKept = Math.max(0, lost - tutafyYear)
   const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`
-
-  const Field = ({ label, value, set, min, max, step, suffix }: { label: string; value: number; set: (n: number) => void; min: number; max: number; step: number; suffix: string }) => (
-    <div>
-      <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[12px] font-medium text-gray-600">{label}</label>
-        <span className="text-[13px] font-bold text-indigo-600">{value}{suffix}</span>
-      </div>
-      <input type="range" min={min} max={max} step={step} value={value}
-        onChange={e => set(Number(e.target.value))}
-        className="w-full accent-indigo-500" />
-    </div>
-  )
 
   return (
     <div className="my-8 bg-white rounded-2xl border border-gray-200 overflow-hidden not-prose">
