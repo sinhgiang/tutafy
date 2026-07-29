@@ -58,7 +58,7 @@ export default function OnboardingPage() {
     if (params.get('signup') === '1') {
       const w = window as any
       w.dataLayer = w.dataLayer || []
-      w.dataLayer.push(['event', 'conversion', { send_to: 'AW-17992399777/DhW2COWKn9gcEKH3uIND' }])
+      w.dataLayer.push(['event', 'conversion', { send_to: 'AW-18335043737/SHlACJ_tptgcEJmh6qZE' }])
       window.history.replaceState({}, '', '/onboarding')
     }
   }, [])
