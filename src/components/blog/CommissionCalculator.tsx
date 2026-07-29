@@ -7,10 +7,10 @@ import { Calculator, ArrowRight } from 'lucide-react'
 // Value-first lead magnet: the reader enters their own numbers and instantly
 // sees what a marketplace commission costs them per year vs Tutafy's flat price.
 // Honest by design — the numbers are the reader's own, nothing is fabricated.
-export function CommissionCalculator() {
+export function CommissionCalculator({ initialCommission = 25, title }: { initialCommission?: number; title?: string }) {
   const [hours, setHours] = useState(15)
   const [rate, setRate] = useState(25)
-  const [commission, setCommission] = useState(25)
+  const [commission, setCommission] = useState(initialCommission)
 
   const annual = hours * rate * 52
   const lost = Math.round(annual * (commission / 100))
@@ -34,7 +34,7 @@ export function CommissionCalculator() {
     <div className="my-8 bg-white rounded-2xl border border-gray-200 overflow-hidden not-prose">
       <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-100 bg-gray-50">
         <Calculator className="h-4 w-4 text-indigo-500" />
-        <p className="text-[13px] font-bold text-gray-900">How much are you losing to commission?</p>
+        <p className="text-[13px] font-bold text-gray-900">{title ?? 'How much are you losing to commission?'}</p>
       </div>
       <div className="grid md:grid-cols-2">
         <div className="p-5 space-y-4 border-b md:border-b-0 md:border-r border-gray-100">

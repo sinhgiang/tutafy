@@ -4,19 +4,20 @@ import {
   GraduationCap, ArrowRight, Check, X, Shield, Lock, CreditCard,
   UploadCloud, Link2, Send, Percent, Clock, Users, Video, Sparkles,
 } from 'lucide-react'
+import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
 
 // Dedicated, distraction-free landing page for Google Ads "switching / alternative"
 // keywords (preply alternative, italki alternative, commission free tutoring platform...).
 // Message-matches the ad via ?from=<competitor> — see COMPETITORS below.
 // Kept out of the site nav and out of the sitemap on purpose (noindex, follow).
 
-const COMPETITORS: Record<string, { name: string; rate: string }> = {
-  preply: { name: 'Preply', rate: '18–33%' },
-  italki: { name: 'iTalki', rate: '~15%' },
-  wyzant: { name: 'Wyzant', rate: '~25%' },
-  cambly: { name: 'Cambly', rate: 'a per-minute cut' },
-  verbling: { name: 'Verbling', rate: '~15%' },
-  superprof: { name: 'Superprof', rate: 'a subscription + lead fees' },
+const COMPETITORS: Record<string, { name: string; rate: string; calcRate: number }> = {
+  preply: { name: 'Preply', rate: '18–33%', calcRate: 25 },
+  italki: { name: 'iTalki', rate: '~15%', calcRate: 15 },
+  wyzant: { name: 'Wyzant', rate: '~25%', calcRate: 25 },
+  cambly: { name: 'Cambly', rate: 'a per-minute cut', calcRate: 20 },
+  verbling: { name: 'Verbling', rate: '~15%', calcRate: 15 },
+  superprof: { name: 'Superprof', rate: 'a subscription + lead fees', calcRate: 20 },
 }
 
 function competitorFrom(param?: string) {
@@ -160,16 +161,20 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
             <h2 className="text-[28px] font-extrabold text-gray-900 tracking-tight text-balance">
               {comp ? `What ${comp.name} costs you vs. Tutafy` : 'What a marketplace costs you vs. Tutafy'}
             </h2>
+            <p className="text-[14px] text-gray-500 mt-3">Plug in your own numbers — this isn’t a hypothetical, it’s your money.</p>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <CommissionCalculator
+            initialCommission={comp ? comp.calcRate : 25}
+            title={comp ? `What ${comp.name} is costing you` : 'What your marketplace is costing you'}
+          />
+          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mt-6">
             <div className="grid grid-cols-3 text-[12px] font-bold text-gray-400 uppercase tracking-wider px-5 py-3 border-b border-gray-50">
               <span></span>
               <span className="text-center text-indigo-600">Tutafy</span>
               <span className="text-center">{comp ? comp.name : 'Marketplace'}</span>
             </div>
             {[
-              { label: 'Commission on your income', tutafy: '0%', market: comp ? comp.rate : '15–33%' },
-              { label: 'Cut of your first trial lesson', tutafy: '0%', market: comp ? 'often 100%' : 'often 100%' },
+              { label: 'Cut of your first trial lesson', tutafy: '0%', market: 'often 100%' },
               { label: 'Built-in video classroom', tutafy: true, market: false },
               { label: 'You own the student relationship', tutafy: true, market: false },
               { label: 'Monthly price', tutafy: 'From $0', market: 'Free, but takes a cut' },
