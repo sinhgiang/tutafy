@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
       }
     } catch { /* non-critical */ }
 
-    return NextResponse.redirect(`${origin}/onboarding`)
+    return NextResponse.redirect(`${origin}/onboarding?signup=1`)
   }
 
   return NextResponse.redirect(`${origin}${next}`)

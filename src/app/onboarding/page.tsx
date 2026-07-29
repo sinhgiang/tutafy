@@ -47,6 +47,22 @@ export default function OnboardingPage() {
     load()
   }, [])
 
+  // Fires the Google Ads "Sign Up" conversion exactly once, right after a brand
+  // new tutor account lands here from register/OAuth (see ?signup=1). Pushing
+  // straight to dataLayer (rather than calling gtag() directly) is safe even if
+  // Analytics.tsx hasn't loaded gtag.js yet — the queued event is processed once
+  // it does. Nothing is sent if the visitor hasn't accepted cookie consent, since
+  // Analytics.tsx won't load gtag.js at all in that case.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('signup') === '1') {
+      const w = window as any
+      w.dataLayer = w.dataLayer || []
+      w.dataLayer.push(['event', 'conversion', { send_to: 'AW-17992399777/DhW2COWKn9gcEKH3uIND' }])
+      window.history.replaceState({}, '', '/onboarding')
+    }
+  }, [])
+
   async function saveProfile() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
