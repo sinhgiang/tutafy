@@ -18,6 +18,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.pay_type !== undefined) { if (!PAY_TYPES.includes(body.pay_type)) return NextResponse.json({ error: 'invalid pay_type' }, { status: 400 }); patch.pay_type = body.pay_type }
   if (body.pay_rate !== undefined) { const r = Number(body.pay_rate); if (!Number.isFinite(r) || r < 0) return NextResponse.json({ error: 'invalid pay_rate' }, { status: 400 }); patch.pay_rate = r }
   if (body.active !== undefined) patch.active = Boolean(body.active)
+  if (body.bio !== undefined) patch.bio = body.bio ? String(body.bio).slice(0, 1000) : null
+  if (body.avatar_url !== undefined) patch.avatar_url = body.avatar_url ? String(body.avatar_url) : null
+  if (body.timezone !== undefined) patch.timezone = body.timezone ? String(body.timezone) : null
+  if (body.booking_url_active !== undefined) patch.booking_url_active = Boolean(body.booking_url_active)
+  if (body.slug !== undefined) {
+    const s = String(body.slug).toLowerCase().trim()
+    if (!/^[a-z0-9-]{3,60}$/.test(s)) return NextResponse.json({ error: 'Slug must be 3-60 characters: letters, numbers, hyphens only' }, { status: 400 })
+    patch.slug = s
+  }
   if (Object.keys(patch).length === 0) return NextResponse.json({ error: 'nothing to update' }, { status: 400 })
 
   const { data, error } = await supabase
@@ -25,9 +34,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .update(patch)
     .eq('id', id)
     .eq('owner_id', user.id)
-    .select('id, name, email, pay_type, pay_rate, active, created_at')
+    .select('id, name, email, pay_type, pay_rate, active, slug, bio, avatar_url, timezone, booking_url_active, created_at')
     .single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    if (error.message.includes('team_members_owner_slug_idx') || error.code === '23505') {
+      return NextResponse.json({ error: 'That booking link is already taken' }, { status: 409 })
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
   if (!data) return NextResponse.json({ error: 'not found' }, { status: 404 })
   return NextResponse.json({ member: data })
 }

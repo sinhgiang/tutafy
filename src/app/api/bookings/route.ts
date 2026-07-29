@@ -52,7 +52,7 @@ function genRoomLink(origin: string, portalToken: string, lessonId: string): str
 
 export async function POST(request: Request) {
   try {
-    const { tutorId, date, time, duration, name, email, message, termsAgreed, isTrial, couponCode } = await request.json()
+    const { tutorId, date, time, duration, name, email, message, termsAgreed, isTrial, couponCode, teamMemberId } = await request.json()
 
     if (!tutorId || !date || !time || !duration || !name || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -60,17 +60,35 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
+    // A team member's booking page passes teamMemberId — verify it actually
+    // belongs to this tutor and is bookable before trusting it.
+    let assignedTo: string | null = null
+    if (teamMemberId) {
+      const { data: member } = await supabase
+        .from('team_members')
+        .select('id')
+        .eq('id', teamMemberId)
+        .eq('owner_id', tutorId)
+        .eq('active', true)
+        .eq('booking_url_active', true)
+        .single()
+      if (!member) return NextResponse.json({ error: 'This tutor is not available for booking.' }, { status: 404 })
+      assignedTo = member.id
+    }
+
     const startsAt = new Date(`${date}T${time}:00`)
     const endsAt = new Date(startsAt.getTime() + duration * 60 * 1000)
 
-    // Check if slot is already booked
-    const { data: existing } = await supabase
+    // Check if slot is already booked — each team member has their own calendar,
+    // so scope the conflict check to the specific assignee (owner if unassigned).
+    let conflictQuery = supabase
       .from('lessons')
       .select('id')
       .eq('tutor_id', tutorId)
       .eq('starts_at', startsAt.toISOString())
       .neq('status', 'cancelled')
-      .single()
+    conflictQuery = assignedTo ? conflictQuery.eq('assigned_to', assignedTo) : conflictQuery.is('assigned_to', null)
+    const { data: existing } = await conflictQuery.single()
 
     if (existing) {
       return NextResponse.json({ error: 'This slot is already booked. Please choose another time.' }, { status: 409 })
@@ -135,6 +153,7 @@ export async function POST(request: Request) {
       ends_at: endsAt.toISOString(),
       duration_minutes: duration,
       status: 'scheduled',
+      assigned_to: assignedTo,
       meet_link: meetLink,
       terms_agreed_at: termsAgreed ? new Date().toISOString() : null,
       is_trial: isTrial ?? false,

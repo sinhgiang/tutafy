@@ -3,11 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Users, Plus, Trash2, Loader2, UserCheck, Wallet } from 'lucide-react'
+import { Users, Plus, Trash2, Loader2, UserCheck, Wallet, Link as LinkIcon, ChevronDown, Copy } from 'lucide-react'
 import type { PayrollResult } from '@/lib/payroll'
+import { createClient } from '@/lib/supabase/client'
 
-interface Member { id: string; name: string; email: string | null; pay_type: string; pay_rate: number; active: boolean }
+interface Member { id: string; name: string; email: string | null; pay_type: string; pay_rate: number; active: boolean; slug?: string; bio?: string | null; booking_url_active?: boolean }
 interface Assignable { id: string; date: string; student: string; price: number; duration: number; assigned_to: string | null }
+interface Slot { id: string; day_of_week: number; start_time: string; end_time: string }
 
 const PAY_TYPES = [
   { value: 'per_lesson', label: 'Per lesson' },
@@ -15,18 +17,143 @@ const PAY_TYPES = [
   { value: 'revenue_share', label: 'Revenue share (%)' },
 ]
 
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const TIMES = Array.from({ length: 48 }, (_, i) => {
+  const h = Math.floor(i / 2).toString().padStart(2, '0')
+  const m = i % 2 === 0 ? '00' : '30'
+  return `${h}:${m}`
+})
+
 function payLabel(type: string, rate: number): string {
   if (type === 'per_lesson') return `$${rate}/lesson`
   if (type === 'per_hour') return `$${rate}/hour`
   return `${rate}% of revenue`
 }
 
-export function TeamClient({ members, payroll, assignable, scope, plan }: {
+function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: string }) {
+  const supabase = createClient()
+  const [bio, setBio] = useState(member.bio ?? '')
+  const [bookingActive, setBookingActive] = useState(member.booking_url_active ?? true)
+  const [savingBio, setSavingBio] = useState(false)
+  const [slots, setSlots] = useState<Slot[] | null>(null)
+  const [newDay, setNewDay] = useState('1')
+  const [newStart, setNewStart] = useState('09:00')
+  const [newEnd, setNewEnd] = useState('17:00')
+  const [savingSlot, setSavingSlot] = useState(false)
+
+  const bookingUrl = tutorSlug && member.slug ? `${typeof window !== 'undefined' ? window.location.origin : ''}/book/${tutorSlug}/${member.slug}` : ''
+
+  async function loadSlots() {
+    const { data } = await supabase.from('availability').select('id, day_of_week, start_time, end_time').eq('team_member_id', member.id).order('day_of_week')
+    setSlots(data ?? [])
+  }
+  if (slots === null) loadSlots()
+
+  async function saveBio() {
+    setSavingBio(true)
+    try {
+      const res = await fetch(`/api/team/${member.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bio }) })
+      if (!res.ok) { const d = await res.json(); toast.error(d.error ?? 'Failed'); return }
+      toast.success('Bio saved')
+    } finally { setSavingBio(false) }
+  }
+
+  async function toggleBookingActive() {
+    const next = !bookingActive
+    setBookingActive(next)
+    const res = await fetch(`/api/team/${member.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ booking_url_active: next }) })
+    if (!res.ok) { setBookingActive(!next); const d = await res.json(); toast.error(d.error ?? 'Failed') }
+  }
+
+  async function addSlot() {
+    if (newStart >= newEnd) { toast.error('End time must be after start time'); return }
+    setSavingSlot(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data, error } = await supabase.from('availability').insert({
+        tutor_id: user.id, team_member_id: member.id, day_of_week: parseInt(newDay), start_time: newStart, end_time: newEnd,
+      }).select('id, day_of_week, start_time, end_time').single()
+      if (error) { toast.error(error.message); return }
+      setSlots(prev => [...(prev ?? []), data].sort((a, b) => a.day_of_week - b.day_of_week))
+      toast.success('Slot added')
+    } finally { setSavingSlot(false) }
+  }
+
+  async function deleteSlot(id: string) {
+    await supabase.from('availability').delete().eq('id', id)
+    setSlots(prev => (prev ?? []).filter(s => s.id !== id))
+  }
+
+  function copyLink() {
+    if (!bookingUrl) return
+    navigator.clipboard.writeText(bookingUrl)
+    toast.success('Booking link copied')
+  }
+
+  return (
+    <div className="px-5 py-4 bg-gray-50/60 border-t border-gray-50 space-y-4">
+      {bookingUrl && (
+        <div className="flex items-center gap-2">
+          <LinkIcon className="h-3.5 w-3.5 text-indigo-400 flex-shrink-0" />
+          <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="text-[12px] text-indigo-600 font-medium truncate hover:underline">{bookingUrl}</a>
+          <button onClick={copyLink} className="text-gray-400 hover:text-indigo-600 transition-colors flex-shrink-0"><Copy className="h-3.5 w-3.5" /></button>
+          <label className="ml-auto flex items-center gap-1.5 text-[11px] text-gray-500 flex-shrink-0">
+            <input type="checkbox" checked={bookingActive} onChange={toggleBookingActive} className="accent-indigo-500" />
+            Booking page active
+          </label>
+        </div>
+      )}
+
+      <div>
+        <p className="text-[11px] text-gray-400 mb-1.5">Bio (shown on booking page)</p>
+        <div className="flex gap-2">
+          <textarea value={bio} onChange={e => setBio(e.target.value)} rows={2} placeholder="A short intro for students"
+            className="flex-1 text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none" />
+          <button onClick={saveBio} disabled={savingBio} className="text-[12px] font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-50 px-2">
+            {savingBio ? '…' : 'Save'}
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <p className="text-[11px] text-gray-400 mb-1.5">Weekly availability</p>
+        <div className="flex flex-wrap gap-2 items-end mb-2">
+          <select value={newDay} onChange={e => setNewDay(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+            {DAYS.map((d, i) => <option key={i} value={i}>{d}</option>)}
+          </select>
+          <select value={newStart} onChange={e => setNewStart(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+            {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <select value={newEnd} onChange={e => setNewEnd(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+            {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <button onClick={addSlot} disabled={savingSlot} className="text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-3 py-1.5 rounded-lg">
+            Add
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {(slots ?? []).length === 0 ? (
+            <p className="text-[11px] text-gray-400">No availability set — this tutor's booking page will show a waitlist form.</p>
+          ) : (slots ?? []).map(s => (
+            <div key={s.id} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg text-[11px] font-medium">
+              {DAYS[s.day_of_week]} {s.start_time.slice(0, 5)}–{s.end_time.slice(0, 5)}
+              <button onClick={() => deleteSlot(s.id)} className="hover:text-red-500 transition-colors"><Trash2 className="h-2.5 w-2.5" /></button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlug }: {
   members: Member[]
   payroll: PayrollResult
   assignable: Assignable[]
   scope: 'all' | 'month'
   plan: string
+  tutorSlug: string
 }) {
   const router = useRouter()
   const [name, setName] = useState('')
@@ -34,6 +161,7 @@ export function TeamClient({ members, payroll, assignable, scope, plan }: {
   const [payType, setPayType] = useState('per_lesson')
   const [payRate, setPayRate] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState<string | null>(null)
 
   const money = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
   const earningsById = new Map(payroll.rows.map(r => [r.memberId, r.earnings]))
@@ -201,18 +329,25 @@ export function TeamClient({ members, payroll, assignable, scope, plan }: {
         ) : (
           <div className="divide-y divide-gray-50">
             {members.map(m => (
-              <div key={m.id} className="flex items-center gap-3 px-5 py-3">
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[11px] font-bold text-indigo-600">{m.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}</span>
+              <div key={m.id}>
+                <div className="flex items-center gap-3 px-5 py-3">
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <span className="text-[11px] font-bold text-indigo-600">{m.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-gray-900">{m.name}</p>
+                    <p className="text-[11px] text-gray-400">{payLabel(m.pay_type, Number(m.pay_rate))}{m.email ? ` · ${m.email}` : ''}</p>
+                  </div>
+                  <span className="text-[12px] font-bold text-emerald-600">{money(earningsById.get(m.id) ?? 0)}</span>
+                  <button onClick={() => setExpanded(expanded === m.id ? null : m.id)}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                    Booking page <ChevronDown className={`h-3.5 w-3.5 transition-transform ${expanded === m.id ? 'rotate-180' : ''}`} />
+                  </button>
+                  <button onClick={() => removeMember(m.id)} disabled={busy === m.id} className="text-gray-300 hover:text-red-500 transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-gray-900">{m.name}</p>
-                  <p className="text-[11px] text-gray-400">{payLabel(m.pay_type, Number(m.pay_rate))}{m.email ? ` · ${m.email}` : ''}</p>
-                </div>
-                <span className="text-[12px] font-bold text-emerald-600">{money(earningsById.get(m.id) ?? 0)}</span>
-                <button onClick={() => removeMember(m.id)} disabled={busy === m.id} className="text-gray-300 hover:text-red-500 transition-colors">
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                {expanded === m.id && <MemberBookingPanel member={m} tutorSlug={tutorSlug} />}
               </div>
             ))}
           </div>

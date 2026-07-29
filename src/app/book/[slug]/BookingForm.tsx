@@ -358,7 +358,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
   )
 }
 
-export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '' }: { tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string }) {
+export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null }: { tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null }) {
   const today = new Date()
   const todayStr = toDS(today.getFullYear(), today.getMonth(), today.getDate())
 
@@ -447,7 +447,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         tutorId: tutor.id, date, time, duration, name, email, message: note, termsAgreed,
-        isTrial, couponCode: couponApplied?.code ?? null,
+        isTrial, couponCode: couponApplied?.code ?? null, teamMemberId,
       }),
     })
     if (res.ok) {
