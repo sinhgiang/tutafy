@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 import { createCalendarEvent } from '@/lib/google-calendar'
 import { fireWebhooks } from '@/lib/webhooks'
+import { normalizeCurrency } from '@/lib/currency'
 
 async function validateAndApplyCoupon(supabase: any, tutorId: string, code: string, basePrice: number | null) {
   if (!code || !basePrice) return { discount: 0, couponId: null }
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
     // Get tutor info for email + calendar
     const { data: tutor } = await supabase
       .from('tutors')
-      .select('name, email, default_lesson_price, trial_price, trial_enabled, google_calendar_refresh_token, google_calendar_id')
+      .select('name, email, currency, default_lesson_price, trial_price, trial_enabled, google_calendar_refresh_token, google_calendar_id')
       .eq('id', tutorId)
       .single()
 
@@ -270,7 +271,15 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, portal_token: (student as any)?.portal_token ?? null, lesson_id: createdLesson?.id ?? null })
+    // `price` is what this lesson was saved at (trial price, or after a coupon) and `currency` is the tutor's:
+    // exactly what the card checkout charges, so the page shows the student the same amount.
+    return NextResponse.json({
+      success: true,
+      portal_token: (student as any)?.portal_token ?? null,
+      lesson_id: createdLesson?.id ?? null,
+      price: finalPrice,
+      currency: normalizeCurrency(tutor?.currency),
+    })
   } catch (err) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

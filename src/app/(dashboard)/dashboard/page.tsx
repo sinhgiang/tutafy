@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { DashboardHome, type DashboardData, type LessonRow, type AtRiskRow, type ReminderRow } from '@/components/dashboard/DashboardHome'
-
-const CURRENCY_SYMBOL: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$', VND: '₫' }
+import { currencySymbol as symbolOf } from '@/lib/currency'
 
 function toLessonRow(l: any): LessonRow {
   const s = Array.isArray(l.students) ? l.students[0] : l.students
@@ -54,22 +53,22 @@ export default async function DashboardPage() {
     { data: weekLessonsRaw },
     { data: invoicesRaw },
   ] = await Promise.all([
-    supabase.from('tutors').select('name').eq('id', user!.id).single(),
+    supabase.from('tutors').select('name, currency').eq('id', user!.id).single(),
     supabase.from('lessons').select(LESSON_COLS).eq('tutor_id', user!.id).eq('status', 'scheduled').gte('starts_at', nowIso).order('starts_at').limit(12),
     supabase.from('lessons').select(LESSON_COLS).eq('tutor_id', user!.id).in('status', ['completed', 'no_show']).order('starts_at', { ascending: false }).limit(12),
     supabase.from('lessons').select(LESSON_COLS).eq('tutor_id', user!.id).eq('status', 'cancelled').order('starts_at', { ascending: false }).limit(12),
     supabase.from('students').select('id, name, level, avatar_url').eq('tutor_id', user!.id).eq('status', 'active'),
-    supabase.from('lessons').select('starts_at, status, price, currency').eq('tutor_id', user!.id).gte('starts_at', weekStart.toISOString()).lt('starts_at', weekEnd.toISOString()),
-    supabase.from('invoices').select('id, amount, currency, status, due_date, students(name)').eq('tutor_id', user!.id).in('status', ['sent', 'overdue']).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
+    supabase.from('lessons').select('starts_at, status, price').eq('tutor_id', user!.id).gte('starts_at', weekStart.toISOString()).lt('starts_at', weekEnd.toISOString()),
+    supabase.from('invoices').select('id, amount, status, due_date, students(name)').eq('tutor_id', user!.id).in('status', ['sent', 'overdue']).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
   ])
 
   const upcoming = (upcomingRaw ?? []).map(toLessonRow)
   const past = (pastRaw ?? []).map(toLessonRow)
   const cancelled = (cancelledRaw ?? []).map(toLessonRow)
 
-  // Currency symbol from any available record
-  const ccy = (weekLessonsRaw ?? [])[0]?.currency ?? (invoicesRaw ?? [])[0]?.currency ?? 'USD'
-  const currencySymbol = CURRENCY_SYMBOL[ccy] ?? '$'
+  // The tutor's own currency (Settings), the one the booking page shows. Not lessons.currency or
+  // invoices.currency: nothing writes them, so they say USD for every tutor.
+  const currencySymbol = symbolOf(tutor?.currency)
 
   // ── At risk: active students with no scheduled lesson in the next 21 days ──
   const next21 = new Date(now.getTime() + 21 * 86400000).toISOString()
