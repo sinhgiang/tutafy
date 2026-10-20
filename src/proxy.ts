@@ -69,7 +69,7 @@ export async function proxy(request: NextRequest) {
     path.startsWith('/import') ||
     path.startsWith('/messages') ||
     path.startsWith('/upgrade')
-  const isAdminPage = path.startsWith('/admin')
+  const isAdminPage = path.startsWith('/admin') || path === '/super-admin' || path.startsWith('/super-admin/')
 
   // Helper: carry session cookies through redirects to prevent refresh-token loop
   function redirect(dest: string) {

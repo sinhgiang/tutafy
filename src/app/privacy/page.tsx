@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'How Tutafy collects, uses and protects your data.',
 }
 
-const UPDATED = 'July 7, 2026'
+const UPDATED = 'October 20, 2026'
 
 export default function PrivacyPage() {
   return (
@@ -64,6 +64,17 @@ export default function PrivacyPage() {
 
           <Section title="Cookies & analytics">
             <p>We use <b>essential cookies</b> to keep you signed in and run the app. On our public marketing pages we also use, <b>only with your consent</b>, analytics and advertising cookies to understand how visitors find us and to measure our ads — including Google Analytics / Google Ads and the Meta (Facebook) Pixel. You can accept or decline these in the cookie banner, and change your mind anytime by clearing your browser storage. Declining does not affect your ability to use Tutafy.</p>
+          </Section>
+
+          <Section title="How visitors find us (our own measurement)">
+            <p>Only if you accept cookies, we also keep a short record of your visit in our own database (not with an advertising company), so we can learn which sites and searches lead to Tutafy and which pages help people decide. We store:</p>
+            <ul className="list-disc pl-5 space-y-1.5 mt-2">
+              <li>a random visitor ID kept in one cookie (<code>tutafy_vid</code>) that lasts up to 13 months;</li>
+              <li>your country (two-letter code, taken from our host&apos;s country header), the website, search or assistant that sent you (for example Google, an AI assistant such as ChatGPT, Gemini, Claude, Perplexity or Copilot, a social site, or none) and any campaign tags in the link;</li>
+              <li>the pages you open on tutafy.com, as short page names with no personal details (for example <code>/blog</code> or <code>/upgrade</code>), their order and time, whether you pressed an upgrade button, and whether a paid plan followed;</li>
+              <li>if you create a tutor account or sign in while this cookie is set, a link between the visitor ID and your account, so we can see which journey ended in a purchase.</li>
+            </ul>
+            <p className="mt-2">We do <b>not</b> store your IP address, your browser details, the full web address (no search terms or ids) or the content of anything you type. Only the Tutafy owner can see these records. If you decline in the cookie banner, nothing is recorded and anything already stored for your visitor ID is deleted. We keep these records for at most 13 months. To have the records linked to your account deleted sooner, email us at the address below.</p>
           </Section>
 
           <Section title="International visitors (GDPR / CCPA)">

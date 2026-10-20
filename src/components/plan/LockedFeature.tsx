@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { Lock, Sparkles, Users, Check, ArrowRight, Loader2, Zap } from 'lucide-react'
 import { polarCheckoutUrl, PLAN_LABEL, PLAN_PRICE, type Plan } from '@/lib/plans'
+import { trackCheckoutClick } from '@/lib/track-client'
 
 const BENEFITS: Record<Plan, string[]> = {
   free: [],
@@ -49,6 +50,7 @@ export function LockedFeature({
   // unlock the page in place. Falls back to the hosted checkout if the tutor has
   // no card on file yet (first paid upgrade) or the API isn't configured.
   async function instantUpgrade() {
+    if (required !== 'free') trackCheckoutClick(required) // visitor journey: only if cookies were accepted
     setCharging(true)
     try {
       const res = await fetch('/api/subscriptions/upgrade', {
@@ -152,6 +154,7 @@ export function LockedFeature({
               // No card yet (first paid upgrade) → prefilled hosted checkout.
               <a
                 href={checkoutHref}
+                onClick={() => { if (required !== 'free') trackCheckoutClick(required) }}
                 className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl text-[14px] font-bold text-white transition-colors ${
                   isAcademy ? 'bg-amber-500 hover:bg-amber-600' : 'bg-indigo-500 hover:bg-indigo-600'
                 }`}

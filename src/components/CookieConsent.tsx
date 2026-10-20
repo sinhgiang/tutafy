@@ -34,7 +34,7 @@ export function CookieConsent() {
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-[60] bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-300/40 p-5">
       <p className="text-[13px] font-semibold text-gray-900 mb-1">We value your privacy 🍪</p>
       <p className="text-[12px] text-gray-500 leading-relaxed">
-        We use cookies to run the site and, with your consent, to measure our marketing. See our{' '}
+        We use cookies to run the site and, with your consent, to measure our marketing and see how visitors find us. See our{' '}
         <Link href="/privacy" className="text-indigo-500 hover:underline">Privacy Policy</Link>.
       </p>
       <div className="flex items-center gap-2 mt-3">
