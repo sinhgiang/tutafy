@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BookingForm } from '../../book/[slug]/BookingForm'
+import { isStripeEnabled } from '@/lib/stripe/availability'
 
 export const metadata = { robots: 'noindex' }
 
@@ -59,6 +60,7 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
     <div className="min-h-screen bg-white p-4 max-w-[480px] mx-auto">
       <BookingForm
         tutor={tutor}
+        cardCheckoutEnabled={isStripeEnabled()}
         availability={availability ?? []}
         subscriptionPlans={subscriptionPlans}
         contractTemplate={(tutor as any).contract_template ?? null}

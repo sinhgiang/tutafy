@@ -111,12 +111,18 @@ test('buttons: a stored link that is not https never becomes a button (even if w
   }
 })
 
-test('buttons: the built-in "Pay by Card" checkout is hidden when the tutor has their own card link', () => {
-  assert.equal(showBuiltInCardCheckout({ paddle_checkout_link: STRIPE_LINK }, 'lesson-1', 25), false)
-  assert.equal(showBuiltInCardCheckout({}, 'lesson-1', 25), true)
-  assert.equal(showBuiltInCardCheckout({ paddle_checkout_link: 'http://bad' }, 'lesson-1', 25), true)
-  assert.equal(showBuiltInCardCheckout({}, null, 25), false)
-  assert.equal(showBuiltInCardCheckout({}, 'lesson-1', 0), false)
+test('built-in "Pay by Card" checkout: hidden when the tutor has their own link', () => {
+  assert.equal(showBuiltInCardCheckout({ paddle_checkout_link: STRIPE_LINK }, 'lesson-1', 25, true), false)
+  assert.equal(showBuiltInCardCheckout({}, 'lesson-1', 25, true), true)
+  assert.equal(showBuiltInCardCheckout({ paddle_checkout_link: 'http://bad' }, 'lesson-1', 25, true), true)
+  assert.equal(showBuiltInCardCheckout({}, null, 25, true), false)
+  assert.equal(showBuiltInCardCheckout({}, 'lesson-1', 0, true), false)
+})
+
+test('built-in "Pay by Card" checkout: hidden whenever the platform Stripe is off', () => {
+  assert.equal(showBuiltInCardCheckout({}, 'lesson-1', 25, false), false)
+  assert.equal(showBuiltInCardCheckout({ paypal_link: 'ten' }, 'lesson-1', 25, false), false)
+  assert.equal(showBuiltInCardCheckout({ paddle_checkout_link: STRIPE_LINK }, 'lesson-1', 25, false), false)
 })
 
 // ---- wording and wiring (source checks; the browser run covers the rendering) ----
@@ -136,4 +142,19 @@ test('settings: new label and placeholder, same stored column, https check on sa
   assert.match(src, /cardLinkForSave\(form\.paddle_checkout_link, savedLink\)/)
   assert.match(src, /paddle_checkout_link: linkCheck\.value/)
   assert.match(src, /\(stripeConnected \|\| stripeEnabled === true\) &&/)
+})
+
+test('every page that draws the booking form tells it whether platform Stripe is on (server side)', () => {
+  for (const page of ['app/book/[slug]/page.tsx', 'app/book/[slug]/[member]/page.tsx', 'app/embed/[slug]/page.tsx']) {
+    assert.ok(read(page).includes('cardCheckoutEnabled={isStripeEnabled()}'), page)
+  }
+  const form = read('app/book/[slug]/BookingForm.tsx')
+  assert.match(form, /cardCheckoutEnabled = false/) // no flag, no built-in card button
+  assert.ok(form.includes('showBuiltInCardCheckout(tutor, lessonId, price, cardCheckoutEnabled)'))
+})
+
+test('settings: warns when the saved card link is not usable (not https), using the same check as the booking page', () => {
+  const src = read('app/(dashboard)/settings/page.tsx')
+  assert.ok(src.includes("savedCardLinkUnusable = savedCardLink.trim() !== '' && safeHttpsUrl(savedCardLink) === null"))
+  assert.match(src, /data-testid="card-link-saved-warning"/)
 })
