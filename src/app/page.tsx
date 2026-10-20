@@ -5,7 +5,10 @@ import {
   Video, CreditCard, Shield, Lock, Quote, Star,
   TrendingUp, Clock, HeartHandshake,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { OAuthCatcher } from '@/components/OAuthCatcher'
+import { FEATURES, FAQ, PLANS, type FeatureId } from '@/lib/site-content'
+import { homeJsonLd, jsonLdScript } from '@/lib/seo'
 
 // Real testimonials only — add an entry the moment a tutor gives you a genuine
 // quote. Never invent fake reviews. While empty, an honest "founding tutor"
@@ -26,14 +29,14 @@ const PAINS = [
   { icon: BookOpen, text: 'Lesson prep, homework and progress reports eat the evenings you don\'t get paid for.' },
 ]
 
-const FEATURES = [
-  { icon: Calendar, title: 'Bookings that fill themselves', desc: 'Share one link. Students see your real availability in their timezone and book — no emails, no double-bookings.', color: 'bg-violet-50 text-violet-500' },
-  { icon: Video, title: 'A classroom built right in', desc: 'HD video with one click. No Zoom, no downloads, no 40-minute cut-off. Or connect your own Zoom / Google Meet.', color: 'bg-rose-50 text-rose-500' },
-  { icon: Sparkles, title: 'An AI teaching assistant', desc: 'Lesson plans, homework, feedback and progress reports written in seconds — tailored to each student.', color: 'bg-amber-50 text-amber-500' },
-  { icon: CreditCard, title: 'Get paid, keep it all', desc: 'PayPal, card and packages. Money lands in your account — Tutafy never takes a cut of your income.', color: 'bg-emerald-50 text-emerald-500' },
-  { icon: Users, title: 'Every student, organized', desc: 'Goals, notes, level and full lesson history in one profile. Finally out of the spreadsheet.', color: 'bg-indigo-50 text-indigo-500' },
-  { icon: GraduationCap, title: 'Portals parents love', desc: 'Students and parents get their own login with lessons, homework, progress and vocab quizzes.', color: 'bg-blue-50 text-blue-500' },
-]
+const FEATURE_STYLE: Record<FeatureId, { icon: LucideIcon; color: string }> = {
+  bookings: { icon: Calendar, color: 'bg-violet-50 text-violet-500' },
+  classroom: { icon: Video, color: 'bg-rose-50 text-rose-500' },
+  ai: { icon: Sparkles, color: 'bg-amber-50 text-amber-500' },
+  payments: { icon: CreditCard, color: 'bg-emerald-50 text-emerald-500' },
+  students: { icon: Users, color: 'bg-indigo-50 text-indigo-500' },
+  portals: { icon: GraduationCap, color: 'bg-blue-50 text-blue-500' },
+}
 
 const COMPARE = [
   { label: 'Commission on your income', tutafy: '0%', market: '20–33%' },
@@ -49,33 +52,6 @@ const HOW = [
   { step: '03', title: 'Share your link & teach', desc: 'Students book, pay and join class — you just show up and teach.' },
 ]
 
-const FAQ = [
-  { q: 'Is it really free?', a: 'Yes. The Free plan covers up to 10 students with bookings, video and reminders — forever, no card required. Upgrade only when you outgrow it.' },
-  { q: 'Do you take a commission on my earnings?', a: 'Never. Unlike marketplaces, Tutafy takes 0% of what your students pay you — on every plan. You only pay your normal payment-processor fee.' },
-  { q: 'Do my students need to download anything?', a: 'No. Students book, join the video classroom and see their homework right in the browser — nothing to install.' },
-  { q: 'Can I move over from Preply, iTalki or a spreadsheet?', a: 'Yes. Import your students from a CSV in a couple of clicks and pick up right where you left off.' },
-  { q: 'What if I have a small team?', a: 'The Academy plan adds up to 5 tutors with team scheduling and built-in payroll — pay each tutor per lesson, per hour or on a revenue share.' },
-  { q: 'Can I cancel anytime?', a: 'Anytime, in one click. No lock-in, no contracts, no hidden fees.' },
-]
-
-const PLANS = [
-  {
-    name: 'Free', price: '$0', per: '', tagline: 'Everything you need to start',
-    features: ['Up to 10 students', 'Booking page', 'Built-in video classroom', 'Email & SMS reminders', 'Scheduling'],
-    cta: 'Start for free', href: '/register', highlight: false, badge: '',
-  },
-  {
-    name: 'Pro', price: '$12', per: '/mo', tagline: 'For serious independent tutors',
-    features: ['Unlimited students', 'All 10 AI teaching tools', 'Payments (PayPal / card)', 'Full analytics & reports', 'Public API & Zapier'],
-    cta: 'Go Pro', href: '/upgrade', highlight: true, badge: 'Most popular',
-  },
-  {
-    name: 'Academy', price: '$29', per: '/mo', tagline: 'For small teams & centers',
-    features: ['Everything in Pro', 'Up to 5 tutors', 'Team payroll & split pay', 'Booking page per tutor', 'Priority support'],
-    cta: 'Start Academy', href: '/upgrade', highlight: false, badge: '',
-  },
-]
-
 export default async function LandingPage({ searchParams }: { searchParams: Promise<{ code?: string; next?: string }> }) {
   const { code, next } = await searchParams
   if (code) {
@@ -84,25 +60,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
     redirect(`/auth/callback?${qs.toString()}`)
   }
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'Tutafy',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
-    description: 'All-in-one software for online tutors: bookings, a built-in video classroom, payments, AI teaching tools, and student & parent portals — with 0% commission.',
-    url: (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com').replace(/[﻿​\s]/g, '').replace(/\/+$/, '') || 'https://tutafy.com',
-    offers: [
-      { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Pro', price: '12', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Academy', price: '29', priceCurrency: 'USD' },
-    ],
-  }
-
   return (
     <OAuthCatcher>
     <div className="min-h-screen bg-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {homeJsonLd().map((data, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(data) }} />)}
 
       {/* Nav */}
       <nav className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-50">
@@ -250,15 +211,18 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             <h2 className="text-[36px] font-extrabold text-gray-900 tracking-tight">Everything your tutoring business needs</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map(f => (
+            {FEATURES.map(f => {
+              const style = FEATURE_STYLE[f.id]
+              return (
               <div key={f.title} className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-md hover:-translate-y-0.5 transition-all">
-                <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center mb-4`}>
-                  <f.icon className="h-5 w-5" />
+                <div className={`w-10 h-10 rounded-xl ${style.color} flex items-center justify-center mb-4`}>
+                  <style.icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-900">{f.title}</h3>
                 <p className="text-[13px] text-gray-500 mt-2 leading-relaxed">{f.desc}</p>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
