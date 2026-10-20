@@ -179,7 +179,7 @@ test('the page shows a notice when a read was cut, and the comment about the cap
   const { readFileSync } = await import('node:fs')
   const page = readFileSync(new URL('../src/app/(admin)/super-admin/page.tsx', import.meta.url), 'utf8')
   assert.ok(page.includes('data-testid="super-admin-truncated"'))
-  assert.ok(page.includes('{d.readTruncated && ('))
+  assert.ok(page.includes('{(people.readTruncated || funnel.readTruncated) && ('))
   const data = readFileSync(new URL('../src/lib/super-admin-data.ts', import.meta.url), 'utf8')
   assert.ok(!data.includes('nothing is cut off however many there are'))
   assert.ok(data.includes('range()'))
