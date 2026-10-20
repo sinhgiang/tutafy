@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isAdminEmail } from '@/lib/admin'
 
 export async function proxy(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -51,7 +52,6 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const ADMIN_EMAIL = 'tubxeebyajtube@gmail.com'
   const path = request.nextUrl.pathname
 
   const isAuthPage = path.startsWith('/login') || path.startsWith('/register')
@@ -83,7 +83,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Admin bypass — the admin account can reach everything.
-  if (user && user.email === ADMIN_EMAIL) {
+  if (user && isAdminEmail(user.email)) {
     if (isAuthPage) return redirect('/admin')
     return supabaseResponse
   }
