@@ -307,7 +307,7 @@ export function Header({ tutor }: { tutor: Tutor }) {
 
           {/* Notification panel */}
           {notifOpen && (
-            <div className="absolute right-0 top-10 w-[340px] bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-100 overflow-hidden">
+            <div className="fixed left-2 right-2 top-[64px] md:absolute md:left-auto md:right-0 md:top-10 md:w-[340px] bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-100 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
                 <p className="text-[13px] font-semibold text-gray-900">Notifications</p>
                 <div className="flex items-center gap-1">
@@ -385,7 +385,7 @@ export function Header({ tutor }: { tutor: Tutor }) {
 
     {/* Prompt to enable browser notifications — shown to anyone not yet granted */}
     {!bannerClosed && (permState === 'default' || permState === 'denied') && (
-      <div className="fixed bottom-4 right-4 z-50 w-[340px] bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/60 p-4">
+      <div className="fixed bottom-24 md:bottom-4 right-4 z-50 w-[340px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/60 p-4">
         <div className="flex items-start gap-3">
           <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${permState === 'denied' ? 'bg-amber-50' : 'bg-indigo-50'}`}>
             <Bell className={`h-4 w-4 ${permState === 'denied' ? 'text-amber-500' : 'text-indigo-500'}`} />

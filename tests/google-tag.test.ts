@@ -3,7 +3,7 @@
 // (sign_up, begin_checkout) with no personal data.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import vm from 'node:vm'
 import { fileURLToPath } from 'node:url'
@@ -233,4 +233,28 @@ test('Privacy page names Google Analytics, the two events and what Decline does'
   assert.ok(src.includes('Google Analytics 4 and Google Ads'))
   assert.ok(/signs up for an account or clicks a Go Pro button/.test(src))
   assert.ok(/If you decline, no Google tag is loaded and nothing is sent to Google/.test(src))
+})
+
+// The Reviewer's rule (privacy-scope-matches-mount): the scope the Privacy page claims must be the scope
+// the tag really has. <Analytics /> is mounted in the ROOT layout, so after Accept the Google tag (and the
+// Meta Pixel) load on every page, the signed-in app included; sign_up is sent from /onboarding and
+// begin_checkout from the Go Pro buttons, all inside the app.
+test('Privacy page states the real scope of the Google tag: tutafy.com including the app, not "public marketing pages"', () => {
+  const privacy = read('src/app/privacy/page.tsx')
+  const cookies = privacy.slice(privacy.indexOf('<Section title="Cookies & analytics">'), privacy.indexOf('</Section>', privacy.indexOf('<Section title="Cookies & analytics">')))
+  assert.ok(cookies.length > 200, 'the Cookies & analytics section was not found')
+  assert.ok(/On tutafy\.com, <b>including the app after you sign in<\/b>/.test(cookies), 'the scope sentence is missing')
+  assert.ok(/which pages they view \(in the app too, once you are signed in\)/.test(cookies), 'page views in the app are not named')
+  assert.ok(!/public marketing pages/i.test(cookies), 'a "public marketing pages" scope is no longer true')
+
+  // what the sentence is checked against: where the component is mounted and where the events are sent
+  assert.ok(/<Analytics \/>/.test(read('src/app/layout.tsx')), '<Analytics /> is expected in the root layout; if it moves, rewrite the scope sentence')
+  // no other layout (the app's, admin's, any route group's) mounts it or hides it behind a narrower scope
+  const layouts = (readdirSync(path.join(ROOT, 'src/app'), { recursive: true }) as string[])
+    .map(p => p.replace(/\\/g, '/'))
+    .filter(p => /(^|\/)layout\.tsx$/.test(p) && p !== 'layout.tsx')
+  assert.ok(layouts.length >= 2, 'expected the dashboard and admin layouts')
+  for (const rel of layouts) assert.ok(!/<Analytics\b/.test(read(`src/app/${rel}`)), `src/app/${rel} must not mount its own Analytics`)
+  assert.ok(read('src/app/onboarding/page.tsx').includes(`sendGaEvent(window, getConsent(), 'sign_up')`), 'sign_up is sent from the app (onboarding)')
+  assert.ok(read('src/lib/track-client.ts').includes(`sendGaEvent(window, getConsent(), 'begin_checkout'`), 'begin_checkout is sent from the Go Pro buttons')
 })

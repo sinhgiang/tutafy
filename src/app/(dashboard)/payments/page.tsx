@@ -87,7 +87,7 @@ export default async function PaymentsPage() {
       </div>
 
       {/* Main stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Total Earned', value: formatMoney(total, currency), icon: CheckCircle, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-500', sub: 'all time' },
           { label: 'This Month', value: formatMoney(thisMonth, currency), icon: TrendingUp, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-500', sub: growth != null ? `${growth >= 0 ? '+' : ''}${growth.toFixed(0)}% vs last month` : now.toLocaleDateString('en', { month: 'long' }) },
@@ -107,11 +107,11 @@ export default async function PaymentsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-[1fr_300px] gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-5">
         {/* Weekly chart */}
         <div className="bg-white rounded-xl border border-gray-100 p-5">
           <p className="text-[13px] font-semibold text-gray-900 mb-4">Lessons per week (last 8 weeks)</p>
-          <div className="flex items-end gap-2 h-28">
+          <div className="flex items-end gap-2 lg:h-28">
             {weeks.map((w, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
                 <div className="w-full flex flex-col justify-end" style={{ height: '96px' }}>
@@ -171,48 +171,50 @@ export default async function PaymentsPage() {
             <p className="text-[12px] text-gray-300 mt-0.5">Lessons with a price will appear here</p>
           </div>
         ) : (
-          <table className="w-full">
-            <thead className="bg-gray-50/60">
-              <tr>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Student</th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Date</th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Duration</th>
-                <th className="text-right px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Amount</th>
-                <th className="text-center px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-              <th className="px-5 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {paymentHistory.map(l => (
-                <tr key={l.id} className="hover:bg-gray-50/40 transition-colors">
-                  <td className="px-5 py-3.5">
-                    <Link href={`/lessons/${l.id}`} className="text-[13px] font-medium text-gray-900 hover:text-indigo-600">
-                      {(l.students as any)?.name ?? '—'}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3.5 text-[12px] text-gray-500">
-                    {new Date(l.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </td>
-                  <td className="px-5 py-3.5 text-[12px] text-gray-400">{l.duration_minutes} min</td>
-                  <td className="px-5 py-3.5 text-right">
-                    <span className="text-[13px] font-semibold text-gray-900">{formatMoney(l.price, currency)}</span>
-                  </td>
-                  <td className="px-5 py-3.5 text-center">
-                    <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${STATUS_STYLE[l.payment_status ?? 'pending']}`}>
-                      {l.payment_status ?? 'pending'}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-right">
-                    <a href={`/api/invoices/${l.id}`} target="_blank" rel="noopener noreferrer"
-                      title="Download invoice"
-                      className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-indigo-500 transition-colors">
-                      <FileText className="h-3.5 w-3.5" />
-                    </a>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50/60">
+                <tr>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Student</th>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Duration</th>
+                  <th className="text-right px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Amount</th>
+                  <th className="text-center px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                <th className="px-5 py-3"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {paymentHistory.map(l => (
+                  <tr key={l.id} className="hover:bg-gray-50/40 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <Link href={`/lessons/${l.id}`} className="text-[13px] font-medium text-gray-900 hover:text-indigo-600">
+                        {(l.students as any)?.name ?? '—'}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3.5 text-[12px] text-gray-500">
+                      {new Date(l.starts_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </td>
+                    <td className="px-5 py-3.5 text-[12px] text-gray-400">{l.duration_minutes} min</td>
+                    <td className="px-5 py-3.5 text-right">
+                      <span className="text-[13px] font-semibold text-gray-900">{formatMoney(l.price, currency)}</span>
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${STATUS_STYLE[l.payment_status ?? 'pending']}`}>
+                        {l.payment_status ?? 'pending'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <a href={`/api/invoices/${l.id}`} target="_blank" rel="noopener noreferrer"
+                        title="Download invoice"
+                        className="inline-flex items-center gap-1 text-[11px] text-gray-400 hover:text-indigo-500 transition-colors">
+                        <FileText className="h-3.5 w-3.5" />
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

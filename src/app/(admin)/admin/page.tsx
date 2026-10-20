@@ -41,7 +41,7 @@ export default async function AdminOverviewPage() {
         <p className="text-sm text-gray-500 mt-1">All activity across Tutafy</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map(({ label, value, icon: Icon, color, desc }) => (
           <div key={label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-3">
@@ -56,7 +56,7 @@ export default async function AdminOverviewPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
             <UserCheck className="h-4 w-4 text-gray-400" />

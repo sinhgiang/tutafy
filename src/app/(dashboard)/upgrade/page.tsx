@@ -146,7 +146,7 @@ export default async function UpgradePage() {
       </div>
 
       {/* Plan cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-12">
         {PLANS.map(plan => {
           const isActive = currentPlan === plan.id
           const planRank = RANK[plan.id] ?? 0
@@ -280,7 +280,7 @@ export default async function UpgradePage() {
       </div>
 
       <div className="text-center">
-        <Link href="/settings" className="text-[13px] text-gray-400 hover:text-gray-600 transition-colors">
+        <Link href="/settings" className="text-[13px] text-gray-400 hover:text-gray-600 transition-colors max-lg:inline-flex max-lg:items-center max-lg:min-h-[44px]">
           ← Back to Settings
         </Link>
       </div>

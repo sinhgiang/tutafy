@@ -93,7 +93,7 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
         </div>
       )}
 
-      <div className="grid grid-cols-4 gap-5" data-testid="plan-counts">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5" data-testid="plan-counts">
         {([['Free', 'free', people.counts.free], ['Pro', 'pro', people.counts.pro], ['Academy', 'academy', people.counts.academy], ['All tutors', 'all', people.counts.all]] as const).map(([label, key, n]) => (
           <div key={key} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-1">
@@ -171,35 +171,37 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
           <h2 className="text-sm font-semibold text-gray-900">Funnel by first source</h2>
           <span className="text-xs text-gray-400">visitors who accepted cookies{range.from || range.to ? ', first seen in the range' : ''}</span>
         </div>
-        <table className="w-full text-sm" data-testid="funnel">
-          <thead className="bg-gray-50 border-b border-gray-100">
-            <tr>
-              <th className="text-left px-5 py-2.5 font-medium text-gray-500">Source</th>
-              <th className="text-right px-5 py-2.5 font-medium text-gray-500">Visitors</th>
-              <th className="text-right px-5 py-2.5 font-medium text-gray-500">Signed up</th>
-              <th className="text-right px-5 py-2.5 font-medium text-gray-500">Checkout</th>
-              <th className="text-right px-5 py-2.5 font-medium text-gray-500">Paid</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {funnel.funnel.rows.map(r => (
-              <tr key={r.source} data-source={r.source}>
-                <td className="px-5 py-2.5 text-gray-900">{SOURCE_LABEL[r.source]}</td>
-                <td className="px-5 py-2.5 text-right text-gray-700">{r.visitors}</td>
-                <td className="px-5 py-2.5 text-right text-gray-700">{r.signedUp}</td>
-                <td className="px-5 py-2.5 text-right text-gray-700">{r.checkout}</td>
-                <td className="px-5 py-2.5 text-right font-medium text-gray-900">{r.paid}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" data-testid="funnel">
+            <thead className="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th className="text-left px-5 py-2.5 font-medium text-gray-500">Source</th>
+                <th className="text-right px-5 py-2.5 font-medium text-gray-500">Visitors</th>
+                <th className="text-right px-5 py-2.5 font-medium text-gray-500">Signed up</th>
+                <th className="text-right px-5 py-2.5 font-medium text-gray-500">Checkout</th>
+                <th className="text-right px-5 py-2.5 font-medium text-gray-500">Paid</th>
               </tr>
-            ))}
-            <tr className="bg-gray-50 font-semibold" data-source="total">
-              <td className="px-5 py-2.5 text-gray-900">All</td>
-              <td className="px-5 py-2.5 text-right">{funnel.funnel.total.visitors}</td>
-              <td className="px-5 py-2.5 text-right">{funnel.funnel.total.signedUp}</td>
-              <td className="px-5 py-2.5 text-right">{funnel.funnel.total.checkout}</td>
-              <td className="px-5 py-2.5 text-right">{funnel.funnel.total.paid}</td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {funnel.funnel.rows.map(r => (
+                <tr key={r.source} data-source={r.source}>
+                  <td className="px-5 py-2.5 text-gray-900">{SOURCE_LABEL[r.source]}</td>
+                  <td className="px-5 py-2.5 text-right text-gray-700">{r.visitors}</td>
+                  <td className="px-5 py-2.5 text-right text-gray-700">{r.signedUp}</td>
+                  <td className="px-5 py-2.5 text-right text-gray-700">{r.checkout}</td>
+                  <td className="px-5 py-2.5 text-right font-medium text-gray-900">{r.paid}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50 font-semibold" data-source="total">
+                <td className="px-5 py-2.5 text-gray-900">All</td>
+                <td className="px-5 py-2.5 text-right">{funnel.funnel.total.visitors}</td>
+                <td className="px-5 py-2.5 text-right">{funnel.funnel.total.signedUp}</td>
+                <td className="px-5 py-2.5 text-right">{funnel.funnel.total.checkout}</td>
+                <td className="px-5 py-2.5 text-right">{funnel.funnel.total.paid}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         {funnel.funnelTruncated && <p className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">Showing the newest {FUNNEL_VISITOR_LIMIT} visitors of the range.</p>}
       </div>
 

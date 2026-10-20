@@ -2,21 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, GraduationCap, DollarSign, Settings, BarChart3, LogOut, Shield, ShoppingBag, Telescope } from 'lucide-react'
+import { LogOut, Shield } from 'lucide-react'
+import { ADMIN_NAV } from './admin-nav'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
-const NAV = [
-  { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/admin/tutors', label: 'Tutors', icon: Users },
-  { href: '/super-admin', label: 'Super admin', icon: Telescope },
-  { href: '/admin/buyers', label: 'Buyers', icon: ShoppingBag },
-  { href: '/admin/students', label: 'Students', icon: GraduationCap },
-  { href: '/admin/revenue', label: 'Revenue', icon: DollarSign },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
-]
 
 export function AdminSidebar() {
   const pathname = usePathname()
@@ -29,7 +20,7 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="w-60 min-h-screen bg-gray-950 text-white flex flex-col">
+    <aside className="hidden md:flex w-60 min-h-screen bg-gray-950 text-white flex-col">
       <div className="px-5 py-5 border-b border-gray-800">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
@@ -43,7 +34,7 @@ export function AdminSidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {NAV.map(({ href, label, icon: Icon, exact }) => {
+        {ADMIN_NAV.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href)
           return (
             <Link
