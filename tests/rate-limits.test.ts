@@ -121,15 +121,14 @@ test('/api/auth/register: at most 120 calls a minute overall, whatever id, email
 type Handler = (req: InstanceType<typeof NextRequest>) => Promise<Response> | Response
 
 /** A throw-away route with one limiter, counted on whatever `keyOf` returns. */
-function fakeRoute(keyOf: (req: InstanceType<typeof NextRequest>, body: Record<string, unknown>) => string, max = 4) {
+function fakeRoute(keyOf: (req: InstanceType<typeof NextRequest>) => string | Promise<string>, max = 4) {
   const lim = createLimiter({ max, windowMs: 60_000 })
   const source = `const guard = createLimiter({ max: ${max}, windowMs: 60 * 1000 })`
-  const handler: Handler = async req => {
-    const body = await req.json().catch(() => ({})) as Record<string, unknown>
-    return lim.hit(keyOf(req, body)) ? new Response('ok') : new Response('slow down', { status: 429 })
-  }
+  const handler: Handler = async req => (lim.hit(await keyOf(req)) ? new Response('ok') : new Response('slow down', { status: 429 }))
   return { handler, source, max }
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- a throw-away body of unknown shape, in a self-test
+const jsonOf = async (req: InstanceType<typeof NextRequest>) => (await req.json()) as Record<string, any>
 
 const callWith = (handler: Handler, make: (v: Parameters<Parameters<typeof assertRateLimitHolds>[0]['call']>[0]) => ReturnType<Parameters<Parameters<typeof assertRateLimitHolds>[0]['call']>[0]['request']>) =>
   (v: Parameters<Parameters<typeof assertRateLimitHolds>[0]['call']>[0]) => Promise.resolve(handler(make(v)))
@@ -150,7 +149,7 @@ test('the check FAILS when the limit is counted on a cookie the caller makes up'
 test('the check FAILS when the limit is counted on a header, or on a field of the body', async () => {
   const byHeader = fakeRoute(req => req.headers.get('x-forwarded-for') ?? 'none')
   await assert.rejects(check(byHeader, v => v.request({ headers: { 'x-forwarded-for': v.ip() } })), /does not hold/)
-  const byBody = fakeRoute((_, body) => String(body.email ?? 'none'))
+  const byBody = fakeRoute(async req => String((await jsonOf(req)).email ?? 'none'))
   await assert.rejects(check(byBody, v => v.request({ body: { email: v.email() } })), /does not hold/)
 })
 
@@ -186,6 +185,106 @@ test('the check FAILS when the route reads a field the call never sets', async (
   await assert.rejects(check(route, v => v.request({ body: { a: v.text() } })), /is read by the route but the call does not set it/)
 })
 
+// Every way a route can read the request must either be followed by the check or make it fail. One test per way,
+// each in two forms: the limit counted on a value the caller changes (the check goes red because the limit does
+// not hold) and the call leaving that value the same on every call (red: "same value every time").
+
+test('query parameters: nextUrl.searchParams.get is followed', async () => {
+  const route = () => fakeRoute(req => req.nextUrl.searchParams.get('email') ?? 'none')
+  await assert.rejects(check(route(), v => v.request({ query: { email: v.email() } })), /does not hold when the caller changes url:email/)
+  await assert.rejects(check(route(), v => v.request({ query: { email: 'a@example.com' } })), /url:email is read by the route and the call sets it to the same value every time/)
+  // declared fixed with a reason, and really read, it is accepted
+  await check(fakeRoute(req => (req.nextUrl.searchParams.get('email') ? 'everyone' : 'everyone')), v => v.request({ query: { email: 'a@example.com' } }),
+    [{ kind: 'url', name: 'email', reason: 'the limit here is on the whole route, so this value is only a label' }])
+})
+
+test('query parameters: the whole URL, as request.url or nextUrl.href, counts as every parameter', async () => {
+  const byUrl = () => fakeRoute(req => new URL(req.url).searchParams.get('email') ?? 'none')
+  await assert.rejects(check(byUrl(), v => v.request({ query: { email: v.email() } })), /does not hold/)
+  await assert.rejects(check(byUrl(), v => v.request({ query: { email: 'a@example.com' } })), /url:email is read by the route and the call sets it to the same value every time/)
+  await assert.rejects(check(byUrl(), v => v.request({})), /url:\* is read by the route .* sets no query parameter/)
+  const byHref = fakeRoute(req => req.nextUrl.href)
+  await assert.rejects(check(byHref, v => v.request({ query: { q: 'same' } })), /url:q is read by the route and the call sets it to the same value every time/)
+  // a route that only looks at the path may say so, once, with a reason
+  await check(fakeRoute(req => new URL(req.url).pathname), v => v.request({}), [{ kind: 'url', name: '*', reason: 'the route only looks at the path, which does not change' }])
+})
+
+test('query parameters: a loop over them, and getAll, are followed', async () => {
+  const loop = () => fakeRoute(req => [...req.nextUrl.searchParams.entries()].map(([k, x]) => k + x).join('&'))
+  await assert.rejects(check(loop(), v => v.request({ query: { email: v.email() } })), /does not hold/)
+  await assert.rejects(check(loop(), v => v.request({ query: { email: 'a@example.com' } })), /same value every time/)
+  const all = () => fakeRoute(req => req.nextUrl.searchParams.getAll('tag').join(','))
+  await assert.rejects(check(all(), v => v.request({ query: { tag: 'same' } })), /url:tag is read by the route and the call sets it to the same value every time/)
+})
+
+test('cookies: getAll() and a loop over the cookies are followed', async () => {
+  const getAll = () => fakeRoute(req => req.cookies.getAll().map(c => c.value).join('|'))
+  await assert.rejects(check(getAll(), v => v.request({ cookies: { sid: v.uuid() } })), /does not hold/)
+  await assert.rejects(check(getAll(), v => v.request({ cookies: { sid: 'same' } })), /cookie:sid is read by the route and the call sets it to the same value every time/)
+  const named = () => fakeRoute(req => req.cookies.getAll('sid').map(c => c.value).join('|'))
+  await assert.rejects(check(named(), v => v.request({ cookies: { sid: 'same' } })), /cookie:sid is read/)
+  const loop = fakeRoute(req => { let out = ''; for (const c of req.cookies) out += c[1].value; return out })
+  await assert.rejects(check(loop, v => v.request({ cookies: { sid: 'same' } })), /cookie:sid is read/)
+})
+
+test('headers: entries, forEach and for...of are followed', async () => {
+  const entries = () => fakeRoute(req => [...req.headers.entries()].filter(([k]) => k === 'x-user').map(([, x]) => x).join(''))
+  await assert.rejects(check(entries(), v => v.request({ headers: { 'x-user': v.text() } })), /does not hold/)
+  await assert.rejects(check(entries(), v => v.request({ headers: { 'x-user': 'same' } })), /header:x-user is read by the route and the call sets it to the same value every time/)
+  const forEach = fakeRoute(req => { let out = ''; req.headers.forEach((x, k) => { if (k === 'x-user') out = x }); return out })
+  await assert.rejects(check(forEach, v => v.request({ headers: { 'x-user': 'same' } })), /header:x-user is read/)
+  const forOf = fakeRoute(req => { let out = ''; for (const [k, x] of req.headers) if (k === 'x-user') out = x; return out })
+  await assert.rejects(check(forOf, v => v.request({ headers: { 'x-user': 'same' } })), /header:x-user is read/)
+})
+
+test('body: text() then JSON.parse is followed (every field of the body counts as read)', async () => {
+  const route = () => fakeRoute(async req => String(JSON.parse(await req.text()).email ?? 'none'))
+  await assert.rejects(check(route(), v => v.request({ body: { email: v.email() } })), /does not hold/)
+  await assert.rejects(check(route(), v => v.request({ body: { email: 'a@example.com' } })), /body:email is read by the route and the call sets it to the same value every time/)
+})
+
+test('body: fields nested at any depth, and Object.keys / JSON.stringify of the body, are followed', async () => {
+  const nested = () => fakeRoute(async req => String((await jsonOf(req)).user?.contact?.email ?? 'none'))
+  await assert.rejects(check(nested(), v => v.request({ body: { user: { contact: { email: v.email() } } } })), /does not hold when the caller changes body:user, body:user.contact, body:user.contact.email/)
+  await assert.rejects(check(nested(), v => v.request({ body: { user: { contact: { email: 'a@example.com' } } } })), /body:user.contact.email is read by the route and the call sets it to the same value every time/)
+  // a fresh sibling does not excuse the fixed field the route really reads
+  await assert.rejects(check(nested(), v => v.request({ body: { user: { contact: { email: 'a@example.com' }, other: v.text() } } })), /body:user.contact.email is read by the route and the call sets it to the same value every time/)
+  const stringify = () => fakeRoute(async req => JSON.stringify(await jsonOf(req)))
+  await assert.rejects(check(stringify(), v => v.request({ body: { a: v.text(), b: 'same' } })), /body:b is read by the route and the call sets it to the same value every time/)
+  const keys = fakeRoute(async req => Object.keys(await jsonOf(req)).join(','))
+  await assert.rejects(check(keys, v => v.request({ body: { a: 'same' } })), /body:a is read by the route and the call sets it to the same value every time/)
+})
+
+test('reads the check cannot follow make it fail instead of passing blind', async () => {
+  type Req = InstanceType<typeof NextRequest>
+  const readers: [string, (req: Req) => unknown][] = [
+    ['formData()', req => req.formData()],
+    ['blob()', req => req.blob()],
+    ['arrayBuffer()', req => req.arrayBuffer()],
+    ['clone()', req => req.clone()],
+    ['body', req => req.body],
+  ]
+  for (const [name, read] of readers) {
+    const route = fakeRoute(async req => { await read(req); return 'everyone' })
+    await assert.rejects(check(route, v => v.request({ body: { a: v.text() } })), (err: Error) => err.message.includes(`cannot follow "${name}"`), name)
+  }
+})
+
+test('a part the route reads only from a later call on is still checked', async () => {
+  let calls = 0
+  // like a branch for a visitor that already exists: the first call does not look at the header, the next ones do
+  const route = () => { calls = 0; return fakeRoute(req => (calls++ > 0 ? (req.headers.get('x-late') ?? 'none') : 'first')) }
+  await assert.rejects(check(route(), v => v.request({ headers: { 'x-late': 'same' } })), /header:x-late is read by the route and the call sets it to the same value every time/)
+  await assert.rejects(check(route(), v => v.request({ body: { a: v.text() } })), /header:x-late is read by the route but the call does not set it/)
+  await assert.rejects(check(route(), v => v.request({ headers: { 'x-late': v.text() } })), /does not hold when the caller changes header:x-late/)
+})
+
+test('the check puts the clock back when it is done', async () => {
+  const before = Date.now
+  await check(fakeRoute(() => 'everyone'), v => v.request({ body: { a: v.text() } }))
+  assert.equal(Date.now, before)
+})
+
 // ---- the scan: no limit without a check ---------------------------------------------------------------------------
 
 function routeFiles(dir: string): string[] {
@@ -206,9 +305,33 @@ export function hasOtherLimitSignal(source: string): boolean {
   return /\b429\b|too many requests|rate[-_ ]?limit/i.test(source) && !/createLimiter\(/.test(source)
 }
 
-/** The checks the tests make: `routeFile: '<path>'` followed by `limiter: '<name>'`. */
+/**
+ * The checks the tests really run: a call of the shared check with `routeFile: '<path>', limiter: '<name>'` inside it.
+ * A mention in a comment, or in a call wrapped in `assert.rejects(` (a self-test that expects the check to fail),
+ * is not a check.
+ */
 export function checksIn(testSource: string): { routeFile: string; limiter: string }[] {
-  return [...testSource.matchAll(/routeFile:\s*'([^']+)',\s*limiter:\s*'([^']+)'/g)].map(m => ({ routeFile: m[1], limiter: m[2] }))
+  const out: { routeFile: string; limiter: string }[] = []
+  const needle = 'assertRateLimitHolds({'
+  let from = 0
+  for (;;) {
+    const at = testSource.indexOf(needle, from)
+    if (at < 0) break
+    from = at + needle.length
+    const lineStart = testSource.lastIndexOf('\n', at) + 1
+    if (/^\s*(\/\/|\*|\/\*)/.test(testSource.slice(lineStart, at))) continue // on a comment line
+    if (/assert\.rejects\(\s*$/.test(testSource.slice(Math.max(0, at - 40), at))) continue // expects the check to fail
+    const open = at + needle.length - 1
+    let depth = 0
+    let end = open
+    for (let i = open; i < testSource.length; i++) {
+      if (testSource[i] === '{') depth++
+      else if (testSource[i] === '}' && --depth === 0) { end = i; break }
+    }
+    const m = /routeFile:\s*'([^']+)',\s*limiter:\s*'([^']+)'/.exec(testSource.slice(open, end + 1))
+    if (m) out.push({ routeFile: m[1], limiter: m[2] })
+  }
+  return out
 }
 
 test('scanner self-check', () => {
@@ -216,7 +339,18 @@ test('scanner self-check', () => {
   assert.equal(hasOtherLimitSignal(`return NextResponse.json({}, { status: 429 })`), true)
   assert.equal(hasOtherLimitSignal(`const x = createLimiter({ max: 1 })\nstatus: 429`), false)
   assert.equal(hasOtherLimitSignal(`// the page size limit is 100`), false)
-  assert.deepEqual(checksIn(`routeFile: 'app/api/x/route.ts',\n    limiter: 'perUser',`), [{ routeFile: 'app/api/x/route.ts', limiter: 'perUser' }])
+  // the call is written in two pieces so this very file does not hold a call of its own for the scan to count
+  const call = (body: string) => 'await assertRateLimitHolds' + '({\n' + body + '\n  })'
+  const real = call("    routeFile: 'app/api/x/route.ts',\n    limiter: 'perUser',\n    call: v => go({ a: v.text() }),")
+  assert.deepEqual(checksIn(real), [{ routeFile: 'app/api/x/route.ts', limiter: 'perUser' }])
+  // only a real call is a check: not a comment, not a call that expects a failure, not a bare mention
+  assert.deepEqual(checksIn('// ' + real), [])
+  assert.deepEqual(checksIn('/**\n * ' + real.replace(/\n/g, '\n * ') + '\n */'), [])
+  assert.deepEqual(checksIn('await assert.rejects(' + real.replace('await ', '') + ', /x/)'), [])
+  assert.deepEqual(checksIn("routeFile: 'app/api/x/route.ts',\n    limiter: 'perUser',"), [])
+  assert.deepEqual(checksIn("const note = \"limiter: 'perUser'\""), [])
+  // a call whose block holds braces of its own (an object, a template string) is read to its end
+  assert.deepEqual(checksIn(call("    routeFile: 'app/api/y/route.ts', limiter: 'second', fixed: [{ kind: 'body', name: 'a', reason: 'r' }],\n    call: v => go({ url: `${v.n}` }),")), [{ routeFile: 'app/api/y/route.ts', limiter: 'second' }])
   assert.equal(limiterMax(`const guard = createLimiter({ max: 7, windowMs: 1 })`, 'guard'), 7)
   assert.equal(limiterMax(`const guard = createLimiter({ windowMs: 1, max: 7 })`, 'guard'), 7)
 })
