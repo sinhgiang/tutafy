@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { adminApiGate } from '@/lib/admin-guard'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -399,14 +400,30 @@ async function runViaPg(sql: string): Promise<{ ok: boolean; error?: string }> {
   }
 }
 
-export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get('secret')
-  if (secret !== process.env.CRON_SECRET && !['tutafy-migrate-007','tutafy-migrate-008','tutafy-migrate-009','tutafy-migrate-010','tutafy-migrate-011','tutafy-migrate-012','tutafy-migrate-013','tutafy-migrate-014','tutafy-migrate-015','tutafy-migrate-016'].includes(secret ?? '')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+// This route runs fixed SQL (below) on the real database. It is for the admin account ONLY: no secret in the
+// address, none written in the code. A button press (POST), never a link (GET), and only from this site.
+export async function GET() {
+  return NextResponse.json({ error: 'Use POST' }, { status: 405, headers: { Allow: 'POST' } })
+}
+
+const RUNS = ['all', '013', '014', '015', '016']
+
+export async function POST(req: NextRequest) {
+  const origin = req.headers.get('origin')
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host')
+  let sameSite = false
+  try { sameSite = Boolean(origin && host && new URL(origin).host === host) } catch { /* not a URL */ }
+  if (!sameSite) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const denied = await adminApiGate()
+  if (denied) return denied
+
+  // 'all' = migrations 007 to 012; the others name one migration
+  const run = req.nextUrl.searchParams.get('run') ?? 'all'
+  if (!RUNS.includes(run)) return NextResponse.json({ error: 'Unknown migration' }, { status: 400 })
 
   // Migration 015: api_keys + webhook_subscriptions (public API / Zapier)
-  if (secret === 'tutafy-migrate-015') {
+  if (run === '015') {
     const mgmt015 = await runViaMgmtApi(MIGRATION_015)
     if (mgmt015.ok) return NextResponse.json({ ok: true, method: 'management-api', message: 'Migration 015 applied' })
     const pg015 = await runViaPg(MIGRATION_015)
@@ -415,7 +432,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Migration 016: team_members + lessons.assigned_to + payroll_payouts (Academy payroll)
-  if (secret === 'tutafy-migrate-016') {
+  if (run === '016') {
     const mgmt016 = await runViaMgmtApi(MIGRATION_016)
     if (mgmt016.ok) return NextResponse.json({ ok: true, method: 'management-api', message: 'Migration 016 applied' })
     const pg016 = await runViaPg(MIGRATION_016)
@@ -424,7 +441,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Migration 014: push_subscription + currency + new lesson columns
-  if (secret === 'tutafy-migrate-014') {
+  if (run === '014') {
     const mgmt014 = await runViaMgmtApi(MIGRATION_014)
     if (mgmt014.ok) return NextResponse.json({ ok: true, method: 'management-api', message: 'Migration 014 applied' })
     const pg014 = await runViaPg(MIGRATION_014)
@@ -433,7 +450,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Migration 013 only (schema additions to homework_submissions)
-  if (secret === 'tutafy-migrate-013') {
+  if (run === '013') {
     const mgmt013 = await runViaMgmtApi(MIGRATION_013)
     if (mgmt013.ok) return NextResponse.json({ ok: true, method: 'management-api', message: 'Migration 013 applied' })
     const pg013 = await runViaPg(MIGRATION_013)
