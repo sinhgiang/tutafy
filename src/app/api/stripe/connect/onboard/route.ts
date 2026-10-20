@@ -2,6 +2,7 @@
 import Stripe from 'stripe'
 import { requireApiPlan } from '@/lib/api-guard'
 import { originFromRequest } from '@/lib/app-url'
+import { createAdminClient } from '@/lib/supabase/server'
 
 const SETTINGS_PAYMENTS = '/settings?tab=payments'
 
@@ -59,7 +60,8 @@ export async function POST(request?: Request) {
       business_profile: { name: tutor.name },
     })
     accountId = account.id
-    await supabase.from('tutors').update({ stripe_account_id: accountId }).eq('id', user)
+    // The Stripe account id is a paid-column: only the server (service role) may write it. `user` comes from the session.
+    await createAdminClient().from('tutors').update({ stripe_account_id: accountId }).eq('id', user)
   }
 
   const origin = appOrigin(request)
