@@ -53,11 +53,24 @@ export interface Post {
   slug: string
   title: string
   description: string
-  date: string        // YYYY-MM-DD
+  date: string        // YYYY-MM-DD, the day it was published
+  /**
+   * YYYY-MM-DD, the day the text was last really changed. Leave it out until the post is edited
+   * after it was published (then set it to that day, and never earlier than `date`); a post that
+   * was never edited was last updated the day it was published. Shown on the page, written as
+   * dateModified in the structured data and as lastModified in the sitemap.
+   * Every post so far has been left as published (git history: blog.ts has never changed a post's text).
+   */
+  updated?: string
   category: string
   author: string
   authorBio: string
   content: PostBlock[]
+}
+
+/** When a post was published and when it was last updated (the same day until someone edits it). */
+export function postDates(post: Pick<Post, 'date' | 'updated'>): { published: string; modified: string } {
+  return { published: post.date, modified: post.updated && post.updated > post.date ? post.updated : post.date }
 }
 
 // Read time computed from the real body (Part 5), not hardcoded.
