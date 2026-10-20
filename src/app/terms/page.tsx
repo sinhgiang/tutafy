@@ -1,11 +1,8 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { GraduationCap, ArrowLeft } from 'lucide-react'
+import { pageMetadata } from '@/lib/page-meta'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service',
-  description: 'The terms for using Tutafy.',
-}
+export const metadata = pageMetadata('terms')
 
 const UPDATED = 'July 7, 2026'
 

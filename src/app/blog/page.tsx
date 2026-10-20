@@ -1,13 +1,10 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { GraduationCap, ArrowRight } from 'lucide-react'
 import { POSTS, readingMinutes, heroFor } from '@/lib/blog'
 import { BlogList, type BlogCard } from '@/components/blog/BlogList'
+import { pageMetadata } from '@/lib/page-meta'
 
-export const metadata: Metadata = {
-  title: 'Blog — tips & guides for online tutors',
-  description: 'Practical advice on getting students, running your tutoring business, and keeping 100% of what you earn.',
-}
+export const metadata = pageMetadata('blog')
 
 export default function BlogPage() {
   const cards: BlogCard[] = [...POSTS]

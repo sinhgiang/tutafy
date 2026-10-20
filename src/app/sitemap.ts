@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next'
 import { POSTS } from '@/lib/blog'
+import { SITE_URL as SITE } from '@/lib/site-url'
 
-const SITE = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com').replace(/[﻿​\s]/g, '').replace(/\/+$/, '') || 'https://tutafy.com'
-
-// Only public, indexable pages belong in the sitemap.
+// Only public, indexable pages belong in the sitemap. The sign-in and sign-up pages
+// (/login, /register, /student/login) are noindex (src/lib/page-meta.ts) and so are
+// not listed.
 // Static pages carry no lastModified: nothing records when they last changed, and
 // stamping "today" on every build would tell crawlers a false date. Blog posts use
 // their own publish date, and the blog index the date of its newest post.
@@ -17,9 +18,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/contact', priority: 0.5, freq: 'monthly' },
     { path: '/privacy', priority: 0.3, freq: 'yearly' },
     { path: '/terms', priority: 0.3, freq: 'yearly' },
-    { path: '/register', priority: 0.7, freq: 'monthly' },
-    { path: '/login', priority: 0.5, freq: 'monthly' },
-    { path: '/student/login', priority: 0.5, freq: 'monthly' },
   ]
   const postDate = (date: string) => new Date(date + 'T00:00:00')
   const newestPost = POSTS.reduce<Date | undefined>((latest, p) => (!latest || postDate(p.date) > latest ? postDate(p.date) : latest), undefined)
