@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url'
 
 import { NAV } from '@/components/layout/nav-items'
 import { ADMIN_NAV } from '@/components/admin/admin-nav'
+import { nonSquareButtons, smallTextClasses, fixedWidthProblems, tablesWithoutFrame } from './support/mobile-scans.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
@@ -59,12 +60,7 @@ test('the touch layer is one media block at 1023px and below, after all the base
 
 test('every text size under 14px that a page uses is raised to 14px by the layer', () => {
   const used = new Set<string>()
-  for (const f of FILES) {
-    const src = read(f)
-    for (const m of src.matchAll(/\btext-\[(\d+(?:\.\d+)?)px\]/g)) if (Number(m[1]) < 14) used.add(`text-[${m[1]}px]`)
-    for (const m of src.matchAll(/\btext-\[(\d*\.?\d+)rem\]/g)) if (Number(m[1]) * 16 < 14) used.add(`text-[${m[1]}rem]`)
-    if (/\btext-xs\b/.test(src)) used.add('text-xs')
-  }
+  for (const f of FILES) for (const cls of smallTextClasses(read(f))) used.add(cls)
   assert.ok(used.size >= 8, `expected many small sizes, found ${[...used]}`)
   const block = layerBlock()
   const selector = block.slice(0, block.indexOf('{', block.indexOf(':is(')))
@@ -87,25 +83,7 @@ test('the layer gives buttons, fields and stand-alone links 44px, and fields 16p
   }
 })
 
-// A button drawn at a fixed, non-square size (a switch: 36x20 with a knob that slides a fixed distance)
-// cannot take the 44px minimums: min-width and min-height beat the Tailwind sizes and make it a circle
-// with its knob half way (T-0629 review). It must be a role="switch" (the layer leaves those out and
-// widens their touch area with an invisible box). Square icon buttons (w-7 h-7 ...) simply grow to 44
-// square, which is fine, so they are not in this list.
-const BUTTON_OPENING = /<button\b((?:(?!<[a-zA-Z])[\s\S]){0,900}?)className=(?:"([^"]*)"|\{`([^`]*)`)/g
-
-/** The buttons of one source file that are drawn at a fixed width and height that differ. */
-function nonSquareButtons(src: string) {
-  const found: { tag: string; shape: string; isSwitch: boolean; checked: boolean }[] = []
-  for (const m of src.matchAll(BUTTON_OPENING)) {
-    const classes = (m[2] ?? m[3] ?? '').replace(/\$\{[^}]*\}/g, ' ').split(/\s+/).filter(c => c && !c.includes(':'))
-    const w = classes.find(c => /^w-\d+(?:\.\d+)?$/.test(c))
-    const h = classes.find(c => /^h-\d+(?:\.\d+)?$/.test(c))
-    if (!w || !h || w.slice(2) === h.slice(2)) continue
-    found.push({ tag: m[0].slice(0, 60), shape: `${w} ${h}`, isSwitch: /role="switch"/.test(m[1]), checked: /aria-checked=\{/.test(m[1]) })
-  }
-  return found
-}
+// The scan for buttons drawn at a fixed non-square size is in tests/support/mobile-scans.ts (nonSquareButtons).
 const fixedShapeButtons = () => FILES.flatMap(file => nonSquareButtons(read(file)).map(b => ({ file, ...b })))
 
 test('the two 44px minimums leave out switches, and a switch gets an invisible 44px touch area instead', () => {
@@ -153,15 +131,7 @@ test('the shape finder sees a button that would be stretched (self-check with ma
 // ---- nothing fixed that a phone cannot hold ------------------------------------------------------
 
 test('no fixed width over 360px without a breakpoint, no unprefixed fixed-pixel grid columns', () => {
-  const problems: string[] = []
-  for (const f of FILES) {
-    const src = read(f)
-    for (const m of src.matchAll(/(^|[\s"'`{])((?:min-)?w)-\[(\d+)px\]/g)) {
-      if (Number(m[3]) > 360) problems.push(`${f}: ${m[2]}-[${m[3]}px]`)
-    }
-    for (const m of src.matchAll(/(^|[\s"'`{])grid-cols-\[[^\]]*\d+px[^\]]*\]/g)) problems.push(`${f}: ${m[0].trim()} (put md: in front)`)
-    for (const m of src.matchAll(/style=\{\{[^}]*\bwidth:\s*(\d+)\b/g)) if (Number(m[1]) > 360) problems.push(`${f}: inline width ${m[1]}`)
-  }
+  const problems = FILES.flatMap(f => fixedWidthProblems(f, read(f)))
   assert.deepEqual(problems, [])
 })
 
@@ -178,16 +148,8 @@ test('the payments page stacks its stat cards and its two columns on a phone (it
 })
 
 test('every table is in a frame that scrolls sideways, so a wide table never pushes or cuts the page', () => {
-  const problems: string[] = []
-  for (const f of FILES) {
-    if (f.startsWith('src/components/ui/')) continue // the shared Table already wraps itself in overflow-x-auto
-    const lines = read(f).split('\n')
-    lines.forEach((line, i) => {
-      if (!/<table\b/.test(line)) return
-      const above = lines.slice(Math.max(0, i - 3), i).join('\n')
-      if (!/overflow-x-auto/.test(above)) problems.push(`${f}:${i + 1}`)
-    })
-  }
+  // the shared Table already wraps itself in overflow-x-auto
+  const problems = FILES.filter(f => !f.startsWith('src/components/ui/')).flatMap(f => tablesWithoutFrame(f, read(f)))
   assert.deepEqual(problems, [])
   assert.match(read('src/components/ui/table.tsx'), /relative w-full overflow-x-auto/)
 })
