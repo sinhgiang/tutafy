@@ -22,8 +22,8 @@ export function nonSquareButtons(src: string) {
 }
 
 // ---- text sizes under 14px --------------------------------------------------------------------------------------
-// [claim: small-text-class] Every utility class that sets a text size under 14px (text-[11px], text-[0.8rem], text-xs ...)
-// found in a page is reported, so the phone layer can be made to raise it to 14px.
+// [claim: small-text-class] [claim: small-text-class-rem] [claim: small-text-class-xs] Every utility class that sets a text size
+// under 14px (text-[11px], text-[0.8rem], text-xs) found in a page is reported, so the phone layer can be made to raise it to 14px.
 
 /** The small text-size classes used in one source file. */
 export function smallTextClasses(src: string): string[] {
@@ -35,7 +35,8 @@ export function smallTextClasses(src: string): string[] {
 }
 
 // ---- fixed widths a phone cannot hold ---------------------------------------------------------------------------
-// [claim: fixed-width] A fixed width over 360px without a breakpoint (w-[420px], min-w-[500px], style={{ width: 500 }}) and a
+// [claim: fixed-width] [claim: fixed-width-min] [claim: fixed-width-style] [claim: fixed-width-grid]
+// A fixed width over 360px without a breakpoint (w-[420px], min-w-[500px], style={{ width: 500 }}) and a
 // grid with fixed-pixel columns and no breakpoint prefix are reported.
 
 export function fixedWidthProblems(file: string, src: string): string[] {

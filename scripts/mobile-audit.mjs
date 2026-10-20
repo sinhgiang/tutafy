@@ -3,6 +3,8 @@
 //   sideways scroll (page and the main column), content running off or cut inside a card,
 //   buttons / fields / stand-alone links under 44px, text under 14px, images wider than
 //   their frame. aria-hidden pieces (decorative pictures) are skipped.
+// Only findSmallTargets and findDistorted have rows in tests/support/measure-claims.ts and run in `npm test`; the rest of
+// audit() is described, not claimed, and is run by hand (see LEFT_WITHOUT_ROW in that file).
 //
 // How to run it (docs/feature-map.md, "Phone check"):
 //   1. node scripts/mock-supabase.mjs          (fake data, http://localhost:54399)
@@ -35,10 +37,14 @@ export function makeHelpers(win) {
 }
 
 /**
- * Every button, link, field, summary, tab, menu item, checkbox and switch that is on screen and smaller than 44px (a switch:
- * its invisible touch box smaller than 44px) is reported. Each kind has a row in tests/support/measure-claims.ts, and the test
- * runs this function on a sample in the broken state and one in the right state:
- * [claim: small-target-button] [claim: small-target-link] [claim: small-target-field] [claim: small-target-icon-button] [claim: small-target-switch]
+ * Every button, link, field (an input, a select or a textarea), summary, tab, menu item, checkbox and switch that is on screen and
+ * smaller than 44px (a switch: its invisible touch box smaller than 44px; a checkbox: unless its label is 44px high) is reported.
+ * An icon-only button is reported when it is short or narrow. Each kind has its own row in tests/support/measure-claims.ts (the
+ * name of the kind in its `covers`), and the test runs this function on a sample in the broken state and one in the right state;
+ * a kind named here without a row that covers it turns that test red:
+ * [claim: small-target-button] [claim: small-target-link] [claim: small-target-field] [claim: small-target-select] [claim: small-target-textarea]
+ * [claim: small-target-summary] [claim: small-target-tab] [claim: small-target-menuitem] [claim: small-target-checkbox]
+ * [claim: small-target-icon-button] [claim: small-target-icon-button-narrow] [claim: small-target-switch]
  */
 export function findSmallTargets({ document, getComputedStyle, vis, describe }) {
   const small = []
@@ -78,7 +84,7 @@ export function findSmallTargets({ document, getComputedStyle, vis, describe }) 
 }
 
 /**
- * [claim: distorted-switch] [claim: distorted-round-icon-button-svg] [claim: distorted-round-icon-button-img]
+ * [claim: distorted-switch] [claim: distorted-round-icon-button-svg] [claim: distorted-round-icon-button-img] [claim: distorted-round-icon-button-font]
  * A button drawn in a fixed shape that a rule has stretched out of it is reported. A switch must stay a
  * pill with its knob at one end; a fully rounded button with no text (an icon-only button, whatever the icon is made of: svg, img
  * or a font) must stay a circle. The 44px minimums once turned the settings switches into circles with the knob half way, and
