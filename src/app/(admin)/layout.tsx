@@ -1,15 +1,9 @@
-import { redirect } from 'next/navigation'
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { requireAdminPage } from '@/lib/admin-guard'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 
-const ADMIN_EMAIL = 'tubxeebyajtube@gmail.com'
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) redirect('/login')
-  if (user.email !== ADMIN_EMAIL) redirect('/dashboard')
+  // Signed out -> /login, any non-admin account -> /dashboard (see src/lib/admin.ts)
+  await requireAdminPage()
 
   return (
     <div className="flex min-h-screen bg-gray-100">
