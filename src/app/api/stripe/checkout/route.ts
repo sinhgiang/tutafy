@@ -72,6 +72,26 @@ export async function POST(request: Request) {
   const stripe = new Stripe(secretKey)
   const origin = originFromRequest(request)
 
+  // One open session per lesson. A session this app opened earlier for the lesson and that is still open
+  // is closed first, so a student with two tabs cannot pay the same lesson twice. If Stripe says the
+  // earlier one is already complete, the payment is on its way (the webhook marks the lesson paid): no
+  // new session. Any doubt about the earlier session means no new session.
+  const { data: earlier, error: earlierError } = await admin.from('lesson_card_payments')
+    .select('stripe_session_id, stripe_account_id').eq('lesson_id', lesson.id).eq('status', 'created')
+  if (earlierError) return paymentUnavailable()
+  for (const row of earlier ?? []) {
+    try {
+      const old = await stripe.checkout.sessions.retrieve(row.stripe_session_id, {}, { stripeAccount: row.stripe_account_id })
+      if (old.status === 'complete') return NextResponse.json({ error: 'payment_in_progress' }, { status: 409 })
+      if (old.status === 'open') await stripe.checkout.sessions.expire(row.stripe_session_id, {}, { stripeAccount: row.stripe_account_id })
+    } catch {
+      return paymentUnavailable()
+    }
+    const { error } = await admin.from('lesson_card_payments').update({ status: 'expired' })
+      .eq('stripe_session_id', row.stripe_session_id).eq('status', 'created')
+    if (error) return paymentUnavailable()
+  }
+
   const session = await stripe.checkout.sessions.create(
     {
       payment_method_types: ['card'],
@@ -94,5 +114,28 @@ export async function POST(request: Request) {
     { stripeAccount: tutor.stripe_account_id },
   )
 
+  // Record the session before the student can use it. The webhook marks the lesson paid only through this
+  // row (lesson, tutor, account, amount and currency are ours, written here). If the row cannot be written
+  // (or another request just opened a session for this lesson), the session is closed and no link is given.
+  const { error: saveError } = await admin.from('lesson_card_payments').insert({
+    stripe_session_id: session.id,
+    lesson_id: lesson.id,
+    tutor_id: student.tutor_id,
+    stripe_account_id: tutor.stripe_account_id,
+    amount_minor: unitAmount,
+    currency,
+    status: 'created',
+  })
+  if (saveError || !session.url) {
+    try { await stripe.checkout.sessions.expire(session.id, {}, { stripeAccount: tutor.stripe_account_id }) } catch { /* it expires by itself */ }
+    if (saveError?.code === '23505') return NextResponse.json({ error: 'payment_in_progress' }, { status: 409 })
+    return paymentUnavailable()
+  }
+
   return NextResponse.json({ url: session.url })
+}
+
+// Nothing was charged and no link was given: the same neutral answer the student gets when Stripe is off.
+function paymentUnavailable() {
+  return NextResponse.json({ error: 'payment_unavailable' }, { status: 503 })
 }

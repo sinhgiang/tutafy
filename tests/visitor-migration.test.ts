@@ -21,9 +21,9 @@ async function dbWithTutor() {
   return db
 }
 
-test('the migration file is the next one in order and is not the real-database runner', () => {
+test('the migration file exists once and is not the real-database runner', () => {
   const files = migrationFiles()
-  assert.equal(files[files.length - 1], FILE)
+  assert.ok(files.includes(FILE))
   assert.equal(files.filter(f => f.startsWith('015_')).length, 1)
 })
 

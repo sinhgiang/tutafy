@@ -22,7 +22,9 @@ mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
   namedExports: { createAdminClient: () => db, createClient: async () => ({ auth: { getUser: async () => ({ data: { user: null } }) } }) },
 })
 class FakeStripe {
-  checkout = { sessions: { create: async (params: Call['params'], options?: Call['options']) => { sessions.push({ params, options }); return { url: 'https://checkout.stripe.example/session' } } } }
+  checkout = { sessions: {
+    retrieve: async () => ({ status: 'open' }),
+    expire: async () => ({}), create: async (params: Call['params'], options?: Call['options']) => { sessions.push({ params, options }); return { id: `cs_test_${sessions.length}`, url: 'https://checkout.stripe.example/session' } } } }
 }
 mock.module('stripe', { defaultExport: FakeStripe })
 

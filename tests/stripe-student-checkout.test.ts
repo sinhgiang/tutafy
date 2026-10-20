@@ -25,7 +25,7 @@ mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
 })
 class FakeStripe {
   constructor(key: string) { stripeKeys.push(key) }
-  checkout = { sessions: { create: async (params: Call['params'], options?: Call['options']) => { sessions.push({ params, options }); return { url: 'https://checkout.stripe.example/session' } } } }
+  checkout = { sessions: { create: async (params: Call['params'], options?: Call['options']) => { sessions.push({ params, options }); return { id: `cs_test_${sessions.length}`, url: 'https://checkout.stripe.example/session' } } } }
 }
 mock.module('stripe', { defaultExport: FakeStripe })
 

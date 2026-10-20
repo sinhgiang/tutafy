@@ -157,6 +157,16 @@ test('stripeErrorMessage: off and plan errors become customer wording', () => {
   assert.doesNotMatch(avail.STRIPE_UNAVAILABLE_STUDENT_MESSAGE, /pro|plan|upgrade/i)
 })
 
+test('stripeErrorMessage: a student never sees a raw code for a paid lesson, a payment on its way or a failed link', () => {
+  const { stripeErrorMessage: msg } = avail
+  assert.equal(msg({ error: 'already_settled' }, 'student', 'x'), avail.STUDENT_ALREADY_PAID_MESSAGE)
+  assert.equal(msg({ error: 'payment_in_progress' }, 'student', 'x'), avail.STUDENT_PAYMENT_IN_PROGRESS_MESSAGE)
+  assert.equal(msg({ error: 'payment_unavailable' }, 'student', 'x'), avail.STRIPE_UNAVAILABLE_STUDENT_MESSAGE)
+  for (const text of [avail.STUDENT_ALREADY_PAID_MESSAGE, avail.STUDENT_PAYMENT_IN_PROGRESS_MESSAGE]) {
+    assert.doesNotMatch(text, /pro plan|upgrade|stripe|webhook|_/i)
+  }
+})
+
 test('stripeErrorMessage: ordinary errors and bad bodies are left alone', () => {
   const { stripeErrorMessage: msg } = avail
   assert.equal(msg({ error: 'Tutor not found' }, 'tutor', 'fallback'), 'Tutor not found')

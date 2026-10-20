@@ -55,7 +55,7 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
       if (op === 'update') {
         log.push({ table, op, payload })
         matching.forEach(r => Object.assign(r, payload))
-        return { data: null, error: null, count: null }
+        return returning ? { data: matching.map(r => ({ ...r })), error: null, count: null } : { data: null, error: null, count: null }
       }
       if (op === 'delete') {
         log.push({ table, op })
@@ -73,7 +73,8 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
           return 0
         })
       }
-      out = out.slice(offset, offset + Math.min(max, SERVER_ROW_CAP))
+      // like the real service, a select hands back copies: a later update must not change a row already read
+      out = out.slice(offset, offset + Math.min(max, SERVER_ROW_CAP)).map(r => ({ ...r }))
       if (head) return { data: null, error: null, count: matching.length }
       if (single) return out.length === 1 ? { data: out[0], error: null, count: null } : { data: null, error: { message: 'JSON object requested, multiple (or no) rows returned' }, count: null }
       return maybe ? { data: out[0] ?? null, error: null, count: null } : { data: out, error: null, count: null }
