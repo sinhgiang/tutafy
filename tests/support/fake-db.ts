@@ -8,7 +8,11 @@ export const SERVER_ROW_CAP = 1000
 type Row = Record<string, unknown>
 type Filter = (r: Row) => boolean
 
-export function createFakeDb(initial: Record<string, Row[]> = {}) {
+// `defaults` are column defaults the real database fills in on insert (a value, or a function that makes
+// one), so a test can say what the schema says: e.g. `lessons.currency` is 'USD' for every lesson.
+export type FakeDefaults = Record<string, Record<string, unknown | (() => unknown)>>
+
+export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: FakeDefaults = {}) {
   const tables: Record<string, Row[]> = {}
   for (const [k, v] of Object.entries(initial)) tables[k] = v.map(r => ({ ...r }))
   const log: { table: string; op: string; payload?: unknown }[] = []
@@ -25,14 +29,18 @@ export function createFakeDb(initial: Record<string, Row[]> = {}) {
     let offset = 0
     let head = false
     let maybe = false
+    let single = false
+    let returning = false
 
     const run = () => {
       const rows = tables[table]
       if (op === 'insert') {
-        const list = (Array.isArray(payload) ? payload : [payload!]).map(r => ({ id: r.id ?? nextId++, ...r }))
+        const filled = Object.fromEntries(Object.entries(defaults[table] ?? {}).map(([k, v]) => [k, typeof v === 'function' ? (v as () => unknown)() : v]))
+        const list = (Array.isArray(payload) ? payload : [payload!]).map(r => ({ id: r.id ?? nextId++, ...filled, ...r }))
         log.push({ table, op, payload })
         rows.push(...list)
-        return { data: null, error: null, count: null }
+        if (!returning) return { data: null, error: null, count: null }
+        return single ? { data: list[0], error: null, count: null } : { data: list, error: null, count: null }
       }
       if (op === 'upsert') {
         const key = upsertOpts.onConflict ?? 'id'
@@ -47,7 +55,7 @@ export function createFakeDb(initial: Record<string, Row[]> = {}) {
       if (op === 'update') {
         log.push({ table, op, payload })
         matching.forEach(r => Object.assign(r, payload))
-        return { data: null, error: null, count: null }
+        return returning ? { data: matching.map(r => ({ ...r })), error: null, count: null } : { data: null, error: null, count: null }
       }
       if (op === 'delete') {
         log.push({ table, op })
@@ -65,18 +73,21 @@ export function createFakeDb(initial: Record<string, Row[]> = {}) {
           return 0
         })
       }
-      out = out.slice(offset, offset + Math.min(max, SERVER_ROW_CAP))
+      // like the real service, a select hands back copies: a later update must not change a row already read
+      out = out.slice(offset, offset + Math.min(max, SERVER_ROW_CAP)).map(r => ({ ...r }))
       if (head) return { data: null, error: null, count: matching.length }
+      if (single) return out.length === 1 ? { data: out[0], error: null, count: null } : { data: null, error: { message: 'JSON object requested, multiple (or no) rows returned' }, count: null }
       return maybe ? { data: out[0] ?? null, error: null, count: null } : { data: out, error: null, count: null }
     }
 
     const q = {
-      select(_cols?: string, opts?: { head?: boolean }) { head = !!opts?.head; return q },
+      select(_cols?: string, opts?: { head?: boolean }) { head = !!opts?.head; returning = true; return q },
       insert(p: Row | Row[]) { op = 'insert'; payload = p; return q },
       upsert(p: Row, o?: { onConflict?: string; ignoreDuplicates?: boolean }) { op = 'upsert'; payload = p; upsertOpts = o ?? {}; return q },
       update(p: Row) { op = 'update'; payload = p; return q },
       delete() { op = 'delete'; return q },
       eq(col: string, v: unknown) { filters.push(r => r[col] === v); return q },
+      neq(col: string, v: unknown) { filters.push(r => r[col] !== v); return q },
       in(col: string, vs: unknown[]) { filters.push(r => vs.includes(r[col])); return q },
       is(col: string, v: unknown) { filters.push(r => (r[col] ?? null) === v); return q },
       gte(col: string, v: string) { filters.push(r => String(r[col]) >= v); return q },
@@ -86,6 +97,7 @@ export function createFakeDb(initial: Record<string, Row[]> = {}) {
       limit(n: number) { max = n; return q },
       range(from: number, to: number) { offset = from; max = to - from + 1; return q },
       maybeSingle() { maybe = true; return q },
+      single() { single = true; return q },
       then(resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) {
         try { return Promise.resolve(run()).then(resolve, reject) } catch (e) { return Promise.reject(e).then(resolve, reject) }
       },

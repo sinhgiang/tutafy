@@ -1,37 +1,96 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { createLimiter } from '@/lib/rate-limit-memory'
 
 function generateSlug(name: string) {
   return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Math.random().toString(36).slice(2, 6)
 }
 
-export async function POST(request: NextRequest) {
-  const { userId, email, name, refCode } = await request.json()
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const NEW_ACCOUNT_MAX_AGE_MS = 15 * 60 * 1000 // an account that is not yet a tutor may only be set up within 15 minutes of signing up
 
-  if (!userId || !email || !name) {
+// Limits live in this server instance's memory. The per-account key is a REAL account id (checked
+// below), never a value the caller can make up; the overall one caps the lookups an unknown caller can cause.
+const perAccount = createLimiter({ max: 5, windowMs: 10 * 60 * 1000 })
+const overall = createLimiter({ max: 120, windowMs: 60 * 1000 })
+
+const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string))
+const cleanName = (s: unknown) => (typeof s === 'string' ? s.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 80) : '')
+
+const FORBIDDEN = () => NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+// Creates the tutor profile for an account that has just signed up.
+//
+// Who the profile is for is NEVER taken from the request body on trust:
+//   - signed in (a session cookie): the account is the session's; a body userId naming anyone else is refused;
+//   - no session yet (email confirmation is pending): the body names the account, but it must exist, have been
+//     created in the last 15 minutes, and carry the same email, which is checked with the service role.
+// The email and name saved come from that account, not from the body. An existing profile is never overwritten.
+export async function POST(request: NextRequest) {
+  let body: { userId?: unknown; email?: unknown; name?: unknown; refCode?: unknown }
+  try {
+    body = await request.json()
+  } catch {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
+  const bodyUserId = typeof body.userId === 'string' ? body.userId : ''
+  const bodyEmail = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
+  if (!bodyEmail || !cleanName(body.name)) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+
+  if (!overall.hit('all')) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
 
   const admin = createAdminClient()
 
+  let accountId: string
+  let accountEmail: string
+  let accountName = cleanName(body.name)
+
+  const { data: { user: sessionUser } } = await (await createClient()).auth.getUser()
+  if (sessionUser) {
+    if (bodyUserId && bodyUserId !== sessionUser.id) return FORBIDDEN()
+    accountId = sessionUser.id
+    accountEmail = (sessionUser.email ?? '').toLowerCase()
+  } else {
+    if (!UUID.test(bodyUserId)) return FORBIDDEN()
+    const { data } = await admin.auth.admin.getUserById(bodyUserId)
+    const account = data?.user
+    const age = account?.created_at ? Date.now() - Date.parse(account.created_at) : Number.POSITIVE_INFINITY
+    if (!account || age < 0 || age > NEW_ACCOUNT_MAX_AGE_MS) return FORBIDDEN()
+    if ((account.email ?? '').toLowerCase() !== bodyEmail) return FORBIDDEN()
+    accountId = account.id
+    accountEmail = (account.email ?? '').toLowerCase()
+    accountName = cleanName(account.user_metadata?.name) || accountName
+  }
+  if (!accountEmail) return FORBIDDEN()
+
+  if (!perAccount.hit(accountId)) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+
+  // Already a tutor: nothing to do (and nothing to overwrite).
+  const { data: existing } = await admin.from('tutors').select('id').eq('id', accountId).maybeSingle()
+  if (existing) return NextResponse.json({ ok: true })
+
   // Resolve referral code to referrer's UUID (refCode = referrer's slug)
   let referredBy: string | null = null
+  const refCode = typeof body.refCode === 'string' ? body.refCode.trim().slice(0, 60) : ''
   if (refCode) {
-    const { data: referrer } = await admin.from('tutors').select('id').eq('slug', refCode).single()
+    const { data: referrer } = await admin.from('tutors').select('id').eq('slug', refCode).maybeSingle()
     if (referrer) referredBy = referrer.id
   }
 
   const { error } = await admin.from('tutors').insert({
-    id: userId,
-    email,
-    name,
-    slug: generateSlug(name),
+    id: accountId,
+    email: accountEmail,
+    name: accountName,
+    slug: generateSlug(accountName),
     ...(referredBy ? { referred_by: referredBy } : {}),
   })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
   }
+
+  const safeName = escapeHtml(accountName)
+  const email = accountEmail
 
   // Send onboarding to new tutor
   try {
@@ -45,7 +104,7 @@ export async function POST(request: NextRequest) {
         html: `
           <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
             <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;padding:28px;text-align:center;margin-bottom:28px;">
-              <h1 style="color:white;margin:0;font-size:24px;font-weight:800;">Welcome to Tutafy, ${name}! 🎉</h1>
+              <h1 style="color:white;margin:0;font-size:24px;font-weight:800;">Welcome to Tutafy, ${safeName}! 🎉</h1>
               <p style="color:rgba(255,255,255,0.85);margin:10px 0 0;font-size:15px;">Your entire tutoring business, in one place</p>
             </div>
             <p style="color:#374151;font-size:15px;">Here's what you can do right now:</p>
