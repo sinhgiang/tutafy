@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { getConsent } from '@/components/CookieConsent'
-import { sendGaEvent } from '@/lib/google-tag'
+import { sendGaEvent, sendAdsSignupConversion } from '@/lib/google-tag'
 import { Zap, User, Clock, Share2, Check, ChevronRight, Copy, RefreshCw } from 'lucide-react'
 
 const TIMEZONES = [
@@ -50,17 +50,15 @@ export default function OnboardingPage() {
   }, [])
 
   // Fires the Google Ads "Sign Up" conversion exactly once, right after a brand
-  // new tutor account lands here from register/OAuth (see ?signup=1). Pushing
-  // straight to dataLayer (rather than calling gtag() directly) is safe even if
-  // Analytics.tsx hasn't loaded gtag.js yet — the queued event is processed once
-  // it does. Nothing is sent if the visitor hasn't accepted cookie consent, since
-  // Analytics.tsx won't load gtag.js at all in that case.
+  // new tutor account lands here from register/OAuth (see ?signup=1). It is a real
+  // gtag('event','conversion',...) call (src/lib/google-tag.ts): gtag.js reads only the
+  // `arguments` object that gtag() pushes, never an array pushed by hand. If gtag.js has
+  // not started yet the call waits and is sent after `config`. Nothing is sent, or
+  // queued, unless the visitor accepted cookies; the call carries the label only.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('signup') === '1') {
-      const w = window as any
-      w.dataLayer = w.dataLayer || []
-      w.dataLayer.push(['event', 'conversion', { send_to: 'AW-18335043737/SHlACJ_tptgcEJmh6qZE' }])
+      sendAdsSignupConversion(window, getConsent())
       // GA4 sign_up: no name, no email, no parameters; only after cookies were accepted.
       sendGaEvent(window, getConsent(), 'sign_up')
       window.history.replaceState({}, '', '/onboarding')
