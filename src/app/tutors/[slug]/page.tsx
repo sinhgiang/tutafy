@@ -181,7 +181,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                       {r.comment && (
                         <p className="text-[13px] text-gray-600 mt-2 leading-relaxed">&quot;{r.comment}&quot;</p>
                       )}
-                      <p className="text-[10px] text-gray-300 mt-2">
+                      <p className="text-[10px] text-gray-500 mt-2">
                         {new Date(r.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </p>
                     </div>

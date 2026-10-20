@@ -70,7 +70,7 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
         trialPrice={(tutor as any).trial_price ?? null}
         tutorSlug={slug}
       />
-      <p className="text-center text-[11px] text-gray-300 mt-6">Powered by Tutafy</p>
+      <p className="text-center text-[11px] text-gray-500 mt-6">Powered by Tutafy</p>
     </main>
   )
 }

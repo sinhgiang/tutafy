@@ -574,7 +574,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
               </button>
             </div>
             <div className="grid grid-cols-7 mb-1">
-              {DAYS_SHORT.map(d => <p key={d} className="text-center text-[11px] font-bold text-gray-300 py-1">{d}</p>)}
+              {DAYS_SHORT.map(d => <p key={d} className="text-center text-[11px] font-bold text-gray-500 py-1">{d}</p>)}
             </div>
             <div className="grid grid-cols-7 gap-y-0.5">
               {Array.from({ length: firstDay }).map((_, i) => <div key={i} />)}
@@ -606,12 +606,12 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           <div className="p-5">
             {!date ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-8">
-                <p className="text-[12px] text-gray-300 font-medium">← Pick a date</p>
+                <p className="text-[12px] text-gray-500 font-medium">← Pick a date</p>
               </div>
             ) : slots.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-8 space-y-1">
                 <p className="text-[13px] font-semibold text-gray-500">No availability</p>
-                <p className="text-[11px] text-gray-300">Try another date</p>
+                <p className="text-[11px] text-gray-500">Try another date</p>
               </div>
             ) : (
               <>

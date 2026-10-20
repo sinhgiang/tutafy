@@ -224,7 +224,7 @@ function Block({ b }: { b: PostBlock }) {
         </div>
         {(b.caption || b.credit) && (
           <figcaption className="text-[12px] text-gray-500 mt-2.5 text-center">
-            {b.caption}{b.caption && b.credit ? ' · ' : ''}{b.credit && <span className="text-gray-300">{b.credit}</span>}
+            {b.caption}{b.caption && b.credit ? ' · ' : ''}{b.credit && <span className="text-gray-500">{b.credit}</span>}
           </figcaption>
         )}
       </figure>

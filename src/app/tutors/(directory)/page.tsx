@@ -116,7 +116,7 @@ export default function TutorsPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-[15px] font-semibold text-gray-500">No tutors found</p>
-            <p className="text-[13px] text-gray-300 mt-1">Try adjusting your search or language filter</p>
+            <p className="text-[13px] text-gray-500 mt-1">Try adjusting your search or language filter</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
