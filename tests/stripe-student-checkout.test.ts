@@ -41,6 +41,12 @@ const S2 = '20000000-0000-4000-8000-000000000002'
 const S3 = '20000000-0000-4000-8000-000000000003'
 const S4 = '20000000-0000-4000-8000-000000000004'
 const S5 = '20000000-0000-4000-8000-000000000005' // a second student of the first tutor
+const T5 = '10000000-0000-4000-8000-000000000005' // Pro, connected, charges in Vietnamese dong
+const T6 = '10000000-0000-4000-8000-000000000006' // Pro, connected, charges in euros
+const T7 = '10000000-0000-4000-8000-000000000007' // Pro, connected, a currency value that is not a code
+const S6 = '20000000-0000-4000-8000-000000000006'
+const S7 = '20000000-0000-4000-8000-000000000007'
+const S8 = '20000000-0000-4000-8000-000000000008'
 const L = (n: number) => `30000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 
 function seed() {
@@ -50,6 +56,9 @@ function seed() {
       { id: T2, name: 'Tutor Two', subscription_status: 'pro', stripe_account_id: null, stripe_onboarding_complete: false },
       { id: T3, name: 'Tutor Three', subscription_status: 'free', stripe_account_id: 'acct_tutor_three', stripe_onboarding_complete: true },
       { id: T4, name: 'Tutor Four', subscription_status: 'academy', stripe_account_id: 'acct_tutor_four', stripe_onboarding_complete: false },
+      { id: T5, name: 'Tutor Five', currency: 'VND', subscription_status: 'pro', stripe_account_id: 'acct_tutor_five', stripe_onboarding_complete: true },
+      { id: T6, name: 'Tutor Six', currency: 'EUR', subscription_status: 'pro', stripe_account_id: 'acct_tutor_six', stripe_onboarding_complete: true },
+      { id: T7, name: 'Tutor Seven', currency: 'US$', subscription_status: 'pro', stripe_account_id: 'acct_tutor_seven', stripe_onboarding_complete: true },
     ],
     students: [
       { id: S1, name: 'Student One', tutor_id: T1, portal_token: 'token-one' },
@@ -57,6 +66,9 @@ function seed() {
       { id: S3, name: 'Student Three', tutor_id: T3, portal_token: 'token-three' },
       { id: S4, name: 'Student Four', tutor_id: T4, portal_token: 'token-four' },
       { id: S5, name: 'Student Five', tutor_id: T1, portal_token: 'token-five' },
+      { id: S6, name: 'Student Six', tutor_id: T5, portal_token: 'token-six' },
+      { id: S7, name: 'Student Seven', tutor_id: T6, portal_token: 'token-seven' },
+      { id: S8, name: 'Student Eight', tutor_id: T7, portal_token: 'token-eight' },
     ],
     lessons: [
       { id: L(1), tutor_id: T1, student_id: S1, price: 25, currency: 'USD', duration_minutes: 45, payment_status: 'pending' },
@@ -65,8 +77,11 @@ function seed() {
       { id: L(4), tutor_id: T4, student_id: S4, price: 30, currency: 'USD', duration_minutes: 60, payment_status: 'pending' },
       { id: L(5), tutor_id: T1, student_id: S1, price: 25, currency: 'USD', duration_minutes: 60, payment_status: 'paid' },
       { id: L(6), tutor_id: T1, student_id: S1, price: null, currency: 'USD', duration_minutes: 60, payment_status: 'pending' },
-      { id: L(7), tutor_id: T1, student_id: S1, price: 500000, currency: 'VND', duration_minutes: 60, payment_status: 'pending' },
+      // Every lesson carries the column default 'USD', whatever its tutor charges in: nothing writes it.
+      { id: L(7), tutor_id: T5, student_id: S6, price: 500000, currency: 'USD', duration_minutes: 60, payment_status: 'pending' },
       { id: L(8), tutor_id: T1, student_id: S5, price: 40, currency: 'USD', duration_minutes: 60, payment_status: 'pending' },
+      { id: L(9), tutor_id: T6, student_id: S7, price: 40, currency: 'USD', duration_minutes: 60, payment_status: 'pending' },
+      { id: L(10), tutor_id: T7, student_id: S8, price: 40, currency: 'USD', duration_minutes: 60, payment_status: 'pending' },
     ],
   })
 }
@@ -110,8 +125,22 @@ test('amount, currency, duration and names come from the database, whatever the 
   assert.ok(!JSON.stringify(sessions[0].params).includes('evil.example'))
 })
 
+test('the currency is the tutor\'s, not the lesson column (which says USD for every lesson)', async () => {
+  const eur = await call({ lessonId: L(9), portalToken: 'token-seven' })
+  assert.equal(eur.status, 200)
+  assert.equal(sessions[0].params.line_items[0].price_data.currency, 'eur')
+  assert.equal(sessions[0].params.line_items[0].price_data.unit_amount, 4000)
+  // a tutor who never chose a currency sees dollars on the booking page, so dollars here
+  await call({ lessonId: L(1), portalToken: 'token-one' })
+  assert.equal(sessions[1].params.line_items[0].price_data.currency, 'usd')
+  // a value that is not a currency code is refused, never guessed
+  const bad = await call({ lessonId: L(10), portalToken: 'token-eight' })
+  assert.equal(bad.status, 400)
+  assert.equal(sessions.length, 2)
+})
+
 test('currencies without cents are charged in whole units (dong)', async () => {
-  await call({ lessonId: L(7), portalToken: 'token-one' })
+  await call({ lessonId: L(7), portalToken: 'token-six' })
   assert.equal(sessions[0].params.line_items[0].price_data.unit_amount, 500000)
   assert.equal(sessions[0].params.line_items[0].price_data.currency, 'vnd')
   assert.equal(stripeMinorUnits(25.5, 'USD'), 2550)
@@ -180,6 +209,7 @@ test('every session in this route is made with a connected account, and the brow
   assert.ok(/\{ stripeAccount: tutor\.stripe_account_id \}/.test(src))
   assert.ok(!/\b(amount|currency|origin|tutorName|studentName|duration)\b\s*[,}]\s*=\s*(await )?request\.json/.test(src))
   assert.ok(!/body\.(amount|currency|origin|tutorName|studentName|duration)\b/.test(src))
+  assert.ok(!/lesson\.currency/.test(src), 'lessons.currency is never written (it stays USD), so it is never read')
   const form = readFileSync(path.join(SRC, 'app/book/[slug]/BookingForm.tsx'), 'utf8')
   assert.ok(form.includes('body: JSON.stringify({ lessonId, portalToken })'))
 })

@@ -44,24 +44,30 @@ export async function POST(request: Request) {
   if (!perToken.hit(portalToken)) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
 
   // The lesson must be this student's, with this student's tutor: another student's lesson id is "not found".
+  // `lessons.currency` is not read: nothing writes it (the column keeps its 'USD' default for every
+  // lesson, whoever created it), so it would charge a EUR or VND price as dollars. A lesson's price is
+  // in its tutor's currency, the same `tutors.currency` the booking page shows the student.
   const { data: lesson } = await admin.from('lessons')
-    .select('id, price, currency, duration_minutes, payment_status')
+    .select('id, price, duration_minutes, payment_status')
     .eq('id', lessonId).eq('student_id', student.id).eq('tutor_id', student.tutor_id).maybeSingle()
   if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
   if (lesson.payment_status !== 'pending') return NextResponse.json({ error: 'already_settled' }, { status: 409 })
 
-  const currency = String(lesson.currency ?? 'USD').toLowerCase()
-  const unitAmount = stripeMinorUnits(Number(lesson.price), currency)
-  if (unitAmount === null) return NextResponse.json({ error: 'no_price' }, { status: 400 })
-
   // Card payments are a Pro feature: the owning tutor's plan counts, not the student's.
   const { data: tutor } = await admin.from('tutors')
-    .select('name, subscription_status, stripe_account_id, stripe_onboarding_complete').eq('id', student.tutor_id).maybeSingle()
+    .select('name, currency, subscription_status, stripe_account_id, stripe_onboarding_complete').eq('id', student.tutor_id).maybeSingle()
   if (!hasPlan(tutor?.subscription_status, 'pro')) {
     return NextResponse.json({ error: 'upgrade_required' }, { status: 403 })
   }
   // The tutor must have connected Stripe and finished onboarding. Otherwise there is nobody to pay.
   if (!tutor?.stripe_account_id || !tutor.stripe_onboarding_complete) return stripeUnavailableResponse()
+
+  // A tutor who never chose a currency is shown dollars on the booking page, so dollars here too; any
+  // other value must be a three-letter code, or nothing is charged (never a guess).
+  const currency = String(tutor.currency ?? '').trim().toLowerCase() || 'usd'
+  if (!/^[a-z]{3}$/.test(currency)) return NextResponse.json({ error: 'no_price' }, { status: 400 })
+  const unitAmount = stripeMinorUnits(Number(lesson.price), currency)
+  if (unitAmount === null) return NextResponse.json({ error: 'no_price' }, { status: 400 })
 
   const stripe = new Stripe(secretKey)
   const origin = originFromRequest(request)
