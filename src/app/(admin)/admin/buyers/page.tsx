@@ -10,7 +10,7 @@ export default async function AdminBuyersPage() {
   // Own check, before any query: this page reads every paying tutor with the service-role key.
   await requireAdminPage()
 
-  const { pro, academy, total, buyers } = await loadBuyers(createAdminClient())
+  const { pro, academy, total, buyers, failed } = await loadBuyers(createAdminClient())
 
   return (
     <div className="space-y-6">
@@ -19,14 +19,20 @@ export default async function AdminBuyersPage() {
         <p className="text-sm text-gray-500 mt-1">Tutors on a paid plan (Pro or Academy), newest first</p>
       </div>
 
+      {failed && (
+        <div data-testid="buyers-error" role="alert" className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-700">
+          Could not read the tutors table, so the numbers below are not reliable. Reload the page; if it keeps happening, check the database.
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-5">
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center h-9 mb-1"><p className="text-sm text-gray-500">Pro</p></div>
-          <p data-testid="buyers-pro" className="text-3xl font-bold text-gray-900">{pro}</p>
+          <p data-testid="buyers-pro" className="text-3xl font-bold text-gray-900">{failed ? '—' : pro}</p>
         </div>
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center h-9 mb-1"><p className="text-sm text-gray-500">Academy</p></div>
-          <p data-testid="buyers-academy" className="text-3xl font-bold text-gray-900">{academy}</p>
+          <p data-testid="buyers-academy" className="text-3xl font-bold text-gray-900">{failed ? '—' : academy}</p>
         </div>
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-1">
@@ -35,7 +41,7 @@ export default async function AdminBuyersPage() {
               <ShoppingBag className="h-5 w-5 text-green-600" />
             </div>
           </div>
-          <p data-testid="buyers-total" className="text-3xl font-bold text-gray-900">{total}</p>
+          <p data-testid="buyers-total" className="text-3xl font-bold text-gray-900">{failed ? '—' : total}</p>
         </div>
       </div>
 
@@ -54,7 +60,7 @@ export default async function AdminBuyersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {buyers.length === 0 && (
+            {buyers.length === 0 && !failed && (
               <tr><td colSpan={7} className="text-center py-10 text-gray-400">No buyers yet</td></tr>
             )}
             {buyers.map(b => (

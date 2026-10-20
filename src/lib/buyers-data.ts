@@ -20,7 +20,7 @@ export type BuyerRow = {
 export type BuyersClient = { from(table: string): any }
 
 export async function loadBuyers(admin: BuyersClient) {
-  const countPlan = (plan: string): PromiseLike<{ count: number | null }> =>
+  const countPlan = (plan: string): PromiseLike<{ count: number | null; error?: unknown }> =>
     admin.from('tutors').select('id', { count: 'exact', head: true }).eq('subscription_status', plan)
 
   const [pro, academy, list] = await Promise.all([
@@ -30,7 +30,7 @@ export async function loadBuyers(admin: BuyersClient) {
       .select('id, name, email, created_at, subscription_status, timezone, students(count), lessons(count)')
       .in('subscription_status', ['pro', 'academy'])
       .order('created_at', { ascending: false })
-      .limit(BUYERS_LIST_LIMIT) as PromiseLike<{ data: BuyerRow[] | null }>,
+      .limit(BUYERS_LIST_LIMIT) as PromiseLike<{ data: BuyerRow[] | null; error?: unknown }>,
   ])
   const proCount = pro.count ?? 0
   const academyCount = academy.count ?? 0
@@ -39,5 +39,7 @@ export async function loadBuyers(admin: BuyersClient) {
     academy: academyCount,
     total: proCount + academyCount,
     buyers: list.data ?? [],
+    // True when any query failed: the page must say so instead of showing 0 / 0 / 0 as if nobody bought.
+    failed: Boolean(pro.error || academy.error || list.error),
   }
 }

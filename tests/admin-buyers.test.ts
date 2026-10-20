@@ -203,3 +203,48 @@ test('plan helpers: labels and badges, unknown values read as Free', () => {
   assert.equal(buyersLib.isBuyerPlan('free'), false)
   assert.equal(buyersLib.isBuyerPlan(null), false)
 })
+
+// ---- a failing query must not look like "nobody has bought" ----------------
+
+/** Like fakeAdmin, but every query answers with an error (and no rows). */
+function failingAdmin(which: 'counts' | 'list' | 'all') {
+  return {
+    from() {
+      let head = false
+      const q = {
+        select(_cols: string, opts?: { head?: boolean }) { head = !!opts?.head; return q },
+        eq() { return q },
+        in() { return q },
+        order() { return q },
+        limit() { return q },
+        then(resolve: (v: unknown) => unknown) {
+          const boom = { message: 'permission denied' }
+          if (head) resolve(which === 'list' ? { count: 1, data: null } : { count: null, data: null, error: boom })
+          else resolve(which === 'counts' ? { data: [], count: null } : { data: null, count: null, error: boom })
+        },
+      }
+      return q
+    },
+  }
+}
+
+test('loadBuyers: an error from any query is reported, not shown as 0 / 0 / 0', async () => {
+  for (const which of ['counts', 'list', 'all'] as const) {
+    const r = await loadBuyers(failingAdmin(which))
+    assert.equal(r.failed, true, which)
+  }
+})
+
+test('loadBuyers: no error means failed is false, even when nobody has bought', async () => {
+  const r = await loadBuyers(fakeAdmin([]))
+  assert.equal(r.failed, false)
+  assert.equal(r.total, 0)
+})
+
+test('Buyers page: shows an error line and dashes (not zeros) when the read failed', () => {
+  const page = read('app/(admin)/admin/buyers/page.tsx')
+  assert.match(page, /\{failed && \(/)
+  assert.match(page, /data-testid="buyers-error"/)
+  assert.match(page, /\{failed \? '—' : pro\}/)
+  assert.match(page, /buyers\.length === 0 && !failed/)
+})
