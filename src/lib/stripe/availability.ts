@@ -7,9 +7,9 @@
 
 export const STRIPE_UNAVAILABLE_CODE = 'stripe_unavailable'
 
-/** Shown to a tutor in Settings, next to the PayPal field. */
+/** Shown to a tutor who tries Stripe Connect while the platform Stripe is off. */
 export const STRIPE_UNAVAILABLE_TUTOR_MESSAGE =
-  'Card payments are not available yet. Please use the PayPal link above.'
+  'Stripe Connect is not available yet. Please use a card payment link or the PayPal link above.'
 
 /** Shown to a student on a booking page. */
 export const STRIPE_UNAVAILABLE_STUDENT_MESSAGE =

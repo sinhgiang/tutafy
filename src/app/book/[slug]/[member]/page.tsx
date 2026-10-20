@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { BookingForm } from '../BookingForm'
+import { isStripeEnabled } from '@/lib/stripe/availability'
 import { GraduationCap, Globe, Clock } from 'lucide-react'
 
 // Booking page for a single Academy team member — same flow as /book/[slug],
@@ -142,6 +143,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
 
           <BookingForm
             tutor={{ ...memberTutorView, timezone } as any}
+            cardCheckoutEnabled={isStripeEnabled()}
             availability={availability ?? []}
             subscriptionPlans={subscriptionPlans}
             contractTemplate={(tutor as any).contract_template ?? null}

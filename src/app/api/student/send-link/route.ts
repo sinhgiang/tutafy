@@ -1,21 +1,17 @@
 ﻿import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
-import crypto from 'crypto'
+import { isStudentAuthConfigured, signStudentToken } from '@/lib/student-auth'
 
 export const runtime = 'nodejs'
-
-function signToken(email: string): string {
-  const secret = process.env.CRON_SECRET ?? 'tutafy-student-auth-secret'
-  const ts = Date.now()
-  const sig = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex')
-  return Buffer.from(`${email}:${ts}:${sig}`).toString('base64url')
-}
 
 export async function POST(request: Request) {
   try {
     const { email } = await request.json()
     if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 })
+
+    // No signing key on the server (nothing is written in the code): no link can be made, for anyone.
+    if (!isStudentAuthConfigured()) return NextResponse.json({ error: 'Unavailable' }, { status: 503 })
 
     const normalizedEmail = email.toLowerCase().trim()
     const supabase = createAdminClient()
@@ -33,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'
-    const token = signToken(normalizedEmail)
+    const token = signStudentToken(normalizedEmail)
     const link = `${appUrl}/student/dashboard?token=${token}`
     const firstName = students[0].name.split(' ')[0]
 

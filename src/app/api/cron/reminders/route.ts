@@ -1,5 +1,6 @@
 ﻿import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { cronGate } from '@/lib/secrets'
 import { Resend } from 'resend'
 
 export const runtime = 'nodejs'
@@ -21,10 +22,9 @@ async function sendSMS(to: string, body: string) {
 }
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization')
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  // Closed unless CRON_SECRET is set on the server and the caller sends it (Vercel Cron does so by itself).
+  const denied = cronGate(request)
+  if (denied) return denied
 
   if (!process.env.RESEND_API_KEY || !process.env.RESEND_API_KEY.startsWith('re_')) {
     return NextResponse.json({ skipped: 'RESEND_API_KEY not configured' })
