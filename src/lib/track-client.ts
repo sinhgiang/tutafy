@@ -5,6 +5,7 @@
 // referrer/utm of the visit, and a yes/no for a Google Ads click id.
 import { getConsent } from '@/components/CookieConsent'
 import { createTrackSender } from '@/lib/track-sender'
+import { beginCheckoutParams, sendGaEvent } from '@/lib/google-tag'
 
 export type Landing = {
   referrer?: string
@@ -60,6 +61,8 @@ export function sendTrack(payload: Record<string, unknown>): Promise<void> {
 /** Called when the visitor presses a Go Pro / upgrade button (before the page changes). */
 export function trackCheckoutClick(plan: 'pro' | 'academy'): void {
   sendTrack({ kind: 'checkout_click', path: window.location.pathname, plan })
+  // Google Analytics begin_checkout: the plan only, and only if cookies were accepted.
+  sendGaEvent(window, getConsent(), 'begin_checkout', beginCheckoutParams(plan))
 }
 
 export function forgetMe(): void {

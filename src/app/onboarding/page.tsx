@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { getConsent } from '@/components/CookieConsent'
+import { sendGaEvent } from '@/lib/google-tag'
 import { Zap, User, Clock, Share2, Check, ChevronRight, Copy, RefreshCw } from 'lucide-react'
 
 const TIMEZONES = [
@@ -59,6 +61,8 @@ export default function OnboardingPage() {
       const w = window as any
       w.dataLayer = w.dataLayer || []
       w.dataLayer.push(['event', 'conversion', { send_to: 'AW-18335043737/SHlACJ_tptgcEJmh6qZE' }])
+      // GA4 sign_up: no name, no email, no parameters; only after cookies were accepted.
+      sendGaEvent(window, getConsent(), 'sign_up')
       window.history.replaceState({}, '', '/onboarding')
     }
   }, [])
