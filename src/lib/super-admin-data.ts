@@ -122,9 +122,10 @@ async function pageViewsUpTo(admin: BuyersClient, visitorId: string, endAt: stri
 async function milestoneEvents(admin: BuyersClient, visitorIds: string[], state: ReadState): Promise<EventRow[]> {
   const out: EventRow[] = []
   for (const ids of chunks(visitorIds, CHUNK)) {
-    out.push(...await readAll<EventRow>(() => eventsQuery(admin)
+    const rows = await readAll<EventRow>(() => eventsQuery(admin)
       .in('visitor_id', ids).in('kind', MILESTONES)
-      .order('created_at', { ascending: true }).order('id', { ascending: true }), state))
+      .order('created_at', { ascending: true }).order('id', { ascending: true }), state)
+    for (const r of rows) out.push(r) // a loop, not push(...rows): a read can be 100 000 rows long
   }
   return out
 }
