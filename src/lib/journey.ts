@@ -19,6 +19,11 @@ export type VisitorRow = {
   first_source: Source
   first_path: string | null
   tutor_id: string | null
+  // only read where the timeline needs them
+  first_referrer_host?: string | null
+  utm_source?: string | null
+  utm_medium?: string | null
+  utm_campaign?: string | null
 }
 
 export type OrderResult = 'paid' | 'checkout_not_paid' | 'no_checkout'

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Stripe from 'stripe'
 
@@ -15,7 +15,8 @@ export default async function StripeReturnPage() {
   if (tutor?.stripe_account_id) {
     const account = await stripe.accounts.retrieve(tutor.stripe_account_id).catch(() => null)
     const complete = account?.details_submitted ?? false
-    await supabase.from('tutors').update({ stripe_onboarding_complete: complete }).eq('id', user.id)
+    // Paid-column: only the server (service role) may write it; `user.id` comes from the session.
+    await createAdminClient().from('tutors').update({ stripe_onboarding_complete: complete }).eq('id', user.id)
   }
 
   redirect('/settings?stripe=connected')

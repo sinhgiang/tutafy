@@ -52,6 +52,13 @@ test('proxy: a tutor opening /super-admin goes to the dashboard', async () => {
   assert.equal(new URL(r.location!).pathname, '/dashboard')
   const sub = await callProxy(TUTOR, '/super-admin/anything')
   assert.equal(new URL(sub.location!).pathname, '/dashboard')
+  // a person's journey page is part of the admin area too (T-0617)
+  const person = await callProxy(TUTOR, '/super-admin/people/00000000-0000-4000-8000-000000000001')
+  assert.equal(new URL(person.location!).pathname, '/dashboard')
+  const anon = await callProxy(null, '/super-admin/people/00000000-0000-4000-8000-000000000001')
+  assert.equal(new URL(anon.location!).pathname, '/login')
+  const admin = await callProxy(ADMIN, '/super-admin/people/00000000-0000-4000-8000-000000000001')
+  assert.equal(admin.location, null)
 })
 
 test('proxy: a signed-out visitor opening /super-admin goes to login', async () => {
@@ -224,7 +231,7 @@ test('a failing read is reported, not shown as zero buyers', async () => {
   assert.equal(d.failed, true)
   const page = read('app/(admin)/super-admin/page.tsx')
   assert.match(page, /data-testid="super-admin-error"/)
-  assert.match(page, /\{d\.failed \? '—' : d\.pro\}/)
+  assert.match(page, /\{failed \? '—' : n\}/) // counts show a dash, not zero, when a read failed
 })
 
 test('the funnel reads events for exactly the visitors it counts, in groups: nothing is cut off with many visitors', async () => {

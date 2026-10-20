@@ -21,10 +21,10 @@ async function dbWithTutor() {
   return db
 }
 
-test('the migration file exists once and is not the real-database runner', () => {
+test('the migration file is the only 015 and sorts after 014 (later files may follow it)', () => {
   const files = migrationFiles()
-  assert.ok(files.includes(FILE))
   assert.equal(files.filter(f => f.startsWith('015_')).length, 1)
+  assert.ok(files.indexOf(FILE) > files.indexOf('014_team_member_booking.sql'))
 })
 
 test('migration 015 applies on top of the earlier files, and twice in a row (idempotent)', async () => {
