@@ -17,6 +17,10 @@ export const STRIPE_UNAVAILABLE_STUDENT_MESSAGE =
 
 export const TUTOR_PLAN_MESSAGE = 'Card payments are part of the Pro plan.'
 
+/** Shown to a student whose lesson is already paid, or whose payment is still being confirmed. */
+export const STUDENT_ALREADY_PAID_MESSAGE = 'This lesson is already paid. Refresh the page to see its status.'
+export const STUDENT_PAYMENT_IN_PROGRESS_MESSAGE = 'Your payment is being confirmed. Please wait a moment and refresh the page; do not pay again.'
+
 /** True when the server has a Stripe secret key. Reads the env, never returns it. */
 export function isStripeEnabled(env: Record<string, string | undefined> = process.env): boolean {
   return Boolean(env.STRIPE_SECRET_KEY?.trim())
@@ -47,7 +51,9 @@ export function stripeErrorMessage(
   const unavailable =
     audience === 'tutor' ? STRIPE_UNAVAILABLE_TUTOR_MESSAGE : STRIPE_UNAVAILABLE_STUDENT_MESSAGE
 
-  if (error === STRIPE_UNAVAILABLE_CODE || /not configured/i.test(error)) return unavailable
+  if (error === STRIPE_UNAVAILABLE_CODE || error === 'payment_unavailable' || /not configured/i.test(error)) return unavailable
+  if (error === 'already_settled') return STUDENT_ALREADY_PAID_MESSAGE
+  if (error === 'payment_in_progress') return STUDENT_PAYMENT_IN_PROGRESS_MESSAGE
   if (error === 'upgrade_required') {
     return audience === 'tutor' ? TUTOR_PLAN_MESSAGE : unavailable
   }
