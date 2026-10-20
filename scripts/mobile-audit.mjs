@@ -70,6 +70,13 @@ export function audit(win = window) {
       if (own > 0) continue
     }
     const r = el.getBoundingClientRect()
+    if (el.getAttribute('role') === 'switch') {
+      // a switch keeps its drawn shape (a 44px box would make it a circle); its touch area is the invisible ::after box around it
+      const a = getComputedStyle(el, '::after')
+      const aw = parseFloat(a.width) || 0, ah = parseFloat(a.height) || 0
+      if (aw < 43.5 || ah < 43.5) small.push({ el: describe(el), w: Math.round(aw), h: Math.round(ah) })
+      continue
+    }
     if (el.type === 'checkbox' || el.type === 'radio') {
       const lab = el.closest('label')
       if (lab) { const lr = lab.getBoundingClientRect(); if (lr.height >= 44) continue }
@@ -80,6 +87,25 @@ export function audit(win = window) {
       if (seenSmall.has(key)) continue
       seenSmall.add(key)
       small.push({ el: describe(el), w: Math.round(r.width), h: Math.round(r.height) })
+    }
+  }
+
+  // buttons stretched out of the shape they are drawn in (the 44px minimums once turned the settings switches into circles with the knob
+  // half way, and "no target under 44px" counted that as a pass): a switch must stay a pill with its knob at one end, and an icon-only
+  // fully rounded button must stay a circle
+  const distorted = []
+  for (const el of document.body.querySelectorAll('button, [role=switch], [role=button]')) {
+    if (!vis(el) || el.closest('[aria-hidden="true"]')) continue
+    const r = el.getBoundingClientRect()
+    const radius = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0
+    const round = radius >= Math.min(r.width, r.height) / 2 - 0.5
+    if (el.getAttribute('role') === 'switch') {
+      const knob = el.firstElementChild
+      const kr = knob && knob.getBoundingClientRect()
+      const gaps = kr ? [kr.left - r.left, r.right - kr.right] : []
+      if (r.width < r.height * 1.5 || !gaps.length || Math.min(...gaps) > 4) distorted.push({ el: describe(el), w: Math.round(r.width), h: Math.round(r.height), knobGap: gaps.map(Math.round) })
+    } else if (round && !(el.innerText || '').trim() && Math.abs(r.width - r.height) > 2 && el.querySelector('svg, img') == null) {
+      distorted.push({ el: describe(el), w: Math.round(r.width), h: Math.round(r.height) })
     }
   }
 
@@ -173,6 +199,7 @@ export function audit(win = window) {
     overflowX: de.scrollWidth > cw || document.body.scrollWidth > cw,
     offenders: top.slice(0, 8), offenderCount: top.length,
     smallTargets: small.length, smallTargetSample: small.slice(0, 12),
+    distortedCount: distorted.length, distorted: distorted.slice(0, 6),
     smallTextCount: Object.values(textSizes).reduce((a, b) => a + b, 0), textSizes, smallTextSample: smallTextEls.slice(0, 8),
     overlaps: overlaps.slice(0, 6), overlapCount: overlaps.length, wrapped, imgOverflow: imgs.slice(0, 6), clipped: clipped.filter(c => !c.ellipsis).slice(0, 6),
   }
@@ -184,7 +211,7 @@ export function brief(n = 3, win = window) {
   return {
     p: a.path, vw: a.vw, sw: a.sw, cw: a.cw, ovf: a.overflowX,
     off: a.offenderCount, offTop: a.offenders.slice(0, n).map(o => `${o.el} L${o.left} R${o.right}`),
-    tap: a.smallTargets, tapTop: f(a.smallTargetSample.slice(0, n)),
+    tap: a.smallTargets, tapTop: f(a.smallTargetSample.slice(0, n)), dist: a.distortedCount, distTop: f(a.distorted.slice(0, n)),
     txt: a.smallTextCount, sizes: a.textSizes, txtTop: a.smallTextSample.slice(0, 2).map(o => `${o.el} ${o.fs}`),
     img: a.imgOverflow.length, imgTop: a.imgOverflow.slice(0, 2).map(o => `${o.el} w${o.w}`),
     clip: a.clipped.length, main: a.mainScroll ? a.mainScroll.sw + '>' + a.mainScroll.cw : null, clipTop: a.clipped.slice(0, 2).map(o => `${o.el} ${o.sw}>${o.cw}`),
@@ -254,7 +281,7 @@ export async function run(label, urls, width, height = 844, wait = 1500) {
   }
   await Promise.all([1, 2, 3, 4, 5].map(worker))
   await fetch('http://localhost:54399/__save/' + label + '.json', { method: 'POST', body: JSON.stringify(out) })
-  return out.map(x => x.err ? x.req + ' ERR' : x.req + (x.finalPath !== x.req ? ' -> ' + x.finalPath : '') + ' sw' + x.sw + '/' + x.cw + ' off' + x.offenderCount + ' tap' + x.smallTargets + ' txt' + x.smallTextCount + ' img' + x.imgOverflow.length + ' clip' + x.clipped.length + ' wrap' + x.wrapped.length)
+  return out.map(x => x.err ? x.req + ' ERR' : x.req + (x.finalPath !== x.req ? ' -> ' + x.finalPath : '') + ' sw' + x.sw + '/' + x.cw + ' off' + x.offenderCount + ' main' + (x.mainScroll ? x.mainScroll.sw + '>' + x.mainScroll.cw : 0) + ' tap' + x.smallTargets + ' dist' + x.distortedCount + ' txt' + x.smallTextCount + ' img' + x.imgOverflow.length + ' clip' + x.clipped.length + ' wrap' + x.wrapped.length)
 }
 
 // URL lists for the runs
@@ -280,5 +307,5 @@ export async function probe(u, width = 390, height = 844, wait = 2500) {
   a.finalPath = f.contentWindow.location.pathname
   f.remove()
   const offenders = a.offenders.filter(o => !/^(path|svg|circle|line|polyline|rect)\b/.test(o.el))
-  return { path: a.finalPath, sw: a.sw, cw: a.cw, main: a.mainScroll, offenders: offenders.slice(0, 10), scrollers: a.scrollers, clipped: a.clipped, tap: a.smallTargetSample.slice(0, 14), tapN: a.smallTargets, txtN: a.smallTextCount, sizes: a.textSizes, txt: a.smallTextSample.slice(0, 10), img: a.imgOverflow }
+  return { path: a.finalPath, sw: a.sw, cw: a.cw, main: a.mainScroll, offenders: offenders.slice(0, 10), scrollers: a.scrollers, clipped: a.clipped, tap: a.smallTargetSample.slice(0, 14), tapN: a.smallTargets, dist: a.distorted, txtN: a.smallTextCount, sizes: a.textSizes, txt: a.smallTextSample.slice(0, 10), img: a.imgOverflow }
 }

@@ -222,7 +222,7 @@ export default function SettingsPage() {
         </nav>
 
         {/* Content */}
-        <div className="flex-1 min-w-0 space-y-5">
+        <div className="flex-1 min-w-0 w-full md:w-auto space-y-5">
 
           {/* ── Profile ── */}
           {tab === 'profile' && (
@@ -278,12 +278,12 @@ export default function SettingsPage() {
                     <p className="text-[13px] font-medium text-gray-900">Booking page active</p>
                     <p className="text-[11px] text-gray-400 mt-0.5">Allow students to book lessons online</p>
                   </div>
-                  <button onClick={() => setForm(f => ({ ...f, booking_url_active: !f.booking_url_active }))}
+                  <button type="button" role="switch" aria-checked={form.booking_url_active} aria-label="Booking page active" onClick={() => setForm(f => ({ ...f, booking_url_active: !f.booking_url_active }))}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                       form.booking_url_active ? 'bg-indigo-500' : 'bg-gray-200'
                     }`}>
                     <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
-                      form.booking_url_active ? 'translate-x-4' : 'translate-x-0.5'
+                      form.booking_url_active ? 'translate-x-5' : 'translate-x-0.5'
                     }`} />
                   </button>
                 </div>
@@ -491,12 +491,12 @@ export default function SettingsPage() {
                     <p className="text-[13px] font-medium text-gray-900">Offer trial lesson</p>
                     <p className="text-[11px] text-gray-400 mt-0.5">Show a discounted first-lesson option on your booking page</p>
                   </div>
-                  <button onClick={() => setForm(f => ({ ...f, trial_enabled: !f.trial_enabled }))}
+                  <button type="button" role="switch" aria-checked={form.trial_enabled} aria-label="Offer trial lesson" onClick={() => setForm(f => ({ ...f, trial_enabled: !f.trial_enabled }))}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                       form.trial_enabled ? 'bg-indigo-500' : 'bg-gray-200'
                     }`}>
                     <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
-                      form.trial_enabled ? 'translate-x-4' : 'translate-x-0.5'
+                      form.trial_enabled ? 'translate-x-5' : 'translate-x-0.5'
                     }`} />
                   </button>
                 </div>

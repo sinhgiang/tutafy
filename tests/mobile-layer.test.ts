@@ -77,7 +77,7 @@ test('every text size under 14px that a page uses is raised to 14px by the layer
 
 test('the layer gives buttons, fields and stand-alone links 44px, and fields 16px', () => {
   const block = layerBlock()
-  assert.match(block, /button:not\(\[aria-hidden="true"\] \*\),[\s\S]*?summary,\s*select \{\s*min-height: 44px;/)
+  assert.match(block, /button:not\(\[aria-hidden="true"\] \*, \[role="switch"\]\),[\s\S]*?summary,\s*select \{\s*min-height: 44px;/)
   assert.match(block, /input:not\(\[type="checkbox"\], \[type="radio"\], \[type="hidden"\], \[type="file"\]\),\s*select \{\s*min-height: 44px;\s*font-size: 16px;/)
   assert.match(block, /textarea \{\s*font-size: 16px;/)
   assert.match(block, /textarea \{\s*min-height: 44px;/)
@@ -85,6 +85,69 @@ test('the layer gives buttons, fields and stand-alone links 44px, and fields 16p
   for (const part of ['a:is(.flex, .inline-flex, .block, .inline-block)', 'td a', 'footer a', 'nav a', 'a:has(> svg:only-child)']) {
     assert.ok(block.includes(part), `link rule for ${part} is missing`)
   }
+})
+
+// A button drawn at a fixed, non-square size (a switch: 36x20 with a knob that slides a fixed distance)
+// cannot take the 44px minimums: min-width and min-height beat the Tailwind sizes and make it a circle
+// with its knob half way (T-0629 review). It must be a role="switch" (the layer leaves those out and
+// widens their touch area with an invisible box). Square icon buttons (w-7 h-7 ...) simply grow to 44
+// square, which is fine, so they are not in this list.
+const BUTTON_OPENING = /<button\b((?:(?!<[a-zA-Z])[\s\S]){0,900}?)className=(?:"([^"]*)"|\{`([^`]*)`)/g
+
+/** The buttons of one source file that are drawn at a fixed width and height that differ. */
+function nonSquareButtons(src: string) {
+  const found: { tag: string; shape: string; isSwitch: boolean; checked: boolean }[] = []
+  for (const m of src.matchAll(BUTTON_OPENING)) {
+    const classes = (m[2] ?? m[3] ?? '').replace(/\$\{[^}]*\}/g, ' ').split(/\s+/).filter(c => c && !c.includes(':'))
+    const w = classes.find(c => /^w-\d+(?:\.\d+)?$/.test(c))
+    const h = classes.find(c => /^h-\d+(?:\.\d+)?$/.test(c))
+    if (!w || !h || w.slice(2) === h.slice(2)) continue
+    found.push({ tag: m[0].slice(0, 60), shape: `${w} ${h}`, isSwitch: /role="switch"/.test(m[1]), checked: /aria-checked=\{/.test(m[1]) })
+  }
+  return found
+}
+const fixedShapeButtons = () => FILES.flatMap(file => nonSquareButtons(read(file)).map(b => ({ file, ...b })))
+
+test('the two 44px minimums leave out switches, and a switch gets an invisible 44px touch area instead', () => {
+  const block = layerBlock()
+  const rules = block.split('}').filter(r => /min-(height|width): 44px/.test(r) && /(^|\s|,)button:not\(/.test(r.slice(0, r.indexOf('{'))))
+  assert.ok(rules.length >= 2, 'the min-height and the min-width rule for buttons are missing')
+  for (const r of rules) {
+    assert.match(r.slice(0, r.indexOf('{')), /(^|\s|,)button:not\(\[aria-hidden="true"\] \*, \[role="switch"\]\)/, 'a 44px minimum that does not leave out [role="switch"] turns the switch into a circle')
+  }
+  const area = block.split('}').find(r => /\[role="switch"\][^{]*::after/.test(r))
+  assert.ok(area, 'the invisible touch area of a switch is missing')
+  assert.match(area, /position: absolute;/)
+  assert.match(area, /width: max\(100%, 44px\);/)
+  assert.match(area, /height: max\(100%, 44px\);/)
+  assert.match(block, /\[role="switch"\]:not\(\[aria-hidden="true"\] \*\) \{\s*position: relative;/)
+})
+
+test('every button drawn at a fixed non-square size is a switch with aria-checked (the settings page has two)', () => {
+  const shapes = fixedShapeButtons()
+  assert.ok(shapes.length >= 2, `expected the two settings switches, found ${shapes.length}`)
+  assert.deepEqual(shapes.filter(s => !s.isSwitch).map(s => `${s.file}: ${s.shape}`), [], 'a button with a fixed non-square shape that is not a role="switch" would be stretched into a circle or a blob')
+  assert.deepEqual(shapes.filter(s => !s.checked).map(s => s.file), [], 'a switch must say whether it is on (aria-checked)')
+  const settings = read('src/app/(dashboard)/settings/page.tsx')
+  assert.equal([...settings.matchAll(/role="switch"/g)].length, 2)
+  for (const key of ['booking_url_active', 'trial_enabled']) assert.match(settings, new RegExp(`role="switch" aria-checked=\\{form\\.${key}\\}`))
+  // the drawn track is w-9 (36px) with a w-3.5 (14px) knob that rests 2px from the left (translate-x-0.5): to rest 2px from the right it
+  // must travel 20px (translate-x-5); translate-x-4 (16px) left it 6px short of the end
+  assert.equal([...settings.matchAll(/inline-flex h-5 w-9 items-center rounded-full/g)].length, 2)
+  assert.equal([...settings.matchAll(/inline-block h-3\.5 w-3\.5 transform rounded-full/g)].length, 2)
+  assert.equal([...settings.matchAll(/\? 'translate-x-5' : 'translate-x-0\.5'/g)].length, 2)
+  assert.ok(!/translate-x-4\b/.test(settings))
+})
+
+test('the shape finder sees a button that would be stretched (self-check with made-up buttons)', () => {
+  const bare = '<button onClick={() => go()} className={`relative inline-flex h-5 w-9 rounded-full ${on ? "a" : "b"}`}><span/></button>'
+  assert.deepEqual(nonSquareButtons(bare).map(b => [b.shape, b.isSwitch, b.checked]), [['w-9 h-5', false, false]], 'a drawn 36x20 button without role="switch" must be found')
+  const switchOnly = bare.replace('<button ', '<button role="switch" ')
+  assert.deepEqual(nonSquareButtons(switchOnly).map(b => [b.isSwitch, b.checked]), [[true, false]], 'a switch without aria-checked must be reported as unchecked')
+  const full = bare.replace('<button ', '<button role="switch" aria-checked={on} ')
+  assert.deepEqual(nonSquareButtons(full).map(b => [b.isSwitch, b.checked]), [[true, true]])
+  assert.deepEqual(nonSquareButtons('<button onClick={() => go()} className="w-7 h-7 flex">x</button>'), [], 'a square icon button just grows to 44 square, it is not a problem')
+  assert.deepEqual(nonSquareButtons('<button className="flex px-4 h-9 rounded-lg">x</button>'), [], 'a button with only a height just grows taller')
 })
 
 // ---- nothing fixed that a phone cannot hold ------------------------------------------------------
@@ -140,7 +203,7 @@ test('phone menu of the tutor app: a More sheet lists every page of the desktop 
   // the sheet renders the shared list, so every page of the sidebar is in it
   assert.match(nav, /NAV\.map\(\(\{ group, items \}\)/)
   const hrefs = NAV.flatMap(g => g.items.map(i => i.href))
-  for (const h of ['/dashboard', '/students', '/lessons', '/calendar', '/messages', '/payments', '/settings', '/upgrade'.replace('/upgrade', '/referral')]) assert.ok(hrefs.includes(h), h)
+  for (const h of ['/dashboard', '/students', '/lessons', '/calendar', '/messages', '/payments', '/settings', '/referral']) assert.ok(hrefs.includes(h), h)
   // opens and closes: button with aria-expanded, close button, backdrop, Escape, closes on a link and on a page change
   assert.match(nav, /aria-expanded=\{open\}/)
   assert.match(nav, /aria-label="Close menu"/)

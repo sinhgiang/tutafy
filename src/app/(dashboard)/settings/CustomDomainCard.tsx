@@ -128,7 +128,7 @@ export function CustomDomainCard() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   placeholder="booking.yourdomain.com"
-                  className="flex-1 text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors"
+                  className="flex-1 min-w-0 text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors"
                 />
                 <button
                   onClick={connect}

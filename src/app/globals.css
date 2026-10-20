@@ -144,15 +144,30 @@
     font-size: 14px;
   }
 
-  button:not([aria-hidden="true"] *),
+  /* A switch (role="switch") is left out of the two minimums: it is drawn at a fixed size (36x20) with a
+     knob that slides a fixed distance, and a 44px box would turn it into a circle with the knob stuck
+     half way. Its touch area is widened with an invisible box around it instead (see below). */
+  button:not([aria-hidden="true"] *, [role="switch"]),
   [role="button"]:not([aria-hidden="true"] *),
   summary,
   select {
     min-height: 44px;
   }
-  button:not([aria-hidden="true"] *),
+  button:not([aria-hidden="true"] *, [role="switch"]),
   [role="button"]:not([aria-hidden="true"] *) {
     min-width: 44px;
+  }
+  [role="switch"]:not([aria-hidden="true"] *) {
+    position: relative;
+  }
+  [role="switch"]:not([aria-hidden="true"] *)::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
   }
   input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]),
   select {

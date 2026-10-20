@@ -43,7 +43,8 @@ const tutors = [
     paypal_link: null, payment_link: null, trial_enabled: true, trial_price: 15, buffer_minutes: 10, average_rating: 4.8, review_count: 12,
     referral_code: 'SARAH10', referral_credits: 0, custom_domain: null, created_at: iso(-90), updated_at: iso(-1),
   },
-  { id: ADMIN_ID, email: ADMIN_EMAIL, name: 'Platform Admin', slug: 'platform-admin', subscription_status: 'academy', created_at: iso(-200), languages: [], timezone: 'UTC' },
+  // the row that pages list shows a made-up address; only the login session below carries the real one, because the admin gate compares it
+  { id: ADMIN_ID, email: 'platform-admin@example.com', name: 'Platform Admin', slug: 'platform-admin', subscription_status: 'academy', created_at: iso(-200), languages: [], timezone: 'UTC' },
   { id: id(2, 'b'), email: 'tutor2@example.com', name: 'Diego Prueba', slug: 'diego-prueba', subscription_status: 'free', languages: ['Spanish'], timezone: 'Europe/Madrid', created_at: iso(-30), average_rating: 4.5, review_count: 3, booking_url_active: true, default_lesson_price: 25, currency: 'EUR' },
   { id: id(3, 'b'), email: 'tutor3@example.com', name: 'Mai Thử', slug: 'mai-thu', subscription_status: 'pro', languages: ['Vietnamese', 'English'], timezone: 'Asia/Ho_Chi_Minh', created_at: iso(-12), average_rating: 5, review_count: 1, booking_url_active: true, default_lesson_price: 500000, currency: 'VND' },
 ]
