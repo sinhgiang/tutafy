@@ -13,6 +13,7 @@
 //   - sign-in and sign-up pages are noindex and are not in the sitemap.
 import type { Metadata } from 'next'
 import { absoluteUrl } from '@/lib/site-url'
+import { tutorSeoText, type TutorSeoInput } from '@/lib/tutor-seo'
 
 export const TITLE_MAX = 60
 export const TITLE_MIN = 20
@@ -233,6 +234,21 @@ export function blogPostMetadata(slug: string, hero?: { webp: string; alt: strin
     article: true,
     image: hero ? { url: hero.webp, width: 1200, height: 630, alt: hero.alt } : undefined,
   })
+}
+
+/**
+ * The metadata of a tutor's public profile (/tutors/<slug>): a title and description of its own
+ * (src/lib/tutor-seo.ts) and the canonical on the main site. A profile whose tutor has not turned the
+ * public page on is noindex; it is not in the sitemap either (src/lib/tutor-sitemap.ts).
+ */
+export function tutorMetadata(t: TutorSeoInput): Metadata {
+  const seo = tutorSeoText(t)
+  return build(`/tutors/${t.slug}`, seo.title, seo.description, { noindex: t.booking_url_active !== true })
+}
+
+/** For a profile that does not exist (or is not visible): never indexed. */
+export function tutorNotFoundMetadata(): Metadata {
+  return { title: 'Tutor not found', robots: { index: false, follow: false } }
 }
 
 /** Paths of the pages that must not be indexed (and so are not in the sitemap). */

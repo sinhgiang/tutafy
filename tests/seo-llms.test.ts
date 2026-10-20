@@ -196,8 +196,8 @@ test('the page check does catch a page that types its own FAQ or price', () => {
 
 // ---- sitemap ----------------------------------------------------------------
 
-test('the sitemap puts no date on static pages and the posts keep their own dates', () => {
-  const entries = sitemap()
+test('the sitemap puts no date on static pages and the posts keep their own dates', async () => {
+  const entries = (await sitemap())
   const prefix = `${SITE_URL}/blog/`
   const postDates = new Map(POSTS.map(p => [`${prefix}${p.slug}`, new Date(p.date + 'T00:00:00').getTime()]))
 
@@ -217,11 +217,11 @@ test('the sitemap puts no date on static pages and the posts keep their own date
   for (const p of KEY_PAGES) assert.ok(urls.includes(`${SITE_URL}${p.path === '/' ? '' : p.path}`), p.path)
 })
 
-test('the sitemap does not change when the clock does', () => {
+test('the sitemap does not change when the clock does', async () => {
   mock.timers.enable({ apis: ['Date'], now: Date.UTC(2026, 0, 5) })
-  const earlier = JSON.stringify(sitemap())
+  const earlier = JSON.stringify((await sitemap()))
   mock.timers.setTime(Date.UTC(2027, 6, 20))
-  const later = JSON.stringify(sitemap())
+  const later = JSON.stringify((await sitemap()))
   mock.timers.reset()
   assert.equal(earlier, later)
 })

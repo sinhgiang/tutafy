@@ -124,7 +124,9 @@ test('events carry no personal data: sign_up has no parameters, begin_checkout o
 
 test('Analytics.tsx: renders only after Accept, loads gtag.js through the plan exactly once', () => {
   const src = read('src/components/Analytics.tsx')
-  assert.ok(src.indexOf('if (!ok) return null') < src.indexOf('googleTagPlan('), 'plan is built only after the consent gate')
+  assert.ok(src.indexOf('if (!ok) return null') < src.indexOf('googleTagLoaderUrl('), 'the loader is rendered only after the consent gate')
+  assert.ok(!/googleTagPlan\(\{ consent: 'accepted'/.test(src), 'the plan is given the consent the visitor really gave, never a fixed "accepted"')
+  assert.ok(src.includes("consent: ok ? 'accepted' : null"), 'the plan gets the consent state')
   assert.equal((src.match(/googleTagLoaderUrl\(/g) ?? []).length, 1, 'one loader Script')
   assert.ok(!/gtag\/js/.test(src), 'no second hand-written gtag.js URL')
   assert.equal((src.match(/googleTagBootstrapScript\(/g) ?? []).length, 1, 'one bootstrap script')

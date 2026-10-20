@@ -1,5 +1,10 @@
+import { cache } from 'react'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { tutorMetadata, tutorNotFoundMetadata } from '@/lib/page-meta'
+import { tutorJsonLd } from '@/lib/tutor-seo'
+import { jsonLdScript } from '@/lib/seo'
 import Link from 'next/link'
 import { GraduationCap, Globe, Clock, Star, BookOpen, MessageCircle, ArrowRight, CheckCircle } from 'lucide-react'
 
@@ -14,15 +19,31 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }
   )
 }
 
-export default async function TutorProfilePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
+// One read of the tutor per request, shared by the page and its metadata.
+const getTutor = cache(async (slug: string) => {
   const supabase = await createClient()
-
-  const { data: tutor } = await supabase
+  const { data } = await supabase
     .from('tutors')
     .select('id, name, bio, avatar_url, timezone, languages, slug, average_rating, review_count, default_lesson_price, booking_url_active, cancellation_hours, trial_enabled, trial_price')
     .eq('slug', slug)
     .single()
+  return data
+})
+
+// Own title, description, canonical and structured data per profile (src/lib/tutor-seo.ts, src/lib/page-meta.ts).
+// A profile whose tutor turned the public page off is noindex.
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  let tutor: Awaited<ReturnType<typeof getTutor>> = null
+  try { tutor = await getTutor(slug) } catch {}
+  return tutor ? tutorMetadata(tutor) : tutorNotFoundMetadata()
+}
+
+export default async function TutorProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const supabase = await createClient()
+
+  const tutor = await getTutor(slug)
 
   if (!tutor) notFound()
 
@@ -52,6 +73,9 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
 
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
+      {tutor.booking_url_active && tutorJsonLd(tutor).map((data, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(data) }} />
+      ))}
       {/* Nav */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
