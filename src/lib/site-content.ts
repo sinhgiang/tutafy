@@ -1,8 +1,10 @@
 // Public marketing facts that more than one place prints: the landing page, its
 // structured data (JSON-LD) and /llms.txt. Edit them here and every place follows;
 // never copy these texts by hand into another file.
+import { PAGE_SEO } from '@/lib/page-meta'
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com').replace(/[\uFEFF\u200B\s]/g, '').replace(/\/+$/, '') || 'https://tutafy.com'
+// The main address (www) lives once in site-url.ts; it is not read from the environment.
+export { SITE_URL } from '@/lib/site-url'
 
 export const SITE_NAME = 'Tutafy'
 
@@ -68,14 +70,14 @@ export const PLANS = PLAN_SOURCES.map(p => ({
   per: p.monthlyUsd > 0 ? '/mo' : '',
 }))
 
-/** The public pages an assistant or crawler should know about. `description` repeats the page's own meta description. */
+/** The public pages an assistant or crawler should know about. `description` is the page's own meta description (src/lib/page-meta.ts). */
 export const KEY_PAGES: { path: string; title: string; description: string }[] = [
-  { path: '/', title: 'Home', description: SITE_DESCRIPTION },
-  { path: '/blog', title: 'Blog', description: 'Practical advice on getting students, running your tutoring business, and keeping 100% of what you earn.' },
-  { path: '/tutors', title: 'Find tutors', description: 'Expert language tutors: 1-on-1 lessons, flexible schedule, proven results.' },
-  { path: '/about', title: 'About Tutafy', description: 'Why we built Tutafy: an all-in-one home for independent tutors that never takes a cut of your income.' },
-  { path: '/customers', title: 'Customer stories', description: 'How independent tutors and small tutoring centers run and grow their business with Tutafy.' },
-  { path: '/contact', title: 'Contact', description: 'Get in touch with the Tutafy team — support, questions and feedback.' },
+  { path: '/', title: 'Home', description: PAGE_SEO.home.description },
+  { path: '/blog', title: 'Blog', description: PAGE_SEO.blog.description },
+  { path: '/tutors', title: 'Find tutors', description: PAGE_SEO.tutors.description },
+  { path: '/about', title: 'About Tutafy', description: PAGE_SEO.about.description },
+  { path: '/customers', title: 'Customer stories', description: PAGE_SEO.customers.description },
+  { path: '/contact', title: 'Contact', description: PAGE_SEO.contact.description },
 ]
 
 export const LEGAL_PAGES: { path: string; title: string }[] = [

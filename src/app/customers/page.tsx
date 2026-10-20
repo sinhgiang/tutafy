@@ -1,11 +1,8 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { GraduationCap, ArrowRight, ArrowLeft, TrendingUp, Quote } from 'lucide-react'
+import { pageMetadata } from '@/lib/page-meta'
 
-export const metadata: Metadata = {
-  title: 'Customer stories',
-  description: 'How independent tutors and small tutoring centers run and grow their business with Tutafy.',
-}
+export const metadata = pageMetadata('customers')
 
 // Add a real case study here once a tutor agrees to be featured. Keep it honest —
 // only publish stories from actual customers (with their permission).

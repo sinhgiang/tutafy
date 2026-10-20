@@ -1,11 +1,8 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { GraduationCap, ArrowLeft } from 'lucide-react'
+import { pageMetadata } from '@/lib/page-meta'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description: 'How Tutafy collects, uses and protects your data.',
-}
+export const metadata = pageMetadata('privacy')
 
 const UPDATED = 'October 20, 2026'
 
@@ -63,7 +60,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="Cookies & analytics">
-            <p>We use <b>essential cookies</b> to keep you signed in and run the app. On our public marketing pages we also use, <b>only with your consent</b>, analytics and advertising cookies to understand how visitors find us and to measure our ads — including Google Analytics / Google Ads and the Meta (Facebook) Pixel. You can accept or decline these in the cookie banner, and change your mind anytime by clearing your browser storage. Declining does not affect your ability to use Tutafy.</p>
+            <p>We use <b>essential cookies</b> to keep you signed in and run the app. On our public marketing pages we also use, <b>only with your consent</b>, analytics and advertising cookies to understand how visitors find us and to measure our ads — including Google Analytics 4 and Google Ads (both loaded through one Google tag) and the Meta (Facebook) Pixel. Google Analytics tells us how many people visit, which pages they view and, as two events, when someone signs up for an account or clicks a Go Pro button; those events carry no name or email address. Google may set its own cookies and process this data under its own privacy policy. If you decline, no Google tag is loaded and nothing is sent to Google. You can accept or decline these in the cookie banner, and change your mind anytime by clearing your browser storage. Declining does not affect your ability to use Tutafy.</p>
           </Section>
 
           <Section title="How visitors find us (our own measurement)">

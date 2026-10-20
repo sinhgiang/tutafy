@@ -1,11 +1,8 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { GraduationCap, ArrowLeft, ArrowRight, Heart, Shield, Sparkles } from 'lucide-react'
+import { pageMetadata } from '@/lib/page-meta'
 
-export const metadata: Metadata = {
-  title: 'About Tutafy',
-  description: 'Why we built Tutafy: an all-in-one home for independent tutors that never takes a cut of your income.',
-}
+export const metadata = pageMetadata('about')
 
 const VALUES = [
   { icon: Shield, title: 'Your income is yours', desc: 'We charge tutors a small flat fee and take 0% commission on your lessons — forever. You earn it, you keep it.' },

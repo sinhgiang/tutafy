@@ -9,6 +9,9 @@ import type { LucideIcon } from 'lucide-react'
 import { OAuthCatcher } from '@/components/OAuthCatcher'
 import { FEATURES, FAQ, PLANS, type FeatureId } from '@/lib/site-content'
 import { homeJsonLd, jsonLdScript } from '@/lib/seo'
+import { pageMetadata } from '@/lib/page-meta'
+
+export const metadata = pageMetadata('home')
 
 // Real testimonials only — add an entry the moment a tutor gives you a genuine
 // quote. Never invent fake reviews. While empty, an honest "founding tutor"

@@ -3,15 +3,18 @@
 import { useEffect, useState } from 'react'
 import Script from 'next/script'
 import { getConsent, CONSENT_EVENT } from './CookieConsent'
+import { googleTagPlan, googleTagLoaderUrl, googleTagBootstrapScript } from '@/lib/google-tag'
 
-// Marketing tags for Facebook/Meta Ads (Pixel) and Google Ads/Analytics (gtag).
-// They ONLY load once the visitor has accepted cookies AND the relevant ID is
-// configured via env vars — so nothing runs until you're ready and it's
-// consent-compliant. To enable, set on Vercel:
-//   NEXT_PUBLIC_META_PIXEL_ID       (e.g. 1234567890)
-//   NEXT_PUBLIC_GA_MEASUREMENT_ID   (GA4 "G-XXXX" or Google Ads "AW-XXXX")
+// Marketing tags for Facebook/Meta Ads (Pixel) and Google (gtag.js: Analytics 4 +
+// Google Ads). They ONLY load once the visitor has accepted cookies, so nothing
+// runs for a visitor who declined or has not chosen. Env vars on Vercel:
+//   NEXT_PUBLIC_META_PIXEL_ID           (e.g. 1234567890)
+//   NEXT_PUBLIC_GA_MEASUREMENT_ID       (Google Ads "AW-XXXX"; a "G-" value is not loaded twice)
+//   NEXT_PUBLIC_GA4_MEASUREMENT_ID      (GA4 "G-XXXX"; empty: the default in src/lib/google-tag.ts)
+// gtag.js is loaded once and configured for every distinct ID (see googleTagPlan).
 const META_PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+const GA_ADS_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID
 
 export function Analytics() {
   const [ok, setOk] = useState(false)
@@ -24,6 +27,8 @@ export function Analytics() {
   }, [])
 
   if (!ok) return null
+
+  const google = googleTagPlan({ consent: 'accepted', ga4Env: GA4_ID, legacyEnv: GA_ADS_ID })
 
   return (
     <>
@@ -38,12 +43,11 @@ fbq('init','${META_PIXEL}');fbq('track','PageView');`}
         </Script>
       )}
 
-      {GA_ID && (
+      {google.loaderId && (
         <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+          <Script src={googleTagLoaderUrl(google.loaderId)} strategy="afterInteractive" />
           <Script id="google-tag" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());gtag('config','${GA_ID}');`}
+            {googleTagBootstrapScript(google.configIds)}
           </Script>
         </>
       )}

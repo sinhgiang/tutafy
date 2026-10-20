@@ -288,7 +288,9 @@ test('a failed read shows as failed, not as an empty journey', async () => {
 test('blog, home, customers, tutors, about and the pricing page are all recorded (every public page and every blog post)', () => {
   const sitemap = readFileSync(path.join(SRC, 'app/sitemap.ts'), 'utf8')
   const paths = [...sitemap.matchAll(/\{ path: '([^']*)'/g)].map(m => m[1] || '/')
-  assert.ok(paths.length >= 10, String(paths.length))
+  assert.ok(paths.length >= 8, String(paths.length))
+  // /login and /register are noindex and no longer in the sitemap (T-0623), but a visit to them is still recorded.
+  for (const p of ['/login', '/register']) assert.equal(normalizeTrackedPath(p), p, p)
   for (const p of paths) {
     if (p === '/student/login') continue // the student area is deliberately not recorded
     assert.equal(normalizeTrackedPath(p), p, p)
