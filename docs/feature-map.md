@@ -15,6 +15,6 @@ Tutafy: booking, lessons and payments for private tutors (Next.js 16, Supabase, 
 
 - Open it: `npm run dev`, then http://localhost:3000. Needs `.env.local` with the Supabase settings (copy `.env.example`; never commit it).
 - Test account: none recorded yet. A Pro test tutor is needed to see the Settings > Payments > Stripe box; ask the owner for a throwaway account. Do not use a real tutor's login.
-- Main flow to go through: sign in as a Pro tutor, open Settings, Payments tab, look at the Stripe Connect box. With `STRIPE_SECRET_KEY` unset it shows "Card payments are not available yet. Please use the PayPal link above."; with it set it shows the "Connect Stripe account" button.
+- Main flow to go through: sign in as a Pro tutor, open Settings, Payments tab, look at the Stripe Connect box. With the platform Stripe off the Stripe Connect box is not shown at all; with it on it shows the "Connect Stripe account" button. The "Card payment link (Stripe Payment Link)" field above it is always shown.
 - Tests: `npm test` (node's built-in runner, `tests/*.test.ts`, no browser needed).
 - Screenshot: the helme-browser tools against the running dev server, saved as the Helme task asks.

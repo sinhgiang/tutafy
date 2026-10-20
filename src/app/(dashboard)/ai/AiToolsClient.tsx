@@ -105,11 +105,8 @@ export function AiToolsClient() {
         body: JSON.stringify({ prompt: fullPrompt, system: systemPrompt }),
       })
       const data = await res.json()
-      if (data.error === 'GROQ_API_KEY not configured') {
-        setOutput('AI not configured yet. Please add your GROQ_API_KEY to Vercel environment variables.')
-      } else {
-        setOutput(data.text ?? 'No response generated.')
-      }
+      // When AI is off the server sends a plain sentence; the real cause is only in the server log.
+      setOutput(data.code === 'ai_unavailable' ? data.error : (data.text ?? 'No response generated.'))
     } catch {
       setOutput('Error connecting to AI. Please try again.')
     }
