@@ -128,3 +128,80 @@
     @apply font-sans;
   }
 }
+
+/* ===== Touch layer (T-0629) =====================================================
+   Phones and tablets (under 1024px wide) get comfortable text and touch targets everywhere, in one
+   place, so every page is covered and a new page is covered without remembering:
+     - no text under 14px (the pages write sizes like text-[11px] for desktop density);
+     - buttons, form fields and stand-alone links at least 44px tall;
+     - form fields 16px so iPhones do not zoom in when one is focused.
+   It is outside any @layer, so it beats the Tailwind utilities, and it sits inside the
+   media query, so the desktop layout (1024px and up, 1440 included) is not changed at all.
+   Decorative pieces (aria-hidden, such as the dashboard picture on the home page) keep
+   their drawn sizes. tests/mobile-layer.test.ts keeps this block and the rules above. */
+@media (max-width: 1023px) {
+  :is(.text-xs, .text-\[8px\], .text-\[9px\], .text-\[10px\], .text-\[11px\], .text-\[12px\], .text-\[12\.5px\], .text-\[13px\], .text-\[13\.5px\], .text-\[0\.8rem\]):not(input, textarea, select, [aria-hidden="true"], [aria-hidden="true"] *) {
+    font-size: 14px;
+  }
+
+  button:not([aria-hidden="true"] *),
+  [role="button"]:not([aria-hidden="true"] *),
+  summary,
+  select {
+    min-height: 44px;
+  }
+  button:not([aria-hidden="true"] *),
+  [role="button"]:not([aria-hidden="true"] *) {
+    min-width: 44px;
+  }
+  input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]),
+  select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  /* (the 14px rule above leaves fields out, so a field written text-[13px] still gets 16px) */
+  textarea {
+    font-size: 16px;
+  }
+  a:is(.flex, .inline-flex, .block, .inline-block):not([aria-hidden="true"] *),
+  a[class*="px-"]:not([aria-hidden="true"] *),
+  a[class*="py-"]:not([aria-hidden="true"] *),
+  nav a:not([class*="hidden"]),
+  footer a:not([class*="hidden"]) {
+    min-height: 44px;
+  }
+  /* round icon-only links such as the back arrow */
+  a:is(.flex, .inline-flex):is(.w-6, .w-7, .w-8, .w-9):not([aria-hidden="true"] *) {
+    min-width: 44px;
+  }
+  /* links that sit alone: in a table cell, or directly in a flex or grid row (and are plain text or an icon) */
+  td a:not([class*="hidden"]),
+  th a:not([class*="hidden"]),
+  :is(.flex, .inline-flex, .grid) > a:not([class*="hidden"], [aria-hidden="true"] *, :has(> div, > p, > img, > ul)) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  a:has(> svg:only-child):not([aria-hidden="true"] *) {
+    min-width: 44px;
+  }
+  textarea {
+    min-height: 44px;
+  }
+  /* a short button or button-like link (a.flex) keeps its label on one line, the row around it wraps instead; long call-to-action links (a.inline-flex) may still wrap */
+  button:not([aria-hidden="true"] *, :has(> div, > p, > ul)),
+  a.flex:not([aria-hidden="true"] *, :has(> div, > p, > ul)),
+  td a {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  /* While a field is being typed in, the bottom menu steps aside so the keyboard and the menu never squeeze the send button. */
+  body:has(input:focus, textarea:focus, select:focus) [data-mobile-nav] {
+    display: none;
+  }
+  nav a:not(.flex, .block, .inline-flex, [class*="hidden"]),
+  footer a:not(.flex, .block, .inline-flex, [class*="hidden"]) {
+    display: inline-flex;
+    align-items: center;
+  }
+}

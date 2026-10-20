@@ -180,14 +180,14 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
                 ? cleanUrl(lesson.zoom_link)
                 : `/portal/${token}/lessons/${lesson.id}/room`
               return (
-                <div key={lesson.id} className="flex items-center gap-4 px-5 py-4">
+                <div key={lesson.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4">
                   <div className={`text-center min-w-[44px] py-1.5 px-2 rounded-lg flex-shrink-0 ${isToday ? 'bg-indigo-500 text-white' : 'bg-gray-50 text-gray-700'}`}>
                     <p className="text-[9px] font-bold uppercase opacity-70">
                       {date.toLocaleDateString('en-US', { month: 'short' })}
                     </p>
                     <p className="text-[16px] font-bold leading-none mt-0.5">{date.getDate()}</p>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-[120px]">
                     <p className="text-[13px] font-semibold text-gray-900">
                       {date.toLocaleDateString('en-US', { weekday: 'long' })}
                     </p>
@@ -199,7 +199,7 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
                       <span className="text-[11px] text-gray-400">{lesson.duration_minutes} min</span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-2 max-sm:w-full">
                     <a href={joinHref} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 px-3 py-1.5 rounded-lg transition-colors">
                       <Video className="h-3.5 w-3.5" />

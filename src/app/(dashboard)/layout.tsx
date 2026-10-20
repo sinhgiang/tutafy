@@ -32,7 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {children}
         </main>
       </div>
-      <MobileNav />
+      <MobileNav plan={plan} unreadMessages={unreadMessages ?? 0} />
     </div>
   )
 }

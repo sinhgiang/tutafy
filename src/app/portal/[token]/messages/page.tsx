@@ -37,7 +37,7 @@ export default async function PortalMessagesPage({ params }: { params: Promise<{
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)]">
+    <div className="flex flex-col h-[calc(100dvh-100px)] md:h-[calc(100vh-100px)]">
       <div className="flex items-center gap-3 mb-4 flex-shrink-0">
         <Link href={`/portal/${token}`}
           className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">

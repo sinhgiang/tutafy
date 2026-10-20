@@ -44,7 +44,7 @@ export function GamificationCard({ data, firstName }: { data: GamificationResult
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Badges</p>
           <p className="text-[11px] font-semibold text-gray-400">{data.earnedCount}/{data.totalBadges} earned</p>
         </div>
-        <div className="grid grid-cols-5 gap-2.5">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
           {data.badges.map(b => (
             <div key={b.id} title={`${b.name} — ${b.desc}`}
               className={`flex flex-col items-center gap-1 rounded-xl py-2.5 px-1 border transition-colors ${

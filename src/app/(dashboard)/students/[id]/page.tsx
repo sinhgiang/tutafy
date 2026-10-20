@@ -37,12 +37,12 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="max-w-[900px] space-y-5">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Link href="/students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Student Profile</h1>
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex flex-wrap gap-2">
           <Link href={`/messages/${id}`}
             className="flex items-center gap-1.5 text-[12px] font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors px-3 py-1.5 rounded-lg">
             <MessageCircle className="h-3 w-3" /> Message
@@ -66,9 +66,9 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Left: Profile */}
-        <div className="col-span-1 space-y-4">
+        <div className="md:col-span-1 space-y-4">
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <div className="flex flex-col items-center text-center mb-5">
               <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mb-3">
@@ -139,7 +139,7 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Right: Lessons + Notes */}
-        <div className="col-span-2 space-y-4">
+        <div className="md:col-span-2 space-y-4">
           {student.notes && (
             <div className="bg-white rounded-xl border border-gray-100 p-5">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Private Notes</p>

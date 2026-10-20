@@ -71,7 +71,7 @@ function Avatar({ name, url, size = 28 }: { name: string; url: string | null; si
   }
   return (
     <div className="rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 ring-2 ring-white" style={{ width: size, height: size }}>
-      <span className="font-bold text-indigo-600" style={{ fontSize: size * 0.36 }}>{initials(name)}</span>
+      <span aria-hidden="true" className="font-bold text-indigo-600" style={{ fontSize: size * 0.36 }}>{initials(name)}</span>
     </div>
   )
 }
@@ -168,7 +168,7 @@ function LessonsPanel({ data, query }: { data: DashboardData; query: string }) {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100">
-      <div className="flex items-center gap-3 px-5 pt-4 pb-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-5 pt-4 pb-3">
         <h2 className="text-[16px] font-bold text-gray-900">Lessons</h2>
         <div className="flex items-center gap-1 ml-2">
           {TABS.map(t => (
@@ -425,14 +425,14 @@ export function DashboardHome({ data }: { data: DashboardData }) {
   return (
     <div className="max-w-[1200px] mx-auto">
       {/* Top bar */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
         <div className="flex-shrink-0">
           <h1 className="text-[22px] font-extrabold text-gray-900 tracking-tight">Hello, {data.firstName} 👋</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">{data.dateLabel}</p>
         </div>
 
-        <div className="flex items-center gap-2.5 md:ml-auto w-full md:w-auto">
-          <div className="relative flex-1 md:w-[260px]">
+        <div className="flex items-center gap-2.5 lg:ml-auto w-full lg:w-auto">
+          <div className="relative flex-1 lg:w-[260px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               value={query}

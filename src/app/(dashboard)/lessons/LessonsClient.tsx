@@ -139,7 +139,7 @@ function LessonRow({ lesson, isSelected, onToggle }: { lesson: Lesson; isSelecte
           : <Square className="h-4 w-4" />
         }
       </button>
-      <Link href={`/lessons/${lesson.id}`} className="flex flex-1 items-center gap-4 pr-5 py-4 min-w-0">
+      <Link href={`/lessons/${lesson.id}`} className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-2 pr-5 py-4 min-w-0">
         <div className={`text-center w-12 py-1.5 rounded-lg flex-shrink-0 ${isToday ? 'bg-indigo-500' : 'bg-gray-50'}`}>
           <p className={`text-[9px] font-bold uppercase tracking-wider ${isToday ? 'text-indigo-200' : 'text-gray-400'}`}>
             {start.toLocaleDateString('en', { month: 'short' })}
@@ -148,16 +148,16 @@ function LessonRow({ lesson, isSelected, onToggle }: { lesson: Lesson; isSelecte
             {start.getDate()}
           </p>
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-[150px]">
           <p className="text-[13px] font-semibold text-gray-900">{lesson.students?.name ?? 'Unknown'}</p>
-          <div className="flex items-center gap-3 mt-0.5">
-            <span className="flex items-center gap-1 text-[11px] text-gray-400">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
+            <span className="flex items-center gap-1 text-[11px] text-gray-400 whitespace-nowrap">
               <Clock className="h-3 w-3" />
               {start.toLocaleTimeString('en', { hour: 'numeric', minute: '2-digit' })}
             </span>
-            <span className="text-[11px] text-gray-400">{lesson.duration_minutes} min</span>
+            <span className="text-[11px] text-gray-400 whitespace-nowrap">{lesson.duration_minutes} min</span>
             {(lesson.zoom_link || lesson.meet_link) && (
-              <span className="flex items-center gap-1 text-[11px] text-indigo-500">
+              <span className="flex items-center gap-1 text-[11px] text-indigo-500 whitespace-nowrap">
                 <Video className="h-3 w-3" /> Link
               </span>
             )}

@@ -17,7 +17,7 @@ export default async function AdminRevenuePage() {
         <p className="text-sm text-gray-500 mt-1">Platform-wide payment overview</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm text-gray-500">Total Revenue</p>
@@ -56,7 +56,7 @@ export default async function AdminRevenuePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
             <Users className="h-4 w-4 text-gray-400" />

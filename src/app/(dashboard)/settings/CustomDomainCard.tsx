@@ -192,14 +192,14 @@ export function CustomDomainCard() {
                     </div>
 
                     <div className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="grid grid-cols-[64px_1fr_1fr] bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 py-2">
+                      <div className="hidden sm:grid sm:grid-cols-[64px_1fr_1fr] bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 py-2">
                         <span>Type</span><span>Name / Host</span><span>Value</span>
                       </div>
                       {state.records.map((r, i) => (
-                        <div key={i} className="grid grid-cols-[64px_1fr_1fr] items-center px-3 py-2.5 border-t border-gray-100 text-[12px]">
+                        <div key={i} className="grid grid-cols-1 gap-1 sm:grid-cols-[64px_1fr_1fr] sm:items-center px-3 py-2.5 border-t border-gray-100 text-[12px]">
                           <span className="font-bold text-gray-700">{r.type}</span>
-                          <span className="flex items-center gap-1 min-w-0"><span className="font-mono text-gray-700 truncate">{r.name}</span><CopyBtn text={r.name} /></span>
-                          <span className="flex items-center gap-1 min-w-0"><span className="font-mono text-gray-700 truncate">{r.value}</span><CopyBtn text={r.value} /></span>
+                          <span className="flex items-center gap-1 min-w-0"><span className="sm:hidden text-gray-400 flex-shrink-0">Name</span><span className="font-mono text-gray-700 truncate max-sm:whitespace-normal max-sm:break-all">{r.name}</span><CopyBtn text={r.name} /></span>
+                          <span className="flex items-center gap-1 min-w-0"><span className="sm:hidden text-gray-400 flex-shrink-0">Value</span><span className="font-mono text-gray-700 truncate max-sm:whitespace-normal max-sm:break-all">{r.value}</span><CopyBtn text={r.value} /></span>
                         </div>
                       ))}
                     </div>

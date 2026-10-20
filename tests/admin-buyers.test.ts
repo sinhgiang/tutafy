@@ -124,7 +124,9 @@ test('the admin layout and the Buyers page both run the admin check themselves',
 })
 
 test('the admin sidebar links to Buyers, and the Tutors page shows a Plan column', () => {
-  assert.match(read('components/admin/AdminSidebar.tsx'), /href: '\/admin\/buyers', label: 'Buyers'/)
+  // the menu list moved to admin-nav.ts (T-0629) so the desktop sidebar and the phone drawer share it
+  assert.match(read('components/admin/admin-nav.ts'), /href: '\/admin\/buyers', label: 'Buyers'/)
+  assert.match(read('components/admin/AdminSidebar.tsx'), /ADMIN_NAV\.map/)
   const tutors = read('app/(admin)/admin/tutors/page.tsx')
   assert.match(tutors, />Plan<\/th>/)
   assert.match(tutors, /subscription_status/)
