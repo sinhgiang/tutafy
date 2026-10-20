@@ -4,8 +4,10 @@ import { POSTS } from '@/lib/blog'
 const SITE = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com').replace(/[﻿​\s]/g, '').replace(/\/+$/, '') || 'https://tutafy.com'
 
 // Only public, indexable pages belong in the sitemap.
+// Static pages carry no lastModified: nothing records when they last changed, and
+// stamping "today" on every build would tell crawlers a false date. Blog posts use
+// their own publish date, and the blog index the date of its newest post.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date()
   const pages: { path: string; priority: number; freq: MetadataRoute.Sitemap[number]['changeFrequency'] }[] = [
     { path: '', priority: 1.0, freq: 'weekly' },
     { path: '/tutors', priority: 0.8, freq: 'daily' },
@@ -19,7 +21,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/login', priority: 0.5, freq: 'monthly' },
     { path: '/student/login', priority: 0.5, freq: 'monthly' },
   ]
-  const staticUrls = pages.map(p => ({ url: `${SITE}${p.path}`, lastModified: now, changeFrequency: p.freq, priority: p.priority }))
-  const postUrls = POSTS.map(p => ({ url: `${SITE}/blog/${p.slug}`, lastModified: new Date(p.date + 'T00:00:00'), changeFrequency: 'monthly' as const, priority: 0.6 }))
+  const postDate = (date: string) => new Date(date + 'T00:00:00')
+  const newestPost = POSTS.reduce<Date | undefined>((latest, p) => (!latest || postDate(p.date) > latest ? postDate(p.date) : latest), undefined)
+  const staticUrls = pages.map(p => ({
+    url: `${SITE}${p.path}`,
+    ...(p.path === '/blog' && newestPost ? { lastModified: newestPost } : {}),
+    changeFrequency: p.freq,
+    priority: p.priority,
+  }))
+  const postUrls = POSTS.map(p => ({ url: `${SITE}/blog/${p.slug}`, lastModified: postDate(p.date), changeFrequency: 'monthly' as const, priority: 0.6 }))
   return [...staticUrls, ...postUrls]
 }
