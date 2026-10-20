@@ -57,7 +57,7 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
   } catch { /* table may not exist yet */ }
 
   return (
-    <div className="min-h-screen bg-white p-4 max-w-[480px] mx-auto">
+    <main className="min-h-screen bg-white p-4 max-w-[480px] mx-auto">
       <BookingForm
         tutor={tutor}
         cardCheckoutEnabled={isStripeEnabled()}
@@ -71,6 +71,6 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
         tutorSlug={slug}
       />
       <p className="text-center text-[11px] text-gray-300 mt-6">Powered by Tutafy</p>
-    </div>
+    </main>
   )
 }

@@ -86,6 +86,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
       </nav>
 
+      <main>
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center">
         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-full px-4 py-1.5 mb-7">
@@ -108,7 +109,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             See how it works
           </a>
         </div>
-        <p className="text-[12px] text-gray-400 mt-4">Free forever · Set up in 2 minutes · Cancel anytime</p>
+        <p className="text-[12px] text-gray-500 mt-4">Free forever · Set up in 2 minutes · Cancel anytime</p>
 
         {/* Hero product mockup — framed like a browser for realism. A drawing, not content: hidden from screen readers, and the phone text-size rule leaves its drawn sizes alone. */}
         <div className="mt-14 max-w-4xl mx-auto" aria-hidden="true">
@@ -119,7 +120,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               <span className="w-3 h-3 rounded-full bg-amber-300" />
               <span className="w-3 h-3 rounded-full bg-emerald-300" />
               <div className="ml-3 flex-1 max-w-xs h-5 rounded-md bg-white border border-gray-100 flex items-center px-2">
-                <span className="text-[10px] text-gray-400">app.tutafy.com/dashboard</span>
+                <span className="text-[10px] text-gray-500">app.tutafy.com/dashboard</span>
               </div>
             </div>
             <div className="flex">
@@ -141,7 +142,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-[16px] font-bold text-gray-900">Good morning, Sarah 👋</p>
-                    <p className="text-[11px] text-gray-400">You have 3 lessons today</p>
+                    <p className="text-[11px] text-gray-500">You have 3 lessons today</p>
                   </div>
                   <div className="w-8 h-8 rounded-full bg-indigo-100" />
                 </div>
@@ -155,7 +156,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 </div>
                 {/* mini chart */}
                 <div className="bg-white rounded-xl border border-gray-100 p-3 mb-3">
-                  <p className="text-[10px] font-semibold text-gray-400 mb-2">Monthly revenue</p>
+                  <p className="text-[10px] font-semibold text-gray-500 mb-2">Monthly revenue</p>
                   <div className="flex items-end justify-between gap-1.5 h-16">
                     {[40, 55, 45, 70, 60, 85].map((h, i) => (
                       <div key={i} className="flex-1 bg-violet-400 rounded-t" style={{ height: `${h}%` }} />
@@ -167,7 +168,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                     <div key={n} className="bg-white rounded-xl p-2.5 border border-gray-100">
                       <div className="w-5 h-5 rounded-full bg-indigo-100 mb-1.5" />
                       <p className="text-[10px] font-semibold text-gray-900">{n}</p>
-                      <p className="text-[8px] text-gray-400">10:00 AM</p>
+                      <p className="text-[8px] text-gray-500">10:00 AM</p>
                     </div>
                   ))}
                 </div>
@@ -275,7 +276,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             <p className="text-[15px] text-gray-500 mt-3">A marketplace can quietly cost you thousands a year. Tutafy costs the price of two coffees.</p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <div className="grid grid-cols-3 text-[12px] font-bold text-gray-400 uppercase tracking-wider px-5 py-3 border-b border-gray-50">
+            <div className="grid grid-cols-3 text-[12px] font-bold text-gray-500 uppercase tracking-wider px-5 py-3 border-b border-gray-50">
               <span></span><span className="text-center text-indigo-600">Tutafy</span><span className="text-center">Marketplaces</span>
             </div>
             {COMPARE.map(row => (
@@ -339,7 +340,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                     <p className="text-[14px] text-gray-700 leading-relaxed">{t.quote}</p>
                     <div className="flex items-center gap-3 mt-5">
                       <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center"><span className="text-[12px] font-bold text-indigo-600">{t.initials}</span></div>
-                      <div><p className="text-[13px] font-semibold text-gray-900">{t.name}</p><p className="text-[11px] text-gray-400">{t.role}</p></div>
+                      <div><p className="text-[13px] font-semibold text-gray-900">{t.name}</p><p className="text-[11px] text-gray-500">{t.role}</p></div>
                     </div>
                   </div>
                 ))}
@@ -364,18 +365,18 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="text-center mb-14">
             <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-[36px] font-extrabold text-gray-900 tracking-tight">Simple pricing. No commission. Ever.</h2>
-            <p className="text-[15px] text-gray-400 mt-3">Start free · Upgrade when you're ready · Cancel anytime</p>
+            <p className="text-[15px] text-gray-500 mt-3">Start free · Upgrade when you're ready · Cancel anytime</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {PLANS.map(p => (
               <div key={p.name} className={`relative rounded-2xl p-7 border-2 ${p.highlight ? 'bg-indigo-500 border-indigo-500 shadow-xl shadow-indigo-200' : 'bg-white border-gray-100'}`}>
                 {p.badge && (<div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide">{p.badge}</div>)}
-                <p className={`text-[11px] font-bold uppercase tracking-widest ${p.highlight ? 'text-indigo-200' : 'text-gray-400'}`}>{p.name}</p>
+                <p className={`text-[11px] font-bold uppercase tracking-widest ${p.highlight ? 'text-indigo-200' : 'text-gray-500'}`}>{p.name}</p>
                 <div className="flex items-end gap-1 mt-3 mb-1">
                   <span className={`text-[38px] font-extrabold leading-none ${p.highlight ? 'text-white' : 'text-gray-900'}`}>{p.price}</span>
-                  {p.per && <span className={`text-[13px] mb-1.5 ${p.highlight ? 'text-indigo-200' : 'text-gray-400'}`}>{p.per}</span>}
+                  {p.per && <span className={`text-[13px] mb-1.5 ${p.highlight ? 'text-indigo-200' : 'text-gray-500'}`}>{p.per}</span>}
                 </div>
-                <p className={`text-[12px] mb-6 ${p.highlight ? 'text-indigo-200' : 'text-gray-400'}`}>{p.tagline}</p>
+                <p className={`text-[12px] mb-6 ${p.highlight ? 'text-indigo-200' : 'text-gray-500'}`}>{p.tagline}</p>
                 <div className="space-y-2 mb-7">
                   {p.features.map(f => (
                     <div key={f} className="flex items-center gap-2">
@@ -423,9 +424,10 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <Link href="/register" className="inline-flex items-center gap-2 mt-9 text-[15px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-8 py-4 rounded-xl shadow-lg shadow-indigo-200">
             Start free — no credit card <ArrowRight className="h-4 w-4" />
           </Link>
-          <p className="text-[12px] text-gray-400 mt-4">Join the first tutors building their business on Tutafy.</p>
+          <p className="text-[12px] text-gray-500 mt-4">Join the first tutors building their business on Tutafy.</p>
         </div>
       </section>
+      </main>
 
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8 px-6">
@@ -434,16 +436,16 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             <div className="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center"><GraduationCap className="h-3.5 w-3.5 text-white" /></div>
             <span className="text-[14px] font-bold text-gray-900">Tutafy</span>
           </div>
-          <p className="text-[12px] text-gray-400">© 2026 Tutafy. Built for tutors, by people who get it.</p>
+          <p className="text-[12px] text-gray-500">© 2026 Tutafy. Built for tutors, by people who get it.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
-            <Link href="/about" className="text-[12px] text-gray-400 hover:text-gray-600">About</Link>
-            <Link href="/blog" className="text-[12px] text-gray-400 hover:text-gray-600">Blog</Link>
-            <Link href="/customers" className="text-[12px] text-gray-400 hover:text-gray-600">Customers</Link>
-            <Link href="/contact" className="text-[12px] text-gray-400 hover:text-gray-600">Contact</Link>
-            <Link href="/privacy" className="text-[12px] text-gray-400 hover:text-gray-600">Privacy</Link>
-            <Link href="/terms" className="text-[12px] text-gray-400 hover:text-gray-600">Terms</Link>
-            <Link href="/login" className="text-[12px] text-gray-400 hover:text-gray-600">Log in</Link>
-            <Link href="/register" className="text-[12px] text-gray-400 hover:text-gray-600">Sign up</Link>
+            <Link href="/about" className="text-[12px] text-gray-500 hover:text-gray-600">About</Link>
+            <Link href="/blog" className="text-[12px] text-gray-500 hover:text-gray-600">Blog</Link>
+            <Link href="/customers" className="text-[12px] text-gray-500 hover:text-gray-600">Customers</Link>
+            <Link href="/contact" className="text-[12px] text-gray-500 hover:text-gray-600">Contact</Link>
+            <Link href="/privacy" className="text-[12px] text-gray-500 hover:text-gray-600">Privacy</Link>
+            <Link href="/terms" className="text-[12px] text-gray-500 hover:text-gray-600">Terms</Link>
+            <Link href="/login" className="text-[12px] text-gray-500 hover:text-gray-600">Log in</Link>
+            <Link href="/register" className="text-[12px] text-gray-500 hover:text-gray-600">Sign up</Link>
           </div>
         </div>
       </footer>

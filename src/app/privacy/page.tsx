@@ -23,9 +23,9 @@ export default function PrivacyPage() {
         </div>
       </nav>
 
-      <article className="max-w-3xl mx-auto px-6 py-14 prose-tutafy">
+      <main className="max-w-3xl mx-auto px-6 py-14 prose-tutafy">
         <h1 className="text-[32px] font-extrabold text-gray-900 tracking-tight">Privacy Policy</h1>
-        <p className="text-[13px] text-gray-400 mt-1 mb-8">Last updated: {UPDATED}</p>
+        <p className="text-[13px] text-gray-500 mt-1 mb-8">Last updated: {UPDATED}</p>
 
         <div className="space-y-7 text-[14px] text-gray-600 leading-relaxed">
           <p>Tutafy (&quot;we&quot;, &quot;us&quot;) provides software that helps tutors run their tutoring business. This policy explains what we collect, why, and your choices. We keep it short and plain.</p>
@@ -82,9 +82,9 @@ export default function PrivacyPage() {
             <p>Questions about privacy? Email <a href="mailto:tubxeebyajtube@gmail.com" className="text-indigo-500 hover:underline">tubxeebyajtube@gmail.com</a>.</p>
           </Section>
 
-          <p className="text-[12px] text-gray-400 border-t border-gray-100 pt-6">This policy is provided for transparency and to meet advertising and app-store requirements. It is not legal advice; please have a lawyer review it for your jurisdiction before relying on it commercially.</p>
+          <p className="text-[12px] text-gray-500 border-t border-gray-100 pt-6">This policy is provided for transparency and to meet advertising and app-store requirements. It is not legal advice; please have a lawyer review it for your jurisdiction before relying on it commercially.</p>
         </div>
-      </article>
+      </main>
     </div>
   )
 }

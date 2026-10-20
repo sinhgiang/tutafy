@@ -1,17 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import Link from 'next/link'
 import { Calculator, ArrowRight } from 'lucide-react'
 
 function Field({ label, value, set, min, max, step, suffix }: { label: string; value: number; set: (n: number) => void; min: number; max: number; step: number; suffix: string }) {
+  // The label is tied to its slider (htmlFor + id), so a screen reader names it (Lighthouse "label").
+  const id = useId()
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[12px] font-medium text-gray-600">{label}</label>
+        <label htmlFor={id} className="text-[12px] font-medium text-gray-600">{label}</label>
         <span className="text-[13px] font-bold text-indigo-600">{value}{suffix}</span>
       </div>
-      <input type="range" min={min} max={max} step={step} value={value}
+      <input id={id} type="range" min={min} max={max} step={step} value={value}
         onChange={e => set(Number(e.target.value))}
         className="w-full accent-indigo-500" />
     </div>
@@ -56,7 +58,7 @@ export function CommissionCalculator({ initialCommission = 25, title }: { initia
           </Link>
         </div>
       </div>
-      <p className="text-[11px] text-gray-400 px-5 py-2.5 border-t border-gray-100">Estimate based on your inputs. You still pay your normal payment-processor fee (e.g. ~2.9% + 30¢). Tutafy takes 0% of your income.</p>
+      <p className="text-[11px] text-gray-500 px-5 py-2.5 border-t border-gray-100">Estimate based on your inputs. You still pay your normal payment-processor fee (e.g. ~2.9% + 30¢). Tutafy takes 0% of your income.</p>
     </div>
   )
 }
