@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { recordOrderPaid } from '@/lib/visitor-tracking'
+import { readSecret, safeEqual } from '@/lib/secrets'
 
 function createAdminClient() {
   return createClient(
@@ -19,8 +20,9 @@ function createAdminClient() {
 // UTF-8 secret as key, and sanitize hidden BOM/whitespace (this project has hit
 // BOM-in-env before). Any candidate matching a supplied signature passes.
 async function verifyPolarSignature(req: NextRequest, body: string): Promise<boolean> {
-  const rawSecret = process.env.POLAR_WEBHOOK_SECRET
-  if (!rawSecret) return true // skip if not configured
+  // No signing secret means no way to tell Polar from anyone else: refuse (the POST handler answers 503 before this).
+  const rawSecret = readSecret('POLAR_WEBHOOK_SECRET')
+  if (!rawSecret) return false
 
   const msgId = req.headers.get('webhook-id') ?? ''
   const msgTimestamp = req.headers.get('webhook-timestamp') ?? ''
@@ -59,15 +61,11 @@ async function verifyPolarSignature(req: NextRequest, body: string): Promise<boo
 
   // webhook-signature may carry multiple space-separated "v1,<sig>" entries
   const received = msgSignature.split(' ')
-  const ok = expected.some(e => received.includes(e))
+  const ok = expected.some(e => received.some(r => safeEqual(r, e)))
   if (!ok) {
-    // One-way SHA-256 fingerprint of the secret this deployment is running — no
-    // secret characters are exposed, but we can compare it against the hash of
-    // the value we expect to confirm the env is actually the right secret.
-    const secretHash = crypto.createHash('sha256').update(rawSecret).digest('hex').slice(0, 12)
-    console.warn('[polar-webhook] SIGNATURE MISMATCH received=%s expected=%s | secretHash=%s secretLen=%d idLen=%d tsLen=%d bodyLen=%d',
-      msgSignature, expected.join(' | '),
-      secretHash, rawSecret.length, msgId.length, msgTimestamp.length, body.length)
+    // Sizes only: never the signatures we expected, never any part of the secret (not even a hash).
+    console.warn('[polar-webhook] SIGNATURE MISMATCH secretLen=%d idLen=%d tsLen=%d sigLen=%d bodyLen=%d',
+      rawSecret.length, msgId.length, msgTimestamp.length, msgSignature.length, body.length)
   }
   return ok
 }
@@ -96,6 +94,9 @@ async function resolveTutorId(
 }
 
 export async function POST(req: NextRequest) {
+  // Closed when the signing secret is missing: a 5xx, so Polar tries again once it is set, and nothing is processed.
+  if (!readSecret('POLAR_WEBHOOK_SECRET')) return NextResponse.json({ error: 'Unavailable' }, { status: 503 })
+
   const body = await req.text()
 
   const valid = await verifyPolarSignature(req, body)
