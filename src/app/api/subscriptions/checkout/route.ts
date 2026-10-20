@@ -1,13 +1,14 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
+import { stripeUnavailableResponse } from '@/lib/stripe/availability'
 
 // POST /api/subscriptions/checkout
 // Body: { plan_id, student_name, student_email, tutor_slug }
 // Creates a Stripe Checkout session in subscription mode, charges student, transfers to tutor
 export async function POST(req: NextRequest) {
   if (!process.env.STRIPE_SECRET_KEY) {
-    return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
+    return stripeUnavailableResponse()
   }
 
   const { plan_id, student_name, student_email, tutor_slug } = await req.json()

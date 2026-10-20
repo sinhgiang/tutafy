@@ -3,15 +3,12 @@ import Stripe from 'stripe'
 import { requireApiPlan } from '@/lib/api-guard'
 
 export async function POST() {
-  if (!process.env.STRIPE_SECRET_KEY) {
-    return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
-  }
-
-  const gate = await requireApiPlan('pro')
+  // Sign-in, plan and "Stripe is switched on" are checked together, in that order.
+  const gate = await requireApiPlan('pro', { needsStripe: true })
   if ('error' in gate) return gate.error
   const { supabase, userId: user } = gate
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
   const { data: tutor } = await supabase.from('tutors').select('stripe_account_id, email, name').eq('id', user).single()
   if (!tutor) return NextResponse.json({ error: 'Tutor not found' }, { status: 404 })

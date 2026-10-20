@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { CheckCircle, ChevronLeft, ChevronRight, Globe, ExternalLink, RefreshCw, FileText, Package, Tag, Star, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { stripeErrorMessage } from '@/lib/stripe/availability'
 
 // "Continue with Google" — signs the student in, then returns to this booking
 // page with their name + email pre-filled (handled server-side via the session).
@@ -167,7 +168,7 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
                 if (data.url) {
                   window.location.href = data.url
                 } else {
-                  toast.error(data.error ?? 'Card payment unavailable')
+                  toast.error(stripeErrorMessage(data, 'student', 'Card payment unavailable'))
                   setPayingCard(false)
                 }
               } catch {
@@ -255,7 +256,7 @@ function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans
     onSubscribing(false)
     setLoading(null)
     if (d.url) window.location.href = d.url
-    else toast.error(d.error ?? 'Failed to start checkout')
+    else toast.error(stripeErrorMessage(d, 'student', 'Failed to start checkout'))
   }
 
   return (
