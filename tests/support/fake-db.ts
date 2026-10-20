@@ -1,6 +1,10 @@
 // An in-memory stand-in for the part of the Supabase client the journey code uses:
 // from(table).select / insert / upsert / update / delete with eq, in, is, gte, lt,
-// order, limit, maybeSingle. Tables are plain arrays, so tests can look inside.
+// order (more than one), limit, range, maybeSingle. Tables are plain arrays, so tests can look inside.
+//
+// Like the real service, a select answers at most SERVER_ROW_CAP rows per request, whatever limit()
+// asks for; to read more, a caller must page with range(). (Supabase's default is 1000.)
+export const SERVER_ROW_CAP = 1000
 type Row = Record<string, unknown>
 type Filter = (r: Row) => boolean
 
@@ -16,8 +20,9 @@ export function createFakeDb(initial: Record<string, Row[]> = {}) {
     let payload: Row | Row[] | null = null
     let upsertOpts: { onConflict?: string; ignoreDuplicates?: boolean } = {}
     const filters: Filter[] = []
-    let orderBy: { col: string; asc: boolean } | null = null
+    const orderBy: { col: string; asc: boolean }[] = []
     let max = Infinity
+    let offset = 0
     let head = false
     let maybe = false
 
@@ -50,11 +55,17 @@ export function createFakeDb(initial: Record<string, Row[]> = {}) {
         return { data: null, error: null, count: null }
       }
       let out = [...matching]
-      if (orderBy) {
-        const { col, asc } = orderBy
-        out.sort((a, b) => (String(a[col]) < String(b[col]) ? -1 : String(a[col]) > String(b[col]) ? 1 : 0) * (asc ? 1 : -1))
+      if (orderBy.length > 0) {
+        out.sort((a, b) => {
+          for (const { col, asc } of orderBy) {
+            const x = a[col] as string | number, y = b[col] as string | number
+            const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x) < String(y) ? -1 : String(x) > String(y) ? 1 : 0
+            if (c !== 0) return c * (asc ? 1 : -1)
+          }
+          return 0
+        })
       }
-      out = out.slice(0, max)
+      out = out.slice(offset, offset + Math.min(max, SERVER_ROW_CAP))
       if (head) return { data: null, error: null, count: matching.length }
       return maybe ? { data: out[0] ?? null, error: null, count: null } : { data: out, error: null, count: null }
     }
@@ -70,8 +81,10 @@ export function createFakeDb(initial: Record<string, Row[]> = {}) {
       is(col: string, v: unknown) { filters.push(r => (r[col] ?? null) === v); return q },
       gte(col: string, v: string) { filters.push(r => String(r[col]) >= v); return q },
       lt(col: string, v: string) { filters.push(r => String(r[col]) < v); return q },
-      order(col: string, o?: { ascending?: boolean }) { orderBy = { col, asc: o?.ascending !== false }; return q },
+      lte(col: string, v: string) { filters.push(r => String(r[col]) <= v); return q },
+      order(col: string, o?: { ascending?: boolean }) { orderBy.push({ col, asc: o?.ascending !== false }); return q },
       limit(n: number) { max = n; return q },
+      range(from: number, to: number) { offset = from; max = to - from + 1; return q },
       maybeSingle() { maybe = true; return q },
       then(resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) {
         try { return Promise.resolve(run()).then(resolve, reject) } catch (e) { return Promise.reject(e).then(resolve, reject) }

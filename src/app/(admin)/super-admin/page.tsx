@@ -75,6 +75,12 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
         </div>
       )}
 
+      {d.readTruncated && (
+        <div data-testid="super-admin-truncated" role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800">
+          Some visitor records were too many to read in full, so a few pages or counts below may be incomplete.
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-5">
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center h-9 mb-1"><p className="text-sm text-gray-500">Pro</p></div>
