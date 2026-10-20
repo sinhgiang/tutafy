@@ -14,19 +14,16 @@ import {
   type DateRange, type EventRow, type FunnelRow, type OrderResult, type VisitorRow,
 } from '@/lib/journey'
 import type { Source } from '@/lib/visitor-source'
+import { VISITOR_COLUMNS, eventsQuery, milestoneEvents, pageViewsUpTo } from '@/lib/visitor-reads'
+import { CHUNK, MAX_PAGES, ROWS_PER_REQUEST, chunks, inBatches, newReadState, readAll, type ReadState } from '@/lib/paged-read'
+
+export { MAX_PAGES, ROWS_PER_REQUEST }
 
 // Supabase answers at most 1000 rows per request by default, so this is also the most the funnel can read.
 export const FUNNEL_VISITOR_LIMIT = 1000
 export const ABANDONED_LIMIT = 50
-export const ROWS_PER_REQUEST = 1000 // what one database request can return
-export const MAX_PAGES = 100 // one read stops after this many pages (100 000 rows) and the page says so
 export const FALLBACK_PAGE_VIEWS = 200 // a buyer with no order or checkout event: their first page views only
-const CHUNK = 100 // ids per database request, to keep the request address short
-const PARALLEL = 10 // visitors read at the same time
 
-const MILESTONES = ['checkout_click', 'order_paid']
-const EVENT_COLUMNS = 'id, visitor_id, kind, path, plan, created_at'
-const VISITOR_COLUMNS = 'id, first_seen_at, country, first_source, first_path, tutor_id'
 
 export type BuyerWithJourney = {
   id: string
@@ -69,70 +66,32 @@ export type SuperAdminData = {
   failed: boolean
 }
 
-function chunks<T>(items: T[], size: number): T[][] {
-  const out: T[][] = []
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size))
-  return out
-}
-
-/** Run `fn` on every item, PARALLEL at a time. */
-async function inBatches<T>(items: T[], fn: (item: T) => Promise<void>): Promise<void> {
-  for (const batch of chunks(items, PARALLEL)) await Promise.all(batch.map(fn))
-}
-
-type ReadState = { error: boolean; truncated: boolean }
-type Query = { range(from: number, to: number): PromiseLike<{ data: unknown[] | null; error: unknown }> }
-
-/**
- * Read every row of a query, page by page, until a page comes back with fewer rows than a
- * full page. `build` must return a fresh query each time, with a fixed order (the caller
- * orders by a column and by id), so pages never overlap or skip.
- */
-async function readAll<T>(build: () => Query, state: ReadState): Promise<T[]> {
-  const out: T[] = []
-  for (let page = 0; page < MAX_PAGES; page++) {
-    const from = page * ROWS_PER_REQUEST
-    const { data, error } = await build().range(from, from + ROWS_PER_REQUEST - 1)
-    if (error) {
-      state.error = true
-      return out
-    }
-    const got = (data ?? []) as T[]
-    out.push(...got)
-    if (got.length < ROWS_PER_REQUEST) return out
-  }
-  state.truncated = true
-  return out
-}
-
-/** The events of one visitor, oldest first, the same way every time. */
-function eventsQuery(admin: BuyersClient) {
+/** Visitors first seen in the range, their checkout and paid events, and the funnel built from them. */
+async function readFunnel(admin: BuyersClient, range: DateRange, state: ReadState) {
+  const { gte, lt } = rangeBounds(range)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (admin.from('visitor_events') as any).select(EVENT_COLUMNS)
+  let vq: any = admin.from('visitors').select(VISITOR_COLUMNS)
+  if (gte) vq = vq.gte('first_seen_at', gte)
+  if (lt) vq = vq.lt('first_seen_at', lt)
+  const { data: vdata, error: verr } = await vq.order('first_seen_at', { ascending: false }).order('id', { ascending: false }).limit(FUNNEL_VISITOR_LIMIT)
+  if (verr) state.error = true
+  const visitors = (vdata ?? []) as VisitorRow[]
+
+  // Checkout clicks and paid orders of exactly these visitors, read in groups and in full.
+  const events = await milestoneEvents(admin, visitors.map(v => v.id), state)
+  return { visitors, events, funnel: funnelBySource(visitors, events) }
 }
 
-/** Page views of one visitor up to and including `endAt`, read in full. */
-async function pageViewsUpTo(admin: BuyersClient, visitorId: string, endAt: string, state: ReadState): Promise<EventRow[]> {
-  return readAll<EventRow>(() => eventsQuery(admin)
-    .eq('visitor_id', visitorId).eq('kind', 'page_view').lte('created_at', endAt)
-    .order('created_at', { ascending: true }).order('id', { ascending: true }), state)
-}
-
-/** Checkout clicks and paid orders of these visitors, oldest first. */
-async function milestoneEvents(admin: BuyersClient, visitorIds: string[], state: ReadState): Promise<EventRow[]> {
-  const out: EventRow[] = []
-  for (const ids of chunks(visitorIds, CHUNK)) {
-    const rows = await readAll<EventRow>(() => eventsQuery(admin)
-      .in('visitor_id', ids).in('kind', MILESTONES)
-      .order('created_at', { ascending: true }).order('id', { ascending: true }), state)
-    for (const r of rows) out.push(r) // a loop, not push(...rows): a read can be 100 000 rows long
-  }
-  return out
+/** Only the funnel (what the owner's main page needs); no buyer journeys are read. */
+export async function loadFunnel(admin: BuyersClient, range: DateRange) {
+  const state: ReadState = newReadState()
+  const { visitors, funnel } = await readFunnel(admin, range, state)
+  return { funnel, funnelTruncated: visitors.length >= FUNNEL_VISITOR_LIMIT, readTruncated: state.truncated, failed: state.error }
 }
 
 export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Promise<SuperAdminData> {
   const base = await loadBuyers(admin)
-  const state: ReadState = { error: false, truncated: false }
+  const state: ReadState = newReadState()
 
   // ---- journeys of the buyers -------------------------------------------------
   const buyerIds = base.buyers.map((b: BuyerRow) => b.id)
@@ -199,18 +158,7 @@ export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Pro
   const noFilter = range.from === null && range.to === null
 
   // ---- funnel: visitors first seen in the range ---------------------------------
-  const { gte, lt } = rangeBounds(range)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let vq: any = admin.from('visitors').select(VISITOR_COLUMNS)
-  if (gte) vq = vq.gte('first_seen_at', gte)
-  if (lt) vq = vq.lt('first_seen_at', lt)
-  const { data: vdata, error: verr } = await vq.order('first_seen_at', { ascending: false }).order('id', { ascending: false }).limit(FUNNEL_VISITOR_LIMIT)
-  if (verr) state.error = true
-  const visitors = (vdata ?? []) as VisitorRow[]
-
-  // Checkout clicks and paid orders of exactly these visitors, read in groups and in full.
-  const events = await milestoneEvents(admin, visitors.map(v => v.id), state)
-  const funnel = funnelBySource(visitors, events)
+  const { visitors, events, funnel } = await readFunnel(admin, range, state)
 
   // ---- checkout started but not paid ----------------------------------------------
   const paidVisitors = new Set(events.filter(e => e.kind === 'order_paid').map(e => e.visitor_id))
