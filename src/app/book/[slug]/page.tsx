@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BookingForm } from './BookingForm'
+import { isStripeEnabled } from '@/lib/stripe/availability'
 import { GraduationCap, Globe, Clock, Star } from 'lucide-react'
 
 export default async function BookingPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -171,6 +172,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
           {/* Right: Booking Form */}
           <BookingForm
             tutor={tutor}
+            cardCheckoutEnabled={isStripeEnabled()}
             availability={availability ?? []}
             subscriptionPlans={subscriptionPlans}
             contractTemplate={(tutor as any).contract_template ?? null}

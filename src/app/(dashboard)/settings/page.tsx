@@ -11,7 +11,7 @@ import NextLink from 'next/link'
 import { CustomDomainCard } from './CustomDomainCard'
 import { LockedFeature } from '@/components/plan/LockedFeature'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
-import { cardLinkForSave } from '@/lib/payment-link'
+import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -173,6 +173,9 @@ export default function SettingsPage() {
   }
 
   // Unsaved-changes detection powers the sticky save bar
+  // An older saved card link that is not https gets no button on the booking page: say so.
+  const savedCardLink: string = savedSnapshot ? (JSON.parse(savedSnapshot).paddle_checkout_link ?? '') : ''
+  const savedCardLinkUnusable = savedCardLink.trim() !== '' && safeHttpsUrl(savedCardLink) === null
   const hasChanges = savedSnapshot !== '' && JSON.stringify(form) !== savedSnapshot
   function discardChanges() {
     if (savedSnapshot) setForm(JSON.parse(savedSnapshot))
@@ -423,6 +426,11 @@ export default function SettingsPage() {
                       create a link for your lesson price, then paste it here. Students will see a &ldquo;Pay by card&rdquo; button on your booking page.
                     </p>
                   )}
+                {savedCardLinkUnusable && (
+                  <p data-testid="card-link-saved-warning" role="status" className="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mt-2">
+                    The card payment link you saved earlier does not start with https://, so students do not see a &ldquo;Pay by card&rdquo; button. Paste a new https:// link and save.
+                  </p>
+                )}
                 </div>
                 {/* Stripe Connect only shows when the platform's Stripe is switched on (or the tutor is already connected). */}
                 {(stripeConnected || stripeEnabled === true) && (

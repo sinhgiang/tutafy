@@ -40,12 +40,15 @@ export function buildPaymentMethods(tutor: TutorPay): PaymentMethod[] {
 
 /**
  * The built-in "Pay by Card" checkout button (platform Stripe) is hidden when the
- * tutor has their own card payment link, so students never see two card buttons.
+ * tutor has their own card payment link (students never see two card buttons) and
+ * when the platform's Stripe is switched off (the server tells the page; the button
+ * would only answer "not available"). Without the flag it stays hidden.
  */
 export function showBuiltInCardCheckout(
   tutor: TutorPay,
   lessonId: string | null | undefined,
   price: number | null | undefined,
+  platformStripeEnabled: boolean,
 ): boolean {
-  return !!(lessonId && price && price > 0) && cardPaymentUrl(tutor) === null
+  return platformStripeEnabled && !!(lessonId && price && price > 0) && cardPaymentUrl(tutor) === null
 }

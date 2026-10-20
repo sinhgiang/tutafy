@@ -104,8 +104,8 @@ function fmt12(t: string) {
 }
 
 // Payment methods panel shown after booking is confirmed
-function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
-  tutor: Tutor; duration: number; lessonId?: string | null; portalToken?: string | null; studentName?: string
+function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName, cardCheckoutEnabled }: {
+  tutor: Tutor; cardCheckoutEnabled: boolean; duration: number; lessonId?: string | null; portalToken?: string | null; studentName?: string
 }) {
   const [payingCard, setPayingCard] = useState(false)
   const price = tutor.default_lesson_price
@@ -113,7 +113,7 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
   // PayPal and the tutor's own card payment link (Stripe Payment Link); both show if both are set.
   const methods = buildPaymentMethods(tutor)
 
-  const showStripeCard = showBuiltInCardCheckout(tutor, lessonId, price)
+  const showStripeCard = showBuiltInCardCheckout(tutor, lessonId, price, cardCheckoutEnabled)
 
   if (methods.length === 0 && !showStripeCard) return null
 
@@ -347,7 +347,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
   )
 }
 
-export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null }: { tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null }) {
+export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null, cardCheckoutEnabled = false }: { cardCheckoutEnabled?: boolean; tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null }) {
   const today = new Date()
   const todayStr = toDS(today.getFullYear(), today.getMonth(), today.getDate())
 
@@ -479,7 +479,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           </a>
         )}
       </div>
-      <PaymentPanel tutor={tutor} duration={duration} lessonId={lessonId} portalToken={portalToken} studentName={name} />
+      <PaymentPanel tutor={tutor} cardCheckoutEnabled={cardCheckoutEnabled} duration={duration} lessonId={lessonId} portalToken={portalToken} studentName={name} />
     </div>
   )
 
