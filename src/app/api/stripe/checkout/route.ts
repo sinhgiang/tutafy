@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { hasPlan } from '@/lib/plans'
+import { stripeUnavailableResponse } from '@/lib/stripe/availability'
 
 export async function POST(request: Request) {
   const { lessonId, portalToken, amount, tutorName, studentName, duration, currency, origin } = await request.json()
 
   if (!process.env.STRIPE_SECRET_KEY) {
-    return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
+    return stripeUnavailableResponse()
   }
 
   if (!portalToken) return NextResponse.json({ error: 'portalToken required' }, { status: 400 })

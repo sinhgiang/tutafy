@@ -10,6 +10,7 @@ import PushSubscribe from '@/components/PushSubscribe'
 import NextLink from 'next/link'
 import { CustomDomainCard } from './CustomDomainCard'
 import { LockedFeature } from '@/components/plan/LockedFeature'
+import { STRIPE_UNAVAILABLE_TUTOR_MESSAGE, stripeErrorMessage } from '@/lib/stripe/availability'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -47,6 +48,8 @@ export default function SettingsPage() {
   const [slug, setSlug] = useState('')
   const [linkCopied, setLinkCopied] = useState(false)
   const [stripeConnected, setStripeConnected] = useState(false)
+  // null = still asking the server; false = card payments are switched off
+  const [stripeEnabled, setStripeEnabled] = useState<boolean | null>(null)
   const [subscriptionStatus, setSubscriptionStatus] = useState('free')
   const [userId, setUserId] = useState('')
   const [userEmail, setUserEmail] = useState('')
@@ -73,6 +76,15 @@ export default function SettingsPage() {
     // Deep-link to a section, e.g. /settings?tab=payments
     const t = searchParams.get('tab') as TabId | null
     if (t && SECTIONS.some(s => s.id === t)) setTab(t)
+  }, [])
+
+  // Ask the server whether card payments are switched on, so the Stripe button is
+  // replaced by a plain sentence instead of failing on click. Failure keeps the button.
+  useEffect(() => {
+    fetch('/api/stripe/connect/status')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (d && typeof d.enabled === 'boolean') setStripeEnabled(d.enabled) })
+      .catch(() => { /* keep the button; the click handler explains any failure */ })
   }, [])
 
   useEffect(() => {
@@ -132,14 +144,17 @@ export default function SettingsPage() {
 
   async function connectStripe() {
     setConnectingStripe(true)
-    const res = await fetch('/api/stripe/connect/onboard', { method: 'POST' })
-    const data = await res.json()
-    if (data.url) {
-      window.location.href = data.url
-    } else if (data.error === 'Stripe not configured') {
-      toast.error('Add STRIPE_SECRET_KEY to Vercel environment variables first.')
-    } else {
-      toast.error(data.error ?? 'Failed to connect Stripe')
+    try {
+      const res = await fetch('/api/stripe/connect/onboard', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+      if (data.error === 'stripe_unavailable') setStripeEnabled(false)
+      toast.error(stripeErrorMessage(data, 'tutor', 'Failed to connect Stripe'))
+    } catch {
+      toast.error('Failed to connect Stripe')
     }
     setConnectingStripe(false)
   }
@@ -393,6 +408,10 @@ export default function SettingsPage() {
                       <CheckCircle className="h-4 w-4 text-emerald-500" />
                       <p className="text-[13px] text-emerald-700 font-medium">Connected</p>
                     </div>
+                  ) : stripeEnabled === false ? (
+                    <p data-testid="stripe-unavailable" className="text-[13px] text-gray-500 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
+                      {STRIPE_UNAVAILABLE_TUTOR_MESSAGE}
+                    </p>
                   ) : (
                     <button onClick={connectStripe} disabled={connectingStripe}
                       className="w-full text-[13px] font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-60 transition-colors py-2 rounded-lg">
