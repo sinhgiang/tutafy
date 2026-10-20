@@ -44,57 +44,59 @@ export default async function StudentsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50/80 border-b border-gray-100">
-              <tr>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Student</th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Level</th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Country</th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Goals</th>
-                <th className="text-center px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Added</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {students.map(s => {
-                const initials = s.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-                return (
-                  <Link key={s.id} href={`/students/${s.id}`} legacyBehavior>
-                    <tr className="hover:bg-gray-50/60 transition-colors cursor-pointer">
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-[11px] font-bold text-indigo-600">{initials}</span>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50/80 border-b border-gray-100">
+                <tr>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Student</th>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Level</th>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Country</th>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Goals</th>
+                  <th className="text-center px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Added</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {students.map(s => {
+                  const initials = s.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+                  return (
+                    <Link key={s.id} href={`/students/${s.id}`} legacyBehavior>
+                      <tr className="hover:bg-gray-50/60 transition-colors cursor-pointer">
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                              <span className="text-[11px] font-bold text-indigo-600">{initials}</span>
+                            </div>
+                            <div>
+                              <p className="text-[13px] font-semibold text-gray-900">{s.name}</p>
+                              {s.email && <p className="text-[11px] text-gray-400">{s.email}</p>}
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-[13px] font-semibold text-gray-900">{s.name}</p>
-                            {s.email && <p className="text-[11px] text-gray-400">{s.email}</p>}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={`text-[11px] px-2 py-0.5 rounded font-semibold ${LEVEL_COLOR[s.level] ?? 'bg-gray-100 text-gray-500'}`}>{s.level}</span>
-                      </td>
-                      <td className="px-5 py-3.5 text-[13px] text-gray-500">{s.country ?? '—'}</td>
-                      <td className="px-5 py-3.5 text-[12px] text-gray-400 max-w-[200px]">
-                        <p className="truncate">{s.goals ?? '—'}</p>
-                      </td>
-                      <td className="px-5 py-3.5 text-center">
-                        <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                          s.status === 'active' ? 'bg-emerald-50 text-emerald-600' :
-                          s.status === 'paused' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-400'}`}>
-                          {s.status}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-[12px] text-gray-400">
-                        {new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </td>
-                    </tr>
-                  </Link>
-                )
-              })}
-            </tbody>
-          </table>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={`text-[11px] px-2 py-0.5 rounded font-semibold ${LEVEL_COLOR[s.level] ?? 'bg-gray-100 text-gray-500'}`}>{s.level}</span>
+                        </td>
+                        <td className="px-5 py-3.5 text-[13px] text-gray-500">{s.country ?? '—'}</td>
+                        <td className="px-5 py-3.5 text-[12px] text-gray-400 max-w-[200px]">
+                          <p className="truncate">{s.goals ?? '—'}</p>
+                        </td>
+                        <td className="px-5 py-3.5 text-center">
+                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
+                            s.status === 'active' ? 'bg-emerald-50 text-emerald-600' :
+                            s.status === 'paused' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-400'}`}>
+                            {s.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-[12px] text-gray-400">
+                          {new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </td>
+                      </tr>
+                    </Link>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -92,7 +92,9 @@ test('the page sits under the admin layout and runs the admin check itself befor
   const gate = page.indexOf('await requireAdminPage()')
   const query = page.indexOf('createAdminClient()')
   assert.ok(gate > 0 && query > gate)
-  assert.match(read('components/admin/AdminSidebar.tsx'), /href: '\/super-admin', label: 'Super admin'/)
+  // the menu list moved to admin-nav.ts (T-0629) so the desktop sidebar and the phone drawer share it
+  assert.match(read('components/admin/admin-nav.ts'), /href: '\/super-admin', label: 'Super admin'/)
+  assert.match(read('components/admin/AdminSidebar.tsx'), /ADMIN_NAV\.map/)
   assert.match(read('proxy.ts'), /path === '\/super-admin' \|\| path\.startsWith\('\/super-admin\/'\)/)
 })
 

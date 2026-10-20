@@ -4,49 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
-import { hasPlan, PLAN_LABEL, type Plan } from '@/lib/plans'
-import {
-  LayoutDashboard, Users, Calendar, BookOpen,
-  CreditCard, Clock, Sparkles, Settings, Zap, Crown, MessageCircle, Package, Upload, Gift, RefreshCw, Tag, ListOrdered, BarChart3, Code2, Wallet, Lock,
-} from 'lucide-react'
-
-type NavItem = { href: string; label: string; icon: typeof LayoutDashboard; plan?: Plan }
-
-const NAV: { group: string; items: NavItem[] }[] = [
-  {
-    group: 'Main',
-    items: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/students', label: 'Students', icon: Users },
-      { href: '/lessons', label: 'Lessons', icon: BookOpen },
-      { href: '/calendar', label: 'Calendar', icon: Calendar },
-      { href: '/messages', label: 'Messages', icon: MessageCircle },
-    ],
-  },
-  {
-    group: 'Business',
-    items: [
-      { href: '/reports', label: 'Reports', icon: BarChart3, plan: 'pro' },
-      { href: '/team', label: 'Team & Payroll', icon: Wallet, plan: 'academy' },
-      { href: '/payments', label: 'Payments', icon: CreditCard },
-      { href: '/packages', label: 'Packages', icon: Package, plan: 'pro' },
-      { href: '/coupons', label: 'Coupons', icon: Tag, plan: 'pro' },
-      { href: '/subscriptions', label: 'Subscriptions', icon: RefreshCw, plan: 'pro' },
-      { href: '/waitlist', label: 'Waitlist', icon: ListOrdered, plan: 'pro' },
-      { href: '/availability', label: 'Availability', icon: Clock },
-      { href: '/ai', label: 'AI Tools', icon: Sparkles, plan: 'pro' },
-      { href: '/import', label: 'Import', icon: Upload, plan: 'pro' },
-    ],
-  },
-  {
-    group: 'Account',
-    items: [
-      { href: '/referral', label: 'Refer & Earn', icon: Gift },
-      { href: '/developers', label: 'API & Webhooks', icon: Code2, plan: 'pro' },
-      { href: '/settings', label: 'Settings', icon: Settings },
-    ],
-  },
-]
+import { hasPlan, PLAN_LABEL } from '@/lib/plans'
+import { Zap, Crown, Lock } from 'lucide-react'
+import { NAV } from './nav-items'
 
 const PLAN_META: Record<string, { label: string; color: string; textColor: string; desc: string }> = {
   free: { label: 'Free', color: 'border-white/10 bg-white/5', textColor: 'text-white/40', desc: 'Up to 10 students' },

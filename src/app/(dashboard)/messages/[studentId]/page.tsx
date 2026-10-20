@@ -40,9 +40,9 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
   const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/portal/${student.portal_token}`
 
   return (
-    <div className="max-w-[680px] flex flex-col h-[calc(100vh-120px)]">
+    <div className="max-w-[680px] flex flex-col h-[calc(100dvh-216px)] sm:h-[calc(100dvh-164px)] md:h-[calc(100vh-120px)]">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4 flex-shrink-0">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 flex-shrink-0">
         <Link href="/messages"
           className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
@@ -50,7 +50,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
         <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
           <span className="text-[11px] font-bold text-indigo-600">{initials}</span>
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-[140px]">
           <p className="text-[14px] font-bold text-gray-900 leading-none">{student.name}</p>
           {student.email && (
             <p className="text-[11px] text-gray-400 mt-0.5">{student.email}</p>

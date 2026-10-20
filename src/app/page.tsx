@@ -110,8 +110,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         </div>
         <p className="text-[12px] text-gray-400 mt-4">Free forever · Set up in 2 minutes · Cancel anytime</p>
 
-        {/* Hero product mockup — framed like a browser for realism */}
-        <div className="mt-14 max-w-4xl mx-auto">
+        {/* Hero product mockup — framed like a browser for realism. A drawing, not content: hidden from screen readers, and the phone text-size rule leaves its drawn sizes alone. */}
+        <div className="mt-14 max-w-4xl mx-auto" aria-hidden="true">
           <div className="rounded-2xl bg-white border border-gray-200 shadow-2xl shadow-indigo-100/60 overflow-hidden text-left">
             {/* Browser chrome */}
             <div className="flex items-center gap-2 px-4 h-10 bg-gray-50 border-b border-gray-100">

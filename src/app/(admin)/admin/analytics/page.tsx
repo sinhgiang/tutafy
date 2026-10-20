@@ -53,7 +53,7 @@ export default async function AdminAnalyticsPage() {
         <p className="text-sm text-gray-500 mt-1">Platform growth and usage insights</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-5">
             <Award className="h-4 w-4 text-gray-400" />
