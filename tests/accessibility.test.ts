@@ -140,15 +140,6 @@ const PUBLIC_TEXT_FILES = [
   'src/app/book/[slug]/[member]/page.tsx',
   'src/app/embed/[slug]/page.tsx',
   'src/app/offline/page.tsx',
-]
-
-/**
- * Public files that still hold pale grey and are NOT fixed in T-0638 on purpose: they were being
- * edited by another agent at the same time (merge conflict). Each entry must still hold some, so
- * the list shrinks to nothing once they are fixed: the test then fails and says to remove the entry.
- * Fix = replace the bare `text-gray-400` with `text-gray-500` (about 4.8:1 on white).
- */
-const PALE_GREY_PENDING = [
   'src/app/blog/[slug]/page.tsx',
   'src/app/tutors/[slug]/page.tsx',
 ]
@@ -160,10 +151,14 @@ test('public pages hold no pale grey (text-gray-400) text: the next shade, text-
   }
 })
 
-test('the files left for later still hold pale grey; when one is fixed, take it off PALE_GREY_PENDING', () => {
-  for (const f of PALE_GREY_PENDING) {
-    assert.ok(paleGreyTokens(read(f)) > 0, `${f} is fixed now: move it from PALE_GREY_PENDING to PUBLIC_TEXT_FILES`)
-  }
+// ---- the blog post: comparison table and in-sentence link ------------------------------------------
+
+test('blog post: the first cell of each comparison row is a row header (th scope=row), and the About link is underlined', () => {
+  const src = read('src/app/blog/[slug]/page.tsx')
+  assert.match(src, /const Cell = c === 0 \? 'th' : 'td'/)
+  assert.match(src, /<Cell key=\{c\} scope=\{c === 0 \? 'row' : undefined\}/)
+  assert.match(src, /<Link href="\/about" className="[^"]*\bunderline\b[^"]*">About Tutafy/)
+  assert.doesNotMatch(src, /<Link href="\/about" className="[^"]*hover:underline/)
 })
 
 // ---- the sliders of the blog calculator -----------------------------------------------------------

@@ -51,7 +51,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <article className="max-w-2xl mx-auto px-6 py-14">
         {/* Breadcrumb (visible, matches JSON-LD position 3) */}
-        <nav className="text-[12px] text-gray-400 mb-5">
+        <nav className="text-[12px] text-gray-500 mb-5">
           <Link href="/" className="hover:text-gray-600">Home</Link> <span className="mx-1">/</span>
           <Link href="/blog" className="hover:text-gray-600">Blog</Link> <span className="mx-1">/</span>
           <span className="text-gray-500">{post.category}</span>
@@ -65,7 +65,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <AuthorAvatar size={36} />
           <div>
             <p className="text-[13px] font-semibold text-gray-900">By {post.author}</p>
-            <p className="text-[11px] text-gray-400">
+            <p className="text-[11px] text-gray-500">
               {dates.modified !== dates.published && <><time dateTime={dates.published}>Published {formatPostDate(dates.published)}</time> · </>}
               <time dateTime={dates.modified}>Updated {formatPostDate(dates.modified)}</time> · {readingMinutes(post)} min read
             </p>
@@ -89,14 +89,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <AuthorAvatar size={40} />
           <div>
             <p className="text-[13px] font-semibold text-gray-900">{post.author}</p>
-            <p className="text-[12px] text-gray-500 mt-1 leading-relaxed">{post.authorBio} <Link href="/about" className="text-indigo-500 hover:underline">About Tutafy →</Link></p>
+            <p className="text-[12px] text-gray-500 mt-1 leading-relaxed">{post.authorBio} <Link href="/about" className="text-indigo-600 underline">About Tutafy →</Link></p>
           </div>
         </div>
 
         {/* Related posts */}
         {POSTS.filter(p => p.slug !== post.slug).length > 0 && (
           <div className="mt-12">
-            <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-4">Keep reading</p>
+            <p className="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-4">Keep reading</p>
             <div className="grid sm:grid-cols-2 gap-4">
               {POSTS.filter(p => p.slug !== post.slug).slice(0, 2).map(p => (
                 <Link key={p.slug} href={`/blog/${p.slug}`} className="group bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md transition-all">
@@ -156,7 +156,7 @@ function Block({ b }: { b: PostBlock }) {
         {b.cards.map((c, j) => (
           <div key={j} className="bg-white rounded-2xl border border-gray-100 p-4 text-center">
             <p className="text-[22px] font-extrabold text-indigo-600 leading-none">{c.value}</p>
-            <p className="text-[11px] text-gray-400 mt-1.5 leading-tight">{c.label}</p>
+            <p className="text-[11px] text-gray-500 mt-1.5 leading-tight">{c.label}</p>
           </div>
         ))}
       </div>
@@ -167,23 +167,28 @@ function Block({ b }: { b: PostBlock }) {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50">
-                {b.headers.map((h, j) => <th key={j} className={`text-[11px] font-bold uppercase tracking-wider px-4 py-3 ${j === b.headers.length - 1 ? 'text-indigo-600' : 'text-gray-400'}`}>{h}</th>)}
+                {b.headers.map((h, j) => <th key={j} className={`text-[11px] font-bold uppercase tracking-wider px-4 py-3 ${j === b.headers.length - 1 ? 'text-indigo-600' : 'text-gray-500'}`}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
               {b.rows.map((row, r) => (
                 <tr key={r} className="border-t border-gray-50">
-                  {row.map((cell, c) => (
-                    <td key={c} className={`px-4 py-3 text-[13px] ${c === 0 ? 'text-gray-700 font-medium' : c === row.length - 1 ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
-                      {typeof cell === 'boolean' ? (cell ? <Check className="h-4 w-4 text-emerald-500" /> : <X className="h-4 w-4 text-gray-300" />) : cell}
-                    </td>
-                  ))}
+                  {row.map((cell, c) => {
+                    // The first cell names the row, so it is a row header (th scope=row): a screen reader then
+                    // reads each value with its row name (Lighthouse td-has-header).
+                    const Cell = c === 0 ? 'th' : 'td'
+                    return (
+                      <Cell key={c} scope={c === 0 ? 'row' : undefined} className={`px-4 py-3 text-[13px] ${c === 0 ? 'text-gray-700 font-medium' : c === row.length - 1 ? 'text-gray-900 font-semibold' : 'text-gray-500'}`}>
+                        {typeof cell === 'boolean' ? (cell ? <Check className="h-4 w-4 text-emerald-500" /> : <X className="h-4 w-4 text-gray-300" />) : cell}
+                      </Cell>
+                    )
+                  })}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {b.caption && <p className="text-[11px] text-gray-400 mt-2">{b.caption}</p>}
+        {b.caption && <p className="text-[11px] text-gray-500 mt-2">{b.caption}</p>}
       </div>
     )
     case 'prosCons': return (
@@ -194,14 +199,14 @@ function Block({ b }: { b: PostBlock }) {
         </div>
         <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5">
           <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-3">Cons</p>
-          <ul className="space-y-2">{b.cons.map((p, j) => <li key={j} className="flex items-start gap-2 text-[13px] text-gray-600"><X className="h-3.5 w-3.5 text-gray-400 mt-0.5 flex-shrink-0" />{p}</li>)}</ul>
+          <ul className="space-y-2">{b.cons.map((p, j) => <li key={j} className="flex items-start gap-2 text-[13px] text-gray-600"><X className="h-3.5 w-3.5 text-gray-500 mt-0.5 flex-shrink-0" />{p}</li>)}</ul>
         </div>
       </div>
     )
     case 'cta': return (
       <div className="bg-indigo-500 rounded-2xl p-6 text-center not-prose">
         <p className="text-[16px] font-bold text-white">{b.title}</p>
-        {b.text && <p className="text-[13px] text-indigo-100 mt-1.5 max-w-md mx-auto leading-relaxed">{b.text}</p>}
+        {b.text && <p className="text-[13px] text-white mt-1.5 max-w-md mx-auto leading-relaxed">{b.text}</p>}
         <Link href={b.href} className="inline-flex items-center gap-2 mt-4 text-[13px] font-bold text-indigo-600 bg-white hover:bg-indigo-50 transition-colors px-5 py-2.5 rounded-xl">
           {b.button} <ArrowRight className="h-4 w-4" />
         </Link>
@@ -218,7 +223,7 @@ function Block({ b }: { b: PostBlock }) {
           </picture>
         </div>
         {(b.caption || b.credit) && (
-          <figcaption className="text-[12px] text-gray-400 mt-2.5 text-center">
+          <figcaption className="text-[12px] text-gray-500 mt-2.5 text-center">
             {b.caption}{b.caption && b.credit ? ' · ' : ''}{b.credit && <span className="text-gray-300">{b.credit}</span>}
           </figcaption>
         )}

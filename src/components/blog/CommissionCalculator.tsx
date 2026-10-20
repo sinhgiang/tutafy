@@ -47,9 +47,9 @@ export function CommissionCalculator({ initialCommission = 25, title }: { initia
           <Field label="Marketplace commission" value={commission} set={setCommission} min={0} max={40} step={1} suffix="%" />
         </div>
         <div className="p-5 flex flex-col justify-center bg-indigo-500 text-white text-center">
-          <p className="text-[11px] font-semibold text-indigo-200 uppercase tracking-wider">You lose to commission</p>
-          <p className="text-[36px] font-extrabold leading-none mt-1">{money(lost)}<span className="text-[15px] font-semibold text-indigo-200">/yr</span></p>
-          <p className="text-[12px] text-indigo-100 mt-3 leading-relaxed">
+          <p className="text-[11px] font-semibold text-white uppercase tracking-wider">You lose to commission</p>
+          <p className="text-[36px] font-extrabold leading-none mt-1">{money(lost)}<span className="text-[15px] font-semibold text-white">/yr</span></p>
+          <p className="text-[12px] text-white mt-3 leading-relaxed">
             On Tutafy you&apos;d keep it — our Pro plan is just <b className="text-white">$144/year</b> with <b className="text-white">0% commission</b>.
             That&apos;s about <b className="text-white">{money(netKept)}</b> back in your pocket.
           </p>
