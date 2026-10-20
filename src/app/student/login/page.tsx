@@ -57,7 +57,7 @@ export default function StudentLoginPage() {
         <p className="text-[14px] text-gray-500 mt-2 max-w-[320px]">
           We sent a link to <strong>{email}</strong>. Click it to view your lessons.
         </p>
-        <p className="text-[12px] text-gray-400 mt-4">
+        <p className="text-[12px] text-gray-500 mt-4">
           The link expires in 7 days. Check your spam folder if you don&apos;t see it.
         </p>
         <button onClick={() => { setSent(false); setEmail('') }}
@@ -77,7 +77,7 @@ export default function StudentLoginPage() {
             <BookOpen className="h-7 w-7 text-indigo-600" />
           </div>
           <h1 className="text-[22px] font-bold text-gray-900">View your lessons</h1>
-          <p className="text-[13px] text-gray-400 mt-1.5">
+          <p className="text-[13px] text-gray-500 mt-1.5">
             Enter your email to receive a link to your lessons and homework.
           </p>
         </div>
@@ -98,12 +98,12 @@ export default function StudentLoginPage() {
 
         <div className="relative mb-4">
           <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
-          <div className="relative flex justify-center"><span className="bg-[#F7F8FA] px-3 text-[12px] text-gray-400">or with email</span></div>
+          <div className="relative flex justify-center"><span className="bg-[#F7F8FA] px-3 text-[12px] text-gray-500">or with email</span></div>
         </div>
 
         <form onSubmit={submit} className="space-y-3">
           <div className="relative">
-            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
             <input
               type="email"
               required
@@ -132,7 +132,7 @@ export default function StudentLoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-[12px] text-gray-400 mt-5">
+        <p className="text-center text-[12px] text-gray-500 mt-5">
           Are you a tutor?{' '}
           <a href="/login" className="text-indigo-500 hover:text-indigo-700 font-medium transition-colors">
             Sign in here

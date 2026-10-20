@@ -1,17 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import Link from 'next/link'
 import { Calculator, ArrowRight } from 'lucide-react'
 
 function Field({ label, value, set, min, max, step, suffix }: { label: string; value: number; set: (n: number) => void; min: number; max: number; step: number; suffix: string }) {
+  // The label is tied to its slider (htmlFor + id), so a screen reader names it (Lighthouse "label").
+  const id = useId()
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[12px] font-medium text-gray-600">{label}</label>
+        <label htmlFor={id} className="text-[12px] font-medium text-gray-600">{label}</label>
         <span className="text-[13px] font-bold text-indigo-600">{value}{suffix}</span>
       </div>
-      <input type="range" min={min} max={max} step={step} value={value}
+      <input id={id} type="range" min={min} max={max} step={step} value={value}
         onChange={e => set(Number(e.target.value))}
         className="w-full accent-indigo-500" />
     </div>
@@ -45,9 +47,9 @@ export function CommissionCalculator({ initialCommission = 25, title }: { initia
           <Field label="Marketplace commission" value={commission} set={setCommission} min={0} max={40} step={1} suffix="%" />
         </div>
         <div className="p-5 flex flex-col justify-center bg-indigo-500 text-white text-center">
-          <p className="text-[11px] font-semibold text-indigo-200 uppercase tracking-wider">You lose to commission</p>
-          <p className="text-[36px] font-extrabold leading-none mt-1">{money(lost)}<span className="text-[15px] font-semibold text-indigo-200">/yr</span></p>
-          <p className="text-[12px] text-indigo-100 mt-3 leading-relaxed">
+          <p className="text-[11px] font-semibold text-white uppercase tracking-wider">You lose to commission</p>
+          <p className="text-[36px] font-extrabold leading-none mt-1">{money(lost)}<span className="text-[15px] font-semibold text-white">/yr</span></p>
+          <p className="text-[12px] text-white mt-3 leading-relaxed">
             On Tutafy you&apos;d keep it — our Pro plan is just <b className="text-white">$144/year</b> with <b className="text-white">0% commission</b>.
             That&apos;s about <b className="text-white">{money(netKept)}</b> back in your pocket.
           </p>
@@ -56,7 +58,7 @@ export function CommissionCalculator({ initialCommission = 25, title }: { initia
           </Link>
         </div>
       </div>
-      <p className="text-[11px] text-gray-400 px-5 py-2.5 border-t border-gray-100">Estimate based on your inputs. You still pay your normal payment-processor fee (e.g. ~2.9% + 30¢). Tutafy takes 0% of your income.</p>
+      <p className="text-[11px] text-gray-500 px-5 py-2.5 border-t border-gray-100">Estimate based on your inputs. You still pay your normal payment-processor fee (e.g. ~2.9% + 30¢). Tutafy takes 0% of your income.</p>
     </div>
   )
 }

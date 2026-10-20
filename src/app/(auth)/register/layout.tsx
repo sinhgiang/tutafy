@@ -8,11 +8,12 @@ export const metadata = pageMetadata('register')
 // to a crawler holds only the spinner. This heading is part of the server HTML and so
 // gives the page its one <h1>; it is hidden on screen (sr-only) and read by screen readers.
 // The visible "Tutafy" text in the form is a <p>, not a second <h1>.
+// The <main> is here too, so the spinner and the form are both inside the page's one main landmark.
 export default function RegisterLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <main>
       <h1 className="sr-only">Create your free Tutafy account</h1>
       {children}
-    </>
+    </main>
   )
 }
