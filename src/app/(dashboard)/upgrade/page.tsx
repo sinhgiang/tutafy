@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Check, X, Zap, Crown, Users } from 'lucide-react'
 import Link from 'next/link'
+import { TrackedCheckoutLink } from '@/components/plan/TrackedCheckoutLink'
 
 const PRO_URL = process.env.NEXT_PUBLIC_POLAR_CHECKOUT_PRO ?? '#'
 const ACADEMY_URL = process.env.NEXT_PUBLIC_POLAR_CHECKOUT_ACADEMY ?? '#'
@@ -203,10 +204,10 @@ export default async function UpgradePage() {
                     ✓ Your current plan
                   </div>
                 ) : isUpgrade && plan.checkoutUrl ? (
-                  <a href={withTutorRef(plan.checkoutUrl, user.email ?? '', user.id)} target="_blank" rel="noopener noreferrer"
+                  <TrackedCheckoutLink href={withTutorRef(plan.checkoutUrl, user.email ?? '', user.id)} plan={plan.name === 'Academy' ? 'academy' : 'pro'}
                     className={`block w-full py-2.5 rounded-xl text-[13px] font-bold text-center transition-colors ${plan.ctaStyle}`}>
                     Upgrade to {plan.name} →
-                  </a>
+                  </TrackedCheckoutLink>
                 ) : isDowngrade ? (
                   <a href={MANAGE_URL} target={MANAGE_URL.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
                     className={`block w-full py-2.5 rounded-xl text-[13px] font-semibold text-center transition-colors ${

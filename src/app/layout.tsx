@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { PWAInit } from '@/components/PWAInit'
 import { CookieConsent } from '@/components/CookieConsent'
 import { Analytics } from '@/components/Analytics'
+import { VisitorTracker } from '@/components/VisitorTracker'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'] })
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PWAInit />
         <CookieConsent />
         <Analytics />
+        <VisitorTracker />
       </body>
     </html>
   )

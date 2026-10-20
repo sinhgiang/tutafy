@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, GraduationCap, DollarSign, Settings, BarChart3, LogOut, Shield } from 'lucide-react'
+import { LayoutDashboard, Users, GraduationCap, DollarSign, Settings, BarChart3, LogOut, Shield, ShoppingBag, Telescope } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils'
 const NAV = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
   { href: '/admin/tutors', label: 'Tutors', icon: Users },
+  { href: '/super-admin', label: 'Super admin', icon: Telescope },
+  { href: '/admin/buyers', label: 'Buyers', icon: ShoppingBag },
   { href: '/admin/students', label: 'Students', icon: GraduationCap },
   { href: '/admin/revenue', label: 'Revenue', icon: DollarSign },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },

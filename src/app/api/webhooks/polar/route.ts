@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
+import { recordOrderPaid } from '@/lib/visitor-tracking'
 
 function createAdminClient() {
   return createClient(
@@ -147,6 +148,16 @@ export async function POST(req: NextRequest) {
     }).eq('id', tutorId)
     console.log('[polar-webhook] UPGRADED tutor=%s plan=%s product=%s status=%s err=%s',
       tutorId, plan, productName, sub.status, updErr?.message ?? 'none')
+
+    // Visitor journey (only exists for tutors who accepted cookies). Never lets a tracking
+    // problem change the answer Polar gets.
+    if (!updErr && plan !== 'free') {
+      try {
+        await recordOrderPaid(supabase, tutorId, plan)
+      } catch {
+        console.warn('[polar-webhook] journey not recorded')
+      }
+    }
   }
 
   if (event.type === 'subscription.canceled' || event.type === 'subscription.revoked') {

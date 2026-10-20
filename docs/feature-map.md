@@ -8,12 +8,15 @@ Tutafy: booking, lessons and payments for private tutors (Next.js 16, Supabase, 
 - Card payments through Stripe Connect (Pro plan): `src/app/api/stripe/connect/` (`onboard` starts onboarding, `status` says whether Stripe is switched on); on/off logic and customer wording in `src/lib/stripe/availability.ts`; plan gate in `src/lib/api-guard.ts`.
 - Student booking and paying: `src/app/book/[slug]/BookingForm.tsx`; the student gets there from the tutor's public booking link `/book/<slug>`. Card checkout: `src/app/api/stripe/checkout/route.ts`, `src/app/api/subscriptions/checkout/route.ts`.
 - Plans and gating: `src/lib/plans.ts`, `src/lib/guard.tsx`; upgrades go through Polar (`/upgrade`).
-- Operator-only admin area: `src/app/(admin)/admin/` (may name environment variables; customers never see it).
+- Operator-only admin area: `src/app/(admin)/admin/` (may name environment variables; customers never see it). Only the admin account gets in: the proxy (`src/proxy.ts`), the layout and each data page call the check in `src/lib/admin.ts` / `src/lib/admin-guard.ts`; anyone else goes to `/dashboard`, signed-out visitors to `/login`.
+- Admin Buyers (tutors on Pro or Academy, with totals): `src/app/(admin)/admin/buyers/page.tsx`, data in `src/lib/buyers-data.ts`; opened from the admin sidebar "Buyers" (`/admin/buyers`). The Plan column lives on `/admin/tutors`. The tutors table has no country column, so Buyers shows the timezone.
+- Super admin (the owner's page: buyers with country, first source, pages in order, last page before checkout and order result; funnel by source; date filter): `src/app/(admin)/super-admin/page.tsx`, data in `src/lib/super-admin-data.ts` (it reuses `loadBuyers` from `src/lib/buyers-data.ts`) and `src/lib/journey.ts`; opened from the admin sidebar "Super admin" (`/super-admin`), admin account only (proxy + layout + the page itself).
+- Visitor journey (only after the visitor accepts cookies): browser `src/components/VisitorTracker.tsx` and `src/lib/track-client.ts`, server `src/app/api/track/route.ts` and `src/lib/visitor-tracking.ts`; source rules in `src/lib/visitor-source.ts`, page list in `src/lib/track-path.ts`; the Polar webhook adds the paid order. Tables are in `supabase/migrations/015_visitor_tracking.sql` (written, NOT applied to the real database until the owner decides); the Privacy page describes it.
 
 ## Run and check
 
 - Open it: `npm run dev`, then http://localhost:3000. Needs `.env.local` with the Supabase settings (copy `.env.example`; never commit it).
 - Test account: none recorded yet. A Pro test tutor is needed to see the Settings > Payments > Stripe box; ask the owner for a throwaway account. Do not use a real tutor's login.
 - Main flow to go through: sign in as a Pro tutor, open Settings, Payments tab, look at the Stripe Connect box. With the platform Stripe off the Stripe Connect box is not shown at all; with it on it shows the "Connect Stripe account" button. The "Card payment link (Stripe Payment Link)" field above it is always shown.
-- Tests: `npm test` (node's built-in runner, `tests/*.test.ts`, no browser needed).
+- Tests: `npm test` (node's built-in runner, `tests/*.test.ts`, no browser needed). The migration test runs the SQL on an in-memory Postgres (PGlite), never on a real database.
 - Screenshot: the helme-browser tools against the running dev server, saved as the Helme task asks.
