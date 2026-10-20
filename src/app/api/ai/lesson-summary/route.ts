@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
 import { Resend } from 'resend'
 import { requireApiPlan } from '@/lib/api-guard'
+import { aiUnavailableResponse } from '@/lib/ai-unavailable'
 
 export async function POST(req: NextRequest) {
   const gate = await requireApiPlan('pro')
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
     .from('tutors').select('name').eq('id', userId).single()
 
   if (!process.env.GROQ_API_KEY) {
-    return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 503 })
+    return aiUnavailableResponse('lesson-summary')
   }
 
   const student = lesson.students as any

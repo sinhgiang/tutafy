@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
 import { requireApiPlan } from '@/lib/api-guard'
+import { aiUnavailableResponse } from '@/lib/ai-unavailable'
 
 export async function POST(request: NextRequest) {
   const gate = await requireApiPlan('pro')
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
   if (!prompt) return NextResponse.json({ error: 'Prompt required' }, { status: 400 })
 
   if (!process.env.GROQ_API_KEY) {
-    return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 503 })
+    return aiUnavailableResponse('generate')
   }
 
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
