@@ -4,6 +4,7 @@
 // cookies (getConsent), and what is sent is only a shortened page path, the first
 // referrer/utm of the visit, and a yes/no for a Google Ads click id.
 import { getConsent } from '@/components/CookieConsent'
+import { createTrackSender } from '@/lib/track-sender'
 
 export type Landing = {
   referrer?: string
@@ -46,14 +47,14 @@ export function takeLanding(): Landing | null {
   })
 }
 
-export function sendTrack(payload: Record<string, unknown>): void {
-  if (getConsent() !== 'accepted') return
-  fetch('/api/track', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ consent: 'accepted', ...payload }),
-    keepalive: true,
-  }).catch(() => { /* tracking never gets in the way */ })
+// One sender for the whole page: requests go out one at a time, in order (see track-sender.ts).
+const sender = createTrackSender({
+  fetch: (url, init) => fetch(url, init),
+  hasConsent: () => getConsent() === 'accepted',
+})
+
+export function sendTrack(payload: Record<string, unknown>): Promise<void> {
+  return sender.send(payload)
 }
 
 /** Called when the visitor presses a Go Pro / upgrade button (before the page changes). */

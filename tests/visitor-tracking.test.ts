@@ -231,8 +231,10 @@ test('the Polar webhook records the order after the plan update, and a tracking 
 
 test('the browser code sends nothing unless cookies were accepted, and deletes on decline', () => {
   const client = readFileSync(path.join(SRC, 'lib/track-client.ts'), 'utf8')
-  assert.match(client, /export function sendTrack[\s\S]{0,120}if \(getConsent\(\) !== 'accepted'\) return/)
-  assert.match(client, /consent: 'accepted'/)
+  assert.ok(client.includes("hasConsent: () => getConsent() === 'accepted'"))
+  const sender = readFileSync(path.join(SRC, 'lib/track-sender.ts'), 'utf8')
+  assert.ok(sender.includes('if (!deps.hasConsent()) return Promise.resolve()'))
+  assert.ok(sender.includes("consent: 'accepted'"))
   const tracker = readFileSync(path.join(SRC, 'components/VisitorTracker.tsx'), 'utf8')
   assert.match(tracker, /if \(!consented\) return/)
   assert.match(tracker, /detail === 'declined'\) forgetMe\(\)/)

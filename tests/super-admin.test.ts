@@ -227,6 +227,36 @@ test('a failing read is reported, not shown as zero buyers', async () => {
   assert.match(page, /\{d\.failed \? '—' : d\.pro\}/)
 })
 
+test('the funnel reads events for exactly the visitors it counts, in groups: nothing is cut off with many visitors', async () => {
+  // 450 visitors (more than one group of 100), every one clicked checkout and every third one paid
+  const visitors = Array.from({ length: 450 }, (_, i) => ({
+    id: `m${i}`, first_seen_at: t('10-20', '08:00:00'), country: 'VN', first_source: 'google_search', first_path: '/', tutor_id: null,
+  }))
+  const visitor_events = visitors.flatMap((v, i) => [
+    { visitor_id: v.id, kind: 'checkout_click', path: '/upgrade', plan: 'pro', created_at: t('10-20', '09:00:00') },
+    ...(i % 3 === 0 ? [{ visitor_id: v.id, kind: 'order_paid', path: null, plan: 'pro', created_at: t('10-20', '09:05:00') }] : []),
+  ])
+  const d = await loadSuperAdmin(createFakeDb({ tutors: [], visitors, visitor_events }), NO_RANGE)
+  const row = d.funnel.rows.find(r => r.source === 'google_search')!
+  assert.deepEqual([row.visitors, row.checkout, row.paid], [450, 450, 150])
+  assert.equal(d.funnelTruncated, false)
+
+  // the page text and the cap come from one constant, and the cap is what the database answers per request
+  const { FUNNEL_VISITOR_LIMIT } = await import('@/lib/super-admin-data.ts')
+  assert.equal(FUNNEL_VISITOR_LIMIT, 1000)
+  assert.ok(readFileSync(path.join(SRC, 'app/(admin)/super-admin/page.tsx'), 'utf8').includes('{FUNNEL_VISITOR_LIMIT}'))
+})
+
+test('the newest visitors are never the ones cut: with more visitors than the cap, a notice says so', async () => {
+  const visitors = Array.from({ length: 1005 }, (_, i) => ({
+    id: `n${i}`, first_seen_at: `2026-10-20T08:${String(Math.floor(i / 60) % 60).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}.000Z`,
+    country: 'US', first_source: 'direct', first_path: '/', tutor_id: null,
+  }))
+  const d = await loadSuperAdmin(createFakeDb({ tutors: [], visitors, visitor_events: [] }), NO_RANGE)
+  assert.equal(d.funnel.total.visitors, 1000)
+  assert.equal(d.funnelTruncated, true)
+})
+
 // ---- pure helpers -----------------------------------------------------------------------
 
 test('parseRange and rangeBounds: real dates only, swapped if reversed, end day included', () => {

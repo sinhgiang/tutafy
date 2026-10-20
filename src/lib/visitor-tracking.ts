@@ -20,6 +20,8 @@ const trackBody = z.object({
   }).optional(),
   gclid: z.boolean().optional(),
   plan: z.enum(['pro', 'academy']).optional(),
+  // On a page view: also link this visitor to the signed-in tutor (taken from the session, never from the body).
+  identify: z.boolean().optional(),
 }).strict()
 
 export type TrackBody = z.infer<typeof trackBody>
@@ -52,6 +54,11 @@ export type RecordInput = {
   country: string | null
   /** The signed-in tutor's id when the request carries a valid session; never taken from the body. */
   userId: string | null
+  /**
+   * Asked only when this visitor row does not exist yet, so the limit on new visitors counts rows
+   * that are really created (a made-up cookie id gets no free pass). False means: do not create it.
+   */
+  allowNewVisitor: () => boolean
 }
 
 /**
@@ -59,12 +66,15 @@ export type RecordInput = {
  * (first source decided now), add the event, and link the visitor to the tutor account
  * when the request is signed in. Returns what it wrote, for the tests.
  */
-export async function recordVisitorEvent(admin: TrackingClient, input: RecordInput): Promise<{ wrote: boolean }> {
-  const { visitorId, body, country, userId } = input
+export async function recordVisitorEvent(admin: TrackingClient, input: RecordInput): Promise<{ wrote: boolean; limited?: boolean }> {
+  const { visitorId, body, country, userId, allowNewVisitor } = input
   const path = normalizeTrackedPath(body.path)
 
   // A page view or checkout click on a page we do not track is dropped. 'identify' has no page.
   if (body.kind !== 'identify' && path === null) return { wrote: false }
+
+  const { data: known } = await admin.from('visitors').select('id').eq('id', visitorId).maybeSingle()
+  if (!known && !allowNewVisitor()) return { wrote: false, limited: true }
 
   const { error: upsertError } = await admin.from('visitors').upsert({
     id: visitorId,
@@ -94,7 +104,7 @@ export async function recordVisitorEvent(admin: TrackingClient, input: RecordInp
     wrote = !error
   }
 
-  if (userId && (body.kind === 'identify' || body.kind === 'checkout_click')) {
+  if (userId && (body.identify || body.kind === 'identify' || body.kind === 'checkout_click')) {
     // Never overwrites an earlier link; a failure (for example a student account that
     // is not a tutor) is not an error for the visitor.
     await admin.from('visitors').update({ tutor_id: userId }).eq('id', visitorId).is('tutor_id', null)

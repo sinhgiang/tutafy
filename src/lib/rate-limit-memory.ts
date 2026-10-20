@@ -3,7 +3,7 @@
 // global) and keeps nothing on disk. No imports, so the node tests can load it.
 
 export function createLimiter(opts: { max: number; windowMs: number; now?: () => number; maxKeys?: number }) {
-  const now = opts.now ?? Date.now
+  const now = opts.now ?? (() => Date.now())
   const maxKeys = opts.maxKeys ?? 5000
   const hits = new Map<string, number[]>()
 

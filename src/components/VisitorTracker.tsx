@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { getConsent, CONSENT_EVENT } from './CookieConsent'
 import { captureLanding, forgetMe, sendTrack, takeLanding } from '@/lib/track-client'
 import { isAppPath, normalizeTrackedPath } from '@/lib/track-path'
+import { pageViewPayload } from '@/lib/track-sender'
 
 // Records the visitor's journey (page views of a short fixed list of pages) in
 // Tutafy's own database, ONLY after the visitor accepted cookies. See
@@ -33,12 +34,14 @@ export function VisitorTracker() {
     if (!consented) return
     const path = normalizeTrackedPath(pathname)
     if (!path) return
-    sendTrack({ kind: 'page_view', path, ...(takeLanding() ?? {}) })
-    // In the signed-in area, ask the server to link this visitor to the tutor account (once per tab).
-    if (isAppPath(path) && !sessionStorage.getItem('tutafy_identified')) {
-      sessionStorage.setItem('tutafy_identified', '1')
-      sendTrack({ kind: 'identify' })
-    }
+    // In the signed-in area the same request also links this visitor to the tutor account (once
+    // per tab). One request, so the visitor and the link cannot end up on two different visitors.
+    let linkAccount = false
+    try {
+      linkAccount = isAppPath(path) && !sessionStorage.getItem('tutafy_identified')
+      if (linkAccount) sessionStorage.setItem('tutafy_identified', '1')
+    } catch { /* storage blocked: skip the link, the page view still goes out */ }
+    void sendTrack(pageViewPayload({ path, landing: takeLanding() as Record<string, unknown> | null, linkAccount }))
   }, [consented, pathname])
 
   return null

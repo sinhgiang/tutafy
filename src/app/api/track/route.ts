@@ -46,25 +46,30 @@ export async function POST(req: NextRequest) {
   const existing = validVisitorId(req.cookies.get(VISITOR_COOKIE)?.value)
   const visitorId = existing ?? randomUUID()
   if (!perVisitor.hit(visitorId)) return NextResponse.json({ error: 'slow down' }, { status: 429 })
-  if (!existing && !newVisitors.hit('new')) return NextResponse.json({ error: 'slow down' }, { status: 429 })
 
   // The signed-in tutor (if any) comes from the session cookie, never from the body.
   let userId: string | null = null
-  if (parsed.data.kind === 'identify' || parsed.data.kind === 'checkout_click') {
+  if (parsed.data.identify || parsed.data.kind === 'identify' || parsed.data.kind === 'checkout_click') {
     const { data: { user } } = await (await createClient()).auth.getUser()
     userId = user?.id ?? null
   }
 
+  let limited = false
   try {
-    await recordVisitorEvent(createAdminClient(), {
+    const result = await recordVisitorEvent(createAdminClient(), {
       visitorId,
       body: parsed.data,
       country: countryFromHeader(req.headers.get('x-vercel-ip-country')),
       userId,
+      // New visitors are limited by what is really created, whatever cookie id the caller sends.
+      allowNewVisitor: () => newVisitors.hit('new'),
     })
+    limited = result.limited === true
   } catch {
     // Tracking must never break the page; a lost event is acceptable.
   }
+
+  if (limited) return NextResponse.json({ error: 'slow down' }, { status: 429 })
 
   const res = noContent()
   if (!existing) {

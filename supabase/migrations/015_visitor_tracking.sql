@@ -4,6 +4,11 @@
 -- It only adds two new tables; it changes no existing table and no existing data.
 -- Tested against a local copy (tests/visitor-migration.test.ts, PGlite).
 --
+-- RETENTION: the Privacy page promises records are kept at most 13 months. Nothing deletes
+-- them until someone runs public.purge_old_visitor_data(395) (defined below, not scheduled).
+-- If you apply this file without scheduling that call (for example once a month), change
+-- the "13 months" sentence on /privacy first.
+--
 -- Privacy by design (Privacy page updated in the same change):
 --   * rows exist only for visitors who accepted cookies; the random id lives in
 --     an httpOnly cookie that the server sets only after consent;

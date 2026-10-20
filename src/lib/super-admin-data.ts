@@ -9,7 +9,8 @@ import {
 } from '@/lib/journey'
 import type { Source } from '@/lib/visitor-source'
 
-export const FUNNEL_VISITOR_LIMIT = 5000
+// Supabase answers at most 1000 rows per request by default, so this is also the most the funnel can read.
+export const FUNNEL_VISITOR_LIMIT = 1000
 export const ABANDONED_LIMIT = 50
 const CHUNK = 100 // ids per database request, to keep the request address short
 
@@ -122,12 +123,15 @@ export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Pro
   if (verr) failed = true
   const visitors = (vdata ?? []) as VisitorRow[]
 
-  let eq = admin.from('visitor_events').select('visitor_id, kind, path, plan, created_at').in('kind', ['checkout_click', 'order_paid'])
-  if (gte) eq = eq.gte('created_at', gte)
-  const { data: edata, error: eerr } = await eq.order('created_at', { ascending: true }).limit(FUNNEL_VISITOR_LIMIT * 2)
-  if (eerr) failed = true
-  const ids = new Set(visitors.map(v => v.id))
-  const events = ((edata ?? []) as EventRow[]).filter(e => ids.has(e.visitor_id))
+  // Events are fetched for exactly these visitors, in groups, so nothing is cut off however many there are.
+  const events: EventRow[] = []
+  for (const vids of chunks(visitors.map(v => v.id), CHUNK)) {
+    const { data, error } = await admin.from('visitor_events')
+      .select('visitor_id, kind, path, plan, created_at').in('visitor_id', vids).in('kind', ['checkout_click', 'order_paid'])
+      .order('created_at', { ascending: true })
+    if (error) failed = true
+    events.push(...((data ?? []) as EventRow[]))
+  }
   const funnel = funnelBySource(visitors, events)
 
   // ---- checkout started but not paid ----------------------------------------------

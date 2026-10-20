@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
-import { loadSuperAdmin } from '@/lib/super-admin-data'
+import { loadSuperAdmin, FUNNEL_VISITOR_LIMIT } from '@/lib/super-admin-data'
 import { ORDER_RESULT_LABEL, parseRange } from '@/lib/journey'
 import { SOURCE_LABEL, type Source } from '@/lib/visitor-source'
 import { planBadgeClass, planLabel } from '@/lib/buyers'
@@ -132,7 +132,7 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
             </tr>
           </tbody>
         </table>
-        {d.funnelTruncated && <p className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">Showing the newest 5000 visitors of the range.</p>}
+        {d.funnelTruncated && <p className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">Showing the newest {FUNNEL_VISITOR_LIMIT} visitors of the range.</p>}
       </div>
 
       {/* Buyers */}
