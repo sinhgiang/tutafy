@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
 import { createAdminClient } from '@/lib/supabase/server'
 import { hasPlan } from '@/lib/plans'
+import { aiUnavailableResponse } from '@/lib/ai-unavailable'
 
 // Used from student portal (token auth) OR tutor dashboard (no token)
 export async function POST(req: NextRequest) {
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!process.env.GROQ_API_KEY) {
-    return NextResponse.json({ error: 'GROQ_API_KEY not configured' }, { status: 503 })
+    return aiUnavailableResponse('homework-check')
   }
 
   const prompt = `You are a language teacher providing homework feedback. Be encouraging but specific.

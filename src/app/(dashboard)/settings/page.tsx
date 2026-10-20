@@ -603,36 +603,6 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-
-            {/* Automated Reminders (cron-job.org) */}
-            <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-gray-400" />
-                <p className="text-[13px] font-semibold text-gray-900">Automated Reminders (cron-job.org)</p>
-              </div>
-              <p className="text-[12px] text-gray-500 leading-relaxed">
-                Set up a free cron job to automatically send lesson reminders to students 24 hours before each lesson.
-              </p>
-              <ol className="space-y-2 text-[12px] text-gray-600">
-                <li className="flex gap-2">
-                  <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-                  Go to <a href="https://cron-job.org" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline font-medium">cron-job.org</a> and create a free account
-                </li>
-                <li className="flex gap-2">
-                  <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-                  Create a new cron job with URL: <code className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-[11px] font-mono">https://tutafy.com/api/cron/reminders</code>
-                </li>
-                <li className="flex gap-2">
-                  <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-                  Set schedule to <strong>every hour</strong> (or at 8am daily). Add header: <code className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-[11px] font-mono">Authorization: Bearer YOUR_CRON_SECRET</code>
-                </li>
-                <li className="flex gap-2">
-                  <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
-                  Add <code className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-[11px] font-mono">CRON_SECRET=YOUR_CRON_SECRET</code> to your Vercel environment variables
-                </li>
-              </ol>
-              <p className="text-[11px] text-gray-400">Students receive email reminders 24h before their lessons automatically.</p>
-            </div>
           </>)}
 
           {/* ── Plan ── */}
