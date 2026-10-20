@@ -314,7 +314,7 @@ test('only google-tag.ts writes gtag calls and only google-page.ts builds an add
 test('Privacy page says what the code does with page addresses (and the code does it: the tests above)', () => {
   const src = read('src/app/privacy/page.tsx')
   assert.ok(/never include an access code, a record ID or anything after a question mark/.test(src))
-  assert.ok(/pages that open a student&apos;s portal or a private record send nothing to Google at all/.test(src))
+  assert.ok(/[Pp]ages that open a student&apos;s portal or a private record send nothing to Google at all/.test(src))
 })
 
 test('self-check: a tag that sends the real address would be caught by the tests above', () => {
