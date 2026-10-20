@@ -5,9 +5,14 @@ const ZERO_DECIMAL = new Set([
   'bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf',
 ])
 
+/** True for currencies Stripe counts in whole units (yen, dong...), which are shown without decimals too. */
+export function isZeroDecimalCurrency(currency: string): boolean {
+  return ZERO_DECIMAL.has(currency.toLowerCase())
+}
+
 /** The price in Stripe's smallest unit, or null if it is not a positive, finite number. */
 export function stripeMinorUnits(price: number, currency: string): number | null {
   if (!Number.isFinite(price) || price <= 0) return null
-  const units = ZERO_DECIMAL.has(currency.toLowerCase()) ? Math.round(price) : Math.round(price * 100)
+  const units = isZeroDecimalCurrency(currency) ? Math.round(price) : Math.round(price * 100)
   return units > 0 && units <= 99_999_999 ? units : null
 }

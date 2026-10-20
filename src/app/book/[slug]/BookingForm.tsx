@@ -6,6 +6,7 @@ import { CheckCircle, ChevronLeft, ChevronRight, Globe, ExternalLink, RefreshCw,
 import { createClient } from '@/lib/supabase/client'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { buildPaymentMethods, cardPaymentUrl, paypalUrl, showBuiltInCardCheckout } from '@/lib/payment-methods'
+import { formatMoney } from '@/lib/currency'
 
 // "Continue with Google" — signs the student in, then returns to this booking
 // page with their name + email pre-filled (handled server-side via the session).
@@ -42,10 +43,6 @@ const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 const DURATIONS = [{ v: 30, l: '30 min' }, { v: 45, l: '45 min' }, { v: 60, l: '60 min' }, { v: 90, l: '90 min' }]
 
 interface Availability { day_of_week: number; start_time: string; end_time: string }
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$',
-  SGD: 'S$', JPY: '¥', INR: '₹', BRL: 'R$', MXN: 'MX$',
-}
 
 interface Tutor {
   id: string; name: string; timezone: string; cancellation_hours: number; buffer_minutes?: number
@@ -104,12 +101,15 @@ function fmt12(t: string) {
 }
 
 // Payment methods panel shown after booking is confirmed
-function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName, cardCheckoutEnabled }: {
-  tutor: Tutor; cardCheckoutEnabled: boolean; duration: number; lessonId?: string | null; portalToken?: string | null; studentName?: string
+// What the booking route saved the lesson at: the amount the card checkout charges, in the tutor's currency.
+type BookedPrice = { price: number | null; currency: string }
+
+function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentName, cardCheckoutEnabled }: {
+  tutor: Tutor; booked: BookedPrice; cardCheckoutEnabled: boolean; duration: number; lessonId?: string | null; portalToken?: string | null; studentName?: string
 }) {
   const [payingCard, setPayingCard] = useState(false)
-  const price = tutor.default_lesson_price
-  const currencySymbol = CURRENCY_SYMBOLS[tutor.currency ?? 'USD'] ?? '$'
+  // Not tutor.default_lesson_price: a trial lesson or a coupon changes the price the lesson is saved at.
+  const price = booked.price
   // PayPal and the tutor's own card payment link (Stripe Payment Link); both show if both are set.
   const methods = buildPaymentMethods(tutor)
 
@@ -123,7 +123,7 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName, car
         <p className="text-[13px] font-semibold text-gray-900">Pay for your lesson</p>
         {price && (
           <p className="text-[12px] text-gray-400 mt-0.5">
-            {currencySymbol}{price.toFixed(2)} · {duration} min session
+            {formatMoney(price, booked.currency)} · {duration} min session
           </p>
         )}
       </div>
@@ -194,17 +194,17 @@ function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackag
       </div>
       <div className="p-4 space-y-3">
         {packages.map(pkg => {
-          const perLesson = (pkg.price / pkg.lessons_count).toFixed(2)
+          const perLesson = formatMoney(pkg.price / pkg.lessons_count, tutor.currency)
           const url = buyUrl(pkg)
           return (
             <div key={pkg.id} className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3">
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-gray-900">{pkg.name}</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">{pkg.lessons_count} lessons · ${perLesson}/lesson</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">{pkg.lessons_count} lessons · {perLesson}/lesson</p>
                 {pkg.description && <p className="text-[11px] text-gray-500 mt-0.5">{pkg.description}</p>}
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-[15px] font-black text-gray-900">${pkg.price}</p>
+                <p className="text-[15px] font-black text-gray-900">{formatMoney(pkg.price, tutor.currency)}</p>
                 <a href={url} target="_blank" rel="noopener noreferrer"
                   onClick={() => { if (!name.trim() || !email.trim()) { toast.error('Enter your name and email first'); return } }}
                   className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 px-3 py-1.5 rounded-lg transition-colors">
@@ -256,7 +256,7 @@ function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans
               {plan.description && <p className="text-[11px] text-gray-500 mt-0.5">{plan.description}</p>}
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-[15px] font-black text-gray-900">${plan.price}<span className="text-[11px] font-normal text-gray-400">/{plan.period}</span></p>
+              <p className="text-[15px] font-black text-gray-900">{formatMoney(plan.price, plan.currency)}<span className="text-[11px] font-normal text-gray-400">/{plan.period}</span></p>
               <button onClick={() => subscribe(plan)} disabled={loading === plan.id}
                 className="mt-1 text-[11px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-3 py-1.5 rounded-lg transition-colors">
                 {loading === plan.id ? 'Loading...' : 'Subscribe'}
@@ -356,6 +356,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [done, setDone] = useState(false)
   const [portalToken, setPortalToken] = useState<string | null>(null)
   const [lessonId, setLessonId] = useState<string | null>(null)
+  const [booked, setBooked] = useState<BookedPrice>({ price: null, currency: 'USD' })
   const [studentTz, setStudentTz] = useState<string>('')
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [signatureName, setSignatureName] = useState('')
@@ -435,6 +436,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
       const d = await res.json()
       setPortalToken(d.portal_token ?? null)
       setLessonId(d.lesson_id ?? null)
+      setBooked({ price: typeof d.price === 'number' ? d.price : null, currency: d.currency ?? tutor.currency ?? 'USD' })
       setDone(true)
     } else {
       const e = await res.json(); toast.error(e.error ?? 'Booking failed')
@@ -471,7 +473,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           </a>
         )}
       </div>
-      <PaymentPanel tutor={tutor} cardCheckoutEnabled={cardCheckoutEnabled} duration={duration} lessonId={lessonId} portalToken={portalToken} studentName={name} />
+      <PaymentPanel tutor={tutor} booked={booked} cardCheckoutEnabled={cardCheckoutEnabled} duration={duration} lessonId={lessonId} portalToken={portalToken} studentName={name} />
     </div>
   )
 
@@ -514,7 +516,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
                 <Star className={`h-4 w-4 ${isTrial ? 'text-white' : 'text-gray-400'}`} />
               </div>
               <div>
-                <p className="text-[13px] font-bold text-gray-900">Trial lesson — ${Number(trialPrice).toFixed(0)}</p>
+                <p className="text-[13px] font-bold text-gray-900">Trial lesson — {formatMoney(trialPrice, tutor.currency)}</p>
                 <p className="text-[11px] text-gray-500">Your first session at a special introductory price</p>
               </div>
             </div>
@@ -712,7 +714,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
                 <CheckCircle className="h-4 w-4 text-emerald-500" />
                 <span className="text-[13px] font-bold text-emerald-700 font-mono">{couponApplied.code}</span>
                 <span className="text-[12px] text-emerald-600">
-                  — {couponApplied.type === 'percent' ? `${couponApplied.value}%` : `$${couponApplied.value}`} off
+                  — {couponApplied.type === 'percent' ? `${couponApplied.value}%` : formatMoney(couponApplied.value, tutor.currency)} off
                 </span>
               </div>
               <button type="button" onClick={() => { setCouponApplied(null); setCouponCode('') }}

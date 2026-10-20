@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { requireFeature } from '@/lib/guard'
 import Link from 'next/link'
+import { formatMoney } from '@/lib/currency'
 import {
   DollarSign, BookOpen, Users, TrendingUp, BarChart3, Trophy,
   CheckCircle2, XCircle, Clock, Download,
@@ -28,8 +29,7 @@ export default async function ReportsPage() {
   ])
 
   const now = new Date()
-  const cur = (tutor as any)?.currency === 'EUR' ? '€' : (tutor as any)?.currency === 'GBP' ? '£' : '$'
-  const money = (n: number) => `${cur}${Math.round(n).toLocaleString('en-US')}`
+  const money = (n: number) => formatMoney(Math.round(n), (tutor as any)?.currency, true)
   const allLessons = lessons ?? []
   const allStudents = students ?? []
 
