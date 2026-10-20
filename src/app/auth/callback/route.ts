@@ -71,8 +71,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${origin}${next}`)
     }
     const { signStudentToken } = await import('@/lib/student-auth')
-    const token = signStudentToken(email)
-    return NextResponse.redirect(`${origin}/student/dashboard?token=${token}`)
+    try {
+      return NextResponse.redirect(`${origin}/student/dashboard?token=${signStudentToken(email)}`)
+    } catch {
+      // no signing key on the server: nobody gets a link (the reason is in the server log)
+      return NextResponse.redirect(`${origin}/student/login?error=unavailable`)
+    }
   }
 
   // Not an explicit student login. Check for an existing tutor profile.
@@ -95,7 +99,11 @@ export async function GET(request: NextRequest) {
           .ilike('email', sEmail).is('auth_user_id', null)
       } catch { /* ignore */ }
       const { signStudentToken } = await import('@/lib/student-auth')
-      return NextResponse.redirect(`${origin}/student/dashboard?token=${signStudentToken(sEmail)}`)
+      try {
+        return NextResponse.redirect(`${origin}/student/dashboard?token=${signStudentToken(sEmail)}`)
+      } catch {
+        return NextResponse.redirect(`${origin}/student/login?error=unavailable`)
+      }
     }
     return NextResponse.redirect(`${origin}/student/login`)
   }

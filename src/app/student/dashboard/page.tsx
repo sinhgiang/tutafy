@@ -1,26 +1,9 @@
-import crypto from 'crypto'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
 import { cleanUrl } from '@/lib/url'
+import { verifyStudentToken } from '@/lib/student-auth'
 import { Calendar, BookOpen, Video, Clock, ChevronRight, Star } from 'lucide-react'
-
-function verifyToken(token: string): { email: string; valid: boolean } {
-  try {
-    const secret = process.env.CRON_SECRET ?? 'tutafy-student-auth-secret'
-    const decoded = Buffer.from(token, 'base64url').toString()
-    const parts = decoded.split(':')
-    const sig = parts[parts.length - 1]
-    const ts = parts[parts.length - 2]
-    const email = parts.slice(0, parts.length - 2).join(':')
-    const expected = crypto.createHmac('sha256', secret).update(`${email}:${ts}`).digest('hex')
-    const age = Date.now() - parseInt(ts)
-    const valid = sig === expected && age < 7 * 24 * 60 * 60 * 1000
-    return { email, valid }
-  } catch {
-    return { email: '', valid: false }
-  }
-}
 
 export default async function StudentDashboardPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const { token } = await searchParams
@@ -36,7 +19,7 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
     )
   }
 
-  const { email, valid } = verifyToken(token)
+  const { email, valid } = verifyStudentToken(token)
 
   if (!valid) {
     return (

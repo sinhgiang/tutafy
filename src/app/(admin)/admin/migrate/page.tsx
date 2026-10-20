@@ -110,7 +110,7 @@ export default function AdminMigratePage() {
   async function runMigration() {
     setRunning(true)
     setResult(null)
-    const res = await fetch('/api/admin/migrate?secret=tutafy-migrate-008')
+    const res = await fetch('/api/admin/migrate?run=all', { method: 'POST' })
     const data = await res.json()
     setResult(data)
     setRunning(false)
