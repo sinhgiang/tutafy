@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { TrendingUp, Clock, CheckCircle, DollarSign, Users, XCircle, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
+import { formatMoney } from '@/lib/currency'
+import { loadTutorCurrency } from '@/lib/tutor-currency'
 
 const STATUS_STYLE: Record<string, string> = {
   pending: 'bg-amber-50 text-amber-600',
@@ -19,6 +21,8 @@ export default async function PaymentsPage() {
     .eq('tutor_id', user!.id)
     .order('starts_at', { ascending: false })
 
+  // Prices are in the tutor's own currency (Settings), never in lessons.currency, which nothing writes.
+  const currency = await loadTutorCurrency(supabase, user!.id)
   const allLessons = lessons ?? []
   const paidLessons = allLessons.filter(l => l.payment_status === 'paid' && l.price)
   const pendingLessons = allLessons.filter(l => l.payment_status === 'pending' && l.price)
@@ -85,9 +89,9 @@ export default async function PaymentsPage() {
       {/* Main stats */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: 'Total Earned', value: `$${total.toFixed(2)}`, icon: CheckCircle, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-500', sub: 'all time' },
-          { label: 'This Month', value: `$${thisMonth.toFixed(2)}`, icon: TrendingUp, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-500', sub: growth != null ? `${growth >= 0 ? '+' : ''}${growth.toFixed(0)}% vs last month` : now.toLocaleDateString('en', { month: 'long' }) },
-          { label: 'Pending', value: `$${pending.toFixed(2)}`, icon: Clock, iconBg: 'bg-amber-50', iconColor: 'text-amber-500', sub: `${pendingLessons.length} lessons` },
+          { label: 'Total Earned', value: formatMoney(total, currency), icon: CheckCircle, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-500', sub: 'all time' },
+          { label: 'This Month', value: formatMoney(thisMonth, currency), icon: TrendingUp, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-500', sub: growth != null ? `${growth >= 0 ? '+' : ''}${growth.toFixed(0)}% vs last month` : now.toLocaleDateString('en', { month: 'long' }) },
+          { label: 'Pending', value: formatMoney(pending, currency), icon: Clock, iconBg: 'bg-amber-50', iconColor: 'text-amber-500', sub: `${pendingLessons.length} lessons` },
           { label: 'Cancellation Rate', value: `${cancellationRate.toFixed(0)}%`, icon: XCircle, iconBg: 'bg-red-50', iconColor: 'text-red-400', sub: `${cancelled.length} of ${allLessons.length} lessons` },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3">
@@ -114,7 +118,7 @@ export default async function PaymentsPage() {
                   <div
                     className="w-full bg-indigo-500 rounded-t-md transition-all group-hover:bg-indigo-600 relative"
                     style={{ height: `${(w.count / maxWeekCount) * 96}px`, minHeight: w.count > 0 ? '4px' : '0' }}
-                    title={`${w.count} lessons · $${w.revenue.toFixed(0)}`}
+                    title={`${w.count} lessons · ${formatMoney(w.revenue, currency, true)}`}
                   />
                 </div>
                 <p className="text-[9px] text-gray-400 text-center leading-tight">{w.label}</p>
@@ -144,7 +148,7 @@ export default async function PaymentsPage() {
                     <p className="text-[13px] font-medium text-gray-900 truncate">{s.name}</p>
                     <p className="text-[11px] text-gray-400">{s.count} lessons</p>
                   </div>
-                  <p className="text-[12px] font-semibold text-gray-700">${s.revenue.toFixed(0)}</p>
+                  <p className="text-[12px] font-semibold text-gray-700">{formatMoney(s.revenue, currency, true)}</p>
                 </Link>
               ))}
             </div>
@@ -191,7 +195,7 @@ export default async function PaymentsPage() {
                   </td>
                   <td className="px-5 py-3.5 text-[12px] text-gray-400">{l.duration_minutes} min</td>
                   <td className="px-5 py-3.5 text-right">
-                    <span className="text-[13px] font-semibold text-gray-900">${Number(l.price ?? 0).toFixed(2)}</span>
+                    <span className="text-[13px] font-semibold text-gray-900">{formatMoney(l.price, currency)}</span>
                   </td>
                   <td className="px-5 py-3.5 text-center">
                     <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-medium ${STATUS_STYLE[l.payment_status ?? 'pending']}`}>

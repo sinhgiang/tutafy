@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import CalendarView from './CalendarView'
+import { loadTutorCurrency } from '@/lib/tutor-currency'
 
 export default async function CalendarPage() {
   const supabase = await createClient()
@@ -17,5 +18,6 @@ export default async function CalendarPage() {
     .lte('starts_at', end.toISOString())
     .order('starts_at')
 
-  return <CalendarView lessons={lessons ?? []} />
+  const currency = await loadTutorCurrency(supabase, user!.id)
+  return <CalendarView lessons={lessons ?? []} currency={currency} />
 }

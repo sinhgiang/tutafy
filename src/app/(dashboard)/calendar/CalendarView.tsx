@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { formatMoney } from '@/lib/currency'
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
@@ -23,7 +24,7 @@ interface Lesson {
   students?: { name?: string } | null
 }
 
-export default function CalendarView({ lessons }: { lessons: Lesson[] }) {
+export default function CalendarView({ lessons, currency = 'USD' }: { lessons: Lesson[]; currency?: string }) {
   const today = new Date()
   const [month, setMonth] = useState(today.getMonth())
   const [year, setYear] = useState(today.getFullYear())
@@ -162,7 +163,7 @@ export default function CalendarView({ lessons }: { lessons: Lesson[] }) {
                       </p>
                     </div>
                     <div className="text-right">
-                      {l.price && <p className="text-[12px] font-semibold text-gray-700">${l.price}</p>}
+                      {l.price && <p className="text-[12px] font-semibold text-gray-700">{formatMoney(l.price, currency)}</p>}
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
                         l.status === 'scheduled' ? 'bg-indigo-50 text-indigo-500' :
                         l.status === 'completed' ? 'bg-emerald-50 text-emerald-500' : 'bg-gray-50 text-gray-400'
