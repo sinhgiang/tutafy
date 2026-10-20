@@ -1,5 +1,6 @@
 // One shared check for every request limit in a route (T-0616).
 //
+// [claim: rate-limit-cookie] [claim: rate-limit-header] [claim: rate-limit-body] [claim: rate-limit-url]
 // The mistake it stops: a security note says "at most 60 new visitors a minute" but the caller can
 // change the thing the limit is counted on (a cookie they made up, a header, a query parameter, a field
 // of the body), so the limit does not hold. This check calls the route `limit + 1` times and, on every
@@ -304,7 +305,7 @@ export async function assertRateLimitHolds(spec: RateLimitCheck): Promise<{ limi
       const res = await spec.call(vary)
 
       // Every call, not only the first: a part the route reads only from the second call on (a branch for a
-      // visitor that already exists) must still be varied or declared fixed.
+      // visitor that already exists) must still be varied or declared fixed. [claim: rate-limit-second-call]
       for (const r of readsNow) everRead.add(r)
       for (const r of expandReads(readsNow, given, problems, fixed)) {
         if (!given.has(r)) {
