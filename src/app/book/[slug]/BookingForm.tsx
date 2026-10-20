@@ -145,16 +145,8 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName, car
                 const res = await fetch('/api/stripe/checkout', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    lessonId,
-                    portalToken,
-                    amount: price,
-                    tutorName: tutor.name,
-                    studentName,
-                    duration,
-                    currency: tutor.currency,
-                    origin: window.location.origin,
-                  }),
+                  // Only the lesson and the student's token: the server reads the amount and currency itself.
+                  body: JSON.stringify({ lessonId, portalToken }),
                 })
                 const data = await res.json()
                 if (data.url) {
