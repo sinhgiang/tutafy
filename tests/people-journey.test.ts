@@ -14,7 +14,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
 
 const people = await import('@/lib/people-data.ts')
-const { loadPeople, loadJourney, PEOPLE_PAGE_SIZE, TIMELINE_SHOWN, parsePlanFilter, parseStageFilter, parsePage, isTutorId } = people
+const { loadPeople, loadJourney, PEOPLE_PAGE_SIZE, parsePlanFilter, parseStageFilter, parsePage, isTutorId } = people
 const timeline = await import('@/lib/timeline.ts')
 const { normalizeTrackedPath } = await import('@/lib/track-path.ts')
 const { POSTS } = await import('@/lib/blog.ts')
@@ -236,7 +236,7 @@ test('an upgraded tutor with 1500 page views after buying: the journey stops at 
   const all = (await loadJourney(db, U(7), true))!
   assert.equal(all.timeline.length, 6 + 1500)
   assert.equal(all.timeline[all.timeline.length - 1].path, '/students-1499') // the last event, past the 1000-row cut
-  assert.equal(all.shown.length, TIMELINE_SHOWN)
+  assert.equal('shown' in all, false) // nothing is cut here: the page splits the whole timeline (tests/journey-view.test.ts)
   assert.equal(all.upgradeCutsOff, false)
   assert.equal(all.readTruncated, false)
 })
@@ -256,7 +256,7 @@ test('a free tutor with 1200 events: every step is there, in order, including th
   assert.equal(j.timeline[j.timeline.length - 1].kind, 'signup') // the tutor signed up (09:00) after the last page view (08:20)
   const times = j.timeline.map(e => Date.parse(e.at))
   assert.deepEqual(times, [...times].sort((a, b) => a - b))
-  assert.equal(j.shown.length, TIMELINE_SHOWN)
+  assert.equal('shown' in j, false) // the whole timeline is returned; what the page draws of it is tested in tests/journey-view.test.ts
 })
 
 test('two browsers of one tutor are merged by time', async () => {

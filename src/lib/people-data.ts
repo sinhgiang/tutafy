@@ -12,7 +12,6 @@ import { VISITOR_COLUMNS, VISITOR_DETAIL_COLUMNS, eventsQuery, milestoneEvents }
 import type { Source } from '@/lib/visitor-source'
 
 export const PEOPLE_PAGE_SIZE = 50
-export const TIMELINE_SHOWN = 500 // steps drawn on the journey page; the page says when there are more
 
 export type PlanFilter = 'all' | 'free' | 'pro' | 'academy'
 export type StageFilter = 'all' | Stage
@@ -178,8 +177,7 @@ export async function loadPeople(admin: BuyersClient, q: PeopleQuery): Promise<P
 
 export type JourneyResult = {
   person: PersonRow
-  timeline: TimelineEntry[] // every step, oldest first
-  shown: TimelineEntry[] // the first TIMELINE_SHOWN steps
+  timeline: TimelineEntry[] // every step, oldest first (the page splits it with journey-view.ts, nothing is cut)
   upgradeCutsOff: boolean // steps after the paid order were left out (they can be asked for)
   readTruncated: boolean
   failed: boolean
@@ -200,7 +198,7 @@ export async function loadJourney(admin: BuyersClient, tutorId: string, includeA
   const { data: tutor, error: tutorError } = await admin.from('tutors')
     .select('id, name, email, created_at, subscription_status').eq('id', tutorId).maybeSingle()
   if (tutorError) state.error = true
-  if (!tutor) return state.error ? { person: toPerson({ id: tutorId, name: '', email: '', created_at: new Date(0).toISOString(), subscription_status: null }, { visitor: null, click: null, paid: null }), timeline: [], shown: [], upgradeCutsOff: false, readTruncated: false, failed: true } : null
+  if (!tutor) return state.error ? { person: toPerson({ id: tutorId, name: '', email: '', created_at: new Date(0).toISOString(), subscription_status: null }, { visitor: null, click: null, paid: null }), timeline: [], upgradeCutsOff: false, readTruncated: false, failed: true } : null
 
   const visitors = await readAll<VisitorRow>(() => admin.from('visitors').select(VISITOR_DETAIL_COLUMNS)
     .eq('tutor_id', tutorId).order('first_seen_at', { ascending: true }).order('id', { ascending: true }), state)
@@ -228,7 +226,6 @@ export async function loadJourney(admin: BuyersClient, tutorId: string, includeA
   return {
     person,
     timeline,
-    shown: timeline.slice(0, TIMELINE_SHOWN),
     upgradeCutsOff: Boolean(endAt),
     readTruncated: state.truncated,
     failed: state.error,
