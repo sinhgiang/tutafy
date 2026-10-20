@@ -7,8 +7,8 @@ import {
 import { POSTS, getPost, readingMinutes, getFaq, heroFor, type PostBlock } from '@/lib/blog'
 import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
 import { AuthorAvatar } from '@/components/blog/AuthorAvatar'
-
-const SITE = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com').replace(/[﻿​\s]/g, '').replace(/\/+$/, '') || 'https://tutafy.com'
+import { blogPostMetadata } from '@/lib/page-meta'
+import { SITE_URL as SITE } from '@/lib/site-url'
 
 export function generateStaticParams() {
   return POSTS.map(p => ({ slug: p.slug }))
@@ -18,17 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const post = getPost(slug)
   if (!post) return { title: 'Post not found' }
-  const hero = heroFor(post.slug)
-  return {
-    title: post.title,
-    description: post.description,
-    alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: {
-      type: 'article', title: post.title, description: post.description,
-      images: hero ? [{ url: hero.webp, width: 1200, height: 630, alt: hero.alt }] : undefined,
-    },
-    twitter: { card: 'summary_large_image', images: hero ? [hero.webp] : undefined },
-  }
+  return blogPostMetadata(post.slug, heroFor(post.slug) ?? undefined)
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {

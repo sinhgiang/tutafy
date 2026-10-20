@@ -16,6 +16,7 @@ import robots from '@/app/robots'
 import { buildLlmsTxt, buildLlmsFullTxt } from '@/lib/llms'
 import { homeJsonLd, jsonLdScript, type JsonLd } from '@/lib/seo'
 import { SITE_URL, PLANS, FAQ, FEATURES, KEY_PAGES } from '@/lib/site-content'
+import { PAGE_SEO, pageMetadata } from '@/lib/page-meta'
 import { PLAN_PRICE } from '@/lib/plans'
 import { POSTS } from '@/lib/blog'
 
@@ -25,7 +26,10 @@ const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8')
 // A route has a page file in src/app, or inside one of its route groups such as (auth).
 function hasPage(route: string): boolean {
   const walk = (dir: string, segments: string[]): boolean => {
-    if (segments.length === 0) return existsSync(path.join(dir, 'page.tsx'))
+    if (segments.length === 0) {
+      return existsSync(path.join(dir, 'page.tsx')) ||
+        readdirSync(dir, { withFileTypes: true }).some(d => d.isDirectory() && /^\(.+\)$/.test(d.name) && existsSync(path.join(dir, d.name, 'page.tsx')))
+    }
     if (existsSync(path.join(dir, segments[0])) && walk(path.join(dir, segments[0]), segments.slice(1))) return true
     return readdirSync(dir, { withFileTypes: true }).some(d => d.isDirectory() && /^\(.+\)$/.test(d.name) && walk(path.join(dir, d.name), segments))
   }
@@ -101,14 +105,12 @@ test('the llms files contain no email address or phone number', async () => {
   }
 })
 
-test('KEY_PAGES descriptions repeat what the pages themselves say', () => {
-  const metaDescription = (rel: string) => /export const metadata[\s\S]*?description:\s*'([^']*)'/.exec(read(rel))?.[1]
+test('KEY_PAGES descriptions repeat what the pages themselves say (the description in src/lib/page-meta.ts)', () => {
   const byPath = new Map(KEY_PAGES.map(p => [p.path, p.description]))
-  for (const page of ['blog', 'about', 'customers', 'contact']) {
-    assert.equal(byPath.get(`/${page}`), metaDescription(`src/app/${page}/page.tsx`), page)
+  for (const [path, key] of [['/', 'home'], ['/blog', 'blog'], ['/tutors', 'tutors'], ['/about', 'about'], ['/customers', 'customers'], ['/contact', 'contact']] as const) {
+    assert.equal(byPath.get(path), PAGE_SEO[key].description, path)
+    assert.equal(pageMetadata(key).description, PAGE_SEO[key].description, path)
   }
-  const tutors = read('src/app/tutors/page.tsx')
-  assert.ok(tutors.includes('Expert language tutors') && tutors.includes('1-on-1 lessons, flexible schedule, proven results'))
 })
 
 // ---- landing page structured data -------------------------------------------

@@ -1,3 +1,5 @@
+import { SITE_URL } from '@/lib/site-url'
+
 // The public origin of the current request (e.g. https://www.tutafy.com).
 //
 // We derive it from the request headers rather than NEXT_PUBLIC_APP_URL, which
@@ -11,5 +13,5 @@ export function originFromRequest(req: Request): string {
   const proto = h.get('x-forwarded-proto') ?? 'https'
   if (host) return `${proto}://${host}`.replace(/\/+$/, '')
   const env = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/[﻿​\s]/g, '').replace(/\/+$/, '')
-  return env || 'https://tutafy.com'
+  return env || SITE_URL
 }

@@ -1,11 +1,8 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { GraduationCap, ArrowLeft, Mail, MessageCircle, HelpCircle } from 'lucide-react'
+import { pageMetadata } from '@/lib/page-meta'
 
-export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Get in touch with the Tutafy team — support, questions and feedback.',
-}
+export const metadata = pageMetadata('contact')
 
 const SUPPORT_EMAIL = 'tubxeebyajtube@gmail.com'
 
