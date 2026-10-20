@@ -4,11 +4,12 @@ import { notFound } from 'next/navigation'
 import {
   GraduationCap, ArrowLeft, ArrowRight, Check, X, Lightbulb, AlertTriangle, Info, ListChecks,
 } from 'lucide-react'
-import { POSTS, getPost, readingMinutes, getFaq, heroFor, type PostBlock } from '@/lib/blog'
+import { POSTS, getPost, readingMinutes, postDates, heroFor, type PostBlock } from '@/lib/blog'
 import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
 import { AuthorAvatar } from '@/components/blog/AuthorAvatar'
 import { blogPostMetadata } from '@/lib/page-meta'
-import { SITE_URL as SITE } from '@/lib/site-url'
+import { blogPostJsonLd, formatPostDate } from '@/lib/blog-seo'
+import { jsonLdScript } from '@/lib/seo'
 
 export function generateStaticParams() {
   return POSTS.map(p => ({ slug: p.slug }))
@@ -26,34 +27,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = getPost(slug)
   if (!post) notFound()
 
-  const faq = getFaq(post)
   const hero = heroFor(post.slug)
-  const jsonLd: Record<string, unknown>[] = [
-    {
-      '@context': 'https://schema.org', '@type': 'BlogPosting',
-      headline: post.title, description: post.description, datePublished: post.date,
-      author: { '@type': 'Person', name: post.author }, publisher: { '@type': 'Organization', name: 'Tutafy' },
-      mainEntityOfPage: `${SITE}/blog/${post.slug}`,
-    },
-    {
-      '@context': 'https://schema.org', '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: `${SITE}/blog` },
-        { '@type': 'ListItem', position: 3, name: post.title, item: `${SITE}/blog/${post.slug}` },
-      ],
-    },
-  ]
-  if (faq.length > 0) {
-    jsonLd.push({
-      '@context': 'https://schema.org', '@type': 'FAQPage',
-      mainEntity: faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
-    })
-  }
+  const jsonLd = blogPostJsonLd(post)
+  const dates = postDates(post)
 
   return (
     <div className="min-h-screen bg-white">
-      {jsonLd.map((s, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />)}
+      {jsonLd.map((s, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(s) }} />)}
 
       <nav className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
@@ -84,9 +64,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <div className="flex items-center gap-3 mt-5">
           <AuthorAvatar size={36} />
           <div>
-            <p className="text-[13px] font-semibold text-gray-900">{post.author}</p>
+            <p className="text-[13px] font-semibold text-gray-900">By {post.author}</p>
             <p className="text-[11px] text-gray-400">
-              {new Date(post.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {readingMinutes(post)} min read
+              {dates.modified !== dates.published && <><time dateTime={dates.published}>Published {formatPostDate(dates.published)}</time> · </>}
+              <time dateTime={dates.modified}>Updated {formatPostDate(dates.modified)}</time> · {readingMinutes(post)} min read
             </p>
           </div>
         </div>

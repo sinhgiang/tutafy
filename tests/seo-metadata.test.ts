@@ -70,12 +70,12 @@ test('the main address is the www address, written once', () => {
   assert.equal(absoluteUrl('blog'), `${SITE_URL}/blog`)
 })
 
-test('robots.txt, the sitemap, the llms files and the home JSON-LD all use the main address', () => {
+test('robots.txt, the sitemap, the llms files and the home JSON-LD all use the main address', async () => {
   const r = robots()
   assert.equal(r.host, SITE_URL)
   assert.equal(r.sitemap, `${SITE_URL}/sitemap.xml`)
 
-  const urls = sitemap().map(e => e.url)
+  const urls = (await sitemap()).map(e => e.url)
   assert.ok(urls.length > 0)
   for (const u of urls) assert.ok(u === SITE_URL || u.startsWith(`${SITE_URL}/`), `sitemap URL off the main address: ${u}`)
 
@@ -100,7 +100,7 @@ test('the address does not depend on NEXT_PUBLIC_APP_URL (empty, BOM, non-www, a
     import { homeJsonLd } from '@/lib/seo'
     console.log(JSON.stringify({
       site: SITE_URL,
-      first: sitemap()[0].url,
+      first: (await sitemap())[0].url,
       host: robots().host,
       base: String(ROOT_METADATA.metadataBase),
       ogUrl: ROOT_METADATA.openGraph.url,
@@ -158,8 +158,8 @@ test('the root layout sets no canonical, so no page inherits the home page addre
   assert.doesNotMatch(layout, /canonical:|alternates:/)
 })
 
-test('the canonical of every indexable page is the address the sitemap lists', () => {
-  const inSitemap = new Set(sitemap().map(e => new URL(e.url).href))
+test('the canonical of every indexable page is the address the sitemap lists', async () => {
+  const inSitemap = new Set((await sitemap()).map(e => new URL(e.url).href))
   for (const k of KEYS) {
     const href = new URL(canonicalOf(pageMetadata(k))).href
     if (PAGE_SEO[k].noindex) assert.ok(!inSitemap.has(href), `${k} is noindex but is in the sitemap`)
@@ -216,9 +216,9 @@ test('og and twitter texts follow the page, not the home page', () => {
 
 // ---- (c) sign-in and sign-up pages: noindex, not in the sitemap, one h1 -------
 
-test('/login, /register and /student/login are noindex and not in the sitemap; the other pages stay indexable', () => {
+test('/login, /register and /student/login are noindex and not in the sitemap; the other pages stay indexable', async () => {
   assert.deepEqual(noindexPaths().sort(), ['/login', '/register', '/student/login'])
-  const listed = sitemap().map(e => e.url)
+  const listed = (await sitemap()).map(e => e.url)
   for (const p of ['/login', '/register', '/student/login']) {
     assert.deepEqual(pageMetadata(p === '/login' ? 'login' : p === '/register' ? 'register' : 'studentLogin').robots, { index: false, follow: false }, p)
     assert.ok(!listed.includes(`${SITE_URL}${p}`), `${p} is in the sitemap`)
@@ -276,7 +276,9 @@ test('each page file takes its metadata from page-meta and writes no title or ca
   const post = read('src/app/blog/[slug]/page.tsx')
   assert.match(post, /return blogPostMetadata\(post\.slug, heroFor\(post\.slug\) \?\? undefined\)/)
   assert.doesNotMatch(post, /alternates|canonical/)
-  assert.match(post, /import \{ SITE_URL as SITE \} from '@\/lib\/site-url'/)
+  // the post's structured data is built in src/lib/blog-seo.ts, which writes no address by hand either
+  assert.match(post, /import \{ blogPostJsonLd, formatPostDate \} from '@\/lib\/blog-seo'/)
+  assert.match(read('src/lib/blog-seo.ts'), /import \{ SITE_URL as SITE \} from '@\/lib\/site-url'/)
 })
 
 test('the tutors page file moved into a route group, so a tutor profile does not inherit the directory title', () => {
@@ -286,8 +288,8 @@ test('the tutors page file moved into a route group, so a tutor profile does not
   assert.ok(existsSync(path.join(ROOT, 'src/app/tutors/[slug]/page.tsx')))
 })
 
-test('the sitemap lists exactly the indexable pages plus every blog post', () => {
-  const urls = sitemap().map(e => e.url).sort()
+test('the sitemap lists exactly the indexable pages plus every blog post', async () => {
+  const urls = (await sitemap()).map(e => e.url).sort()
   const expected = [
     ...KEYS.filter(k => !PAGE_SEO[k].noindex).map(k => absoluteUrl(PAGE_SEO[k].path)),
     ...POSTS.map(p => `${SITE_URL}/blog/${p.slug}`),
