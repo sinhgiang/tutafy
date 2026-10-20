@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { CheckCircle, ChevronLeft, ChevronRight, Globe, ExternalLink, RefreshCw, FileText, Package, Tag, Star, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
+import { buildPaymentMethods, cardPaymentUrl, paypalUrl, showBuiltInCardCheckout } from '@/lib/payment-methods'
 
 // "Continue with Google" — signs the student in, then returns to this booking
 // page with their name + email pre-filled (handled server-side via the session).
@@ -109,19 +110,10 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
   const [payingCard, setPayingCard] = useState(false)
   const price = tutor.default_lesson_price
   const currencySymbol = CURRENCY_SYMBOLS[tutor.currency ?? 'USD'] ?? '$'
-  const methods: { label: string; hint: string; color: string; link: string }[] = []
+  // PayPal and the tutor's own card payment link (Stripe Payment Link); both show if both are set.
+  const methods = buildPaymentMethods(tutor)
 
-  if (tutor.paypal_link) {
-    const isLink = tutor.paypal_link.startsWith('http')
-    const link = isLink ? tutor.paypal_link : `https://www.paypal.com/paypalme/${tutor.paypal_link.replace('@', '')}`
-    methods.push({ label: 'Pay via PayPal', hint: 'Instant payment', color: 'bg-[#0070BA] hover:bg-[#005ea6] text-white', link })
-  }
-
-  if (tutor.paddle_checkout_link) {
-    methods.push({ label: 'Pay via Paddle', hint: 'Credit card / local methods', color: 'bg-emerald-600 hover:bg-emerald-700 text-white', link: tutor.paddle_checkout_link })
-  }
-
-  const showStripeCard = !!(lessonId && price && price > 0)
+  const showStripeCard = showBuiltInCardCheckout(tutor, lessonId, price)
 
   if (methods.length === 0 && !showStripeCard) return null
 
@@ -137,7 +129,7 @@ function PaymentPanel({ tutor, duration, lessonId, portalToken, studentName }: {
       </div>
       <div className="p-4 space-y-2.5">
         {methods.map(m => (
-          <a key={m.label} href={m.link} target="_blank" rel="noopener noreferrer"
+          <a key={m.key} href={m.link} target="_blank" rel="noopener noreferrer"
             className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-[13px] font-semibold transition-colors ${m.color}`}>
             <span>{m.label}</span>
             <span className="flex items-center gap-1.5 text-[11px] font-normal opacity-80">
@@ -196,13 +188,9 @@ interface LessonPackage { id: string; name: string; description: string | null; 
 function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackage[]; tutor: Tutor; name: string; email: string }) {
   function buyUrl(pkg: LessonPackage): string {
     if (tutor.paypal_link) {
-      const base = tutor.paypal_link.startsWith('http')
-        ? tutor.paypal_link
-        : `https://www.paypal.com/paypalme/${tutor.paypal_link.replace('@', '')}`
-      return `${base}/${pkg.price.toFixed(2)}`
+      return `${paypalUrl(tutor.paypal_link)}/${pkg.price.toFixed(2)}`
     }
-    if (tutor.paddle_checkout_link) return tutor.paddle_checkout_link
-    return '#'
+    return cardPaymentUrl(tutor) ?? '#'
   }
 
   return (

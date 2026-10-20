@@ -10,7 +10,8 @@ import PushSubscribe from '@/components/PushSubscribe'
 import NextLink from 'next/link'
 import { CustomDomainCard } from './CustomDomainCard'
 import { LockedFeature } from '@/components/plan/LockedFeature'
-import { STRIPE_UNAVAILABLE_TUTOR_MESSAGE, stripeErrorMessage } from '@/lib/stripe/availability'
+import { stripeErrorMessage } from '@/lib/stripe/availability'
+import { cardLinkForSave } from '@/lib/payment-link'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -47,6 +48,7 @@ export default function SettingsPage() {
   const [disconnectingGcal, setDisconnectingGcal] = useState(false)
   const [slug, setSlug] = useState('')
   const [linkCopied, setLinkCopied] = useState(false)
+  const [cardLinkError, setCardLinkError] = useState('')
   const [stripeConnected, setStripeConnected] = useState(false)
   // null = still asking the server; false = card payments are switched off
   const [stripeEnabled, setStripeEnabled] = useState<boolean | null>(null)
@@ -123,12 +125,23 @@ export default function SettingsPage() {
   }, [])
 
   async function handleSave() {
+    // The card payment link must be https. A refused link sends nothing, so the saved one stays.
+    const savedLink = savedSnapshot ? (JSON.parse(savedSnapshot).paddle_checkout_link ?? '') : ''
+    const linkCheck = cardLinkForSave(form.paddle_checkout_link, savedLink)
+    if (!linkCheck.save) {
+      setCardLinkError(linkCheck.message)
+      setTab('payments')
+      toast.error(linkCheck.message)
+      return
+    }
+    setCardLinkError('')
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     const { currency, ...rest } = form
     const { error } = await supabase.from('tutors').update({
       ...rest,
+      paddle_checkout_link: linkCheck.value,
       default_lesson_price: rest.default_lesson_price ? parseFloat(rest.default_lesson_price) : null,
       trial_price: rest.trial_price ? parseFloat(rest.trial_price) : null,
     }).eq('id', user.id)
@@ -395,23 +408,31 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-[12px] font-medium text-gray-600 mb-1.5">
-                    Paddle checkout link <span className="text-gray-400 font-normal">(from your Paddle dashboard)</span>
+                    Card payment link (Stripe Payment Link)
                   </label>
-                  <input value={form.paddle_checkout_link} onChange={e => setForm(f => ({ ...f, paddle_checkout_link: e.target.value }))}
-                    placeholder="https://buy.paddle.com/..."
-                    className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
+                  <input value={form.paddle_checkout_link} onChange={e => { setForm(f => ({ ...f, paddle_checkout_link: e.target.value })); setCardLinkError('') }}
+                    placeholder="https://buy.stripe.com/..." inputMode="url" aria-invalid={cardLinkError !== ''}
+                    className={`w-full text-[13px] px-3 py-2 rounded-lg border bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 transition-colors ${
+                      cardLinkError ? 'border-red-400 focus:ring-red-500/20 focus:border-red-400' : 'border-gray-200 focus:ring-indigo-500/20 focus:border-indigo-400'
+                    }`} />
+                  {cardLinkError ? (
+                    <p data-testid="card-link-error" role="alert" className="text-[11px] text-red-600 mt-1">{cardLinkError} Your saved link has not changed.</p>
+                  ) : (
+                    <p data-testid="card-link-help" className="text-[11px] text-gray-400 mt-1">
+                      In your Stripe Dashboard open <a href="https://dashboard.stripe.com/payment-links" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Payment links</a>,
+                      create a link for your lesson price, then paste it here. Students will see a &ldquo;Pay by card&rdquo; button on your booking page.
+                    </p>
+                  )}
                 </div>
-                <div>
+                {/* Stripe Connect only shows when the platform's Stripe is switched on (or the tutor is already connected). */}
+                {(stripeConnected || stripeEnabled === true) && (
+                <div data-testid="stripe-connect">
                   <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Stripe Connect</label>
                   {stripeConnected ? (
                     <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
                       <CheckCircle className="h-4 w-4 text-emerald-500" />
                       <p className="text-[13px] text-emerald-700 font-medium">Connected</p>
                     </div>
-                  ) : stripeEnabled === false ? (
-                    <p data-testid="stripe-unavailable" className="text-[13px] text-gray-500 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-                      {STRIPE_UNAVAILABLE_TUTOR_MESSAGE}
-                    </p>
                   ) : (
                     <button onClick={connectStripe} disabled={connectingStripe}
                       className="w-full text-[13px] font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-60 transition-colors py-2 rounded-lg">
@@ -419,6 +440,7 @@ export default function SettingsPage() {
                     </button>
                   )}
                 </div>
+                )}
                 <div>
                   <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Default lesson price</label>
                   <input type="number" min="0" step="0.01" placeholder="e.g. 25.00" value={form.default_lesson_price}
