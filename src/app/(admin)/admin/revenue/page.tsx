@@ -1,9 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { DollarSign, TrendingUp, BookOpen, Users } from 'lucide-react'
 import { loadAdminRevenue } from '@/lib/admin-revenue'
+import { requireAdminPage } from '@/lib/admin-guard'
 import { formatMoney } from '@/lib/currency'
 
 export default async function AdminRevenuePage() {
+  // Every tutor's payments are read with the service key: the page checks the admin itself, before anything is read.
+  await requireAdminPage()
   // Each lesson in its tutor's own currency; tutors in different currencies are never added together.
   const { paidCount: totalPaid, totals, byTutor: tutorList, recent: paidLessons, truncated } = await loadAdminRevenue(createAdminClient())
 

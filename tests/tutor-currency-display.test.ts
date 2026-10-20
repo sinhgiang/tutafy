@@ -140,6 +140,15 @@ test('no page reads lessons.currency or invoices.currency (nothing writes them),
   assert.ok(read('app/(admin)/admin/revenue/page.tsx').includes('loadAdminRevenue('))
 })
 
+test('the revenue page checks the admin itself before it creates the service-key client (a layout is not a gate)', () => {
+  const page = read('app/(admin)/admin/revenue/page.tsx')
+  const guard = page.indexOf('await requireAdminPage()')
+  assert.ok(guard > 0)
+  assert.ok(guard < page.indexOf('createAdminClient()', guard), 'the guard comes first')
+  assert.ok(page.indexOf('createAdminClient()') > guard, 'no service-key client before the guard')
+  assert.ok(read('proxy.ts').includes("path.startsWith('/admin')"), 'and the proxy treats /admin as an admin page')
+})
+
 test('the embedded booking widget gets the tutor\'s currency too', () => {
   assert.ok(/default_lesson_price, currency,/.test(read('app/embed/[slug]/page.tsx')))
   assert.ok(/currency/.test(read('app/book/[slug]/page.tsx')) && /currency/.test(read('app/book/[slug]/[member]/page.tsx')))
