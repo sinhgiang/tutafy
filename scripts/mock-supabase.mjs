@@ -303,6 +303,18 @@ http.createServer(async (req, res) => {
   }
 
   const body = await readBody(req)
+  // The real availability table (001_schema.sql): day_of_week is a whole number 0 to 6 and there are only these columns. The stand-in
+  // refuses what the database would refuse, so the onboarding hours can be tried here (T-0728); MOCK_FAIL_AVAILABILITY=1 refuses every
+  // write of hours, to see the error the tutor is shown.
+  if (t === 'availability' && req.method === 'POST') {
+    const COLUMNS = ['id', 'tutor_id', 'day_of_week', 'start_time', 'end_time', 'created_at', 'team_member_id']
+    if (process.env.MOCK_FAIL_AVAILABILITY) return send(res, 500, { code: 'XX000', message: 'the stand-in is set to refuse hours', details: null, hint: null })
+    for (const r of Array.isArray(body) ? body : [body ?? {}]) {
+      const extra = Object.keys(r).find(k => !COLUMNS.includes(k))
+      if (extra) return send(res, 400, { code: '42703', message: `column "${extra}" of relation "availability" does not exist`, details: null, hint: null })
+      if (!Number.isInteger(r.day_of_week) || r.day_of_week < 0 || r.day_of_week > 6) return send(res, 400, { code: '22P02', message: `invalid input syntax for type integer: "${r.day_of_week}"`, details: null, hint: null })
+    }
+  }
   if (req.method === 'POST') {
     // the real feedback table stamps the time itself (migration 020); the stand-in does the same for that one table
     const list = (Array.isArray(body) ? body : [body ?? {}]).map(r => ({ id: r.id ?? `00000000-0000-4000-9000-${String(Date.now() % 1e12).padStart(12, '0')}`, ...(t === 'feedback' ? { created_at: new Date().toISOString() } : {}), ...r }))
