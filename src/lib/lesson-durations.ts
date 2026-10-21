@@ -1,10 +1,11 @@
 // Which lesson lengths a tutor takes (T-0675, custom lengths T-0700).
 //
+// allow-old-rule: history, says what the booking page offered every tutor before T-0675
 // The booking page used to offer 30, 45, 60 and 90 minutes to every tutor. A tutor now ticks the
 // lengths they accept in Settings (tutors.lesson_durations, an integer list), may type lengths of their own
 // ("Custom", e.g. 20, 75 or 120), and picks one of them as the length that is selected first
-// (tutors.default_lesson_duration). Both columns come from supabase/migrations/018_lesson_durations.sql,
-// which is written but not applied to the real database until the owner decides, so every reader here treats
+// (tutors.default_lesson_duration). Both columns come from supabase/migrations/018_lesson_durations.sql
+// (its first version was applied on 21 Oct 2026; the owner ran it again for custom lengths), and every reader here treats
 // "no value" and "column missing" the same way: a tutor who has chosen nothing keeps all four preset lengths
 // and the old default of 60 (no change).
 //
@@ -135,6 +136,7 @@ export function addCustomDuration(current: DurationConfig, text: string): { conf
   return { config: { durations: cleanDurations([...current.durations, parsed.value]), defaultDuration: current.defaultDuration }, error: null }
 }
 
+// allow-old-rule: history, the checks the first version of migration 018 put on the real database
 /**
  * What the Settings page says when the database refuses to save the two length columns. Until the owner has run migration 018 again
  * on the real database, the database still has the first version's checks (30, 45, 60 and 90 only), so a tutor who typed a length of
