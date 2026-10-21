@@ -264,3 +264,44 @@ test('a list in a file given to the CLI: the last number past the end exits 1', 
   assert.match(out.stdout, new RegExp(`list\.md:1: .*cites line ${n + 3} but package\.json has only ${n} lines`))
   assert.match(out.stdout, new RegExp(`list\.md:2: .*cites lines 1-${n + 50} but package\.json`))
 })
+
+// ---- a word after the last number does not let it off (second review of T-0684) ------------------------------------------------
+
+test('every number of a list is checked whatever word follows it: only a unit of counting lets a number off', () => {
+  const pick = (t: string) => lineRefsIn(t).map(r => `${r.file}:${r.from}-${r.to}`)
+  // the real sentences of the status file, with a verb or a noun after the last number
+  assert.deepEqual(pick('`BookingForm.tsx` dòng 276 và 353 giữ giá trị đó'), ['BookingForm.tsx:276-276', 'BookingForm.tsx:353-353'])
+  assert.deepEqual(pick('`src/lib/role-switch.ts` dòng 73 và 84 kiểm phiên'), ['src/lib/role-switch.ts:73-73', 'src/lib/role-switch.ts:84-84'])
+  assert.deepEqual(pick('`a.ts` dòng 67 và 99 kiểm'), ['a.ts:67-67', 'a.ts:99-99'])
+  assert.deepEqual(pick('`a.ts` dòng 374, 377 và 379 dùng'), ['a.ts:374-374', 'a.ts:377-377', 'a.ts:379-379'])
+  assert.deepEqual(pick('a.ts dòng 10 và 83 kiểm'), ['a.ts:10-10', 'a.ts:83-83'])
+  assert.deepEqual(pick('a.ts dòng 10 và 83 rồi'), ['a.ts:10-10', 'a.ts:83-83'])
+  assert.deepEqual(pick('a.ts dòng 10, 83 nên'), ['a.ts:10-10', 'a.ts:83-83'])
+  assert.deepEqual(pick('a.ts:10 và 83 verifies it'), ['a.ts:10-10', 'a.ts:83-83'])
+  assert.deepEqual(pick('a.ts dòng 10 và 83.'), ['a.ts:10-10', 'a.ts:83-83'])
+  assert.deepEqual(pick('a.ts dòng 10 và 83'), ['a.ts:10-10', 'a.ts:83-83'])
+  // a unit of counting means the number counts something else
+  for (const unit of ['test', 'tests', 'ký tự', 'chars', 'characters', 'ms', 'giây', 'seconds', 'phút', 'minutes', 'giờ', 'ngày', 'days', 'tệp', 'files', 'lần', 'times', 'dòng', 'lines', 'bytes', 'KB', 'trang', 'mục', 'items', 'cái', 'chỗ', 'bản', 'người', 'gia sư', 'học sinh', 'buổi', 'lessons', '%']) {
+    assert.deepEqual(pick(`a.ts dòng 12 và 300 ${unit} khác`), ['a.ts:12-12'], unit)
+    assert.deepEqual(pick(`a.ts dòng 196, 45 ${unit}`), ['a.ts:196-196'], unit)
+  }
+  assert.deepEqual(pick('a.ts dòng 196, 45 ký tự'), ['a.ts:196-196'])
+  assert.deepEqual(pick('a.ts dòng 12 và 300 test khác'), ['a.ts:12-12'])
+  assert.deepEqual(pick('a.ts dòng 5 và 40ms'), ['a.ts:5-5'], 'a unit written against the number')
+  // a word that only STARTS like a unit is not one
+  assert.deepEqual(pick('a.ts dòng 5 và 40 testing'), ['a.ts:5-5', 'a.ts:40-40'])
+  assert.deepEqual(pick('a.ts dòng 5 và 40 msg'), ['a.ts:5-5', 'a.ts:40-40'])
+})
+
+test('the red case: a list whose last number is past the end is wrong even with a verb after it', () => {
+  const files = { 'src/lib/role-switch.ts': 82, 'a.ts': 82 }
+  for (const text of ['`src/lib/role-switch.ts` dòng 73 và 84 kiểm phiên', 'a.ts dòng 10 và 83 kiểm', 'a.ts dòng 10, 83 dùng', 'a.ts dòng 10, 20 và 83 giữ']) {
+    const problems = lineRefProblems(text, 'status.md', fake(files))
+    assert.equal(problems.length, 1, text)
+    assert.match(problems[0], /cites line 8[34] but .* has only 82 lines/, text)
+  }
+  assert.deepEqual(lineRefProblems('a.ts dòng 10 và 82 kiểm', 'status.md', fake(files)), [])
+  // and a count of something else beside a good citation is not a problem
+  assert.deepEqual(lineRefProblems('a.ts dòng 196, 45 ký tự; a.ts dòng 12 và 300 test khác', 'status.md', fake({ 'a.ts': 250 })), [], '196 is a line (the file has 250), 45 characters and 300 tests are not')
+  assert.equal(lineRefProblems('a.ts dòng 196, 45 ký tự', 'status.md', fake({ 'a.ts': 100 })).length, 1, 'but 196 is still checked')
+})
