@@ -1,4 +1,4 @@
-// /admin (Platform Overview, T-0680): real students apart from self-added ones, active and activated
+// /admin (Platform Overview, T-0680; since T-0699 the first page is "Khách hàng của tôi" and keeps these numbers under "Toàn nền tảng"): real students apart from self-added ones, active and activated
 // tutors, sign-ups per week, and an error box that names the table. The real page is rendered to HTML
 // over an in-memory database; Supabase and next/navigation are faked.
 import { test, mock, beforeEach } from 'node:test'
@@ -110,7 +110,7 @@ test('a tutor and a signed-out visitor are turned away before any read; the admi
   currentUser = null
   await assert.rejects(Page(), /NEXT_REDIRECT:\/login/)
   assert.equal(adminClients, 0, 'the service-role client must not even be created for them')
-  assert.ok((await render()).includes('Platform Overview'))
+  assert.ok((await render()).includes('Khách hàng của tôi'))
 })
 
 // ---- the numbers --------------------------------------------------------------------
@@ -199,7 +199,7 @@ test('the real page draws the 12 weeks, newest first', async () => {
   const weeks = rows.map(r => r[1])
   assert.deepEqual(weeks, [...weeks].sort().reverse())
   assert.equal(rows.reduce((n, r) => n + Number(r[2]), 0), 3)
-  assert.match(html, /This week/)
+  assert.match(html, /Tuần này/)
 })
 
 // ---- the error box names the table ---------------------------------------------------

@@ -1,8 +1,12 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdminPage } from '@/lib/admin-guard'
 import { Users, BookOpen, GraduationCap } from 'lucide-react'
 import { planBadgeClass, planLabel } from '@/lib/buyers'
 
 export default async function AdminTutorsPage() {
+  // Own check, before any query (the layout alone is not a safe gate): this page reads other people's data with the service-role key.
+  await requireAdminPage()
+
   const admin = createAdminClient()
 
   const { data: tutors } = await admin

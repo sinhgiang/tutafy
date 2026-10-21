@@ -10,6 +10,7 @@
 import type { BuyersClient } from '@/lib/buyers-data'
 import { markFailed, newReadState, readAll } from '@/lib/paged-read'
 import { isSelfAdded } from '@/lib/self-added'
+import { buildCustomers, type CustomersData } from '@/lib/customers'
 
 export { isSelfAdded, normEmail } from '@/lib/self-added'
 
@@ -30,6 +31,8 @@ export type OverviewData = {
   activeTutors: number | null
   activatedTutors: number | null
   weekly: WeekCount[] | null
+  // The owner's customer numbers (T-0699); null when a table they need could not be read.
+  customers: CustomersData | null
   recentTutors: { id: string; name: string; email: string; created_at: string }[]
   recentLessons: RecentLesson[]
   failedTables: string[]
@@ -44,9 +47,9 @@ export type RecentLesson = {
   students: { name: string } | null
 }
 
-type TutorRow = { id: string; name: string; email: string; created_at: string }
+type TutorRow = { id: string; name: string; email: string; created_at: string; subscription_status: string | null }
 type StudentRow = { id: string; tutor_id: string; email: string | null }
-type LessonRow = { id: string; tutor_id: string; student_id: string; status: string }
+type LessonRow = { id: string; tutor_id: string; student_id: string; status: string; created_at: string | null; starts_at: string | null }
 
 /** The Monday (UTC, 00:00) of the week that contains `d`. */
 export function weekStartOf(d: Date): Date {
@@ -72,11 +75,11 @@ export async function loadOverview(admin: BuyersClient, now: Date = new Date()):
   const state = newReadState()
 
   const [tutors, students, lessons, recent] = await Promise.all([
-    readAll<TutorRow>(() => admin.from('tutors').select('id, name, email, created_at')
+    readAll<TutorRow>(() => admin.from('tutors').select('id, name, email, created_at, subscription_status')
       .order('created_at', { ascending: false }).order('id', { ascending: false }), state, 'tutors'),
     readAll<StudentRow>(() => admin.from('students').select('id, tutor_id, email')
       .order('id', { ascending: true }), state, 'students'),
-    readAll<LessonRow>(() => admin.from('lessons').select('id, tutor_id, student_id, status')
+    readAll<LessonRow>(() => admin.from('lessons').select('id, tutor_id, student_id, status, created_at, starts_at')
       .order('id', { ascending: true }), state, 'lessons'),
     admin.from('lessons').select('id, starts_at, status, tutors(name), students(name)')
       .order('created_at', { ascending: false }).limit(8) as PromiseLike<{ data: RecentLesson[] | null; error?: unknown }>,
@@ -109,6 +112,7 @@ export async function loadOverview(admin: BuyersClient, now: Date = new Date()):
     activeTutors: ok('students', 'tutors', 'lessons') ? active.size : null,
     activatedTutors: ok('lessons') ? activated.size : null,
     weekly: ok('tutors') ? weeklySignups(tutors.map(t => t.created_at), now) : null,
+    customers: ok('tutors', 'students', 'lessons') ? buildCustomers(tutors, students, lessons, now) : null,
     recentTutors: tutors.slice(0, 8),
     recentLessons: recent.data ?? [],
     failedTables: state.tables,

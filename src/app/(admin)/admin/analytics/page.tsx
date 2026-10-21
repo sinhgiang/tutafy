@@ -1,7 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdminPage } from '@/lib/admin-guard'
 import { BarChart3, TrendingUp, Globe, Award } from 'lucide-react'
 
 export default async function AdminAnalyticsPage() {
+  // Own check, before any query (the layout alone is not a safe gate): this page reads other people's data with the service-role key.
+  await requireAdminPage()
+
   const admin = createAdminClient()
 
   const [

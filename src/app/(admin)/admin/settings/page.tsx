@@ -1,6 +1,9 @@
 import { Shield, Mail, Globe, Key } from 'lucide-react'
+import { requireAdminPage } from '@/lib/admin-guard'
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  // Own check (the layout alone is not a safe gate): this page names the admin account.
+  await requireAdminPage()
   return (
     <div className="space-y-6 max-w-2xl">
       <div>

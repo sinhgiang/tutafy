@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdminPage } from '@/lib/admin-guard'
 
 const LEVEL_COLOR: Record<string, string> = {
   A1: 'bg-gray-100 text-gray-600',
@@ -11,6 +12,9 @@ const LEVEL_COLOR: Record<string, string> = {
 }
 
 export default async function AdminStudentsPage() {
+  // Own check, before any query (the layout alone is not a safe gate): this page reads other people's data with the service-role key.
+  await requireAdminPage()
+
   const admin = createAdminClient()
 
   const { data: students } = await admin
