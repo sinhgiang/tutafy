@@ -8,47 +8,44 @@ import { UpdatesBrowser } from '@/components/updates/UpdatesBrowser'
 export const metadata = pageMetadata('updates')
 
 // Built from the files in content/updates/ (src/lib/updates.ts): a new file is a new entry, and a file with a
-// missing version or date stops the build instead of reaching this page. The look follows the owner's pick
-// (the Helme Updates page): dark, a small label, a huge title, a version list on the left (sticky, scrolls by
-// itself) and the chosen version on the right, with Tutafy's name, logo and indigo.
+// missing version or date stops the build instead of reaching this page. The LAYOUT follows the owner's pick (a
+// small label, a big title, a version list on the left that scrolls by itself and the chosen version on the right);
+// the colours, type and corners are Tutafy's own, like the blog index (same header, same label and title style).
 export default function UpdatesPage() {
   const updates = loadUpdates()
   return (
-    <div className="min-h-screen bg-black text-[#ededed]">
-      <header className="sticky top-0 z-10 border-b border-[#1f1f1f] bg-black/75 backdrop-blur">
-        <div className="mx-auto flex h-[60px] max-w-[1120px] items-center justify-between px-6">
-          <Link href="/" aria-label="Tutafy home" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-500" aria-hidden="true">
-              <GraduationCap className="text-white" style={{ width: 18, height: 18 }} />
-            </span>
-            <span className="text-[18px] font-semibold tracking-tight text-white">Tutafy</span>
+    <div className="min-h-screen bg-white">
+      <nav className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
+              <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
+            </div>
+            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
           </Link>
-          <nav aria-label="Pages" className="flex items-center gap-5 text-[14px] text-[#a1a1a1] sm:gap-7">
-            <Link href="/blog" className="hover:text-white">Blog</Link>
-            <Link href="/about" className="hover:text-white">About</Link>
-            <Link href="/updates" aria-current="page" className="text-white">Updates</Link>
-          </nav>
+          <div className="flex items-center gap-2">
+            <Link href="/blog" className="hidden sm:block text-[13px] font-medium text-gray-600 hover:text-gray-900 px-3 py-2">Blog</Link>
+            <Link href="/tutors" className="hidden sm:block text-[13px] font-medium text-gray-600 hover:text-gray-900 px-3 py-2">Find tutors</Link>
+            <Link href="/register" className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">Start free</Link>
+          </div>
         </div>
-      </header>
+      </nav>
 
       <main>
-        <section
-          className="relative border-b border-[#1f1f1f] bg-[linear-gradient(#1f1f1f_1px,transparent_1px),linear-gradient(90deg,#1f1f1f_1px,transparent_1px)] bg-[size:64px_64px] bg-[position:center_top] py-14 sm:py-[88px] sm:pb-14"
-        >
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_30%,transparent_0%,#000_80%)]" />
-          <div className="relative mx-auto max-w-[1120px] px-6">
-            <p className="mb-4 font-mono text-[13px] uppercase tracking-[0.08em] text-[#8a8a8a]">Changelog</p>
-            <h1 className="text-[clamp(44px,7vw,76px)] font-bold leading-[1.02] tracking-[-0.055em] text-white">Updates</h1>
-            <p className="mt-4 max-w-[560px] text-[18px] leading-relaxed text-[#a1a1a1]">
-              What changed in every version of Tutafy, newest first. Pictures use sample data.
-            </p>
-          </div>
+        <section className="max-w-6xl mx-auto px-6 pt-16 pb-10">
+          <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Changelog</p>
+          <h1 className="text-[44px] sm:text-[64px] font-extrabold text-gray-900 tracking-tight leading-[1.05]">Updates</h1>
+          <p className="text-[17px] text-gray-500 mt-4 max-w-xl leading-relaxed">
+            What changed in every version of Tutafy, newest first. Pictures use sample data.
+          </p>
         </section>
 
-        <UpdatesBrowser entries={updates} />
+        <div className="border-t border-gray-100">
+          <UpdatesBrowser entries={updates} />
+        </div>
       </main>
 
-      <SiteFooter tone="dark" />
+      <SiteFooter />
     </div>
   )
 }

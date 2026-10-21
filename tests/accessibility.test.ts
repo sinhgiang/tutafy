@@ -157,6 +157,7 @@ const PUBLIC_TEXT_FILES = [
   'src/app/blog/[slug]/page.tsx',
   'src/app/tutors/[slug]/page.tsx',
   'src/app/updates/page.tsx',
+  'src/components/updates/UpdatesBrowser.tsx',
   'src/components/SiteFooter.tsx',
 ]
 

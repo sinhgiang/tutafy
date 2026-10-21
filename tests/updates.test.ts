@@ -125,10 +125,8 @@ test('/updates renders every entry from the files: version, day, title, summary,
   assert.match(html, /What changed in every version of Tutafy/)
   assert.equal((html.match(/<h1[ >]/g) ?? []).length, 1)
   assert.equal((html.match(/<main[ >]/g) ?? []).length, 1)
-  assert.match(html, /<footer class="border-t border-\[#1f1f1f\] bg-black/)
-  assert.match(html, /bg-black text-\[#ededed\]/)
-  assert.match(html, /font-mono[^"]*">v\d+\.\d+\.\d+</, 'version numbers are mono')
-  assert.match(read('src/app/layout.tsx'), /Geist_Mono\(\{[^}]*variable: '--font-geist-mono'/, 'the layout defines the mono font the theme reads')
+  assert.match(html, /<footer class="border-t border-gray-100 py-8 px-6">/, "the site's own footer")
+  assert.match(html, /<div class="min-h-screen bg-white">/, 'a white page like the rest of the site')
   assert.match(html, /bg-indigo-500/)
   // the page code names no version and no date: those come from the files
   const pageSrc = read('src/app/updates/page.tsx') + read('src/components/updates/UpdatesBrowser.tsx')
@@ -183,7 +181,7 @@ test('with 150 versions the page is still two columns: the list is a box with it
   assert.equal((html.match(/>Latest</g) ?? []).length, 2, 'Latest is shown on the newest only')
   // the list: a box of fixed height that scrolls by itself (and stays in view on a desktop), never a page-long stack
   const nav = /<nav aria-label="Versions" class="([^"]*)"/.exec(html)![1].split(/\s+/)
-  for (const c of ['max-h-[300px]', 'overflow-y-auto', 'lg:sticky', 'lg:top-[60px]', 'lg:max-h-[calc(100vh-60px)]']) assert.ok(nav.includes(c), `the list lacks ${c}`)
+  for (const c of ['max-h-[300px]', 'overflow-y-auto', 'lg:sticky', 'lg:top-[65px]', 'lg:max-h-[calc(100vh-65px)]']) assert.ok(nav.includes(c), `the list lacks ${c}`)
   assert.equal((html.match(/href="#v1\.\d+\.0"/g) ?? []).length, 150 + 149 + 149, 'one row per version, plus an Older and a Newer link in each open-or-hidden article but the ends')
   // the two columns start at 1024px
   assert.match(html, /lg:grid-cols-\[280px_minmax\(0,1fr\)\]/)
@@ -194,6 +192,36 @@ test('with 150 versions the page is still two columns: the list is a box with it
     assert.ok(open[0][2].includes(`>v${pick}</span>`))
     assert.ok(!open[0][2].includes('Latest'), 'an older version is not Latest')
   }
+})
+
+// ---- the brand: the layout is the owner's pick, the look is Tutafy's -------------------------------------
+
+test("the Updates page looks like the rest of Tutafy: Tutafy's own colours, type, corners and header, no black page", () => {
+  const files = ['src/app/updates/page.tsx', 'src/components/updates/UpdatesBrowser.tsx']
+  for (const f of files) {
+    const src = read(f).replace(/^\s*\/\/.*$/gm, '')
+    assert.doesNotMatch(src, /#[0-9a-fA-F]{3,8}\b/, `${f} writes a colour of its own (a hex value); use the site's palette`)
+    assert.doesNotMatch(src, /\b(?:bg|text|border)-(?:black|zinc|neutral|slate|stone)\b/, `${f} uses a colour the rest of the site does not`)
+    assert.doesNotMatch(src, /font-mono|Geist_Mono|ui-monospace/, `${f} sets its own typeface`)
+    assert.doesNotMatch(src, /\bdark:/, `${f} has a dark variant`)
+  }
+  // the header is the blog index's: same bar, same logo block, same Start free button
+  const page = read('src/app/updates/page.tsx')
+  const blog = read('src/app/blog/page.tsx')
+  for (const piece of [
+    'className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40"',
+    '<div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">',
+    '<span className="text-[17px] font-bold text-gray-900">Tutafy</span>',
+    'className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">Start free</Link>',
+    '<p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">',
+    'text-[17px] text-gray-500',
+  ]) {
+    assert.ok(page.includes(piece), `the Updates page does not have: ${piece}`)
+    assert.ok(blog.includes(piece), `the blog index no longer has (so this check is out of date): ${piece}`)
+  }
+  // the cards and pictures use the site's corners, borders and indigo accent
+  const browser = read('src/components/updates/UpdatesBrowser.tsx')
+  for (const piece of ['rounded-2xl border border-gray-100', 'bg-indigo-50', 'text-indigo-600', 'border-indigo-500', 'text-gray-900', 'text-gray-500']) assert.ok(browser.includes(piece), piece)
 })
 
 test('the address picks the version: #v1.3.0 and #1.3.0 pick 1.3.0, nothing or nonsense picks the newest', () => {
@@ -411,16 +439,11 @@ function allPageFiles(dir = path.join(ROOT, 'src', 'app')): string[] {
 
 test('the shared footer shows Updates next to Privacy and Terms, and the link goes to /updates', async () => {
   const { SiteFooter, FOOTER_LINKS } = await import('@/components/SiteFooter.tsx')
-  const html = renderToStaticMarkup(SiteFooter({}))
+  const html = renderToStaticMarkup(SiteFooter())
   const labels = [...html.matchAll(/<a [^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(m => [m[2], m[1]])
   assert.ok(labels.some(([label, href]) => label === 'Updates' && href === '/updates'), html)
   for (const l of ['About', 'Blog', 'Customers', 'Contact', 'Privacy', 'Terms']) assert.ok(labels.some(([label]) => label === l), l)
   assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
-  // the dark tone (the Updates page) carries the same links
-  const dark = renderToStaticMarkup(SiteFooter({ tone: 'dark' }))
-  assert.match(dark, /bg-black/)
-  for (const l of FOOTER_LINKS) assert.ok(dark.includes(`href="${l.href}"`), l.href)
-  assert.ok(!html.includes('bg-black'), 'the light tone is unchanged')
 })
 
 test('every public page has the Updates link in its footer', () => {
