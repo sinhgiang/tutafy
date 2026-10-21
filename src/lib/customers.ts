@@ -12,6 +12,8 @@
 //   booked (7 days)    lessons created in the last 7 days, cancelled ones not counted;
 //   first real student a tutor who signed up in the last 7 (30) days and has at least one student whose email is not the tutor's own
 //                      (a student the tutor made by booking their own page does not count: src/lib/self-added.ts).
+// NOT used as proof of a real person: whether an email address is confirmed. Supabase's "Confirm email" is OFF for Tutafy (the owner
+// confirmed it on 2026-10-21), so every address counts as confirmed and says nothing; the owner does not change that setting.
 import { isBuyerPlan } from '@/lib/buyers'
 import { isSelfAdded } from '@/lib/self-added'
 

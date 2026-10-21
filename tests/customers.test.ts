@@ -446,3 +446,14 @@ test('every page of the admin area, and its layout, runs the admin check before 
   }
   assert.match(read('app/(admin)/layout.tsx'), /await requireAdminPage\(\)/)
 })
+
+// ---- what counts as a real person ------------------------------------------------------------------------------------
+
+test('"real" never rests on a confirmed email: Supabase "Confirm email" is OFF for Tutafy, so a confirmed address proves nothing', () => {
+  // A real student is one whose email is not the tutor's own (src/lib/self-added.ts); a used tutor has lessons. Neither reads the
+  // address-confirmed columns of auth, and none of the owner's pages may start to.
+  for (const rel of ['lib/customers.ts', 'lib/customers-data.ts', 'lib/platform-overview.ts', 'lib/self-added.ts', 'lib/buyers-data.ts', 'app/(admin)/admin/page.tsx']) {
+    assert.doesNotMatch(read(rel), /email_confirmed|confirmed_at|email_verified|emailVerified|auth\.admin|listUsers/, `${rel} must not use the confirmed-email columns as proof of a real user`)
+  }
+  assert.match(read('lib/customers.ts'), /Confirm email/i, 'the definitions say so')
+})
