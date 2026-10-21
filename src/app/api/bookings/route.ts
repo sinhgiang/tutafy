@@ -5,6 +5,7 @@ import { createCalendarEvent } from '@/lib/google-calendar'
 import { fireWebhooks } from '@/lib/webhooks'
 import { normalizeCurrency } from '@/lib/currency'
 import { loadChosenDurations, durationAccepted } from '@/lib/lesson-durations'
+import { withinBookingTextLimits } from '@/lib/input-limits'
 
 async function validateAndApplyCoupon(supabase: any, tutorId: string, code: string, basePrice: number | null) {
   if (!code || !basePrice) return { discount: 0, couponId: null }
@@ -58,6 +59,11 @@ export async function POST(request: Request) {
 
     if (!tutorId || !date || !time || !duration || !name || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Text a stranger types ends up in the mails, so it has a size (T-0686).
+    if (!withinBookingTextLimits({ name, email, message })) {
+      return NextResponse.json({ error: 'The name, email or message is too long.' }, { status: 400 })
     }
 
     const supabase = createAdminClient()

@@ -55,34 +55,95 @@ export function spamHintHtml(env: Env = process.env): string {
 
 const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rarr: '→', larr: '←', middot: '·', mdash: '—', ndash: '–', hellip: '…', copy: '©' }
 
+const TAG_NAME = /(\/?)([a-z][a-z0-9]*)/iy
+const HREF = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)')/i
+const BLOCK_CLOSE = new Set(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'tr', 'ul', 'ol', 'table', 'section', 'blockquote'])
+const RAW_TEXT = new Set(['style', 'script', 'head'])
+/** A tag longer than this is only stripped, never read for a link (a mail's own tags are far shorter). */
+const MAX_TAG_READ = 2000
+
+/** Drops every `<...>` in one pass. A `<` with no `>` after it stays as text. */
+function stripTags(s: string): string {
+  let out = ''
+  let i = 0
+  for (;;) {
+    const lt = s.indexOf('<', i)
+    if (lt < 0) return out + s.slice(i)
+    out += s.slice(i, lt)
+    const gt = s.indexOf('>', lt + 1)
+    if (gt < 0) return out + s.slice(lt)
+    i = gt + 1
+  }
+}
+
 /**
  * A readable plain-text copy of an HTML email: links keep their address ("label: https://..."), blocks become
  * lines, list items get a dash, styles and tags disappear, entities are decoded.
+ *
+ * The HTML has text a stranger typed in it (a booking note, a message), so it is read once from left to right:
+ * every tag is consumed up to its `>` and the scan goes on after it, and a closing tag that is missing is looked
+ * for once, never again from each opening tag. No pattern here backtracks over the text, so a note of hundreds of
+ * thousands of `<style` or `<a href="x">` costs the same as any other note of that length.
  */
 export function htmlToText(html: string): string {
-  let t = html
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<(style|script|head)[\s\S]*?<\/\1>/gi, '')
-    .replace(/<a\b[^>]*?href\s*=\s*(?:"([^"]*)"|'([^']*)')[^>]*>([\s\S]*?)<\/a>/gi, (_m, d: string | undefined, s: string | undefined, label: string) => {
-      const href = (d ?? s ?? '').trim()
-      const text = label.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
-      if (!href) return text
-      if (!text) return href
-      if (text.includes(href.replace(/^mailto:/i, ''))) return text
-      return `${text}: ${href}`
-    })
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<li\b[^>]*>/gi, '\n- ')
-    .replace(/<\/(p|div|h[1-6]|tr|ul|ol|table|section|blockquote)>/gi, '\n')
-    .replace(/<\/(td|th)>/gi, ' ')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e: string) => {
-      if (e[0] === '#') {
-        const code = e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10)
-        return Number.isFinite(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : m
+  const lower = html.replace(/[A-Z]/g, c => c.toLowerCase()) // ASCII only, so positions match `html`
+  const absent = new Set<string>() // closers searched for and not found anywhere after the scan position
+  const find = (closer: string, from: number) => {
+    if (absent.has(closer)) return -1
+    const at = lower.indexOf(closer, from)
+    if (at < 0) absent.add(closer)
+    return at
+  }
+  let t = ''
+  let i = 0
+  while (i < html.length) {
+    const lt = html.indexOf('<', i)
+    if (lt < 0) { t += html.slice(i); break }
+    t += html.slice(i, lt)
+    if (lower.startsWith('<!--', lt)) {
+      const end = find('-->', lt + 4)
+      if (end >= 0) { i = end + 3; continue }
+    }
+    const gt = html.indexOf('>', lt + 1)
+    if (gt < 0) { t += html.slice(lt); break }
+    i = gt + 1
+    TAG_NAME.lastIndex = lt + 1
+    const m = TAG_NAME.exec(html)
+    if (!m) continue
+    const closing = m[1] === '/'
+    const name = m[2].toLowerCase()
+    if (closing) {
+      if (BLOCK_CLOSE.has(name)) t += '\n'
+      else if (name === 'td' || name === 'th') t += ' '
+    } else if (name === 'br') {
+      t += '\n'
+    } else if (name === 'li') {
+      t += '\n- '
+    } else if (RAW_TEXT.has(name)) {
+      const closer = `</${name}>`
+      const end = find(closer, gt + 1)
+      if (end >= 0) i = end + closer.length
+    } else if (name === 'a' && gt - lt <= MAX_TAG_READ) {
+      const h = HREF.exec(html.slice(lt, gt + 1))
+      const end = h ? find('</a>', gt + 1) : -1
+      if (h && end >= 0) {
+        const href = (h[1] ?? h[2] ?? '').trim()
+        const text = stripTags(html.slice(gt + 1, end)).replace(/\s+/g, ' ').trim()
+        i = end + 4
+        if (!href) t += text
+        else if (!text) t += href
+        else if (text.includes(href.replace(/^mailto:/i, ''))) t += text
+        else t += `${text}: ${href}`
       }
-      return ENTITIES[e.toLowerCase()] ?? m
-    })
+    }
+  }
+  t = t.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e: string) => {
+    if (e[0] === '#') {
+      const code = e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10)
+      return Number.isFinite(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : m
+    }
+    return ENTITIES[e.toLowerCase()] ?? m
+  })
   t = t.split('\n').map(line => line.replace(/[ \t]+/g, ' ').trim()).join('\n')
   return t.replace(/\n{3,}/g, '\n\n').trim()
 }

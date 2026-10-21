@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { createMailer } from '@/lib/email'
 import { sendPushNotification } from '@/lib/push'
+import { withinMessageLimit } from '@/lib/input-limits'
 
 // GET /api/portal/[token]/messages  — student polls for messages
 export async function GET(req: Request, { params }: { params: Promise<{ token: string }> }) {
@@ -34,6 +35,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
   const { content } = await req.json()
   if (!content?.trim()) {
     return NextResponse.json({ error: 'content required' }, { status: 400 })
+  }
+  if (!withinMessageLimit(content)) {
+    return NextResponse.json({ error: 'content too long' }, { status: 400 })
   }
 
   const { data: message, error } = await supabase

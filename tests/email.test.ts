@@ -233,3 +233,82 @@ test('first mails carry the spam line: welcome (both), sign-in link, booking (bo
     assert.doesNotMatch(subject, /\p{Extended_Pictographic}/u, `${f}: ${subject}`)
   }
 })
+
+// ---- text a stranger types must not be able to hold the server (review of T-0686) -----------------
+
+// A note of hundreds of thousands of opening tags with no closing tag made the first plain-text converter run for
+// minutes (every opening tag searched the whole rest of the text). These run the REAL converter on that input.
+const FAST_MS = 1500
+function timed<T>(run: () => T): { value: T; ms: number } {
+  const t0 = performance.now()
+  const value = run()
+  return { value, ms: performance.now() - t0 }
+}
+
+test('htmlToText stays linear on a note made of opening tags that never close', () => {
+  const size = 400_000 // characters
+  const inputs: Record<string, string> = {
+    '<style': '<style'.repeat(size / 6),
+    '<script': '<script'.repeat(size / 7),
+    '<head': '<head>'.repeat(size / 6),
+    '<a href="x">': '<a href="x">'.repeat(size / 12),
+    '<a href="x" ': '<a href="x" '.repeat(size / 12),
+    '<a ': '<a '.repeat(size / 3),
+    '<': '<'.repeat(size),
+    '<!--': '<!--'.repeat(size / 4),
+    'text <!-- ': 'x<!-- '.repeat(size / 6),
+    '</a>': '</a>'.repeat(size / 4),
+    '&': '&#x'.repeat(size / 3) + 'a'.repeat(size),
+  }
+  for (const [name, note] of Object.entries(inputs)) {
+    const html = `<div><p>${note}</p><a href="https://tutafy.test/open">Open</a></div>`
+    const { value, ms } = timed(() => mail.htmlToText(html))
+    assert.ok(ms < FAST_MS, `${name}: ${Math.round(ms)} ms for ${html.length} characters`)
+    assert.equal(typeof value, 'string')
+  }
+})
+
+test('htmlToText: the same note in the same sentence costs about the same, doubled length about double', () => {
+  const small = timed(() => mail.htmlToText('<style'.repeat(50_000))).ms
+  const big = timed(() => mail.htmlToText('<style'.repeat(200_000))).ms
+  // a squared converter takes ~16 times longer for 4 times the text; allow a lot of noise around 4
+  assert.ok(big < Math.max(small * 12, 400), `${Math.round(small)} ms for 50k, ${Math.round(big)} ms for 200k`)
+})
+
+test('htmlToText still reads what follows an opening tag that never closes', () => {
+  assert.equal(mail.htmlToText('<style>p{}'), 'p{}')
+  assert.equal(mail.htmlToText('<p>Hello <a href="https://x.test">there</p>'), 'Hello there')
+  assert.equal(mail.htmlToText('<!-- never closed <p>Hi</p>'), 'Hi')
+  assert.equal(mail.htmlToText('a <b and c'), 'a <b and c')
+  assert.equal(mail.htmlToText('<style>p{}</style>after<STYLE>q{}</STYLE>!'), 'after!')
+  assert.equal(mail.htmlToText('<header>Top</header>'), 'Top')
+  assert.equal(mail.htmlToText('<A HREF="https://x.test/y">Go</A>'), 'Go: https://x.test/y')
+  assert.equal(mail.htmlToText('<a href="https://x.test"><b>Go</b> <i>now</i></a>'), 'Go now: https://x.test')
+  assert.equal(mail.htmlToText('<a href="">Only</a>'), 'Only')
+  assert.equal(mail.htmlToText('<a href="https://x.test"></a>'), 'https://x.test')
+})
+
+test('the booking route turns away a name, email or note too long to belong in a mail, and sends nothing', async () => {
+  for (const field of ['name', 'email', 'message'] as const) {
+    sent.length = 0
+    const body: Record<string, unknown> = { tutorId: TUTOR, date: '2030-01-07', time: '10:00', duration: 60, name: 'Sam Student', email: 'sam@example.com', message: '', termsAgreed: true }
+    body[field] = 'x'.repeat(field === 'message' ? 2001 : field === 'email' ? 255 : 201)
+    const res = await bookings.POST(new Request('https://www.tutafy.test/api/bookings', { method: 'POST', headers: { host: 'www.tutafy.test' }, body: JSON.stringify(body) }))
+    assert.equal(res.status, 400, field)
+    assert.equal(sent.length, 0, `${field}: no mail`)
+  }
+  // a note of exactly the limit is still taken, and its mail is built at once
+  const okBody = { tutorId: TUTOR, date: '2030-01-07', time: '10:00', duration: 60, name: 'Sam Student', email: 'sam@example.com', message: '<style'.repeat(333), termsAgreed: true }
+  const { value: res, ms } = await (async () => { const t0 = performance.now(); const value = await bookings.POST(new Request('https://www.tutafy.test/api/bookings', { method: 'POST', headers: { host: 'www.tutafy.test' }, body: JSON.stringify(okBody) })); return { value, ms: performance.now() - t0 } })()
+  assert.equal(res.status, 200)
+  assert.equal(sent.length, 2)
+  assert.ok(ms < FAST_MS, `${Math.round(ms)} ms`)
+})
+
+test('the portal message route has the same limit (the note goes into the tutor\'s mail)', () => {
+  const lim = read('src/lib/input-limits.ts')
+  assert.match(lim, /MAX_MESSAGE_LENGTH = 2000/)
+  const portal = read('src/app/api/portal/[token]/messages/route.ts')
+  assert.match(portal, /if \(!withinMessageLimit\(content\)\) \{\s*return NextResponse\.json\(\{ error: 'content too long' \}, \{ status: 400 \}\)/)
+  assert.ok(portal.indexOf('withinMessageLimit(content)') < portal.indexOf('.insert('), 'checked before the message is saved')
+})
