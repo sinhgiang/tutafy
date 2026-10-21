@@ -124,18 +124,18 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                     <div className="flex items-center gap-2 mt-2">
                       <StarRow rating={tutor.average_rating ?? 0} size="md" />
                       <span className="text-[14px] font-bold text-gray-800">{Number(tutor.average_rating ?? 0).toFixed(1)}</span>
-                      <span className="text-[13px] text-gray-400">({tutor.review_count} reviews)</span>
+                      <span className="text-[13px] text-gray-500">({tutor.review_count} reviews)</span>
                     </div>
                   )}
                   <div className="flex flex-wrap gap-3 mt-3">
                     {tutor.timezone && (
                       <span className="flex items-center gap-1.5 text-[12px] text-gray-500">
-                        <Globe className="h-3.5 w-3.5 text-gray-400" /> {tutor.timezone}
+                        <Globe className="h-3.5 w-3.5 text-gray-500" /> {tutor.timezone}
                       </span>
                     )}
                     {lessonCount > 0 && (
                       <span className="flex items-center gap-1.5 text-[12px] text-gray-500">
-                        <BookOpen className="h-3.5 w-3.5 text-gray-400" /> {lessonCount} lessons taught
+                        <BookOpen className="h-3.5 w-3.5 text-gray-500" /> {lessonCount} lessons taught
                       </span>
                     )}
                   </div>
@@ -173,7 +173,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-5">
                   <h2 className="text-[16px] font-bold text-gray-900">Student reviews</h2>
-                  <span className="text-[12px] text-gray-400">{tutor.review_count} total</span>
+                  <span className="text-[12px] text-gray-500">{tutor.review_count} total</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {reviews.map(r => (
@@ -182,7 +182,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                       {r.comment && (
                         <p className="text-[13px] text-gray-600 mt-2 leading-relaxed">&quot;{r.comment}&quot;</p>
                       )}
-                      <p className="text-[10px] text-gray-300 mt-2">
+                      <p className="text-[10px] text-gray-500 mt-2">
                         {new Date(r.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </p>
                     </div>
@@ -197,8 +197,8 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               {tutor.default_lesson_price && (
                 <div className="mb-4">
-                  <p className="text-[13px] text-gray-400">Starting from</p>
-                  <p className="text-[28px] font-black text-gray-900">${Number(tutor.default_lesson_price).toFixed(0)}<span className="text-[14px] font-normal text-gray-400">/lesson</span></p>
+                  <p className="text-[13px] text-gray-500">Starting from</p>
+                  <p className="text-[28px] font-black text-gray-900">${Number(tutor.default_lesson_price).toFixed(0)}<span className="text-[14px] font-normal text-gray-500">/lesson</span></p>
                   {(tutor as any).trial_enabled && (tutor as any).trial_price && (
                     <p className="text-[12px] text-emerald-600 font-medium mt-1">
                       Trial lesson: ${Number((tutor as any).trial_price).toFixed(0)}
@@ -209,11 +209,11 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
 
               <div className="space-y-2.5 mb-5">
                 <div className="flex items-center gap-2 text-[13px] text-gray-600">
-                  <Clock className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                  <Clock className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
                   30, 45, 60 or 90 min sessions
                 </div>
                 <div className="flex items-center gap-2 text-[13px] text-gray-600">
-                  <MessageCircle className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                  <MessageCircle className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
                   Free cancellation (policy applies)
                 </div>
               </div>
@@ -224,7 +224,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                   Book a lesson <ArrowRight className="h-4 w-4" />
                 </Link>
               ) : (
-                <div className="text-center py-3 bg-gray-100 rounded-xl text-[13px] text-gray-400">
+                <div className="text-center py-3 bg-gray-100 rounded-xl text-[13px] text-gray-500">
                   Booking currently unavailable
                 </div>
               )}

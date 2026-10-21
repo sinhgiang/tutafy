@@ -9,7 +9,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
             <Zap className="h-3.5 w-3.5 text-white" fill="white" />
           </div>
           <span className="text-[14px] font-semibold text-gray-900">Tutafy</span>
-          <span className="text-[11px] text-gray-400 ml-1">Student Portal</span>
+          <span className="text-[11px] text-gray-500 ml-1">Student Portal</span>
         </div>
       </header>
       <main className="max-w-[720px] mx-auto px-4 py-6">

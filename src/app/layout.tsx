@@ -20,8 +20,8 @@ export const viewport: Viewport = {
   themeColor: '#6366f1',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // No zoom limit of any kind: a visitor must be able to pinch-zoom (WCAG 1.4.4, Lighthouse
+  // "meta-viewport"). tests/accessibility.test.ts fails if a scale limit comes back.
   // Android Chrome: the on-screen keyboard shrinks the page instead of covering it, so a send button stays in view.
   interactiveWidget: 'resizes-content',
 }

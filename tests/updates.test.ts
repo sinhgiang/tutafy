@@ -49,13 +49,13 @@ const throwsWith = (raw: string, name: string, pattern: RegExp) => assert.throws
 
 // ---- the written entries ------------------------------------------------------------------------------
 
-test('the real folder holds the five entries of the first week, newest first, each named after its version', () => {
+test('the real folder holds the six entries of the first week, newest first, each named after its version', () => {
   const entries = loadUpdates()
-  assert.ok(entries.length >= 5)
+  assert.ok(entries.length >= 6)
   assert.deepEqual(entries.map(e => e.version), [...entries.map(e => e.version)].sort((a, b) => compareVersions(b, a)))
   for (const e of entries) assert.ok(existsSync(path.join(REAL_DIR, `${e.version}.md`)), e.version)
   const titles = entries.map(e => e.title.toLowerCase()).join(' | ')
-  for (const word of ['lesson lengths', 'tutor and student', 'first student', 'card payments', 'phone']) {
+  for (const word of ['lesson lengths', 'tutor and student', 'first student', 'card payments', 'phone', 'zoom']) {
     assert.ok(titles.includes(word), `no entry about "${word}": ${titles}`)
   }
   // the view-as-student entry names both buttons the tutor sees

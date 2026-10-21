@@ -24,7 +24,7 @@ export default function ContactPage() {
         </div>
       </nav>
 
-      <section className="max-w-3xl mx-auto px-6 py-16">
+      <main className="max-w-3xl mx-auto px-6 py-16">
         <div className="text-center mb-10">
           <h1 className="text-[34px] font-extrabold text-gray-900 tracking-tight">Get in touch</h1>
           <p className="text-[16px] text-gray-500 mt-3 max-w-lg mx-auto">
@@ -53,11 +53,11 @@ export default function ContactPage() {
         <div className="bg-gray-50 rounded-2xl p-6 text-center">
           <p className="text-[13px] text-gray-600">
             Prefer email? Reach us directly at{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-indigo-500 hover:underline">{SUPPORT_EMAIL}</a>.
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-indigo-500 underline">{SUPPORT_EMAIL}</a>.
             We usually reply within one business day.
           </p>
         </div>
-      </section>
+      </main>
 
       <SiteFooter />
     </div>

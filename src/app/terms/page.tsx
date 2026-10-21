@@ -24,9 +24,9 @@ export default function TermsPage() {
         </div>
       </nav>
 
-      <article className="max-w-3xl mx-auto px-6 py-14">
+      <main className="max-w-3xl mx-auto px-6 py-14">
         <h1 className="text-[32px] font-extrabold text-gray-900 tracking-tight">Terms of Service</h1>
-        <p className="text-[13px] text-gray-400 mt-1 mb-8">Last updated: {UPDATED}</p>
+        <p className="text-[13px] text-gray-500 mt-1 mb-8">Last updated: {UPDATED}</p>
 
         <div className="space-y-7 text-[14px] text-gray-600 leading-relaxed">
           <p>These terms govern your use of Tutafy. By creating an account, you agree to them.</p>
@@ -67,9 +67,9 @@ export default function TermsPage() {
             <p>Questions? Email <a href="mailto:tubxeebyajtube@gmail.com" className="text-indigo-500 hover:underline">tubxeebyajtube@gmail.com</a>.</p>
           </Section>
 
-          <p className="text-[12px] text-gray-400 border-t border-gray-100 pt-6">These terms are provided for transparency and to meet advertising and app-store requirements. They are not legal advice; please have a lawyer review them for your jurisdiction before relying on them commercially.</p>
+          <p className="text-[12px] text-gray-500 border-t border-gray-100 pt-6">These terms are provided for transparency and to meet advertising and app-store requirements. They are not legal advice; please have a lawyer review them for your jurisdiction before relying on them commercially.</p>
         </div>
-      </article>
+      </main>
 
       <SiteFooter />
     </div>

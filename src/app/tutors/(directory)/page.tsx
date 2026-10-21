@@ -67,7 +67,7 @@ export default function TutorsPage() {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
+      <main className="max-w-5xl mx-auto px-4 py-10">
         {/* Hero */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-full px-4 py-1.5 mb-4">
@@ -81,7 +81,7 @@ export default function TutorsPage() {
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -116,8 +116,8 @@ export default function TutorsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-[15px] font-semibold text-gray-400">No tutors found</p>
-            <p className="text-[13px] text-gray-300 mt-1">Try adjusting your search or language filter</p>
+            <p className="text-[15px] font-semibold text-gray-500">No tutors found</p>
+            <p className="text-[13px] text-gray-500 mt-1">Try adjusting your search or language filter</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -148,7 +148,7 @@ export default function TutorsPage() {
                     {(tutor.review_count ?? 0) > 0 && (
                       <div className="flex items-center justify-center gap-1.5 mt-2">
                         <StarRating rating={tutor.average_rating ?? 0} />
-                        <span className="text-[11px] text-gray-400">
+                        <span className="text-[11px] text-gray-500">
                           {tutor.average_rating?.toFixed(1)} ({tutor.review_count})
                         </span>
                       </div>
@@ -162,7 +162,7 @@ export default function TutorsPage() {
                     )}
 
                     {/* Meta */}
-                    <div className="flex items-center justify-center gap-4 mt-4 text-[11px] text-gray-400">
+                    <div className="flex items-center justify-center gap-4 mt-4 text-[11px] text-gray-500">
                       {tutor.timezone && (
                         <span className="flex items-center gap-1">
                           <Globe className="h-3 w-3" />{tutor.timezone.split('/')[1]?.replace('_', ' ') ?? tutor.timezone}
@@ -191,7 +191,7 @@ export default function TutorsPage() {
             })}
           </div>
         )}
-      </div>
+      </main>
 
       <SiteFooter />
     </div>
