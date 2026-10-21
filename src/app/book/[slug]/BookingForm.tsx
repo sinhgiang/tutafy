@@ -8,6 +8,7 @@ import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { buildPaymentMethods, cardPaymentUrl, paypalUrl, showBuiltInCardCheckout } from '@/lib/payment-methods'
 import { formatMoney } from '@/lib/currency'
 import { ALL_DURATIONS, FALLBACK_DEFAULT } from '@/lib/lesson-durations'
+import { DEFAULT_FROM_ADDRESS, spamHintFor } from '@/lib/email-config'
 import { getSlots } from '@/lib/booking-slots'
 
 // "Continue with Google" — signs the student in, then returns to this booking
@@ -341,6 +342,8 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [portalToken, setPortalToken] = useState<string | null>(null)
   const [lessonId, setLessonId] = useState<string | null>(null)
   const [booked, setBooked] = useState<BookedPrice>({ price: null, currency: 'USD' })
+  // the address the confirmation comes from, so the line about the spam folder names the real one
+  const [senderEmail, setSenderEmail] = useState(DEFAULT_FROM_ADDRESS)
   const [studentTz, setStudentTz] = useState<string>('')
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [signatureName, setSignatureName] = useState('')
@@ -420,6 +423,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
       const d = await res.json()
       setPortalToken(d.portal_token ?? null)
       setLessonId(d.lesson_id ?? null)
+      if (typeof d.sender_email === 'string' && d.sender_email.includes('@')) setSenderEmail(d.sender_email)
       setBooked({ price: typeof d.price === 'number' ? d.price : null, currency: d.currency ?? tutor.currency ?? 'USD' })
       setDone(true)
     } else {
@@ -442,6 +446,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
         </p>
         <div className="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl px-6 py-3 text-[13px] text-emerald-700">
           Confirmation will be sent to <strong>{email}</strong>
+          <p className="mt-1 text-[13px] font-normal text-emerald-700">{spamHintFor(senderEmail)}</p>
         </div>
         {signatureName && (
           <div className="mt-3 bg-gray-50 border border-gray-100 rounded-xl px-6 py-3 text-[12px] text-gray-500">

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,12 +23,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const student = lesson.students as any
   if (process.env.RESEND_API_KEY?.startsWith('re_') && student?.email) {
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = createMailer(process.env.RESEND_API_KEY, 'bookings')
     const dateLabel = new Date(lesson.starts_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
     const { data: tutor } = await supabase.from('tutors').select('name').eq('id', user.id).single()
 
     await resend.emails.send({
-      from: 'Tutafy <noreply@tutafy.com>',
       to: student.email,
       subject: `Missed lesson — ${dateLabel}`,
       html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">

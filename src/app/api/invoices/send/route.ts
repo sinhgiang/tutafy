@@ -1,6 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -33,9 +33,8 @@ export async function POST(req: NextRequest) {
   const dateLabel = new Date(lesson.starts_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   const dueDate = new Date(Date.now() + 7 * 86400000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 
-  const resend = new Resend(process.env.RESEND_API_KEY)
+  const resend = createMailer(process.env.RESEND_API_KEY)
   const { error } = await resend.emails.send({
-    from: 'Tutafy <noreply@tutafy.com>',
     to: student.email,
     subject: `Invoice ${invoiceNum} — $${Number(lesson.price).toFixed(2)} due ${dueDate}`,
     html: `

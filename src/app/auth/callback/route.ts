@@ -122,17 +122,17 @@ export async function GET(request: NextRequest) {
 
     // Send welcome email
     try {
-      const { Resend } = await import('resend')
+      const { createMailer, spamHintHtml } = await import('@/lib/email')
       if (process.env.RESEND_API_KEY?.startsWith('re_')) {
-        const resend = new Resend(process.env.RESEND_API_KEY)
+        const resend = createMailer(process.env.RESEND_API_KEY)
         await resend.emails.send({
-          from: 'Tutafy <noreply@tutafy.com>',
           to: email,
-          subject: 'Welcome to Tutafy! 🎉',
+          subject: 'Welcome to Tutafy',
           html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
             <h1 style="color:#6366f1;">Welcome to Tutafy, ${name}! 🎉</h1>
             <p>Your account is ready. Complete your setup to start accepting students.</p>
             <a href="https://tutafy.com/onboarding" style="display:inline-block;background:#6366f1;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:16px;">Complete setup →</a>
+            ${spamHintHtml()}
           </div>`,
         })
       }

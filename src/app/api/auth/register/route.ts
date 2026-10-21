@@ -94,13 +94,12 @@ export async function POST(request: NextRequest) {
 
   // Send onboarding to new tutor
   try {
-    const { Resend } = await import('resend')
+    const { createMailer, spamHintHtml } = await import('@/lib/email')
     if (process.env.RESEND_API_KEY?.startsWith('re_')) {
-      const resend = new Resend(process.env.RESEND_API_KEY)
+      const resend = createMailer(process.env.RESEND_API_KEY)
       await resend.emails.send({
-        from: 'Tutafy <noreply@tutafy.com>',
         to: email,
-        subject: 'Welcome to Tutafy! 🎉 Your tutoring business starts here',
+        subject: 'Welcome to Tutafy: your tutoring business starts here',
         html: `
           <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
             <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;padding:28px;text-align:center;margin-bottom:28px;">
@@ -134,6 +133,7 @@ export async function POST(request: NextRequest) {
             <a href="https://tutafy.com/onboarding" style="display:block;text-align:center;background:#6366f1;color:white;text-decoration:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;">
               Complete your setup →
             </a>
+            ${spamHintHtml()}
             <p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:24px;">Tutafy · tutafy.com</p>
           </div>
         `,
