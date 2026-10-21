@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BookingForm } from '../../book/[slug]/BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
+import { loadChosenDurations, resolveDurationConfig } from '@/lib/lesson-durations'
 
 export const metadata = { robots: 'noindex' }
 
@@ -16,6 +17,10 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
     .single()
 
   if (!tutor || !tutor.booking_url_active) notFound()
+
+  // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
+  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
 
   const { data: availability } = await supabase
     .from('availability')
@@ -69,6 +74,8 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
         trialEnabled={(tutor as any).trial_enabled ?? false}
         trialPrice={(tutor as any).trial_price ?? null}
         tutorSlug={slug}
+        durations={lengths.durations}
+        defaultDuration={lengths.defaultDuration}
       />
       <p className="text-center text-[11px] text-gray-300 mt-6">Powered by Tutafy</p>
     </div>
