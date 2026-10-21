@@ -63,8 +63,9 @@ test('step 2: free hours are set when there is at least one availability row', (
 })
 
 test('step 3: lesson lengths are chosen only when the tutor saved a valid list', () => {
-  for (const nothing of [null, undefined, [], 'x', [15], [0], {}]) assert.equal(tick({ ...NOTHING, lessonDurations: nothing }, 'lengths'), false, JSON.stringify(nothing))
+  for (const nothing of [null, undefined, [], 'x', [7], [0], [12, 250], {}]) assert.equal(tick({ ...NOTHING, lessonDurations: nothing }, 'lengths'), false, JSON.stringify(nothing))
   assert.equal(tick({ ...NOTHING, lessonDurations: [60] }, 'lengths'), true)
+  assert.equal(tick({ ...NOTHING, lessonDurations: [75] }, 'lengths'), true, 'a custom length alone counts (T-0700)')
   assert.equal(tick({ ...NOTHING, lessonDurations: [30, 45, 60, 90] }, 'lengths'), true)
 })
 

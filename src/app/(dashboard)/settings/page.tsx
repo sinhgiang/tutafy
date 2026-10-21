@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { User, Globe, Link, CreditCard, Clock, CheckCircle, Wallet, Zap, Calendar, ExternalLink, FileText, Star, Code, Bell, Copy, Check, Plug } from 'lucide-react'
+import { User, Globe, Link, CreditCard, Clock, CheckCircle, Wallet, Zap, Calendar, ExternalLink, FileText, Star, Code, Bell, Copy, Check, Plug, X } from 'lucide-react'
 import PushSubscribe from '@/components/PushSubscribe'
 import NextLink from 'next/link'
 import { CustomDomainCard } from './CustomDomainCard'
@@ -13,7 +13,7 @@ import { LockedFeature } from '@/components/plan/LockedFeature'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
-import { ALL_DURATIONS, resolveDurationConfig, toggleDuration, chooseDefault, durationColumnsToSave } from '@/lib/lesson-durations'
+import { ALL_DURATIONS, MAX_DURATIONS, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations, durationColumnsToSave } from '@/lib/lesson-durations'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -51,6 +51,9 @@ export default function SettingsPage() {
   const [slug, setSlug] = useState('')
   const [linkCopied, setLinkCopied] = useState(false)
   const [cardLinkError, setCardLinkError] = useState('')
+  // the Custom box under "Lengths you take" (T-0700)
+  const [customLength, setCustomLength] = useState('')
+  const [customLengthError, setCustomLengthError] = useState('')
   const [stripeConnected, setStripeConnected] = useState(false)
   // null = still asking the server; false = card payments are switched off
   const [stripeEnabled, setStripeEnabled] = useState<boolean | null>(null)
@@ -143,6 +146,14 @@ export default function SettingsPage() {
       return
     }
     setCardLinkError('')
+    // The lesson lengths must be real ones before anything is saved (the database check of 018 says the same, so a value that
+    // got past this is refused there too).
+    const lengthCheck = checkDurations(form.lesson_durations)
+    if (!lengthCheck.ok) {
+      setTab('booking')
+      toast.error(lengthCheck.error)
+      return
+    }
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -389,10 +400,13 @@ export default function SettingsPage() {
                       const on = form.lesson_durations.includes(d)
                       return (
                         <button key={d} type="button" role="checkbox" aria-checked={on} aria-label={`${d} minutes`}
-                          onClick={() => setForm(f => {
-                            const next = toggleDuration({ durations: f.lesson_durations, defaultDuration: f.default_lesson_duration }, d)
-                            return { ...f, lesson_durations: next.durations, default_lesson_duration: next.defaultDuration }
-                          })}
+                          onClick={() => {
+                            setCustomLengthError(!on && form.lesson_durations.length >= MAX_DURATIONS ? `You can offer up to ${MAX_DURATIONS} lesson lengths. Remove one first.` : '')
+                            setForm(f => {
+                              const next = toggleDuration({ durations: f.lesson_durations, defaultDuration: f.default_lesson_duration }, d)
+                              return { ...f, lesson_durations: next.durations, default_lesson_duration: next.defaultDuration }
+                            })
+                          }}
                           className={`text-[13px] px-5 py-2 rounded-xl font-semibold border transition-colors ${
                             on ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                           }`}>
@@ -401,7 +415,53 @@ export default function SettingsPage() {
                       )
                     })}
                   </div>
-                  <p className="text-[11px] text-gray-400 mt-2">Students can only book the lengths you tick. At least one stays ticked.</p>
+                  {/* Custom lengths: typed by the tutor, each shown as a ticked button with an x to remove it */}
+                  {form.lesson_durations.some(d => !(ALL_DURATIONS as readonly number[]).includes(d)) && (
+                    <div className="flex gap-2 flex-wrap mt-2" aria-label="Your custom lengths">
+                      {form.lesson_durations.filter(d => !(ALL_DURATIONS as readonly number[]).includes(d)).map(d => (
+                        <span key={d} className="inline-flex items-center gap-1.5 text-[13px] pl-4 pr-2 py-2 rounded-xl font-semibold border bg-indigo-500 text-white border-indigo-500 shadow-sm">
+                          {d} min
+                          <button type="button" aria-label={`Remove ${d} minutes`}
+                            disabled={form.lesson_durations.length === 1}
+                            onClick={() => { setCustomLengthError(''); setForm(f => {
+                              const next = toggleDuration({ durations: f.lesson_durations, defaultDuration: f.default_lesson_duration }, d)
+                              return { ...f, lesson_durations: next.durations, default_lesson_duration: next.defaultDuration }
+                            }) }}
+                            className="h-5 w-5 rounded-full inline-flex items-center justify-center text-white/80 hover:bg-white/20 hover:text-white disabled:opacity-40">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="mt-3">
+                    <label htmlFor="custom-length" className="block text-[12px] font-medium text-gray-600 mb-1.5">Custom length (minutes)</label>
+                    <div className="flex gap-2 items-start">
+                      <input id="custom-length" type="text" inputMode="numeric" autoComplete="off" placeholder="e.g. 75"
+                        value={customLength} maxLength={4}
+                        aria-describedby="custom-length-help" aria-invalid={customLengthError ? true : undefined}
+                        onChange={e => { setCustomLength(e.target.value); setCustomLengthError('') }}
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('add-custom-length')?.click() } }}
+                        className={`w-32 text-[13px] border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${customLengthError ? 'border-red-300' : 'border-gray-200'}`} />
+                      <button id="add-custom-length" type="button"
+                        disabled={form.lesson_durations.length >= MAX_DURATIONS}
+                        onClick={() => {
+                          const result = addCustomDuration({ durations: form.lesson_durations, defaultDuration: form.default_lesson_duration }, customLength)
+                          if (result.error) { setCustomLengthError(result.error); return }
+                          setCustomLengthError('')
+                          setCustomLength('')
+                          setForm(f => ({ ...f, lesson_durations: result.config.durations, default_lesson_duration: result.config.defaultDuration }))
+                        }}
+                        className="text-[13px] px-4 py-2 rounded-lg font-semibold bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-40">
+                        Add
+                      </button>
+                    </div>
+                    {customLengthError && <p role="alert" className="text-[12px] text-red-600 mt-1.5">{customLengthError}</p>}
+                    <p id="custom-length-help" className="text-[11px] text-gray-400 mt-2">
+                      {MIN_DURATION} to {MAX_DURATION} minutes, in steps of {DURATION_STEP}. Up to {MAX_DURATIONS} lengths in all.
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-2">Students can only book the lengths you tick or add. At least one stays.</p>
                 </div>
                 <div>
                   <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Length selected first</label>
