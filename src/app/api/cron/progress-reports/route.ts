@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { cronGate } from '@/lib/secrets'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -16,8 +16,7 @@ export async function GET(request: Request) {
   }
 
   const supabase = createAdminClient()
-  const resend = new Resend(process.env.RESEND_API_KEY)
-  const from = 'Tutafy <noreply@tutafy.com>'
+  const resend = createMailer(process.env.RESEND_API_KEY)
   const now = new Date()
   const monthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const monthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59)
@@ -124,7 +123,6 @@ export async function GET(request: Request) {
       `
 
       await resend.emails.send({
-        from,
         to: student.parent_email!,
         subject: `${student.name}'s Monthly Progress Report — ${monthLabel}`,
         html,

@@ -1,10 +1,11 @@
 ﻿import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer, emailFromAddress, spamHintHtml } from '@/lib/email'
 import { createCalendarEvent } from '@/lib/google-calendar'
 import { fireWebhooks } from '@/lib/webhooks'
 import { normalizeCurrency } from '@/lib/currency'
 import { loadChosenDurations, durationAccepted, requestedLength } from '@/lib/lesson-durations'
+import { withinBookingTextLimits } from '@/lib/input-limits'
 import { clashWindowStart, overlappingLesson } from '@/lib/booking-slots'
 
 async function validateAndApplyCoupon(supabase: any, tutorId: string, code: string, basePrice: number | null) {
@@ -59,6 +60,11 @@ export async function POST(request: Request) {
 
     if (!tutorId || !date || !time || !requestedDuration || !name || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Text a stranger types ends up in the mails, so it has a size (T-0686).
+    if (!withinBookingTextLimits({ name, email, message })) {
+      return NextResponse.json({ error: 'The name, email or message is too long.' }, { status: 400 })
     }
 
     const supabase = createAdminClient()
@@ -220,10 +226,9 @@ export async function POST(request: Request) {
 
     // Send confirmation emails
     if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('your_')) {
-      const resend = new Resend(process.env.RESEND_API_KEY)
+      const resend = createMailer(process.env.RESEND_API_KEY, 'bookings')
       const dateLabel = startsAt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
       const timeLabel = startsAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-      const from = 'Tutafy <noreply@tutafy.com>'
 
       // Deep-links so each recipient can jump straight from the email to the
       // right place: the student to their portal, the tutor to the lesson detail.
@@ -236,7 +241,6 @@ export async function POST(request: Request) {
 
       // Email to student
       await resend.emails.send({
-        from,
         to: email,
         subject: `Booking Confirmed — ${tutor?.name ?? 'Your tutor'} on ${dateLabel}`,
         html: `
@@ -257,6 +261,7 @@ export async function POST(request: Request) {
             ${message ? `<p style="color:#6b7280;font-size:13px;font-style:italic;">Your note: "${message}"</p>` : ''}
             ${btn(studentPortalLink, 'View your booking details →')}
             <p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:8px;">or copy this link: ${studentPortalLink}</p>
+            ${spamHintHtml()}
             <p style="color:#9ca3af;font-size:12px;margin-top:24px;">Powered by Tutafy · tutafy.com</p>
           </div>
         `,
@@ -265,7 +270,6 @@ export async function POST(request: Request) {
       // Email to tutor
       if (tutor?.email) {
         await resend.emails.send({
-          from,
           to: tutor.email,
           subject: `New booking from ${name} — ${dateLabel}`,
           html: `
@@ -283,6 +287,7 @@ export async function POST(request: Request) {
               ${message ? `<p style="color:#374151;font-size:14px;">Student note: <em>"${message}"</em></p>` : ''}
               ${btn(tutorLessonLink, 'View booking details →')}
               <p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:8px;">or open it here: ${tutorLessonLink}</p>
+              ${spamHintHtml()}
               <p style="color:#9ca3af;font-size:12px;margin-top:24px;">Tutafy · tutafy.com</p>
             </div>
           `,
@@ -298,6 +303,8 @@ export async function POST(request: Request) {
       lesson_id: createdLesson?.id ?? null,
       price: finalPrice,
       currency: normalizeCurrency(tutor?.currency),
+      // the address the confirmation comes from: the page asks the student to look for it in the spam folder
+      sender_email: emailFromAddress(),
     })
   } catch (err) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
