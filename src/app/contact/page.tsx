@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { GraduationCap, ArrowLeft, Mail, MessageCircle, HelpCircle } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
 import { SiteFooter } from '@/components/SiteFooter'
+import { ContactEmails } from '@/components/ContactEmails'
+import { CONTACT_EMAILS, PRIMARY_CONTACT_EMAIL, REPLY_PROMISE } from '@/lib/contact'
 
 export const metadata = pageMetadata('contact')
-
-const SUPPORT_EMAIL = 'tubxeebyajtube@gmail.com'
 
 export default function ContactPage() {
   return (
@@ -34,10 +34,19 @@ export default function ContactPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 text-center">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
+              <Mail className="h-5 w-5 text-indigo-500" />
+            </div>
+            <p className="text-[14px] font-bold text-gray-900">Email us</p>
+            <p className="text-[12px] text-gray-500 mt-1">Support & general questions</p>
+            {CONTACT_EMAILS.map(email => (
+              <a key={email} href={`mailto:${email}`} className="block text-[12px] font-semibold text-indigo-500 mt-2 break-all hover:underline">{email}</a>
+            ))}
+          </div>
           {[
-            { icon: Mail, title: 'Email us', desc: 'Support & general questions', action: SUPPORT_EMAIL, href: `mailto:${SUPPORT_EMAIL}` },
             { icon: HelpCircle, title: 'Help', desc: 'Read the FAQ on our homepage', action: 'View FAQ', href: '/#how' },
-            { icon: MessageCircle, title: 'Feedback', desc: 'Tell us what to build next', action: 'Send feedback', href: `mailto:${SUPPORT_EMAIL}?subject=Tutafy%20feedback` },
+            { icon: MessageCircle, title: 'Feedback', desc: 'Tell us what to build next', action: 'Send feedback', href: `mailto:${PRIMARY_CONTACT_EMAIL}?subject=Tutafy%20feedback` },
           ].map(c => (
             <a key={c.title} href={c.href} className="bg-white rounded-2xl border border-gray-100 p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
@@ -53,8 +62,8 @@ export default function ContactPage() {
         <div className="bg-gray-50 rounded-2xl p-6 text-center">
           <p className="text-[13px] text-gray-600">
             Prefer email? Reach us directly at{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-indigo-500 underline">{SUPPORT_EMAIL}</a>.
-            We usually reply within one business day.
+            <ContactEmails linkClassName="font-semibold text-indigo-500 underline" />.
+            {' '}{REPLY_PROMISE}
           </p>
         </div>
       </main>

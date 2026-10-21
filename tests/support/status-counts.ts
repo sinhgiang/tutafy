@@ -7,12 +7,17 @@
 //
 // What this adds, with the same markers and the same table (no second mechanism):
 //   1. A status file speaks about many branches at once, and a count is only true on the branch it was counted on. So a branch's
-//      markers are those inside the ENTRIES of the status file that name the branch in backticks (`helme/old-rule-wording`); an
-//      entry is a top-level "- " item. statusCountProblems(text, branch) checks exactly those, against the code of the branch that
-//      is checked out, with the line numbers of the whole file.
+//      markers are those inside the ENTRIES it OWNS: an entry is a top-level "- " item, and its owner is the branch its first line
+//      names right after the word "Nhánh" or "Branch" (ownerBranch). A branch that is only mentioned does not own the entry:
+//      master and main (the target, "đã gộp vào master") never do, and neither does a name after "không đụng", "tách từ",
+//      "xếp chồng trên" or "đích" (review T-0704: npm test on master was red from the old, right numbers of every other
+//      ticket). statusCountProblems(text, branch) checks exactly the owned entries, against the code of the branch that is
+//      checked out, with the line numbers of the whole file.
 //   2. A number written bare in front of the words of a counted list ("51 test files", "31 units") in such an entry, with no marker
 //      for that list on the same line, is reported: write it as [count: NAME=N]. Only the lists of BARE_WORDS are looked for; a
-//      list the table has no words for here is still only checked when someone writes the marker.
+//      list the table has no words for here is still only checked when someone writes the marker. "đơn vị" and "units" are said
+//      of two lists (the regular expression UNIT of line-refs.ts, and the array of unit words that line-refs.test.ts writes
+//      out): a bare number before them is reported with both names, and a marker of either on the line lets it stand.
 //   3. tests/status-counts.test.ts runs it over the status file wherever it is found (STATUS_FILE, or the Helme Brain next to this
 //      checkout), for the current branch. In a place without the Brain (the pull request check on GitHub) there is no status file to
 //      read; the test says so and the self-checks of the checker still run.
@@ -41,26 +46,48 @@ export function entriesOf(text: string): Entry[] {
   })
 }
 
-/** The entries that name the branch (written in backticks, as the status file writes branches). */
+/** Branches that are named in a status entry but never own it: where work is merged, not where it was done. */
+const NOT_AN_OWNER = /^(?:master|main|origin\/.*)$/
+
+/** A word in front of a branch name that says the entry does NOT belong to that branch (context, target, base). */
+const CONTEXT_BEFORE = /(?:không\s+đụng|không\s+chạm|tách\s+từ|xếp\s+chồng(?:\s+trên)?|đích|base|nền|trên)\W*$/iu
+
+/**
+ * The branch an entry belongs to: the name in backticks right after "Nhánh" or "Branch" ("Cùng nhánh" too) on the FIRST line of
+ * the entry. Not master or main, not origin/..., and not a name that stands after a word of context ("không đụng nhánh x",
+ * "xếp chồng trên nhánh x"). null when the entry names none (a note, or a read-only task with no branch).
+ */
+export function ownerBranch(entry: Entry): string | null {
+  const first = entry.text.split('\n')[0]
+  for (const m of first.matchAll(/(?<![\p{L}\p{N}_])(?:nhánh|branch)\s+`([^`\s]+)`/giu)) {
+    if (NOT_AN_OWNER.test(m[1])) continue
+    if (CONTEXT_BEFORE.test(first.slice(Math.max(0, m.index! - 30), m.index!))) continue
+    return m[1]
+  }
+  return null
+}
+
+/** The entries that belong to the branch (see ownerBranch); none for master or main. */
 export function entriesForBranch(text: string, branch: string): Entry[] {
-  const needle = `\`${branch}\``
-  return entriesOf(text).filter(e => e.text.includes(needle))
+  return entriesOf(text).filter(e => ownerBranch(e) === branch)
 }
 
 /** The words each counted list is called in a report, so a bare number in front of them can be told from a marker. */
-export const BARE_WORDS: { name: string; words: RegExp }[] = [
-  { name: 'TEST_FILES', words: /(?<![\w`[-])(\d+)\s+(?:test files|tệp test)(?![\w])/giu },
-  { name: 'LINE_REF_UNITS', words: /(?<![\w`[-])(\d+)\s+(?:units|đơn vị)(?![\w])/giu },
+export const BARE_WORDS: { names: string[]; words: RegExp }[] = [
+  { names: ['TEST_FILES'], words: /(?<![\w`[-])(\d+)\s+(?:test files|tệp test)(?![\w])/giu },
+  // "đơn vị" is said of two different lists, so a bare number before it cannot be given to one of them
+  { names: ['LINE_REF_UNITS', 'LINE_REF_TEST_UNITS'], words: /(?<![\w`[-])(\d+)\s+(?:units|đơn vị)(?![\w])/giu },
 ]
 
 /** Bare counts in a text: a number in front of the words of a counted list, on a line with no marker for that list. */
 export function bareCountProblems(text: string, label: string, firstLine = 1): string[] {
   const out: string[] = []
   lf(text).split('\n').forEach((line, i) => {
-    for (const { name, words } of BARE_WORDS) {
+    for (const { names, words } of BARE_WORDS) {
       for (const m of line.matchAll(words)) {
-        if (new RegExp(`\\[count:\\s*${name}\\s*=\\s*\\d+\\s*\\]`).test(line)) continue
-        out.push(`${label}:${firstLine + i}: "${m[0]}" counts a list but has no marker: write it as [count: ${name}=${m[1]}] (the number the code has now; npm run counts prints it)`)
+        if (names.some(name => new RegExp(`\\[count:\\s*${name}\\s*=\\s*\\d+\\s*\\]`).test(line))) continue
+        const write = names.map(name => `[count: ${name}=${m[1]}]`).join(' or ')
+        out.push(`${label}:${firstLine + i}: "${m[0]}" counts a list but has no marker: write it as ${write}${names.length > 1 ? ' (the list the sentence counts)' : ''} (the number the code has now; npm run counts prints it)`)
       }
     }
   })
