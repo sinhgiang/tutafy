@@ -52,6 +52,32 @@ export function arrayLiteralLength(source: string, name: string): number {
   return items + (sawContent ? 1 : 0)
 }
 
+/**
+ * The alternatives of `const NAME = '(?:a|b|c)'`, a regular-expression list written as one string (the closed list of units in
+ * tests/support/line-refs.ts): the `|` at the top level of its outer group, plus one. Brackets, groups and escapes are skipped.
+ */
+export function alternativesIn(source: string, name: string): number {
+  const decl = new RegExp(`(?:^|\\n)(?:export )?const ${name}\\b[^=\\n]*=\\s*'((?:[^'\\\\\\n]|\\\\.)*)'`).exec(source)
+  if (!decl) throw new Error(`no "const ${name} = '...'" in the file`)
+  // the literal is JavaScript source: read it the way JavaScript does (an escaped letter is the letter, a doubled backslash one backslash)
+  let body = new Function(`return '${decl[1]}'`)() as string
+  const outer = /^\(\?:/.exec(body)
+  if (outer && body.endsWith(')')) body = body.slice(outer[0].length, -1)
+  let depth = 0
+  let inClass = false
+  let alternatives = 1
+  for (let i = 0; i < body.length; i++) {
+    const c = body[i]
+    if (c === '\\') { i++; continue }
+    if (inClass) { if (c === ']') inClass = false; continue }
+    if (c === '[') inClass = true
+    else if (c === '(') depth++
+    else if (c === ')') depth--
+    else if (c === '|' && depth === 0) alternatives++
+  }
+  return alternatives
+}
+
 /** How many tests a test file declares: its `test(` calls at the start of a line. */
 export const testsIn = (source: string): number => (source.match(/^test(?:\.\w+)?\(/gm) ?? []).length
 
@@ -97,6 +123,8 @@ export const COUNTED_LISTS: Record<string, CountedList> = {
   OUT_OF_SCOPE: { what: 'absolute sentences of the Privacy page declared out of scope, with a reason', file: 'tests/support/privacy-promises.ts', count: exportOf('tests/support/privacy-promises.ts', 'OUT_OF_SCOPE') },
   PRIVACY_PROMISE_TESTS: { what: 'tests in tests/privacy-promises.test.ts', file: 'tests/privacy-promises.test.ts', count: testsOf('tests/privacy-promises.test.ts') },
   TEST_FILES: { what: 'test files (tests/*.test.ts) that npm test runs', file: 'tests', count: () => filesIn('tests', /\.test\.ts$/).filter(f => f.split('/').length === 2).length },
+  LINE_REF_UNITS: { what: 'units of counting or measuring (test, ms, tệp, ...) that make a number NOT a line in a citation: the closed list UNIT of tests/support/line-refs.ts', file: 'tests/support/line-refs.ts', count: () => alternativesIn(readRepo('tests/support/line-refs.ts'), 'UNIT') },
+  STATUS_COUNT_TESTS: { what: 'tests in tests/status-counts.test.ts', file: 'tests/status-counts.test.ts', count: testsOf('tests/status-counts.test.ts') },
   COUNT_LIST_TESTS: { what: 'tests in tests/counted-lists.test.ts', file: 'tests/counted-lists.test.ts', count: testsOf('tests/counted-lists.test.ts') },
 }
 
