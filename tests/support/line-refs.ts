@@ -6,8 +6,17 @@
 // checkout and N and M are lines of it (1 <= N <= M <= the number of lines). Whether the lines still show the claim is a human's
 // check; a citation that is merely out of date but still inside the file passes.
 //
+// NOT read (so not checked): a line number with no file name in the same phrase ("dòng 80" alone, "(dòng 23-24)" after a
+// sentence that named the file earlier), the form "path#L40", a number written in words, a file name without one of the
+// extensions below, and a path written with "\" . Only the numbers of a phrase that names the file are checked.
+//
 // Forms read:   `path` dòng N      `path` dòng N-M      path:N      path:N-M      path line N      path lines N-M
-// (a "-", an en dash or an em dash between N and M). A path is a name with an extension of source, data or text (ts, tsx, js, mjs,
+//               a LIST after any of them, every number and every range is checked:  `path` dòng 64 và 99   dòng 75, 88
+//               dòng 163 và 280-281   path:10-12, 40   path lines 3 and 9   (separators: ", ", " và ", ", và ", " and ")
+//               the numbers first:  dòng 75-93 của `path`   dòng 64 và 99 của path   lines 3-9 of path   dòng 5 trong tệp path
+// (a "-", an en dash or an em dash between N and M). In a list a number is a line unless a word that is not a connector
+// (của, ở, trong, of, in, và, and) follows it, so "dòng 12 và 300 test khác" reads only 12; but a bare number after a comma is
+// always a line, so write "dòng 18-20, trả mã 401" and not "dòng 18-20, 401" (401 is not a line of the file). A path is a name with an extension of source, data or text (ts, tsx, js, mjs,
 // json, md, sql, css, yml ...), with folders in front of it or alone. A path is read from the repository root; if no file is there,
 // it may be the end of a longer path ("settings/page.tsx") or a bare file name, and it is looked up among all files of the
 // repository (node_modules and build folders are not searched). It is wrong only when it is too short for EVERY file it names.
@@ -27,16 +36,32 @@ export type LineRef = { raw: string; file: string; from: number; to: number; lin
 const EXT = '(?:tsx?|jsx?|mjs|cjs|json|md|mdx|sql|css|ya?ml|html|txt|toml|sh)'
 const SEG = '(?:[\\w.@-]|\\[[\\w.-]+\\]|\\([\\w.-]+\\))+'
 const PATH = `(?:${SEG}/)*${SEG}\\.${EXT}`
-const RANGE = '(\\d+)(?:\\s*[-\\u2013\\u2014]\\s*(\\d+))?'
-// path, then closing quotes/backticks/brackets, then ":N-M" or " dòng N-M" / " line N-M" / " (dòng N-M)"
-const REF = new RegExp(
-  `(?<![\\w./@:-])(${PATH})(?![\\w])(?:[\`'")\\]]*)(?::${RANGE}|[\\s,(]+(?:d\\u00f2ng|lines?)\\s+${RANGE})`,
+const ITEM = '\\d+(?!\\d)(?:\\s*[-\\u2013\\u2014]\\s*\\d+(?!\\d))?'
+// the words that may follow a number in a list without making it a count of something else ("dòng 64 và 99 của tệp x.ts")
+const CONNECTOR = '(?:c\\u1ee7a|\\u1edf|trong|of|in|v\\u00e0|and)'
+// A number after ", " / " và " / " and " is one more line of the same citation, unless a word that is not a connector follows it
+// ("dòng 12 và 300 test khác": 300 counts tests). The first number is always a line.
+const MORE = `(?:\\s*,\\s*(?:(?:v\\u00e0|and)\\s+)?|\\s+(?:v\\u00e0|and)\\s+)${ITEM}(?!\\s*(?!${CONNECTOR}(?!\\p{L}))\\p{L})`
+const LIST = `${ITEM}(?:${MORE})*`
+const OF = '(?:c\\u1ee7a|\\u1edf|trong|of|in)'
+// 1. path, then closing quotes/backticks/brackets, then ":LIST" or " dòng LIST" / " line LIST" / " (dòng LIST)"
+const PATH_FIRST = new RegExp(
+  `(?<![\\w./@:-])(${PATH})(?![\\w])(?:[\`'")\\]]*)(?::(${LIST})|[\\s,(]+(?:d\\u00f2ng|lines?)\\s+(${LIST}))`,
+  'giu',
+)
+// 2. "dòng LIST của `path`", "lines LIST of path", "dòng LIST trong tệp path"
+const NUMBER_FIRST = new RegExp(
+  `(?<![\\p{L}\\d])(?:d\\u00f2ng|lines?)\\s+(${LIST})\\s+${OF}\\s+(?:(?:t\\u1ec7p|file)\\s+)?[\`'"(]*(${PATH})(?![\\w])`,
   'giu',
 )
 
-/** Every line citation of a text, in the order they are written. */
+/** The lines a list of numbers names: "64 và 99" -> 64 and 99, "163 và 280-281" -> 163 and 280-281. */
+function itemsOf(list: string): { from: number; to: number }[] {
+  return [...list.matchAll(/(\d+)(?:\s*[-–—]\s*(\d+))?/g)].map(m => ({ from: Number(m[1]), to: m[2] === undefined ? Number(m[1]) : Number(m[2]) }))
+}
+
+/** Every line citation of a text, in the order they are written; a list of lines gives one citation for each number or range. */
 export function lineRefsIn(text: string): LineRef[] {
-  const out: LineRef[] = []
   const lineStarts = [0]
   for (let i = 0; i < text.length; i++) if (text[i] === '\n') lineStarts.push(i + 1)
   const lineOf = (pos: number) => {
@@ -45,9 +70,22 @@ export function lineRefsIn(text: string): LineRef[] {
     while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (lineStarts[mid] <= pos) lo = mid; else hi = mid - 1 }
     return lo + 1
   }
-  for (const m of text.matchAll(REF)) {
-    const [from, to] = m[2] !== undefined ? [m[2], m[3]] : [m[4], m[5]]
-    out.push({ raw: m[0], file: m[1], from: Number(from), to: to === undefined ? Number(from) : Number(to), line: lineOf(m.index ?? 0) })
+  const found: { start: number; end: number; refs: LineRef[] }[] = []
+  for (const m of text.matchAll(PATH_FIRST)) {
+    const start = m.index ?? 0
+    found.push({ start, end: start + m[0].length, refs: itemsOf(m[2] ?? m[3]).map(i => ({ raw: m[0], file: m[1], ...i, line: lineOf(start) })) })
+  }
+  for (const m of text.matchAll(NUMBER_FIRST)) {
+    const start = m.index ?? 0
+    found.push({ start, end: start + m[0].length, refs: itemsOf(m[1]).map(i => ({ raw: m[0], file: m[2], ...i, line: lineOf(start) })) })
+  }
+  found.sort((a, b) => a.start - b.start)
+  const out: LineRef[] = []
+  let readUpTo = 0
+  for (const f of found) {
+    if (f.start < readUpTo) continue // inside a citation already read
+    out.push(...f.refs)
+    readUpTo = f.end
   }
   return out
 }

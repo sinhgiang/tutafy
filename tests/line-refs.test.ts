@@ -197,3 +197,70 @@ test('a workflow runs on every pull request: type check, the tests and the line-
   assert.match(pkg['line-refs'], /tests\/support\/line-refs-cli\.ts/)
   assert.match(pkg.test, /tests\/\*\.test\.ts/, 'npm test runs every test file, so this file is in it')
 })
+
+// ---- lists of lines and "lines N-M of file" (review of T-0684) --------------------------------------------------------
+
+test('a list of lines is read to the last number: "dòng 64 và 99", "dòng 75, 88", "dòng 163 và 280-281", "dòng 1, 2 và 3"', () => {
+  const pick = (t: string) => lineRefsIn(t).map(r => `${r.file}:${r.from}-${r.to}`)
+  assert.deepEqual(pick('`src/app/auth/callback/route.ts` dòng 64 và 99'), ['src/app/auth/callback/route.ts:64-64', 'src/app/auth/callback/route.ts:99-99'])
+  assert.deepEqual(pick('`tests/x.test.ts` dòng 75, 88'), ['tests/x.test.ts:75-75', 'tests/x.test.ts:88-88'])
+  assert.deepEqual(pick('`src/app/api/bookings/route.ts` dòng 163 và 280-281'), ['src/app/api/bookings/route.ts:163-163', 'src/app/api/bookings/route.ts:280-281'])
+  assert.deepEqual(pick('`a.ts` dòng 1, 2 và 3'), ['a.ts:1-1', 'a.ts:2-2', 'a.ts:3-3'])
+  assert.deepEqual(pick('`a.ts` dòng 1, và 3'), ['a.ts:1-1', 'a.ts:3-3'])
+  assert.deepEqual(pick('a.ts lines 4 and 9-12'), ['a.ts:4-4', 'a.ts:9-12'])
+  assert.deepEqual(pick('a.ts:64 và 99'), ['a.ts:64-64', 'a.ts:99-99'])
+  assert.deepEqual(pick('a.ts:10-12, 40'), ['a.ts:10-12', 'a.ts:40-40'])
+  // a number that counts something else is not a line
+  assert.deepEqual(pick('`a.ts` dòng 12 và 300 test khác'), ['a.ts:12-12'])
+  assert.deepEqual(pick('a.ts:12, 3 files changed'), ['a.ts:12-12'])
+  assert.deepEqual(pick('a.ts dòng 12, rồi 300'), ['a.ts:12-12'])
+})
+
+test('"dòng N-M của file" and "lines N-M of file" are read, with a list, a path or a bare name', () => {
+  const pick = (t: string) => lineRefsIn(t).map(r => `${r.file}:${r.from}-${r.to}`)
+  assert.deepEqual(pick('dòng 75-93 của `tests/accessibility.test.ts`'), ['tests/accessibility.test.ts:75-93'])
+  assert.deepEqual(pick('(dòng 75-93 của tests/accessibility.test.ts)'), ['tests/accessibility.test.ts:75-93'])
+  assert.deepEqual(pick('Dòng 64 và 99 của `src/lib/x.ts`'), ['src/lib/x.ts:64-64', 'src/lib/x.ts:99-99'])
+  assert.deepEqual(pick('lines 3-9 of src/lib/x.ts'), ['src/lib/x.ts:3-9'])
+  assert.deepEqual(pick('line 12 in src/lib/x.ts'), ['src/lib/x.ts:12-12'])
+  assert.deepEqual(pick('dòng 30 trong tệp `settings/page.tsx`'), ['settings/page.tsx:30-30'])
+  assert.deepEqual(pick('dòng 5 ở file role-switch.ts'), ['role-switch.ts:5-5'])
+  // no path: nothing to check
+  assert.deepEqual(pick('dòng 75-93 của trang đăng nhập; lines 3-9 of the log'), [])
+  // a citation is read once: "path dòng N" followed by "của path" is not read twice
+  assert.deepEqual(pick('`a.ts` dòng 3 và 5 của `b.ts`'), ['a.ts:3-3', 'a.ts:5-5'])
+})
+
+test('the last number of a list is checked: "src/lib/role-switch.ts dòng 73 và 84" on a file of 82 lines is wrong', () => {
+  const files = { 'src/lib/role-switch.ts': 82 }
+  const wrong = lineRefProblems('`src/lib/role-switch.ts` dòng 73 và 84', 'status.md', fake(files))
+  assert.equal(wrong.length, 1)
+  assert.match(wrong[0], /cites line 84 but src\/lib\/role-switch\.ts has only 82 lines/)
+  assert.deepEqual(lineRefProblems('`src/lib/role-switch.ts` dòng 73 và 82', 'status.md', fake(files)), [])
+  // every form of the list, each red when its last number is past the end and green when it is not
+  for (const [bad, good] of [
+    ['`a.ts` dòng 10, 83', '`a.ts` dòng 10, 82'],
+    ['`a.ts` dòng 10, và 83', '`a.ts` dòng 10, và 82'],
+    ['`a.ts` dòng 10, 20 và 83', '`a.ts` dòng 10, 20 và 82'],
+    ['`a.ts` dòng 60 và 80-83', '`a.ts` dòng 60 và 80-82'],
+    ['a.ts lines 3 and 83', 'a.ts lines 3 and 82'],
+    ['a.ts:10, 83', 'a.ts:10, 82'],
+    ['dòng 70-83 của `a.ts`', 'dòng 70-82 của `a.ts`'],
+    ['dòng 10 và 83 của a.ts', 'dòng 10 và 82 của a.ts'],
+    ['lines 3-83 of a.ts', 'lines 3-82 of a.ts'],
+  ]) {
+    assert.equal(lineRefProblems(bad, 'x', fake({ 'a.ts': 82 })).length, 1, bad)
+    assert.deepEqual(lineRefProblems(good, 'x', fake({ 'a.ts': 82 })), [], good)
+  }
+})
+
+test('a list in a file given to the CLI: the last number past the end exits 1', () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'tutafy-line-refs-list-'))
+  const n = lineCount(read('package.json'))
+  const bad = path.join(dir, 'list.md')
+  writeFileSync(bad, `- first fine, last past the end: \`package.json\` dòng 1 và ${n + 3}\n- and: dòng 1-${n + 50} của \`package.json\`\n`)
+  const out = runCli(bad)
+  assert.equal(out.status, 1, out.stdout + out.stderr)
+  assert.match(out.stdout, new RegExp(`list\.md:1: .*cites line ${n + 3} but package\.json has only ${n} lines`))
+  assert.match(out.stdout, new RegExp(`list\.md:2: .*cites lines 1-${n + 50} but package\.json`))
+})
