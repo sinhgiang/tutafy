@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GraduationCap, ArrowLeft } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
 import { SiteFooter } from '@/components/SiteFooter'
+import { ContactEmails } from '@/components/ContactEmails'
 
 export const metadata = pageMetadata('terms')
 
@@ -64,7 +65,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="9. Contact">
-            <p>Questions? Email <a href="mailto:tubxeebyajtube@gmail.com" className="text-indigo-500 hover:underline">tubxeebyajtube@gmail.com</a>.</p>
+            <p>Questions? Email <ContactEmails linkClassName="text-indigo-500 hover:underline" />.</p>
           </Section>
 
           <p className="text-[12px] text-gray-500 border-t border-gray-100 pt-6">These terms are provided for transparency and to meet advertising and app-store requirements. They are not legal advice; please have a lawyer review them for your jurisdiction before relying on them commercially.</p>
