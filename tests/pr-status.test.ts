@@ -44,9 +44,13 @@ test('the reader leaves alone what does not say a pull request is waiting', () =
   assert.deepEqual(prs('#35 đã gộp, #36 xong'), [])
   assert.deepEqual(prs('chờ gộp trước đó; nay đã gộp #35'), [])
   assert.deepEqual(prs('pull request #35 is merged, hết chờ gộp'), [])
-  // far from the phrase, or on another line
+  // far from the phrase on its line; in another paragraph; in another list item; more than MAX_LINES lines away in the item
   assert.deepEqual(prs(`pull request #41 ${'x'.repeat(200)} chờ gộp`), [])
-  assert.deepEqual(prs('pull request #41\nchờ gộp'), [])
+  assert.deepEqual(prs('pull request #41\n\nchờ gộp'), [])
+  assert.deepEqual(prs('- T-1: pull request #41 đích master\n- T-2: chờ gộp'), [])
+  assert.deepEqual(prs(`- T-1: chờ gộp\n${'  - dòng\n'.repeat(6)}  - pull request #41`), [])
+  // "chủ đã gộp" is the past, not a waiting phrase
+  assert.deepEqual(prs('W-1844: chủ đã gộp pull request #1'), [])
   // "chờ" is not "chờ gộp"; no phrase, no number; a colour is not a pull request
   assert.deepEqual(prs('pull request #37 vẫn chờ review, chờ Chief xem'), [])
   assert.deepEqual(prs('gộp pull request #37 sau khi chủ tạo hộp thư'), [])
@@ -203,4 +207,70 @@ test('the pull request workflow runs the check, with a token that can only read 
   assert.match(wf, /^permissions:\s*\n\s+contents: read\s*\n\s+pull-requests: read/m)
   const pkg = JSON.parse(read('package.json')).scripts as Record<string, string>
   assert.match(pkg['pr-status'], /tests\/support\/pr-status-cli\.ts/)
+})
+
+// ---- the sentences the reviews quoted, in the place they stood (review of T-0693) ---------------------------------------
+
+// reports/review/2026-10-20-T-0620-toiuuram.md note 1: the status file said "chờ review rồi chủ gộp (W-1882)" and, on the next
+// line of the same entry, "pull request MỚI #17 ... đã đẩy". The words and the number are on two lines.
+const T0620_ENTRY = [
+  '- T-0620 (Tutafy, trang chủ): xong, chờ review rồi chủ gộp (W-1882).',
+  '  - Nhánh `helme/sitemap-fix`, pull request MỚI #17 (https://github.com/sinhgiang/tutafy/pull/17) đã đẩy, commit `bccc1d6`.',
+].join('\n')
+// reports/review/2026-10-21-T-0680-toiuuram.md note 1: "commit `1bdd003` ... Việc chờ gộp: W-2061", with #34 before it.
+const T0680_ENTRY = 'commit `1bdd003`, đã đẩy; pull request #34 đích `master` (https://github.com/sinhgiang/tutafy/pull/34). Việc chờ gộp: W-2061 (kind do, kèm link).'
+// the "Đang tắc" line of the status file for W-1844
+const W1844_LINE = '- W-1844: chủ gộp pull request #1 của Tutafy (https://github.com/sinhgiang/tutafy/pull/1). Chưa có ảnh chụp giao diện.'
+
+test('the T-0620 sentence is caught: "chờ review rồi chủ gộp" on one line, the number on the next line of the same entry', () => {
+  assert.deepEqual(waitingMentionsIn(T0620_ENTRY).map(m => [m.pr, m.line, m.phrase]), [[17, 1, 'chờ review rồi chủ gộp']])
+  const report = mergedWaitingReport(T0620_ENTRY, 'status.md', stateTable({ 17: 'MERGED' }))
+  assert.deepEqual(report.problems, ['status.md:1: pull request #17 is MERGED on GitHub but the text still says "chờ review rồi chủ gộp" near it'])
+  assert.deepEqual(mergedWaitingReport(T0620_ENTRY, 'status.md', stateTable({ 17: 'OPEN' })).problems, [])
+  // the same two lines as two separate entries are not tied together
+  assert.deepEqual(waitingMentionsIn(T0620_ENTRY.replace('\n  - Nhánh', '\n- Nhánh')), [])
+})
+
+test('the T-0680 sentence is caught: "Việc chờ gộp: W-2061" after the number of the pull request', () => {
+  const report = mergedWaitingReport(T0680_ENTRY, 'status.md', stateTable({ 34: 'MERGED' }))
+  assert.equal(report.problems.length, 1)
+  assert.match(report.problems[0], /pull request #34 is MERGED .*"chờ gộp"/)
+})
+
+test('"W-1844: chủ gộp pull request #1" is caught with no "chờ" in front of it, and cleared when the line says it is merged', () => {
+  assert.deepEqual(waitingMentionsIn(W1844_LINE).map(m => [m.pr, m.phrase]), [[1, 'chủ gộp']])
+  assert.equal(mergedWaitingReport(W1844_LINE, 'status.md', stateTable({ 1: 'MERGED' })).problems.length, 1)
+  assert.deepEqual(mergedWaitingReport(W1844_LINE, 'status.md', stateTable({ 1: 'OPEN' })).problems, [])
+  const fixed = '- W-1844: pull request #1 đã gộp (commit gộp a8aee67), việc gộp xong. Chưa có ảnh chụp giao diện.'
+  assert.deepEqual(waitingMentionsIn(fixed), [])
+})
+
+test('"chờ ... gộp" with a few words between, and "chủ gộp" in the middle of a sentence', () => {
+  assert.deepEqual(prs('xong, chờ Chief xem rồi chủ gộp pull request #9'), [9])
+  assert.deepEqual(prs('đã review approve, chờ chủ gộp. PR #9'), [9])
+  assert.deepEqual(prs('chờ một, hai, ba, bốn, năm, sáu từ rồi gộp #9'), []) // more than five words between
+  assert.deepEqual(prs('chờ review lại rồi chủ gộp #9'), [9])
+})
+
+test('a "đã gộp" belongs to the number it stands next to: "PR #38 đã gộp, PR #39 chờ gộp" still asks about #39', () => {
+  const merged = stateTable({ 38: 'MERGED', 39: 'MERGED' })
+  for (const line of ['PR #38 đã gộp, PR #39 chờ gộp', 'pull request #39 chờ gộp sau #38 (đã gộp)', '- T-1: #38 đã gộp.\n  - #39 chờ gộp sau #38']) {
+    assert.deepEqual(prs(line), [39], line)
+    const report = mergedWaitingReport(line, 's.md', merged)
+    assert.equal(report.problems.length, 1, line)
+    assert.match(report.problems[0], /pull request #39 is MERGED/)
+  }
+  // and when #39 itself says it is merged it is not asked
+  assert.deepEqual(prs('PR #38 đã gộp, PR #39 đã gộp, chờ gộp #40'), [40])
+  assert.deepEqual(prs('pull request #39 chờ gộp sau #38 (đã gộp); nay #39 đã gộp'), [])
+})
+
+test('npm run pr-status -- <file> exits 1 on "chủ gộp pull request #N" and on a number on the line after the words (pretend gh)', () => {
+  const { env, dir } = pretendGh(GH_TABLE)
+  const file = path.join(dir, 'status-items.md')
+  writeFileSync(file, '## Đang tắc\n\n- W-1: chủ gộp pull request #37 của Tutafy.\n\n- T-2: xong, chờ review rồi chủ gộp (W-3).\n  - Nhánh x, pull request MỚI #37 đã đẩy.\n')
+  const out = runCli(file, env)
+  assert.equal(out.status, 1, out.stdout + out.stderr)
+  assert.match(out.stdout, /status-items\.md:3: pull request #37 is MERGED .*"chủ gộp"/)
+  assert.match(out.stdout, /status-items\.md:5: pull request #37 is MERGED .*"chờ review rồi chủ gộp"/)
 })

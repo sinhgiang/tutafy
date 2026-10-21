@@ -1,17 +1,26 @@
 // T-0693: a text must not say a pull request is waiting to be merged after GitHub has merged it.
 //
 // The mistake it stops (lock merged-pr-status-stale; the T-0620 and T-0680 reviews): the status file says "pull request #12 ...
-// chờ gộp" (waiting to merge) or "chưa gộp" (not merged yet), but the owner already pressed Merge. The entry is written when the
+// chờ gộp" (waiting to merge) or "chủ gộp pull request #12", but the owner already pressed Merge. The entry is written when the
 // work is handed in and nobody reads it again after the merge.
 //
-// The rule: every pull request number written NEAR a waiting phrase must not be MERGED on GitHub.
-//   - A waiting phrase: "chờ gộp", "chờ chủ gộp", "chưa gộp", "chưa được gộp", "chờ merge", "awaiting merge", "waiting to be merged",
-//     "not (yet) merged" (any case).
-//   - Near: on the same line, at most NEAR characters before or after the phrase.
+// The rule: every pull request number that belongs to a waiting phrase must not be MERGED on GitHub.
+//   - A waiting phrase: "chờ ... gộp" with up to five words between ("chờ gộp", "chờ chủ gộp", "chờ review rồi chủ gộp"), "chủ gộp"
+//     (the owner has to merge: "W-1844: chủ gộp pull request #1"; "chủ đã gộp" is not one), "chưa gộp", "chưa được gộp", "chờ merge",
+//     "awaiting merge", "waiting to be merged", "not (yet) merged" (any case).
 //   - A pull request number: "#37", "pull request 37", "PR #37", "/pull/37".
-//   - A number that has "đã gộp"/"is merged" written right next to it is the text saying it is merged: not stale, not asked.
+//   - It belongs to the phrase when it is on the same line, at most NEAR characters away; or, when the phrase has no number on its
+//     line, the nearest number of the same ITEM (a list item "- T-xxxx ..." / "- W-xxxx ..." with its indented lines, up to
+//     MAX_LINES lines away): "xong, chờ review rồi chủ gộp (W-1882)" with "pull request MỚI #17" on the next line.
+//   - A number is the text saying it is merged, so not asked, when "đã gộp" / "đã được gộp" / "gộp xong" / "is merged" is written
+//     next to it AND it is that number's own word: the word belongs to the nearest number on its line, so in
+//     "PR #38 đã gộp, PR #39 chờ gộp" it is #38's and #39 is asked.
 // GitHub is asked read-only (`gh pr view <n> --json state`). When GitHub cannot be reached (no gh, not logged in, no network, a
 // pull request that gh cannot find) the number is skipped and listed, never a failure: a check that fails offline would be turned off.
+//
+// NOT caught: a waiting sentence in other words ("còn mở", "chưa vào master", "đợi duyệt"), a phrase with no pull request number in
+// its item or more than MAX_LINES lines away, a number written without "#", "PR" or "pull request" in front, and a number whose
+// state GitHub does not give. A pull request that is waiting in a sentence that also has another number is asked for both.
 //
 // Used by tests/pr-status.test.ts (in npm test: the fixtures with a pretend gh, and the Markdown files of the repository), by
 // `npm run pr-status -- <file>` (any file: the project's status file in the Helme Brain is outside this repository) and by the pull
@@ -19,35 +28,94 @@
 import { spawnSync } from 'node:child_process'
 import { ROOT } from './line-refs.ts'
 
-/** How many characters on either side of a waiting phrase a pull request number still counts as being "near" it. */
+/** How many characters on either side of a waiting phrase a pull request number on the same line still belongs to it. */
 export const NEAR = 160
+/** How many lines away, inside one item, the nearest number may be when the phrase's own line has none. */
+export const MAX_LINES = 5
 
-const WAITING = /ch(?:ờ|o)\s+(?:chủ\s+)?(?:được\s+)?(?:gộp|merge)|chưa\s+(?:được\s+)?(?:gộp|merge)|awaiting\s+merge|waiting\s+(?:to\s+be\s+)?merged?|not\s+(?:yet\s+)?merged/giu
+const WAITING = new RegExp([
+  'ch(?:ờ|o)(?:\\s+[^\\s.;:]+){0,5}?\\s+(?:chủ\\s+)?(?:được\\s+)?(?:gộp|merge)(?![\\p{L}])', // chờ gộp, chờ chủ gộp, chờ review rồi chủ gộp
+  'chủ\\s+(?:cần\\s+)?gộp(?![\\p{L}])', // chủ gộp pull request #1
+  'chưa\\s+(?:được\\s+)?(?:gộp|merge)(?![\\p{L}])',
+  'awaiting\\s+merge', 'waiting\\s+(?:to\\s+be\\s+)?merged?', 'not\\s+(?:yet\\s+)?merged',
+].join('|'), 'giu')
 const PR_NUMBER = /(?:\b(?:pull request|PR)\s*#?|#|\/pull\/)(\d{1,5})\b/giu
 // "đã gộp" / "đã được gộp" / "gộp xong" / "is merged" next to the number: the text itself says it is done
-const DONE = /đã\s+(?:được\s+)?(?:gộp|merge)|gộp\s+xong|\b(?:has been|was|is|got)\s+merged\b|đã\s+vào\s+(?:master|main)/iu
+const DONE = /đã\s+(?:được\s+)?(?:gộp|merge)|gộp\s+xong|\b(?:has been|was|is|got)\s+merged\b|đã\s+vào\s+(?:master|main)/giu
+/** How far (characters) a "đã gộp" may be from the number it belongs to: after it, before it. */
+const DONE_AFTER = 36
+const DONE_BEFORE = 24
 
 export type Mention = { pr: number; line: number; phrase: string }
 
-/** The pull requests written near a waiting phrase, with the line of the text and the phrase. */
+type Pr = { pr: number; line: number; start: number; end: number }
+
+/** Where each item of a text starts: a heading, a list marker in column 0, or (outside a list) a paragraph after a blank line. */
+function itemStarts(lines: string[]): number[] {
+  const starts: number[] = []
+  let inList = false
+  lines.forEach((l, i) => {
+    const heading = /^#{1,6}\s/.test(l)
+    const marker = /^(?:[-*]|\d+[.)])\s/.test(l)
+    if (heading || marker) { starts.push(i); inList = marker; return }
+    if (l.trim() !== '' && !inList && (i === 0 || lines[i - 1].trim() === '')) starts.push(i)
+    else if (i === 0 && l.trim() !== '') starts.push(i)
+  })
+  return starts
+}
+
+/** The pull requests that belong to a waiting phrase, with the line of the phrase and the phrase. */
 export function waitingMentionsIn(text: string): Mention[] {
   const out: Mention[] = []
   const seen = new Set<string>()
   const lines = text.split('\n')
-  lines.forEach((lineText, i) => {
-    const prs = [...lineText.matchAll(PR_NUMBER)].map(m => ({ pr: Number(m[1]), start: m.index ?? 0, end: (m.index ?? 0) + m[0].length }))
+  const starts = itemStarts(lines)
+  starts.forEach((from, k) => {
+    const to = k + 1 < starts.length ? starts[k + 1] : lines.length
+    const prs: Pr[] = []
+    const done = new Set<number>() // the numbers whose own "đã gộp" is written next to one of their mentions in this item
+    for (let i = from; i < to; i++) {
+      const here = [...lines[i].matchAll(PR_NUMBER)].map(m => ({ pr: Number(m[1]), line: i, start: m.index ?? 0, end: (m.index ?? 0) + m[0].length }))
+      prs.push(...here)
+      for (const d of lines[i].matchAll(DONE)) {
+        const ds = d.index ?? 0
+        const de = ds + d[0].length
+        // the "đã gộp" belongs to the nearest number of its line, if that number is close enough
+        let best: Pr | null = null
+        let bestDistance = Infinity
+        for (const p of here) {
+          const distance = p.end <= ds ? ds - p.end : p.start >= de ? p.start - de : 0
+          if (distance < bestDistance) { best = p; bestDistance = distance }
+        }
+        if (best && (best.end <= ds ? bestDistance <= DONE_AFTER : bestDistance <= DONE_BEFORE)) done.add(best.pr)
+      }
+    }
     if (prs.length === 0) return
-    for (const w of lineText.matchAll(WAITING)) {
-      const at = w.index ?? 0
-      for (const p of prs) {
-        const distance = p.end < at ? at - p.end : p.start > at + w[0].length ? p.start - (at + w[0].length) : 0
-        if (distance > NEAR) continue
-        const around = lineText.slice(Math.max(0, p.start - 24), Math.min(lineText.length, p.end + 36))
-        if (DONE.test(around)) continue // "#35 đã gộp" or "đã gộp #35": the text says so itself
-        const key = `${i}:${p.pr}`
-        if (seen.has(key)) continue
-        seen.add(key)
-        out.push({ pr: p.pr, line: i + 1, phrase: w[0] })
+    for (let i = from; i < to; i++) {
+      for (const w of lines[i].matchAll(WAITING)) {
+        const at = w.index ?? 0
+        const wEnd = at + w[0].length
+        const near = prs.filter(p => p.line === i && (p.end < at ? at - p.end : p.start > wEnd ? p.start - wEnd : 0) <= NEAR)
+        let owned = near
+        if (owned.length === 0) {
+          // no number on the phrase's own line: the nearest number of the item, by lines and then by characters
+          let best: Pr | null = null
+          let bestKey = Infinity
+          for (const p of prs) {
+            const lineGap = Math.abs(p.line - i)
+            if (p.line === i || lineGap > MAX_LINES) continue
+            const key = lineGap * 100000 + (p.line > i ? p.start : lines[p.line].length - p.end)
+            if (key < bestKey) { best = p; bestKey = key }
+          }
+          owned = best ? [best] : []
+        }
+        for (const p of owned) {
+          if (done.has(p.pr)) continue // the item says, next to that number, that it is merged
+          const key = `${i}:${p.pr}`
+          if (seen.has(key)) continue
+          seen.add(key)
+          out.push({ pr: p.pr, line: i + 1, phrase: w[0] })
+        }
       }
     }
   })
