@@ -1,5 +1,6 @@
 -- Let a tutor choose which lesson lengths they take, and type lengths of their own (T-0675, custom lengths T-0700).
 --
+-- allow-old-rule: history, the first version of this file as it was applied on the real database
 -- The first version of this file (lengths 30, 45, 60 and 90, at most four) was applied on the real database on 21 Oct 2026.
 -- This file is safe to run again: it adds nothing that is already there, and it replaces the two constraints so that custom
 -- lengths (T-0700) are accepted. Every value the first version accepted is still accepted, so no existing row is touched or
@@ -10,7 +11,9 @@
 --
 -- Two columns on public.tutors:
 --   lesson_durations         integer[]  the lengths (minutes) the booking page offers; null = the tutor
---                                       chose nothing, so the page keeps offering 30, 45, 60 and 90
+--                                       chose nothing, so the page keeps offering the four ready-made lengths:
+--                                       allow-old-rule: still true, these four are what a tutor who chose nothing gets
+--                                       30, 45, 60 and 90
 --   default_lesson_duration  integer    the length selected first; null = 60 (or the first length chosen
 --                                       when 60 is not among them)
 -- Both stay null for every existing tutor, so nothing changes for them until they save the new Settings

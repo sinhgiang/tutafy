@@ -1,7 +1,7 @@
 // Times a student can pick on the booking page, and the check that a new lesson does not run into another (T-0700).
 //
 // A length is any number of minutes the tutor offers (10 to 240, steps of 5: see src/lib/lesson-durations.ts), so nothing here
-// may assume 30, 45, 60 or 90: the free times step by length plus the tutor's buffer, a lesson ends length minutes after it
+// may assume a fixed set of lengths: the free times step by length plus the tutor's buffer, a lesson ends length minutes after it
 // starts, and two lessons clash when their minutes overlap, not only when they start at the same minute.
 
 export type AvailabilityRow = { day_of_week: number; start_time: string; end_time: string }
