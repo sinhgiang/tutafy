@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { getConsent } from '@/components/CookieConsent'
 import { sendGaEvent, sendAdsSignupConversion } from '@/lib/google-tag'
+import { saveOnboardingAvailability, checkAvailabilityInput, ONBOARDING_DAYS } from '@/lib/onboarding-availability'
 import { Zap, User, Clock, Share2, Check, ChevronRight, Copy, RefreshCw } from 'lucide-react'
 
 const TIMEZONES = [
@@ -13,7 +14,7 @@ const TIMEZONES = [
   'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo',
   'Asia/Shanghai', 'Asia/Singapore', 'Asia/Ho_Chi_Minh', 'Australia/Sydney', 'UTC',
 ]
-const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+const DAYS = ONBOARDING_DAYS
 const DAY_LABELS: Record<string, string> = {
   monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu',
   friday: 'Fri', saturday: 'Sat', sunday: 'Sun',
@@ -30,6 +31,8 @@ export default function OnboardingPage() {
   const [availDays, setAvailDays] = useState<string[]>(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'])
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('17:00')
+  // why the hours could not be saved (T-0728); the tutor stays on this step until they can
+  const [availError, setAvailError] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -80,23 +83,24 @@ export default function OnboardingPage() {
   }
 
   async function saveAvailability() {
+    // The next screen (share your booking link) only opens when the hours are really saved (src/lib/onboarding-availability.ts).
+    const problem = checkAvailabilityInput(availDays, startTime, endTime)
+    if (problem) { setAvailError(problem); return }
     setSaving(true)
+    setAvailError('')
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    // Delete existing and re-insert
-    await supabase.from('availability').delete().eq('tutor_id', user.id)
-    if (availDays.length > 0) {
-      await supabase.from('availability').insert(
-        availDays.map(day => ({
-          tutor_id: user.id,
-          day_of_week: day,
-          start_time: startTime,
-          end_time: endTime,
-          is_available: true,
-        }))
-      )
+    if (!user) {
+      setAvailError('Please sign in again, then choose your hours once more.')
+      setSaving(false)
+      return
     }
+    const result = await saveOnboardingAvailability(supabase, user.id, availDays, startTime, endTime)
     setSaving(false)
+    if (!result.ok) {
+      setAvailError(result.message)
+      toast.error(result.message)
+      return
+    }
     setStep(3)
   }
 
@@ -178,7 +182,7 @@ export default function OnboardingPage() {
               <div className="flex flex-wrap gap-2">
                 {DAYS.map(day => (
                   <button key={day} type="button"
-                    onClick={() => setAvailDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])}
+                    onClick={() => { setAvailError(''); setAvailDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]) }}
                     className={`text-[12px] font-semibold px-3 py-1.5 rounded-lg border transition-all ${
                       availDays.includes(day) ? 'bg-indigo-500 text-white border-indigo-500' : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
                     }`}>
@@ -190,13 +194,14 @@ export default function OnboardingPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Start time</label>
-                <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className={inp} />
+                <input type="time" value={startTime} onChange={e => { setAvailError(''); setStartTime(e.target.value) }} className={inp} />
               </div>
               <div>
                 <label className="block text-[12px] font-medium text-gray-600 mb-1.5">End time</label>
-                <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className={inp} />
+                <input type="time" value={endTime} onChange={e => { setAvailError(''); setEndTime(e.target.value) }} className={inp} />
               </div>
             </div>
+            {availError && <p role="alert" data-testid="availability-error" className="text-[12px] text-red-600">{availError}</p>}
             <p className="text-[11px] text-gray-400">You can fine-tune your schedule in Settings → Availability later.</p>
             <div className="flex gap-2">
               <button onClick={() => setStep(1)} className="flex-1 text-[13px] font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 py-2.5 rounded-xl transition-colors">Back</button>
