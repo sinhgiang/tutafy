@@ -267,6 +267,10 @@ test('a list in a file given to the CLI: the last number past the end exits 1', 
 
 // ---- a word after the last number does not let it off (second review of T-0684) ------------------------------------------------
 
+// The units the next test tries one by one (T-0704: counted as LINE_REF_TEST_UNITS). It is NOT the regular expression `UNIT` of
+// tests/support/line-refs.ts, which is counted as LINE_REF_UNITS: this list is what the test writes out, that one is what the code accepts.
+const TEST_UNIT_WORDS = ['test', 'tests', 'ký tự', 'chars', 'characters', 'ms', 'giây', 'seconds', 'phút', 'minutes', 'giờ', 'ngày', 'days', 'tệp', 'files', 'lần', 'times', 'dòng', 'lines', 'bytes', 'KB', 'trang', 'mục', 'items', 'cái', 'chỗ', 'bản', 'người', 'gia sư', 'học sinh', 'buổi', 'lessons', '%']
+
 test('every number of a list is checked whatever word follows it: only a unit of counting lets a number off', () => {
   const pick = (t: string) => lineRefsIn(t).map(r => `${r.file}:${r.from}-${r.to}`)
   // the real sentences of the status file, with a verb or a noun after the last number
@@ -281,7 +285,7 @@ test('every number of a list is checked whatever word follows it: only a unit of
   assert.deepEqual(pick('a.ts dòng 10 và 83.'), ['a.ts:10-10', 'a.ts:83-83'])
   assert.deepEqual(pick('a.ts dòng 10 và 83'), ['a.ts:10-10', 'a.ts:83-83'])
   // a unit of counting means the number counts something else
-  for (const unit of ['test', 'tests', 'ký tự', 'chars', 'characters', 'ms', 'giây', 'seconds', 'phút', 'minutes', 'giờ', 'ngày', 'days', 'tệp', 'files', 'lần', 'times', 'dòng', 'lines', 'bytes', 'KB', 'trang', 'mục', 'items', 'cái', 'chỗ', 'bản', 'người', 'gia sư', 'học sinh', 'buổi', 'lessons', '%']) {
+  for (const unit of TEST_UNIT_WORDS) {
     assert.deepEqual(pick(`a.ts dòng 12 và 300 ${unit} khác`), ['a.ts:12-12'], unit)
     assert.deepEqual(pick(`a.ts dòng 196, 45 ${unit}`), ['a.ts:196-196'], unit)
   }
