@@ -1,0 +1,31 @@
+# Runs on every pull request (T-0684): the type check, the tests, and the check that every line citation in the
+# Markdown files of the repository points inside its file. The tests need no secrets and send nothing anywhere.
+name: Pull request
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pull-request-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
+      - name: Line citations in the Markdown files point inside their files
+        run: npm run line-refs
