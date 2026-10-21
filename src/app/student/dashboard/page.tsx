@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { canBackToTutor, escapeLike } from '@/lib/role-switch'
 import { cleanUrl } from '@/lib/url'
 import { verifyStudentToken } from '@/lib/student-auth'
 import { Calendar, BookOpen, Video, Clock, ChevronRight, Star } from 'lucide-react'
@@ -36,10 +37,16 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
 
   const supabase = createAdminClient()
 
+  // A signed-in tutor whose own email this link is for gets a way back to the tutor side (T-0676).
+  // Anyone else (a student holding a link, a different account) sees nothing extra.
+  const { data: { user: sessionUser } } = await (await createClient()).auth.getUser()
+  const backToTutor = await canBackToTutor(supabase, sessionUser, email)
+
+  // `_` and `%` in an address are literal here, so one address never matches a different student's address
   const { data: students } = await supabase
     .from('students')
     .select('id, name, tutor_id, portal_token')
-    .ilike('email', email)
+    .ilike('email', escapeLike(email))
     .eq('status', 'active')
 
   if (!students?.length) {
@@ -78,6 +85,14 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
 
   return (
     <div className="space-y-5">
+      {backToTutor && (
+        <div className="flex justify-end">
+          <Link href="/dashboard" data-testid="back-to-tutor"
+            className="inline-flex items-center text-[12px] font-semibold text-indigo-600 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-colors rounded-lg px-3 py-1.5">
+            Back to tutor
+          </Link>
+        </div>
+      )}
       {/* Welcome */}
       <div className="bg-white rounded-xl border border-gray-100 p-5 flex items-center gap-4">
         <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">

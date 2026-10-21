@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { canViewAsStudent } from '@/lib/role-switch'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { MobileNav } from '@/components/layout/MobileNav'
@@ -15,6 +16,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const plan = (tutor.subscription_status as string) ?? 'free'
 
+  // Also a student of another tutor, with a verified email: offer "View as student" (T-0676)
+  const viewAsStudent = await canViewAsStudent(createAdminClient(), user)
+
   // Count unread messages from students
   const { count: unreadMessages } = await supabase
     .from('messages')
@@ -27,7 +31,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen bg-[#F7F8FA]">
       <Sidebar plan={plan} unreadMessages={unreadMessages ?? 0} />
       <div className="flex-1 flex flex-col min-w-0">
-        <Header tutor={tutor} />
+        <Header tutor={tutor} canViewAsStudent={viewAsStudent} />
         <main className="flex-1 p-4 md:p-7 pb-20 md:pb-7 overflow-y-auto">
           {children}
         </main>

@@ -12,6 +12,18 @@ type Filter = (r: Row) => boolean
 // one), so a test can say what the schema says: e.g. `lessons.currency` is 'USD' for every lesson.
 export type FakeDefaults = Record<string, Record<string, unknown | (() => unknown)>>
 
+function likeToRegExp(pattern: string): RegExp {
+  let out = ''
+  for (let i = 0; i < pattern.length; i++) {
+    const c = pattern[i]
+    if (c === '\\' && i + 1 < pattern.length) out += pattern[++i].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    else if (c === '%') out += '[\\s\\S]*'
+    else if (c === '_') out += '[\\s\\S]'
+    else out += c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  }
+  return new RegExp(`^${out}$`, 'i')
+}
+
 export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: FakeDefaults = {}) {
   const tables: Record<string, Row[]> = {}
   for (const [k, v] of Object.entries(initial)) tables[k] = v.map(r => ({ ...r }))
@@ -88,6 +100,8 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
       delete() { op = 'delete'; return q },
       eq(col: string, v: unknown) { filters.push(r => r[col] === v); return q },
       neq(col: string, v: unknown) { filters.push(r => r[col] !== v); return q },
+      // ilike as Postgres reads it: case-insensitive, % any text, _ any one character, a backslash makes the next one literal
+      ilike(col: string, pattern: string) { const re = likeToRegExp(pattern); filters.push(r => typeof r[col] === 'string' && re.test(r[col] as string)); return q },
       in(col: string, vs: unknown[]) { filters.push(r => vs.includes(r[col])); return q },
       is(col: string, v: unknown) { filters.push(r => (r[col] ?? null) === v); return q },
       gte(col: string, v: string) { filters.push(r => String(r[col]) >= v); return q },

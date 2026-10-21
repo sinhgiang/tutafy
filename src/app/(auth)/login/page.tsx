@@ -122,6 +122,12 @@ export default function LoginPage() {
                 Create one free
               </Link>
             </p>
+            <p className="text-center text-sm text-gray-500 mt-2">
+              Are you a student?{' '}
+              <Link href="/student/login" className="text-blue-600 hover:underline font-medium">
+                Log in here
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>
