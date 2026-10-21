@@ -101,19 +101,20 @@ test('the two 44px minimums leave out switches, and a switch gets an invisible 4
   assert.match(block, /\[role="switch"\]:not\(\[aria-hidden="true"\] \*\) \{\s*position: relative;/)
 })
 
-test('every button drawn at a fixed non-square size is a switch with aria-checked (the settings page has two)', () => {
+test('every button drawn at a fixed non-square size is a switch with aria-checked (the settings page has three)', () => {
   const shapes = fixedShapeButtons()
-  assert.ok(shapes.length >= 2, `expected the two settings switches, found ${shapes.length}`)
+  assert.ok(shapes.length >= 3, `expected the three settings switches, found ${shapes.length}`)
   assert.deepEqual(shapes.filter(s => !s.isSwitch).map(s => `${s.file}: ${s.shape}`), [], 'a button with a fixed non-square shape that is not a role="switch" would be stretched into a circle or a blob')
   assert.deepEqual(shapes.filter(s => !s.checked).map(s => s.file), [], 'a switch must say whether it is on (aria-checked)')
   const settings = read('src/app/(dashboard)/settings/page.tsx')
-  assert.equal([...settings.matchAll(/role="switch"/g)].length, 2)
+  assert.equal([...settings.matchAll(/role="switch"/g)].length, 3)
   for (const key of ['booking_url_active', 'trial_enabled']) assert.match(settings, new RegExp(`role="switch" aria-checked=\\{form\\.${key}\\}`))
+  assert.match(settings, /role="switch" aria-checked=\{shown\}/, 'the "Made with Tutafy" switch (T-0717) says whether it is on')
   // the drawn track is w-9 (36px) with a w-3.5 (14px) knob that rests 2px from the left (translate-x-0.5): to rest 2px from the right it
   // must travel 20px (translate-x-5); translate-x-4 (16px) left it 6px short of the end
-  assert.equal([...settings.matchAll(/inline-flex h-5 w-9 items-center rounded-full/g)].length, 2)
-  assert.equal([...settings.matchAll(/inline-block h-3\.5 w-3\.5 transform rounded-full/g)].length, 2)
-  assert.equal([...settings.matchAll(/\? 'translate-x-5' : 'translate-x-0\.5'/g)].length, 2)
+  assert.equal([...settings.matchAll(/inline-flex h-5 w-9 items-center rounded-full/g)].length, 3)
+  assert.equal([...settings.matchAll(/inline-block h-3\.5 w-3\.5 transform rounded-full/g)].length, 3)
+  assert.equal([...settings.matchAll(/\? 'translate-x-5' : 'translate-x-0\.5'/g)].length, 3)
   assert.ok(!/translate-x-4\b/.test(settings))
 })
 

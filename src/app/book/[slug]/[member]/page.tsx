@@ -3,6 +3,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { BookingForm } from '../BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
+import { loadShowMadeWith } from '@/lib/branding'
+import { MadeWithTutafy } from '@/components/MadeWithTutafy'
 import { GraduationCap, Globe, Clock } from 'lucide-react'
 
 // Booking page for a single Academy team member — same flow as /book/[slug],
@@ -25,6 +27,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
   // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
   const chosen = await loadChosenDurations(supabase, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
+  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
 
   // Use the admin client for the member lookup so we only ever select the
   // non-sensitive columns needed for a public page (never pay_rate/email).
@@ -165,6 +168,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
           />
         </div>
       </main>
+      <MadeWithTutafy show={showMadeWith} surface="booking-page" />
     </div>
   )
 }

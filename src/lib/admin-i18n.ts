@@ -32,6 +32,7 @@ const EN = {
   'nav.students': 'Students',
   'nav.revenue': 'Lesson payments to tutors',
   'nav.analytics': 'Analytics',
+  'nav.feedback': 'Feedback',
   'nav.settings': 'Settings',
 
   // ---- shared words ----
@@ -277,6 +278,24 @@ const EN = {
   'buyers.openPolar': 'Open Polar',
   'buyers.cut': 'Showing the newest {limit} of {total} buyers.',
 
+  // ---- Feedback (what tutors and students wrote in the Feedback box) ----
+  'feedback.title': 'Feedback',
+  'feedback.subtitle': 'What tutors and students wrote in the Feedback box, newest first',
+  'feedback.error': 'Could not read the feedback table, so the list below is not reliable. If migration 020 has not been applied to the database yet, that is the usual cause.',
+  'feedback.total': 'All messages',
+  'feedback.kind.bug': 'Bug',
+  'feedback.kind.idea': 'Idea',
+  'feedback.kind.question': 'Question',
+  'feedback.role.tutor': 'Tutor',
+  'feedback.role.student': 'Student',
+  'feedback.colWhen': 'When',
+  'feedback.colFrom': 'From',
+  'feedback.colType': 'Type',
+  'feedback.colMessage': 'Message',
+  'feedback.empty': 'No feedback yet',
+  'feedback.reply': 'Reply by email',
+  'feedback.cut': 'Showing the newest {limit} of {total} messages.',
+
   // ---- Tutors, Students, Analytics, Settings ----
   'tutors.title': 'All Tutors',
   'tutors.count': '{n} registered tutors',
@@ -359,6 +378,7 @@ const VI: Record<AdminKey, string> = {
   'nav.students': 'Học sinh',
   'nav.revenue': 'Tiền học sinh trả cho gia sư',
   'nav.analytics': 'Phân tích',
+  'nav.feedback': 'Góp ý',
   'nav.settings': 'Cài đặt',
 
   'common.unreadable': 'Chưa đọc được',
@@ -597,6 +617,24 @@ const VI: Record<AdminKey, string> = {
   'buyers.empty': 'Chưa có người mua nào',
   'buyers.openPolar': 'Mở Polar',
   'buyers.cut': 'Đang hiện {limit} người mua mới nhất trong tổng số {total}.',
+
+  // ---- Feedback (what tutors and students wrote in the Feedback box) ----
+  'feedback.title': 'Góp ý',
+  'feedback.subtitle': 'Những gì gia sư và học sinh viết trong ô góp ý, mới nhất trước',
+  'feedback.error': 'Chưa đọc được bảng góp ý, nên danh sách bên dưới chưa đáng tin. Nếu tệp migration 020 chưa được chạy trên cơ sở dữ liệu thì đó thường là nguyên nhân.',
+  'feedback.total': 'Tất cả góp ý',
+  'feedback.kind.bug': 'Lỗi',
+  'feedback.kind.idea': 'Ý tưởng',
+  'feedback.kind.question': 'Câu hỏi',
+  'feedback.role.tutor': 'Gia sư',
+  'feedback.role.student': 'Học sinh',
+  'feedback.colWhen': 'Lúc',
+  'feedback.colFrom': 'Từ',
+  'feedback.colType': 'Loại',
+  'feedback.colMessage': 'Nội dung',
+  'feedback.empty': 'Chưa có góp ý nào',
+  'feedback.reply': 'Trả lời qua email',
+  'feedback.cut': 'Đang hiện {limit} góp ý mới nhất trong tổng số {total}.',
 
   'tutors.title': 'Tất cả gia sư',
   'tutors.count': '{n} gia sư đã đăng ký',

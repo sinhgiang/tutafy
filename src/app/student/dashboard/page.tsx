@@ -4,6 +4,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { canBackToTutor, escapeLike } from '@/lib/role-switch'
 import { cleanUrl } from '@/lib/url'
 import { verifyStudentToken } from '@/lib/student-auth'
+import { FeedbackButton } from '@/components/FeedbackButton'
 import { Calendar, BookOpen, Video, Clock, ChevronRight, Star } from 'lucide-react'
 
 export default async function StudentDashboardPage({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
@@ -85,14 +86,16 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
 
   return (
     <div className="space-y-5">
-      {backToTutor && (
-        <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {backToTutor && (
           <Link href="/dashboard" data-testid="back-to-tutor"
             className="inline-flex items-center text-[12px] font-semibold text-indigo-600 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-colors rounded-lg px-3 py-1.5">
             Back to tutor
           </Link>
-        </div>
-      )}
+        )}
+        {/* Feedback box (T-0723): the student link tells the server who is writing */}
+        <FeedbackButton token={token} />
+      </div>
       {/* Welcome */}
       <div className="bg-white rounded-xl border border-gray-100 p-5 flex items-center gap-4">
         <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
