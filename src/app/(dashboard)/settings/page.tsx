@@ -13,7 +13,7 @@ import { LockedFeature } from '@/components/plan/LockedFeature'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
-import { ALL_DURATIONS, MAX_DURATIONS, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations, durationColumnsToSave } from '@/lib/lesson-durations'
+import { ALL_DURATIONS, MAX_DURATIONS, lengthSaveErrorMessage, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations, durationColumnsToSave } from '@/lib/lesson-durations'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -182,7 +182,7 @@ export default function SettingsPage() {
       if (lengthError) {
         // The rest is saved; the lengths are not, so the save bar stays and says so.
         setSavedSnapshot(JSON.stringify({ ...form, lesson_durations: before?.lesson_durations ?? form.lesson_durations, default_lesson_duration: before?.default_lesson_duration ?? form.default_lesson_duration }))
-        toast.error('Your other settings are saved, but your lesson lengths were not: ' + lengthError.message)
+        toast.error(lengthSaveErrorMessage(lengthError, { durations: lesson_durations, defaultDuration: default_lesson_duration }))
         setSaving(false)
         return
       }
