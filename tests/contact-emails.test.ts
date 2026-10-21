@@ -18,7 +18,8 @@ const mailtos = (html: string) => [...html.matchAll(/href="mailto:([^"?]+)(?:\?[
 
 test('the two addresses: the owner\'s address first, the company mailbox second, both whole addresses', () => {
   assert.deepEqual([...CONTACT_EMAILS], [PRIMARY_CONTACT_EMAIL, SUPPORT_CONTACT_EMAIL])
-  assert.equal(PRIMARY_CONTACT_EMAIL, 'tubxeebyajtube@gmail.com')
+  // the shape of the first address, not its value: a real person's address is not copied into a test (rule 4b)
+  assert.ok(PRIMARY_CONTACT_EMAIL.includes('@') && !PRIMARY_CONTACT_EMAIL.startsWith('support@'), 'the first address is not the company mailbox')
   assert.equal(SUPPORT_CONTACT_EMAIL, 'support@tutafy.com')
 })
 
@@ -100,4 +101,19 @@ test('the pages that tell a customer to email use <ContactEmails />, and say not
       assert.ok(m[1].startsWith('$') || m[1].startsWith('{'), `${f}: mailto:${m[1]} must come from a variable (src/lib/contact.ts for a contact address)`)
     }
   }
+})
+
+test('no test, document or Markdown file at the root copies the owner address: it lives in src/lib/contact.ts (rule 4b; the review of T-0712 found it typed in a test and in content-playbook.md)', () => {
+  const found: string[] = []
+  const walk = (dir: string) => {
+    for (const name of readdirSync(path.join(ROOT, dir))) {
+      const rel = dir ? `${dir}/${name}` : name
+      if (statSync(path.join(ROOT, rel)).isDirectory()) { if (dir === '' ? ['tests', 'docs', 'content', 'scripts', 'public'].includes(name) : true) walk(rel) }
+      else if (/\.(md|mdx|txt|ts|tsx|mjs|js|json|html)$/.test(name) && (dir !== '' || /\.md$/.test(name))) {
+        if (read(rel).includes(PRIMARY_CONTACT_EMAIL)) found.push(rel)
+      }
+    }
+  }
+  walk('')
+  assert.deepEqual(found, [], 'files outside src/ that type the owner address')
 })
