@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { DashboardHome, type DashboardData, type LessonRow, type AtRiskRow, type ReminderRow } from '@/components/dashboard/DashboardHome'
 import { currencySymbol as symbolOf } from '@/lib/currency'
+import { loadFirstStudent } from '@/lib/first-student'
 
 function toLessonRow(l: any): LessonRow {
   const s = Array.isArray(l.students) ? l.students[0] : l.students
@@ -52,6 +53,7 @@ export default async function DashboardPage() {
     { data: activeStudentsFull },
     { data: weekLessonsRaw },
     { data: invoicesRaw },
+    firstStudent,
   ] = await Promise.all([
     supabase.from('tutors').select('name, currency').eq('id', user!.id).single(),
     supabase.from('lessons').select(LESSON_COLS).eq('tutor_id', user!.id).eq('status', 'scheduled').gte('starts_at', nowIso).order('starts_at').limit(12),
@@ -60,6 +62,8 @@ export default async function DashboardPage() {
     supabase.from('students').select('id, name, level, avatar_url').eq('tutor_id', user!.id).eq('status', 'active'),
     supabase.from('lessons').select('starts_at, status, price').eq('tutor_id', user!.id).gte('starts_at', weekStart.toISOString()).lt('starts_at', weekEnd.toISOString()),
     supabase.from('invoices').select('id, amount, status, due_date, students(name)').eq('tutor_id', user!.id).in('status', ['sent', 'overdue']).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
+    // "Get your first student" card: this tutor's own rows only (the session client, every query names the tutor)
+    loadFirstStudent(supabase, user!.id),
   ])
 
   const upcoming = (upcomingRaw ?? []).map(toLessonRow)
@@ -135,6 +139,8 @@ export default async function DashboardPage() {
     week: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], lessons: weekLessons, revenue: weekRevenue },
     weekTotalLessons: weekLessons.reduce((s, v) => s + v, 0),
     currencySymbol,
+    tutorId: user!.id,
+    firstStudent,
   }
 
   return <DashboardHome data={data} />
