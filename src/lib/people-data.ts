@@ -6,7 +6,7 @@
 // that already passed the admin gate), so the node tests can use a fake.
 import type { BuyersClient } from '@/lib/buyers-data'
 import { rangeBounds, type DateRange, type EventRow, type VisitorRow } from '@/lib/journey'
-import { CHUNK, chunks, inBatches, newReadState, readAll, type ReadState } from '@/lib/paged-read'
+import { CHUNK, chunks, inBatches, markFailed, newReadState, readAll, type ReadState } from '@/lib/paged-read'
 import { buildTimeline, planOf, stageOf, type Stage, type TimelineEntry } from '@/lib/timeline'
 import { VISITOR_COLUMNS, VISITOR_DETAIL_COLUMNS, eventsQuery, milestoneEvents } from '@/lib/visitor-reads'
 import type { Source } from '@/lib/visitor-source'
@@ -56,6 +56,7 @@ export type PeopleResult = {
   counts: { all: number; free: number; pro: number; academy: number } // by sign-up date range only
   readTruncated: boolean
   failed: boolean
+  failedTables: string[] // which tables could not be read (T-0680)
 }
 
 /** Read every tutor signed up in the range, newest first (a paged read, with a fixed order). */
@@ -67,7 +68,7 @@ async function readTutors(admin: BuyersClient, range: DateRange, state: ReadStat
     if (gte) q = q.gte('created_at', gte)
     if (lt) q = q.lt('created_at', lt)
     return q.order('created_at', { ascending: false }).order('id', { ascending: false })
-  }, state)
+  }, state, 'tutors')
 }
 
 async function countTutors(admin: BuyersClient, range: DateRange, plan: 'pro' | 'academy' | null, state: ReadState): Promise<number> {
@@ -78,7 +79,7 @@ async function countTutors(admin: BuyersClient, range: DateRange, plan: 'pro' | 
   if (gte) q = q.gte('created_at', gte)
   if (lt) q = q.lt('created_at', lt)
   const { count, error } = await q
-  if (error) state.error = true
+  if (error) markFailed(state, 'tutors')
   return count ?? 0
 }
 
@@ -93,7 +94,7 @@ async function summaries(admin: BuyersClient, tutors: TutorRow[], state: ReadSta
 
   await inBatches(chunks(tutors.map(t => t.id), CHUNK), async ids => {
     const visitors = await readAll<VisitorRow>(() => admin.from('visitors').select(VISITOR_COLUMNS)
-      .in('tutor_id', ids).order('first_seen_at', { ascending: true }).order('id', { ascending: true }), state)
+      .in('tutor_id', ids).order('first_seen_at', { ascending: true }).order('id', { ascending: true }), state, 'visitors')
     const tutorOf = new Map<string, string>()
     for (const v of visitors) {
       if (!v.tutor_id) continue
@@ -170,6 +171,7 @@ export async function loadPeople(admin: BuyersClient, q: PeopleQuery): Promise<P
     counts,
     readTruncated: state.truncated,
     failed: state.error,
+    failedTables: state.tables,
   }
 }
 
@@ -181,6 +183,7 @@ export type JourneyResult = {
   upgradeCutsOff: boolean // steps after the paid order were left out (they can be asked for)
   readTruncated: boolean
   failed: boolean
+  failedTables: string[]
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -197,11 +200,11 @@ export async function loadJourney(admin: BuyersClient, tutorId: string, includeA
   const state = newReadState()
   const { data: tutor, error: tutorError } = await admin.from('tutors')
     .select('id, name, email, created_at, subscription_status').eq('id', tutorId).maybeSingle()
-  if (tutorError) state.error = true
-  if (!tutor) return state.error ? { person: toPerson({ id: tutorId, name: '', email: '', created_at: new Date(0).toISOString(), subscription_status: null }, { visitor: null, click: null, paid: null }), timeline: [], upgradeCutsOff: false, readTruncated: false, failed: true } : null
+  if (tutorError) markFailed(state, 'tutors')
+  if (!tutor) return state.error ? { person: toPerson({ id: tutorId, name: '', email: '', created_at: new Date(0).toISOString(), subscription_status: null }, { visitor: null, click: null, paid: null }), timeline: [], upgradeCutsOff: false, readTruncated: false, failed: true, failedTables: state.tables } : null
 
   const visitors = await readAll<VisitorRow>(() => admin.from('visitors').select(VISITOR_DETAIL_COLUMNS)
-    .eq('tutor_id', tutorId).order('first_seen_at', { ascending: true }).order('id', { ascending: true }), state)
+    .eq('tutor_id', tutorId).order('first_seen_at', { ascending: true }).order('id', { ascending: true }), state, 'visitors')
 
   const milestones = await milestoneEvents(admin, visitors.map(v => v.id), state)
   const firstPaid = milestones.filter(e => e.kind === 'order_paid').sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at))[0] ?? null
@@ -213,7 +216,7 @@ export async function loadJourney(admin: BuyersClient, tutorId: string, includeA
       let q = eventsQuery(admin).eq('visitor_id', v.id)
       if (endAt) q = q.lte('created_at', endAt)
       return q.order('created_at', { ascending: true }).order('id', { ascending: true })
-    }, state)
+    }, state, 'visitor_events')
     for (const r of rows) events.push(r)
   })
 
@@ -229,5 +232,6 @@ export async function loadJourney(admin: BuyersClient, tutorId: string, includeA
     upgradeCutsOff: Boolean(endAt),
     readTruncated: state.truncated,
     failed: state.error,
+    failedTables: state.tables,
   }
 }

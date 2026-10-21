@@ -21,7 +21,7 @@ export function eventsQuery(admin: BuyersClient) {
 export async function pageViewsUpTo(admin: BuyersClient, visitorId: string, endAt: string, state: ReadState): Promise<EventRow[]> {
   return readAll<EventRow>(() => eventsQuery(admin)
     .eq('visitor_id', visitorId).eq('kind', 'page_view').lte('created_at', endAt)
-    .order('created_at', { ascending: true }).order('id', { ascending: true }), state)
+    .order('created_at', { ascending: true }).order('id', { ascending: true }), state, 'visitor_events')
 }
 
 /** Checkout clicks and paid orders of these visitors, oldest first. */
@@ -30,7 +30,7 @@ export async function milestoneEvents(admin: BuyersClient, visitorIds: string[],
   for (const ids of chunks(visitorIds, CHUNK)) {
     const rows = await readAll<EventRow>(() => eventsQuery(admin)
       .in('visitor_id', ids).in('kind', MILESTONES)
-      .order('created_at', { ascending: true }).order('id', { ascending: true }), state)
+      .order('created_at', { ascending: true }).order('id', { ascending: true }), state, 'visitor_events')
     for (const r of rows) out.push(r) // a loop, not push(...rows): a read can be 100 000 rows long
   }
   return out

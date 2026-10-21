@@ -9,6 +9,7 @@ import { countryName, formatWhen } from '@/lib/format'
 import { pageLabel } from '@/lib/timeline'
 import { SOURCE_LABEL } from '@/lib/visitor-source'
 import { planBadgeClass, planLabel } from '@/lib/buyers'
+import { readErrorMessage } from '@/lib/read-errors'
 import { Users, Globe } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +37,7 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
     loadFunnel(admin, range),
   ])
   const failed = people.failed || funnel.failed
+  const failedTables = [...new Set([...people.failedTables, ...funnel.failedTables])]
   const filtered = range.from !== null || range.to !== null || plan !== 'all' || stage !== 'all'
 
   // The filters, kept in every link so paging and "back" do not lose them.
@@ -84,7 +86,7 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
 
       {failed && (
         <div data-testid="super-admin-error" role="alert" className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-700">
-          Could not read some of the data (the tutors table or the visitor tables), so the numbers below are not reliable. Reload the page; if it keeps happening, check the database.
+          {readErrorMessage(failedTables)}
         </div>
       )}
       {(people.readTruncated || funnel.readTruncated) && (

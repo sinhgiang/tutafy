@@ -15,7 +15,7 @@ import {
 } from '@/lib/journey'
 import type { Source } from '@/lib/visitor-source'
 import { VISITOR_COLUMNS, eventsQuery, milestoneEvents, pageViewsUpTo } from '@/lib/visitor-reads'
-import { CHUNK, MAX_PAGES, ROWS_PER_REQUEST, chunks, inBatches, newReadState, readAll, type ReadState } from '@/lib/paged-read'
+import { CHUNK, MAX_PAGES, ROWS_PER_REQUEST, chunks, inBatches, markFailed, newReadState, readAll, type ReadState } from '@/lib/paged-read'
 
 export { MAX_PAGES, ROWS_PER_REQUEST }
 
@@ -64,6 +64,7 @@ export type SuperAdminData = {
   /** A single read hit MAX_PAGES: some rows were not read. */
   readTruncated: boolean
   failed: boolean
+  failedTables: string[] // which tables could not be read (T-0680)
 }
 
 /** Visitors first seen in the range, their checkout and paid events, and the funnel built from them. */
@@ -74,7 +75,7 @@ async function readFunnel(admin: BuyersClient, range: DateRange, state: ReadStat
   if (gte) vq = vq.gte('first_seen_at', gte)
   if (lt) vq = vq.lt('first_seen_at', lt)
   const { data: vdata, error: verr } = await vq.order('first_seen_at', { ascending: false }).order('id', { ascending: false }).limit(FUNNEL_VISITOR_LIMIT)
-  if (verr) state.error = true
+  if (verr) markFailed(state, 'visitors')
   const visitors = (vdata ?? []) as VisitorRow[]
 
   // Checkout clicks and paid orders of exactly these visitors, read in groups and in full.
@@ -86,7 +87,7 @@ async function readFunnel(admin: BuyersClient, range: DateRange, state: ReadStat
 export async function loadFunnel(admin: BuyersClient, range: DateRange) {
   const state: ReadState = newReadState()
   const { visitors, funnel } = await readFunnel(admin, range, state)
-  return { funnel, funnelTruncated: visitors.length >= FUNNEL_VISITOR_LIMIT, readTruncated: state.truncated, failed: state.error }
+  return { funnel, funnelTruncated: visitors.length >= FUNNEL_VISITOR_LIMIT, readTruncated: state.truncated, failed: state.error, failedTables: state.tables }
 }
 
 export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Promise<SuperAdminData> {
@@ -98,7 +99,7 @@ export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Pro
   const visitorByTutor = new Map<string, VisitorRow>()
   for (const ids of chunks(buyerIds, CHUNK)) {
     const rows = await readAll<VisitorRow>(() => admin.from('visitors').select(VISITOR_COLUMNS)
-      .in('tutor_id', ids).order('first_seen_at', { ascending: true }).order('id', { ascending: true }), state)
+      .in('tutor_id', ids).order('first_seen_at', { ascending: true }).order('id', { ascending: true }), state, 'visitors')
     for (const v of rows) if (v.tutor_id && !visitorByTutor.has(v.tutor_id)) visitorByTutor.set(v.tutor_id, v)
   }
 
@@ -122,7 +123,7 @@ export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Pro
       // Neither was recorded (for example the tutor bought before tracking): show only their first page views.
       const { data, error } = await eventsQuery(admin).eq('visitor_id', visitorId).eq('kind', 'page_view')
         .order('created_at', { ascending: true }).order('id', { ascending: true }).limit(FALLBACK_PAGE_VIEWS)
-      if (error) state.error = true
+      if (error) markFailed(state, 'visitor_events')
       views = (data ?? []) as EventRow[]
     }
     eventsByVisitor.set(visitorId, [...views, ...milestones])
@@ -170,7 +171,7 @@ export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Pro
 
   const names = new Map<string, string>()
   for (const tids of chunks(stuck.map(v => v.tutor_id).filter((x): x is string => Boolean(x)), CHUNK)) {
-    const rows = await readAll<{ id: string; name: string }>(() => admin.from('tutors').select('id, name').in('id', tids).order('id', { ascending: true }), state)
+    const rows = await readAll<{ id: string; name: string }>(() => admin.from('tutors').select('id, name').in('id', tids).order('id', { ascending: true }), state, 'tutors')
     for (const t of rows) names.set(t.id, t.name)
   }
   // The pages each stuck visitor saw up to their first checkout click, read one visitor at a time.
@@ -201,5 +202,6 @@ export async function loadSuperAdmin(admin: BuyersClient, range: DateRange): Pro
     buyersTruncated: noFilter && base.total > base.buyers.length,
     readTruncated: state.truncated,
     failed: base.failed || state.error,
+    failedTables: [...new Set([...base.failedTables, ...state.tables])],
   }
 }
