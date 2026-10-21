@@ -10,7 +10,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-import { parseUpdate, loadUpdates, sortUpdates, imageSize, compareVersions, formatUpdateDate, newestUpdateDate, BULLETS_MAX, type UpdateEntry } from '@/lib/updates'
+import { parseUpdate, loadUpdates, sortUpdates, imageSize, compareVersions, formatUpdateDate, formatUpdateDateShort, pickVersion, newestUpdateDate, BULLETS_MAX, type UpdateEntry } from '@/lib/updates'
 import { PAGE_SEO, pageMetadata } from '@/lib/page-meta'
 import { SITE_URL } from '@/lib/site-url'
 import sitemap from '@/app/sitemap'
@@ -97,39 +97,94 @@ test('MUTATION: a picture file that is not a picture stops the build', async () 
 
 // ---- the real page ------------------------------------------------------------------------------------
 
-test('/updates renders every entry from the files: version, day, title and bullets, newest first', async () => {
+test('/updates renders every entry from the files: version, day, title, summary, picture and bullets, newest first', async () => {
   const { default: UpdatesPage } = await import('@/app/updates/page.tsx')
   const html = renderToStaticMarkup(UpdatesPage())
   const entries = loadUpdates()
-  let last = -1
+  // the list on the left, newest first, each row linking to its own address
+  const listAt = entries.map(e => html.indexOf(`href="#v${e.version}"`))
+  assert.ok(listAt.every((at, i) => at > 0 && (i === 0 || at > listAt[i - 1])), `list order: ${listAt}`)
   for (const e of entries) {
-    const at = html.indexOf(`Version ${e.version}`)
-    assert.ok(at > last, `version ${e.version} missing or out of order`)
-    last = at
+    assert.ok(html.includes(`>v${e.version}</span>`), e.version)
     assert.ok(html.includes(`dateTime="${e.date}"`), e.date)
     assert.ok(html.includes(formatUpdateDate(e.date)), e.date)
+    assert.ok(html.includes(formatUpdateDateShort(e.date)), e.date)
     assert.ok(html.includes(esc(e.title)), e.title)
+    if (e.summary) assert.ok(html.includes(esc(e.summary)), e.summary)
     for (const b of e.bullets) assert.ok(html.includes(esc(b)), b)
     if (e.image) {
       assert.ok(html.includes(`src="${e.image.src}"`), e.image.src)
       assert.ok(html.includes(`width="${e.image.width}" height="${e.image.height}"`), 'the picture reserves its space')
     }
   }
+  assert.ok(entries.some(e => e.summary), 'the entries carry a one-sentence summary')
+  // the page frame of the chosen design
+  assert.match(html, />Changelog</)
+  assert.match(html, /<h1[^>]*>Updates<\/h1>/)
+  assert.match(html, /What changed in every version of Tutafy/)
   assert.equal((html.match(/<h1[ >]/g) ?? []).length, 1)
   assert.equal((html.match(/<main[ >]/g) ?? []).length, 1)
-  assert.match(html, /<footer/)
+  assert.match(html, /<footer class="border-t border-\[#1f1f1f\] bg-black/)
+  assert.match(html, /bg-black text-\[#ededed\]/)
+  assert.match(html, /font-mono[^"]*">v\d+\.\d+\.\d+</, 'version numbers are mono')
+  assert.match(read('src/app/layout.tsx'), /Geist_Mono\(\{[^}]*variable: '--font-geist-mono'/, 'the layout defines the mono font the theme reads')
+  assert.match(html, /bg-indigo-500/)
+  // the page code names no version and no date: those come from the files
+  const pageSrc = read('src/app/updates/page.tsx') + read('src/components/updates/UpdatesBrowser.tsx')
+  assert.doesNotMatch(pageSrc, /\b\d+\.\d+\.\d+\b|\b2026-\d\d-\d\d\b/)
+})
+
+test('only the chosen version is open: the newest by default, any other from the address, the rest stay in the page hidden', async () => {
+  const { UpdatesView } = await import('@/components/updates/UpdatesBrowser.tsx')
+  const entries = loadUpdates()
+  const openOf = (selected: string) => {
+    const html = renderToStaticMarkup(UpdatesView({ entries, selected }))
+    const articles = [...html.matchAll(/<article( hidden="")?>([\s\S]*?)<\/article>/g)]
+    assert.equal(articles.length, entries.length, 'every version is in the page')
+    return articles.map((m, i) => ({ version: entries[i].version, open: !m[1] }))
+  }
+  for (const e of entries) {
+    const open = openOf(e.version).filter(a => a.open).map(a => a.version)
+    assert.deepEqual(open, [e.version])
+  }
+  // "Latest" is on the newest version only: once in the list and once in its own article
+  const html = renderToStaticMarkup(UpdatesView({ entries, selected: entries[3].version }))
+  assert.equal((html.match(/>Latest</g) ?? []).length, 2)
+  assert.ok(html.indexOf('>Latest<') < html.indexOf(`href="#v${entries[1].version}"`), 'the badge is on the first row')
+  // the current row of the list is marked
+  assert.equal((html.match(/aria-current="true"/g) ?? []).length, 1)
+  assert.match(html, new RegExp(`aria-current="true"[^>]*><span[^>]*><span[^>]*>v${entries[3].version.replace(/\./g, '\\.')}<`))
+  // older and newer buttons
+  const oldest = renderToStaticMarkup(UpdatesView({ entries, selected: entries[entries.length - 1].version }))
+  assert.match(oldest, />Newer</)
+  const newest = renderToStaticMarkup(UpdatesView({ entries, selected: entries[0].version }))
+  assert.match(newest, />Older</)
+})
+
+test('the address picks the version: #v1.3.0 and #1.3.0 pick 1.3.0, nothing or nonsense picks the newest', () => {
+  const entries = loadUpdates()
+  const newest = entries[0].version
+  assert.equal(pickVersion('#v1.3.0', entries), '1.3.0')
+  assert.equal(pickVersion('#1.3.0', entries), '1.3.0')
+  assert.equal(pickVersion('#V1.3.0', entries), '1.3.0')
+  assert.equal(pickVersion('#v1.0.0', entries), '1.0.0')
+  for (const bad of ['', '#', '#v9.9.9', '#nonsense', '#v1.3', '#v1.3.0%20', '#%E0%A4%A', '#v1.3.0/../x', '#__proto__']) {
+    assert.equal(pickVersion(bad, entries), newest, JSON.stringify(bad))
+  }
+  assert.equal(pickVersion('#v1.3.0', []), '')
 })
 
 test('MUTATION: a new file in content/updates shows up on the real page with no change to the page code', async () => {
   await inScratchProject(async root => {
     const { default: UpdatesPage } = await import('@/app/updates/page.tsx')
     const before = renderToStaticMarkup(UpdatesPage())
-    assert.ok(!before.includes('Version 9.9.9'))
+    assert.ok(!before.includes('v9.9.9'))
     writeFileSync(path.join(root, 'content', 'updates', '9.9.9.md'), GOOD.replace('2.0.0', '9.9.9').replace('2026-11-02', '2026-12-31').replace('A new thing for tutors', 'Brand new headline'))
     const after = renderToStaticMarkup(UpdatesPage())
-    assert.ok(after.includes('Version 9.9.9') && after.includes('Brand new headline') && after.includes('December 31, 2026'))
-    assert.ok(after.indexOf('Version 9.9.9') < after.indexOf('Version 1.4.0'), 'the new version is on top')
-    assert.ok(after.includes('Version 1.0.0'), 'the old entries are still there')
+    assert.ok(after.includes('>v9.9.9<') && after.includes('Brand new headline') && after.includes('December 31, 2026'))
+    assert.ok(after.indexOf('href="#v9.9.9"') < after.indexOf('href="#v1.5.0"'), 'the new version is on top of the list')
+    assert.ok(/<article>[^]*?>v9\.9\.9</.test(after), 'and it is the open one (the newest is shown first)')
+    assert.ok(after.includes('>v1.0.0<'), 'the old entries are still there')
   })
 })
 
@@ -190,6 +245,17 @@ test('the header and the bullets keep to the format', () => {
   throwsWith(GOOD + '-no space\n', '2.0.0.md', /must be a bullet/)
   throwsWith(GOOD + '- ' + 'y'.repeat(221) + '\n', '2.0.0.md', /a bullet is 221 characters/)
   throwsWith(GOOD + '- extra\n'.repeat(BULLETS_MAX), '2.0.0.md', new RegExp(`at most ${BULLETS_MAX} bullets`))
+})
+
+test('the summary is optional, one sentence, and held to the same privacy rules', () => {
+  const withSummary = (s: string) => GOOD.replace('title: A new thing for tutors', `title: A new thing for tutors\nsummary: ${s}`)
+  assert.equal(parseUpdate(withSummary('One sentence about it.'), '2.0.0.md').summary, 'One sentence about it.')
+  assert.equal(parseUpdate(GOOD, '2.0.0.md').summary, undefined)
+  throwsWith(withSummary(''), '2.0.0.md', /the summary must be 3 to 200 characters, it is 0/)
+  throwsWith(withSummary('s'.repeat(201)), '2.0.0.md', /the summary must be 3 to 200 characters, it is 201/)
+  throwsWith(withSummary('Write to ten@example.com.'), '2.0.0.md', /summary contains an email address/)
+  throwsWith(withSummary('Call 0900 000 000.'), '2.0.0.md', /summary contains a phone number/)
+  throwsWith(withSummary('Done in T-0681.'), '2.0.0.md', /summary names an internal ticket/)
 })
 
 test('private or internal text is refused: an email address, a phone number, a ticket name', () => {
@@ -297,7 +363,7 @@ const PRIVATE_AREAS = ['src/app/(admin)/', 'src/app/(dashboard)/', 'src/app/port
 
 /** True when the page's source shows the footer with the Updates link: the shared footer, or a footer of its own that links to it. */
 function hasUpdatesFooter(src: string): boolean {
-  return /<SiteFooter\s*\/>/.test(src) || (/<footer[\s>]/.test(src) && /href="\/updates"/.test(src))
+  return /<SiteFooter(\s[^>]*)?\/>/.test(src) || (/<footer[\s>]/.test(src) && /href="\/updates"/.test(src))
 }
 
 function allPageFiles(dir = path.join(ROOT, 'src', 'app')): string[] {
@@ -310,11 +376,16 @@ function allPageFiles(dir = path.join(ROOT, 'src', 'app')): string[] {
 
 test('the shared footer shows Updates next to Privacy and Terms, and the link goes to /updates', async () => {
   const { SiteFooter, FOOTER_LINKS } = await import('@/components/SiteFooter.tsx')
-  const html = renderToStaticMarkup(SiteFooter())
+  const html = renderToStaticMarkup(SiteFooter({}))
   const labels = [...html.matchAll(/<a [^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(m => [m[2], m[1]])
   assert.ok(labels.some(([label, href]) => label === 'Updates' && href === '/updates'), html)
   for (const l of ['About', 'Blog', 'Customers', 'Contact', 'Privacy', 'Terms']) assert.ok(labels.some(([label]) => label === l), l)
   assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
+  // the dark tone (the Updates page) carries the same links
+  const dark = renderToStaticMarkup(SiteFooter({ tone: 'dark' }))
+  assert.match(dark, /bg-black/)
+  for (const l of FOOTER_LINKS) assert.ok(dark.includes(`href="${l.href}"`), l.href)
+  assert.ok(!html.includes('bg-black'), 'the light tone is unchanged')
 })
 
 test('every public page has the Updates link in its footer', () => {
@@ -356,7 +427,7 @@ test('docs/feature-map.md tells agents to add an Updates entry for every change 
 
 test('the entries a tutor reads hold no path, address or code words', () => {
   for (const e of loadUpdates()) {
-    for (const text of [e.title, ...e.bullets]) {
+    for (const text of [e.title, e.summary ?? '', ...e.bullets]) {
       assert.doesNotMatch(text, /https?:\/\/|\/api\/|migration|webhook|supabase|\.tsx?\b|`/i, `${e.version}: ${text}`)
     }
   }

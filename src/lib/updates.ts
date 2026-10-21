@@ -7,6 +7,7 @@
 //   version: 1.4.0
 //   date: 2026-10-21
 //   title: A short headline
+//   summary: One sentence under the headline      (optional)
 //   image: /updates/first-student-card.webp      (optional, a .webp or .png file under public/updates/)
 //   imageAlt: What the picture shows              (needed when there is an image)
 //   ---
@@ -18,6 +19,10 @@
 // no email addresses or phone numbers (the owner's rule 4b), no private data.
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
+import type { UpdateEntry } from '@/lib/updates-format'
+
+export { formatUpdateDate, formatUpdateDateShort, pickVersion } from '@/lib/updates-format'
+export type { UpdateEntry } from '@/lib/updates-format'
 
 // Read when called (not when the file loads), relative to the folder the server or the test runs in.
 export const updatesDir = () => path.join(process.cwd(), 'content', 'updates')
@@ -25,17 +30,8 @@ export const publicDir = () => path.join(process.cwd(), 'public')
 
 export const TITLE_MAX = 80
 export const BULLET_MAX = 220
+export const SUMMARY_MAX = 200
 export const BULLETS_MAX = 8
-
-export interface UpdateEntry {
-  version: string
-  /** YYYY-MM-DD, the day the change reached tutors. */
-  date: string
-  title: string
-  bullets: string[]
-  /** `width` and `height` are read from the picture file by loadUpdates, so the page can reserve the space. */
-  image?: { src: string; alt: string; width?: number; height?: number }
-}
 
 const VERSION = /^\d+\.\d+\.\d+$/
 const DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -43,8 +39,6 @@ const EMAIL = /[^\s@]+@[^\s@]+\.[^\s@]+/
 const PHONE_LIKE = /\+?\d[\d ().-]{7,}\d/g
 const DAY = /\d{4}-\d{2}-\d{2}/g
 const TICKET = /\b[TW]-\d{3,}\b/
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
 /** A run of nine or more digits (spaces, dashes and brackets allowed) reads like a phone number; a written day does not. */
 function hasPhoneNumber(value: string): boolean {
@@ -56,12 +50,6 @@ function isRealDate(date: string): boolean {
   const [y, m, d] = date.split('-').map(Number)
   const t = new Date(Date.UTC(y, m - 1, d))
   return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d
-}
-
-/** "2026-10-21" -> "October 21, 2026". No time zone is involved, so the day never shifts. */
-export function formatUpdateDate(date: string): string {
-  const [y, m, d] = date.split('-').map(Number)
-  return `${MONTHS[m - 1]} ${d}, ${y}`
 }
 
 /** 1.10.0 is newer than 1.9.0: compare the numbers, not the letters. Positive when a is newer. */
@@ -89,7 +77,7 @@ export function parseUpdate(raw: string, fileName: string): UpdateEntry {
     if (!kv) return fail(`cannot read the header line "${line}"`)
     head[kv[1]] = kv[2].trim()
   }
-  const known = ['version', 'date', 'title', 'image', 'imageAlt']
+  const known = ['version', 'date', 'title', 'summary', 'image', 'imageAlt']
   for (const k of Object.keys(head)) if (!known.includes(k)) fail(`unknown header "${k}"`)
 
   const version = head.version ?? ''
@@ -105,6 +93,9 @@ export function parseUpdate(raw: string, fileName: string): UpdateEntry {
   if (!title) fail('the title is missing')
   if (title.length < 3 || title.length > TITLE_MAX) fail(`the title must be 3 to ${TITLE_MAX} characters, it is ${title.length}`)
 
+  const summary = head.summary ?? ''
+  if ('summary' in head && (summary.length < 3 || summary.length > SUMMARY_MAX)) fail(`the summary must be 3 to ${SUMMARY_MAX} characters, it is ${summary.length}`)
+
   const bullets: string[] = []
   for (const line of (m[2] ?? '').split('\n')) {
     if (!line.trim()) continue
@@ -116,14 +107,14 @@ export function parseUpdate(raw: string, fileName: string): UpdateEntry {
   if (bullets.length > BULLETS_MAX) fail(`at most ${BULLETS_MAX} bullets, there are ${bullets.length}`)
   for (const b of bullets) if (b.length > BULLET_MAX) fail(`a bullet is ${b.length} characters, the limit is ${BULLET_MAX}`)
 
-  const texts: [string, string][] = [['title', title], ['imageAlt', head.imageAlt ?? ''], ...bullets.map((b): [string, string] => ['bullet', b])]
+  const texts: [string, string][] = [['title', title], ['summary', summary], ['imageAlt', head.imageAlt ?? ''], ...bullets.map((b): [string, string] => ['bullet', b])]
   for (const [what, value] of texts) {
     if (EMAIL.test(value)) fail(`the ${what} contains an email address, use ten@example.com style examples or none`)
     if (hasPhoneNumber(value)) fail(`the ${what} contains a phone number`)
     if (TICKET.test(value)) fail(`the ${what} names an internal ticket, write for tutors instead`)
   }
 
-  const entry: UpdateEntry = { version, date, title, bullets }
+  const entry: UpdateEntry = { version, date, title, ...(summary ? { summary } : {}), bullets }
   if (head.image) {
     if (!/^\/updates\/[A-Za-z0-9._-]+\.(webp|png)$/.test(head.image)) fail(`the image "${head.image}" must be /updates/<name>.webp (or .png) under public/`)
     if (!head.imageAlt) fail('an image needs imageAlt, a sentence describing it')

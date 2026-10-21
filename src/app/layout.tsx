@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist } from 'next/font/google'
+import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { PWAInit } from '@/components/PWAInit'
 import { CookieConsent } from '@/components/CookieConsent'
@@ -9,6 +9,9 @@ import { ROOT_METADATA } from '@/lib/page-meta'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'] })
+// Defines --font-geist-mono, which the theme's `font-mono` reads (the Updates page sets its version numbers in it).
+// Not preloaded: the file is fetched only on a page that uses it.
+const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono', preload: false })
 
 // Site-wide defaults (main address, social image, robots). Each public page sets its
 // own title, description and canonical address through pageMetadata() in
@@ -33,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className={geist.className}>
+      <body className={`${geist.className} ${geistMono.variable}`}>
         {children}
         <Toaster richColors position="top-right" />
         <PWAInit />
