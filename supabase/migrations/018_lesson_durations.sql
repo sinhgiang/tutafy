@@ -1,9 +1,12 @@
 -- Let a tutor choose which lesson lengths they take, and type lengths of their own (T-0675, custom lengths T-0700).
 --
--- WRITTEN BUT NOT APPLIED: the owner decides when this runs on the real database. It is ONE file: nobody has run an
--- earlier version of it, so this is the whole change (the first version only allowed 30, 45, 60 and 90; T-0700 edited it in
--- place so the owner runs a single file).
--- Tested on a local copy only (tests/lesson-durations-migration.test.ts, PGlite).
+-- The first version of this file (lengths 30, 45, 60 and 90, at most four) was applied on the real database on 21 Oct 2026.
+-- This file is safe to run again: it adds nothing that is already there, and it replaces the two constraints so that custom
+-- lengths (T-0700) are accepted. Every value the first version accepted is still accepted, so no existing row is touched or
+-- refused. Until it is run again the database still has the first version's checks: a tutor who types a length of their own
+-- is told that custom lengths are not available yet, the rest of their settings are saved, and the pages keep working.
+-- Tested on a local copy only (tests/lesson-durations-migration.test.ts, PGlite): the first version as it was applied
+-- (tests/support/018-as-applied.sql), then this file, then this file again.
 --
 -- Two columns on public.tutors:
 --   lesson_durations         integer[]  the lengths (minutes) the booking page offers; null = the tutor
