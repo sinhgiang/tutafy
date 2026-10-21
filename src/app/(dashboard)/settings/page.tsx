@@ -171,7 +171,8 @@ export default function SettingsPage() {
       await supabase.from('tutors').update({ currency }).eq('id', user.id)
     } catch { /* currency column pending migration */ }
     // Lesson lengths: only when the tutor changed them. The update names this signed-in tutor's own row
-    // (the database policy allows nothing else) and the values are cleaned to 30/45/60/90 first.
+    // (the database policy allows nothing else) and the values are cleaned first: whole minutes from 10 to 240 in steps of 5, one
+    // to six lengths, none twice, and the default one of them (cleanDurations in src/lib/lesson-durations.ts).
     const before = savedSnapshot ? JSON.parse(savedSnapshot) : null
     const lengthColumns = durationColumnsToSave(
       before ? { durations: before.lesson_durations, defaultDuration: before.default_lesson_duration } : null,
