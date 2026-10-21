@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -27,14 +27,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Email not configured' }, { status: 503 })
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY)
+  const resend = createMailer(process.env.RESEND_API_KEY)
   const tutorName = tutor?.name ?? 'Your tutor'
   let sent = 0
 
   for (const student of students) {
     if (!student.email) continue
     await resend.emails.send({
-      from: 'Tutafy <noreply@tutafy.com>',
       to: student.email,
       subject: `${subject} — from ${tutorName}`,
       html: `

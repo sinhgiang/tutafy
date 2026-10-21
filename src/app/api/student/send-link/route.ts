@@ -1,6 +1,6 @@
 ﻿import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer, spamHintHtml } from '@/lib/email'
 import { isStudentAuthConfigured, signStudentToken } from '@/lib/student-auth'
 
 export const runtime = 'nodejs'
@@ -34,9 +34,8 @@ export async function POST(request: Request) {
     const firstName = students[0].name.split(' ')[0]
 
     if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('your_')) {
-      const resend = new Resend(process.env.RESEND_API_KEY)
+      const resend = createMailer(process.env.RESEND_API_KEY)
       await resend.emails.send({
-        from: 'Tutafy <noreply@tutafy.com>',
         to: email,
         subject: 'Access your Tutafy lessons',
         html: `
@@ -51,6 +50,7 @@ export async function POST(request: Request) {
             </a>
             <p style="color:#9ca3af;font-size:12px;">This link expires in 7 days. Do not share it with others.</p>
             <p style="color:#9ca3af;font-size:12px;margin-top:4px;">Powered by Tutafy</p>
+            ${spamHintHtml()}
           </div>
         `,
       }).catch(() => {})

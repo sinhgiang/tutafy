@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: 'Email not configured' }, { status: 503 })
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY)
+  const resend = createMailer(process.env.RESEND_API_KEY)
   const tutor = lesson.tutors as any
   const lessonDate = new Date(lesson.starts_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   const vocab = Array.isArray(lesson.vocabulary) ? lesson.vocabulary : []
@@ -37,7 +37,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     </div>` : ''
 
   await resend.emails.send({
-    from: 'Tutafy <noreply@tutafy.com>',
     to: student.email,
     subject: `Lesson notes — ${tutor?.name ?? 'your tutor'} · ${lessonDate}`,
     html: `

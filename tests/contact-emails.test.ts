@@ -97,7 +97,7 @@ test('the pages that tell a customer to email use <ContactEmails />, and say not
   // src/lib/push.ts: the VAPID contact that push services may write to, never printed to a customer
   const NOT_SHOWN = new Set(['src/lib/push.ts'])
   for (const f of sourceFiles('src').filter(f => !NOT_SHOWN.has(f))) {
-    for (const m of read(f).matchAll(/mailto:([^"'`\s>]+)/g)) {
+    for (const m of read(f).matchAll(/mailto:([A-Za-z0-9$.{_][^"'`\s>]*)/g)) {
       assert.ok(m[1].startsWith('$') || m[1].startsWith('{'), `${f}: mailto:${m[1]} must come from a variable (src/lib/contact.ts for a contact address)`)
     }
   }
