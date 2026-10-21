@@ -39,7 +39,7 @@ export function UpdatesView({ entries, selected }: { entries: UpdateEntry[]; sel
     <div className="mx-auto max-w-[1120px] px-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
       <nav
         aria-label="Versions"
-        className="-mx-6 max-h-[300px] overflow-y-auto border-b border-[#1f1f1f] py-2 lg:sticky lg:top-[60px] lg:mx-0 lg:max-h-[calc(100vh-60px)] lg:border-b-0 lg:border-r lg:py-8"
+        className="-mx-6 max-h-[300px] overflow-y-auto [scrollbar-color:#3a3a3a_transparent] [scrollbar-width:thin] border-b border-[#1f1f1f] py-2 lg:sticky lg:top-[60px] lg:mx-0 lg:max-h-[calc(100vh-60px)] lg:border-b-0 lg:border-r lg:py-8"
       >
         {entries.map((e, i) => {
           const on = e.version === selected

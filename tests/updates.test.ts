@@ -8,6 +8,7 @@ import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, 
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 import { parseUpdate, loadUpdates, sortUpdates, imageSize, compareVersions, formatUpdateDate, formatUpdateDateShort, pickVersion, newestUpdateDate, BULLETS_MAX, type UpdateEntry } from '@/lib/updates'
@@ -159,6 +160,40 @@ test('only the chosen version is open: the newest by default, any other from the
   assert.match(oldest, />Newer</)
   const newest = renderToStaticMarkup(UpdatesView({ entries, selected: entries[0].version }))
   assert.match(newest, />Older</)
+})
+
+/** 150 made-up versions, newest first (a page that has to stay two columns when the list is long). */
+function manyEntries(count = 150): UpdateEntry[] {
+  return Array.from({ length: count }, (_, i) => {
+    const n = count - i
+    return { version: `1.${n}.0`, date: '2026-10-21', title: `Change number ${n}`, summary: `Sample sentence ${n}.`, bullets: ['One.', 'Two.', 'Three.'] }
+  })
+}
+
+test('with 150 versions the page is still two columns: the list is a box with its own scroll, one version is open, the newest by default', async () => {
+  const { UpdatesBrowser, UpdatesView } = await import('@/components/updates/UpdatesBrowser.tsx')
+  const entries = manyEntries()
+  // no address (the server, or a visit to /updates): the newest is open and carries the Latest badge
+  const html = renderToStaticMarkup(createElement(UpdatesBrowser, { entries }))
+  const articles = [...html.matchAll(/<article( hidden="")?>/g)]
+  assert.equal(articles.length, 150, 'every version is in the page')
+  assert.equal(articles.filter(a => !a[1]).length, 1, 'but only one is open')
+  assert.ok(!articles[0][1], 'and it is the first, the newest')
+  assert.match(html, /<article>[\s\S]*?>v1\.150\.0<\/span><span[^>]*>Latest<\/span>/, 'the newest open version has the Latest badge')
+  assert.equal((html.match(/>Latest</g) ?? []).length, 2, 'Latest is shown on the newest only')
+  // the list: a box of fixed height that scrolls by itself (and stays in view on a desktop), never a page-long stack
+  const nav = /<nav aria-label="Versions" class="([^"]*)"/.exec(html)![1].split(/\s+/)
+  for (const c of ['max-h-[300px]', 'overflow-y-auto', 'lg:sticky', 'lg:top-[60px]', 'lg:max-h-[calc(100vh-60px)]']) assert.ok(nav.includes(c), `the list lacks ${c}`)
+  assert.equal((html.match(/href="#v1\.\d+\.0"/g) ?? []).length, 150 + 149 + 149, 'one row per version, plus an Older and a Newer link in each open-or-hidden article but the ends')
+  // the two columns start at 1024px
+  assert.match(html, /lg:grid-cols-\[280px_minmax\(0,1fr\)\]/)
+  // any chosen version is the only open one, however far down the list it is
+  for (const pick of ['1.75.0', '1.1.0']) {
+    const open = [...renderToStaticMarkup(UpdatesView({ entries, selected: pick })).matchAll(/<article( hidden="")?>([\s\S]*?)<\/article>/g)].filter(m => !m[1])
+    assert.equal(open.length, 1)
+    assert.ok(open[0][2].includes(`>v${pick}</span>`))
+    assert.ok(!open[0][2].includes('Latest'), 'an older version is not Latest')
+  }
 })
 
 test('the address picks the version: #v1.3.0 and #1.3.0 pick 1.3.0, nothing or nonsense picks the newest', () => {
