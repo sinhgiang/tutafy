@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Star, Globe, Clock, Search, GraduationCap, Zap } from 'lucide-react'
+import { SiteFooter } from '@/components/SiteFooter'
 
 interface PublicTutor {
   id: string
@@ -191,6 +192,8 @@ export default function TutorsPage() {
           </div>
         )}
       </div>
+
+      <SiteFooter />
     </div>
   )
 }

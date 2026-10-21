@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GraduationCap, ArrowLeft, Mail, MessageCircle, HelpCircle } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
+import { SiteFooter } from '@/components/SiteFooter'
 
 export const metadata = pageMetadata('contact')
 
@@ -57,6 +58,8 @@ export default function ContactPage() {
           </p>
         </div>
       </section>
+
+      <SiteFooter />
     </div>
   )
 }

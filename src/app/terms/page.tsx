@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GraduationCap, ArrowLeft } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
+import { SiteFooter } from '@/components/SiteFooter'
 
 export const metadata = pageMetadata('terms')
 
@@ -69,6 +70,8 @@ export default function TermsPage() {
           <p className="text-[12px] text-gray-400 border-t border-gray-100 pt-6">These terms are provided for transparency and to meet advertising and app-store requirements. They are not legal advice; please have a lawyer review them for your jurisdiction before relying on them commercially.</p>
         </div>
       </article>
+
+      <SiteFooter />
     </div>
   )
 }

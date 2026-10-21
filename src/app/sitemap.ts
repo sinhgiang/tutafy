@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { POSTS, postDates } from '@/lib/blog'
 import { SITE_URL as SITE } from '@/lib/site-url'
+import { newestUpdateDate } from '@/lib/updates'
 import { listPublicTutorSlugs, type TutorSlugClient } from '@/lib/tutor-sitemap'
 import { tutorProfileUrl } from '@/lib/tutor-seo'
 
@@ -26,7 +27,8 @@ function publicClient(): TutorSlugClient | null {
 // not listed.
 // Static pages carry no lastModified: nothing records when they last changed, and
 // stamping "today" on every build would tell crawlers a false date. Blog posts use
-// their own publish date, and the blog index the date of its newest post.
+// their own publish date, and the blog index the date of its newest post; /updates takes the date of its
+// newest entry (content/updates/).
 // A tutor profile is listed only when the tutor turned the public page on (src/lib/tutor-sitemap.ts);
 // it carries no lastModified, because nothing records when a profile last changed.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -34,6 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '', priority: 1.0, freq: 'weekly' },
     { path: '/tutors', priority: 0.8, freq: 'daily' },
     { path: '/blog', priority: 0.7, freq: 'weekly' },
+    { path: '/updates', priority: 0.5, freq: 'weekly' },
     { path: '/about', priority: 0.6, freq: 'monthly' },
     { path: '/customers', priority: 0.6, freq: 'monthly' },
     { path: '/contact', priority: 0.5, freq: 'monthly' },
@@ -42,9 +45,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
   const postDate = (date: string) => new Date(date + 'T00:00:00')
   const newestPost = POSTS.reduce<Date | undefined>((latest, p) => (!latest || postDate(postDates(p).modified) > latest ? postDate(postDates(p).modified) : latest), undefined)
+  const newestUpdate = newestUpdateDate()
   const staticUrls = pages.map(p => ({
     url: `${SITE}${p.path}`,
     ...(p.path === '/blog' && newestPost ? { lastModified: newestPost } : {}),
+    ...(p.path === '/updates' && newestUpdate ? { lastModified: new Date(newestUpdate + 'T00:00:00Z') } : {}),
     changeFrequency: p.freq,
     priority: p.priority,
   }))

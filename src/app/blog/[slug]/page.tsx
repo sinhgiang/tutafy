@@ -8,6 +8,7 @@ import { POSTS, getPost, readingMinutes, postDates, heroFor, type PostBlock } fr
 import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
 import { AuthorAvatar } from '@/components/blog/AuthorAvatar'
 import { blogPostMetadata } from '@/lib/page-meta'
+import { SiteFooter } from '@/components/SiteFooter'
 import { blogPostJsonLd, formatPostDate } from '@/lib/blog-seo'
 import { jsonLdScript } from '@/lib/seo'
 
@@ -108,6 +109,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
         )}
       </article>
+
+      <SiteFooter />
     </div>
   )
 }
