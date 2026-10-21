@@ -9,6 +9,9 @@
 // so the node tests can use a fake. Every long read is paged (paged-read.ts).
 import type { BuyersClient } from '@/lib/buyers-data'
 import { markFailed, newReadState, readAll } from '@/lib/paged-read'
+import { isSelfAdded } from '@/lib/self-added'
+
+export { isSelfAdded, normEmail } from '@/lib/self-added'
 
 export const SIGNUP_WEEKS = 12
 export const NEW_TUTOR_DAYS = 30
@@ -44,16 +47,6 @@ export type RecentLesson = {
 type TutorRow = { id: string; name: string; email: string; created_at: string }
 type StudentRow = { id: string; tutor_id: string; email: string | null }
 type LessonRow = { id: string; tutor_id: string; student_id: string; status: string }
-
-export function normEmail(e: string | null | undefined): string {
-  return (e ?? '').trim().toLowerCase()
-}
-
-/** A student whose email is the tutor's own: the tutor added or booked themselves. No email never counts. */
-export function isSelfAdded(studentEmail: string | null | undefined, tutorEmail: string | null | undefined): boolean {
-  const s = normEmail(studentEmail)
-  return s !== '' && s === normEmail(tutorEmail)
-}
 
 /** The Monday (UTC, 00:00) of the week that contains `d`. */
 export function weekStartOf(d: Date): Date {
