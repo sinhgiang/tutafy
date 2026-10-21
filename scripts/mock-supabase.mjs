@@ -94,10 +94,6 @@ const lesson_card_payments = []
 const availability_exceptions = []
 const lesson_students = []
 
-// A brand-new Free tutor (session as=newtutor): nothing done yet, and one "student" under her own address, which must not count.
-tutors.push({ id: NEW_TUTOR_ID, email: 'nina@example.com', name: 'Nina Nueva', slug: 'nina-nueva', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-1), booking_url_active: true, currency: 'USD' })
-students.push({ id: id(40), tutor_id: NEW_TUTOR_ID, name: 'Nina Nueva', email: 'nina@example.com', status: 'active', portal_token: id(40, 'c'), created_at: iso(-1) })
-
 const DB = { tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
   subscription_plans, student_subscriptions, waitlist, referrals, api_keys, webhook_subscriptions, lesson_card_payments, availability_exceptions, lesson_students }
 
@@ -203,6 +199,10 @@ lessons.push(
   { id: id(900, 'd'), tutor_id: id(2, 'b'), student_id: id(30), starts_at: iso(3, 15), ends_at: iso(3, 16), duration_minutes: 60, status: 'scheduled', meet_link: null, zoom_link: null, homework: null, price: 25, payment_status: 'pending', currency: 'EUR', created_at: iso(-5) },
   { id: id(901, 'd'), tutor_id: id(2, 'b'), student_id: id(30), starts_at: iso(-4, 15), ends_at: iso(-4, 16), duration_minutes: 45, status: 'completed', meet_link: null, zoom_link: null, homework: 'Read chapter 3', price: 25, payment_status: 'paid', currency: 'EUR', created_at: iso(-9) },
 )
+
+// A brand-new Free tutor (session as=newtutor): nothing done yet, and one "student" under her own address, which must not count.
+tutors.push({ id: NEW_TUTOR_ID, email: 'nina@example.com', name: 'Nina Nueva', slug: 'nina-nueva', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-1), booking_url_active: true, currency: 'USD' })
+students.push({ id: id(40), tutor_id: NEW_TUTOR_ID, name: 'Nina Nueva', email: 'nina@example.com', status: 'active', portal_token: id(40, 'c'), created_at: iso(-1) })
 
 // ---------- server ----------
 const send = (res, status, body, headers = {}) => {
