@@ -29,9 +29,12 @@ mock.module('resend', { exports: { Resend: class { emails = { send: async () => 
 
 const track = await import('@/app/api/track/route.ts')
 const register = await import('@/app/api/auth/register/route.ts')
+const feedback = await import('@/app/api/feedback/route.ts')
+const { signStudentToken } = await import('@/lib/student-auth.ts')
 const { createLimiter } = await import('@/lib/rate-limit-memory.ts')
 const { NextRequest } = await import('next/server.js')
 
+process.env.STUDENT_AUTH_SECRET = 'test-only-secret-for-rate-limit-tests'
 const ORIGIN = 'https://www.tutafy.test'
 const A_SESSION = '11111111-1111-4111-8111-111111111111'
 const A_VISITOR = '5b0f2a52-2f3a-4d65-9c1f-0a2b3c4d5e6f'
@@ -111,6 +114,62 @@ test('/api/auth/register: at most 120 calls a minute overall, whatever id, email
     call: v => register.POST(v.request({
       url: `${ORIGIN}/api/auth/register`,
       body: { userId: v.uuid(), email: v.email(), name: v.text(), refCode: v.text() },
+    })),
+  })
+  assert.equal(r.limit, 120)
+})
+
+// ---- /api/feedback -----------------------------------------------------------------------------------------
+
+const feedbackFixed = [
+  { kind: 'header', name: 'origin', reason: 'the route refuses any Origin that is not its own host, so it cannot change' },
+  { kind: 'header', name: 'host', reason: 'the host the request is for; it must match the Origin' },
+  { kind: 'header', name: 'x-forwarded-host', reason: 'when a proxy sets it, it must match the Origin; the call leaves it out' },
+] as const
+
+const feedbackRequest = (v: Parameters<Parameters<typeof assertRateLimitHolds>[0]['call']>[0], token: string) => v.request({
+  url: `${ORIGIN}/api/feedback`,
+  headers: { origin: ORIGIN, host: 'www.tutafy.test' },
+  body: { kind: v.pick(['bug', 'idea', 'question']), message: v.text(), token },
+})
+
+test('/api/feedback: at most 5 messages in 10 minutes for one signed-in tutor, whatever kind or text the body carries', async () => {
+  db = createFakeDb({ tutors: [{ id: A_SESSION, email: 'a@example.com', name: 'A', slug: 'a' }], feedback: [] })
+  sessionUser = { id: A_SESSION, email: 'a@example.com' }
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/feedback/route.ts',
+    limiter: 'perAccount',
+    fixed: [...feedbackFixed, { kind: 'body', name: 'token', reason: 'an empty token means "the signed-in tutor"; the limit is counted on the account of the session, not on the token' }],
+    call: v => feedback.POST(feedbackRequest(v, '')),
+  })
+  assert.equal(r.limit, 5)
+  sessionUser = null
+})
+
+test('/api/feedback: at most 5 messages in 10 minutes for one student link, whatever kind or text the body carries', async () => {
+  db = createFakeDb({ tutors: [], feedback: [] })
+  sessionUser = null
+  const token = signStudentToken('student@example.com')
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/feedback/route.ts',
+    limiter: 'perAccount',
+    fixed: [...feedbackFixed, { kind: 'body', name: 'token', reason: 'a signed student link is the identity this limit counts (a made-up one is refused with 401 before the limit)' }],
+    call: v => feedback.POST(feedbackRequest(v, token)),
+  })
+  assert.equal(r.limit, 5)
+})
+
+test('/api/feedback: at most 120 calls a minute overall, whatever kind, text or link an unknown caller makes up', async () => {
+  db = createFakeDb({ tutors: [], feedback: [] })
+  sessionUser = null
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/feedback/route.ts',
+    limiter: 'overall',
+    fixed: [...feedbackFixed],
+    call: v => feedback.POST(v.request({
+      url: `${ORIGIN}/api/feedback`,
+      headers: { origin: ORIGIN, host: 'www.tutafy.test' },
+      body: { kind: v.pick(['bug', 'idea', 'question']), message: v.text(), token: v.text() },
     })),
   })
   assert.equal(r.limit, 120)
