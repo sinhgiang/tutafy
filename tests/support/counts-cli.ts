@@ -1,7 +1,7 @@
 // `npm run counts`: the numbers of the counted lists now, to copy into a report as [count: NAME=N] markers.
 // `npm run counts -- <file>`: check EVERY [count: ...] marker of any file (for example the project's status file in the Helme Brain,
 // which is outside this repository) against the code of the branch that is checked out; exit code 1 when one is wrong.
-// `npm run counts -- <file> --branch <name>`: check only the entries of the file that name that branch (`helme/...` in backticks),
+// `npm run counts -- <file> --branch <name>`: check only the entries of the file that branch owns ("Nhánh `helme/...`" on the first line),
 // and also report a number written bare in front of the words of a counted list ("51 test files"); that is what npm test does with
 // the status file (tests/status-counts.test.ts, T-0704).
 import { readFileSync } from 'node:fs'
@@ -17,7 +17,7 @@ if (file) {
   const text = readFileSync(file, 'utf8')
   const problems = branch ? await statusCountProblems(text, branch, file) : await countProblems(text, file)
   for (const p of problems) console.log(p)
-  const scope = branch ? `the ${entriesForBranch(text, branch).length} entries of ${file} that name ${branch}` : file
+  const scope = branch ? `the ${entriesForBranch(text, branch).length} entries of ${file} that ${branch} owns` : file
   console.log(problems.length ? `${problems.length} count(s) wrong in ${scope}` : `every [count: ...] marker of ${scope} matches the code`)
   process.exit(problems.length ? 1 : 0)
 }
