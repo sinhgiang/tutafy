@@ -114,7 +114,14 @@ if (process.env.MOCK_OVERVIEW) {
   })
 }
 
-const DB = { tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
+// the Feedback box (supabase/migrations/020_feedback.sql): made-up messages for the admin Feedback page; a POST to /api/feedback adds one in memory
+const feedback = [
+  { id: id(1, 'e'), created_at: iso(0, 9), author_role: 'tutor', tutor_id: TUTOR_ID, author_email: 'tutor@example.com', kind: 'bug', message: 'The calendar does not load on my phone when I open it from the dashboard.\nIt works again after I refresh the page.' },
+  { id: id(2, 'e'), created_at: iso(-1, 16), author_role: 'student', tutor_id: null, author_email: 'student1@example.com', kind: 'question', message: 'Where can I find the homework my tutor sent after the last lesson?' },
+  { id: id(3, 'e'), created_at: iso(-2, 11), author_role: 'tutor', tutor_id: id(2, 'b'), author_email: 'tutor2@example.com', kind: 'idea', message: 'Please let me send one reminder to the whole class at once.' },
+  { id: id(4, 'e'), created_at: iso(-4, 8), author_role: 'student', tutor_id: null, author_email: 'student2@example.com', kind: 'idea', message: 'A dark mode for the lesson page would help in the evening.' },
+]
+const DB = { feedback, tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
   subscription_plans, student_subscriptions, waitlist, referrals, api_keys, webhook_subscriptions, lesson_card_payments, availability_exceptions, lesson_students }
 
 // ---------- query engine ----------
@@ -295,7 +302,8 @@ http.createServer(async (req, res) => {
 
   const body = await readBody(req)
   if (req.method === 'POST') {
-    const list = (Array.isArray(body) ? body : [body ?? {}]).map(r => ({ id: r.id ?? `00000000-0000-4000-9000-${String(Date.now() % 1e12).padStart(12, '0')}`, ...r }))
+    // the real feedback table stamps the time itself (migration 020); the stand-in does the same for that one table
+    const list = (Array.isArray(body) ? body : [body ?? {}]).map(r => ({ id: r.id ?? `00000000-0000-4000-9000-${String(Date.now() % 1e12).padStart(12, '0')}`, ...(t === 'feedback' ? { created_at: new Date().toISOString() } : {}), ...r }))
     if (/resolution=merge/.test(prefer)) {
       const key = url.searchParams.get('on_conflict') ?? 'id'
       for (const r of list) { const f = table.find(x => x[key] === r[key]); if (f) Object.assign(f, r); else table.push(r) }

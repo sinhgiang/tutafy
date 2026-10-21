@@ -126,6 +126,8 @@ export const COUNTED_LISTS: Record<string, CountedList> = {
   LINE_REF_UNITS: { what: 'units of counting or measuring (test, ms, tệp, ...) that make a number NOT a line in a citation: the closed list UNIT of tests/support/line-refs.ts', file: 'tests/support/line-refs.ts', count: () => alternativesIn(readRepo('tests/support/line-refs.ts'), 'UNIT') },
   LINE_REF_TEST_UNITS: { what: 'unit words that tests/line-refs.test.ts writes out and tries one by one (TEST_UNIT_WORDS; not the regular expression UNIT, which is LINE_REF_UNITS)', file: 'tests/line-refs.test.ts', count: literalOf('tests/line-refs.test.ts', 'TEST_UNIT_WORDS') },
   STATUS_COUNT_TESTS: { what: 'tests in tests/status-counts.test.ts', file: 'tests/status-counts.test.ts', count: testsOf('tests/status-counts.test.ts') },
+  FEEDBACK_TESTS: { what: 'tests in tests/feedback.test.ts', file: 'tests/feedback.test.ts', count: testsOf('tests/feedback.test.ts') },
+  FEEDBACK_MIGRATION_TESTS: { what: 'tests in tests/feedback-migration.test.ts', file: 'tests/feedback-migration.test.ts', count: testsOf('tests/feedback-migration.test.ts') },
   COUNT_LIST_TESTS: { what: 'tests in tests/counted-lists.test.ts', file: 'tests/counted-lists.test.ts', count: testsOf('tests/counted-lists.test.ts') },
 }
 

@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Bell, LogOut, Settings, ChevronRight, Calendar, MessageCircle, Star, X, UserPlus, Clock, Volume2, VolumeX, Users } from 'lucide-react'
 import Link from 'next/link'
+import { FeedbackButton } from '@/components/FeedbackButton'
 import type { Tutor } from '@/types'
 
 const PAGE_LABELS: Record<string, string> = {
@@ -300,6 +301,8 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
             View as student
           </a>
         )}
+        {/* Feedback box (T-0723): a small button, icon only on a phone */}
+        <FeedbackButton iconOnlyOnPhone />
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>
           <button onClick={openNotif}
