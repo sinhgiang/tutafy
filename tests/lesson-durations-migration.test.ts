@@ -72,7 +72,7 @@ test('it adds no policy and no trigger: the existing row policies are what limit
   assert.deepEqual(await snapshot(), before)
 })
 
-test('only 30, 45, 60 and 90 are accepted, at least one, and the default must be one of the chosen', async () => {
+test('lengths 10 to 240 in steps of 5 are accepted (custom ones too), at least one, no repeat, and the default must be one of the chosen', async () => {
   const db = await freshDb()
   const set = (set: string) => db.exec(`update public.tutors set ${set} where id = '${A}'`)
   await set(`lesson_durations = array[30, 90], default_lesson_duration = 90`)
@@ -80,10 +80,10 @@ test('only 30, 45, 60 and 90 are accepted, at least one, and the default must be
   await set(`lesson_durations = array[30, 45, 60, 90], default_lesson_duration = null`)
   await set(`lesson_durations = null, default_lesson_duration = 60`)
   for (const bad of [
-    `lesson_durations = array[20], default_lesson_duration = null`, `lesson_durations = array[30, 120], default_lesson_duration = null`,
+    `lesson_durations = array[7], default_lesson_duration = null`, `lesson_durations = array[30, 250], default_lesson_duration = null`,
     `lesson_durations = '{}', default_lesson_duration = null`, `lesson_durations = array[30, null]::int[], default_lesson_duration = null`,
     `lesson_durations = array[30, 45, 60, 90, 30], default_lesson_duration = null`, `lesson_durations = array[30, 60], default_lesson_duration = 90`,
-    `lesson_durations = array[30, 60], default_lesson_duration = 45`, `default_lesson_duration = 20`, `default_lesson_duration = 0`,
+    `lesson_durations = array[30, 60], default_lesson_duration = 45`, `default_lesson_duration = 12`, `default_lesson_duration = 0`,
   ]) {
     await assert.rejects(set(bad), /violates check constraint/, bad)
   }
@@ -117,4 +117,125 @@ test('SIGNED OUT: anon cannot change the columns of anyone, and can read them on
     await db.exec(`reset role`)
   }
   assert.deepEqual((await row(db, A)).lesson_durations, [45])
+})
+
+test('custom lengths (T-0700): 20, 75 and 120 are taken, up to six, and the default can be a custom one', async () => {
+  const db = await freshDb()
+  const set = (set: string) => db.exec(`update public.tutors set ${set} where id = '${A}'`)
+  await set(`lesson_durations = array[20, 75, 120], default_lesson_duration = 75`)
+  assert.deepEqual(await row(db, A), { lesson_durations: [20, 75, 120], default_lesson_duration: 75 })
+  await set(`lesson_durations = array[10, 20, 75, 120, 200, 240], default_lesson_duration = 10`)
+  assert.deepEqual((await row(db, A)).lesson_durations, [10, 20, 75, 120, 200, 240], 'six lengths, both ends of the range')
+  await set(`lesson_durations = array[75], default_lesson_duration = 75`)
+  assert.deepEqual(await row(db, A), { lesson_durations: [75], default_lesson_duration: 75 }, 'one custom length alone')
+  await set(`lesson_durations = array[30, 75], default_lesson_duration = 75`)
+  await set(`lesson_durations = array[30, 75], default_lesson_duration = 30`)
+})
+
+test('custom lengths (T-0700): the database refuses a length out of range, not a multiple of 5, a repeat, none, a seventh, a null, and a default that is none of them', async () => {
+  const db = await freshDb()
+  await db.exec(`update public.tutors set lesson_durations = array[30, 75], default_lesson_duration = 75 where id = '${A}'`)
+  const refused = [
+    ['out of range, short', `lesson_durations = array[5]`], ['out of range, short, next to a good one', `lesson_durations = array[30, 9]`],
+    ['out of range, long', `lesson_durations = array[245]`], ['far too long', `lesson_durations = array[250]`], ['a day', `lesson_durations = array[1440]`],
+    ['zero', `lesson_durations = array[0]`], ['negative', `lesson_durations = array[-30]`],
+    ['not a multiple of 5', `lesson_durations = array[12]`], ['not a multiple of 5, with others', `lesson_durations = array[30, 77]`],
+    ['the same twice', `lesson_durations = array[75, 75]`], ['the same twice, apart', `lesson_durations = array[30, 75, 60, 75]`],
+    ['seven lengths', `lesson_durations = array[10, 20, 30, 40, 50, 60, 70]`], ['none', `lesson_durations = '{}'`],
+    ['a null inside', `lesson_durations = array[30, null]::int[]`],
+    ['a default that is not offered', `default_lesson_duration = 60`], ['a default out of range', `lesson_durations = array[30], default_lesson_duration = 250`],
+    ['a default not a multiple of 5', `lesson_durations = null, default_lesson_duration = 12`],
+  ] as const
+  for (const [why, set] of refused) {
+    await assert.rejects(db.exec(`update public.tutors set ${set} where id = '${A}'`), /violates check constraint/, why)
+  }
+  assert.deepEqual(await row(db, A), { lesson_durations: [30, 75], default_lesson_duration: 75 }, 'every refused update left the row alone')
+})
+
+test('the rule is one function the migration creates, and it only looks at the array it is given', async () => {
+  const db = await freshDb()
+  const check = async (sql: string) => (await db.query<{ ok: boolean }>(`select ${sql} as ok`)).rows[0].ok
+  assert.equal(await check(`public.lesson_durations_valid(array[20, 75, 120])`), true)
+  assert.equal(await check(`public.lesson_durations_valid(null)`), true, 'null is "chose nothing"')
+  assert.equal(await check(`public.lesson_durations_valid(array[75, 75])`), false)
+  assert.equal(await check(`public.lesson_durations_valid(array[]::int[])`), false)
+  const meta = (await db.query<{ provolatile: string; proconfig: string[] | null }>(`select provolatile, proconfig from pg_proc where proname = 'lesson_durations_valid'`)).rows
+  assert.equal(meta.length, 1)
+  assert.equal(meta[0].provolatile, 'i', 'immutable, as a CHECK needs')
+  assert.ok(meta[0].proconfig?.some(c => c.startsWith('search_path=')), 'a fixed search path')
+})
+
+// ---- the owner re-runs 018: the first version is already on the real database (21 Oct 2026) ----------------------------------
+
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+const AS_APPLIED = readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'support', '018-as-applied.sql'), 'utf8')
+
+/** The real database's state: every earlier file, then 018 as it was first applied (30, 45, 60, 90, at most four). */
+async function dbWithFirstVersion(): Promise<PGlite> {
+  const db = await newDb()
+  await applyMigrationsBefore(db, FILE)
+  await db.exec(`
+    insert into auth.users (id, email) values ('${A}', 'a@example.com'), ('${B}', 'b@example.com');
+    insert into public.tutors (id, email, name, slug, booking_url_active) values
+      ('${A}', 'a@example.com', 'Tutor A', 'tutor-a', true), ('${B}', 'b@example.com', 'Tutor B', 'tutor-b', true);
+  `)
+  await db.exec(AS_APPLIED)
+  return db
+}
+
+test('the first version, as applied, refuses a length of the tutor’s own; the file in the repository, run again on top of it, accepts it', async () => {
+  const db = await dbWithFirstVersion()
+  await assert.rejects(db.exec(`update public.tutors set lesson_durations = array[75], default_lesson_duration = null where id = '${A}'`), /violates check constraint "tutors_lesson_durations_valid"/)
+  await db.exec(readMigration(FILE)) // the owner runs 018 again
+  await db.exec(`update public.tutors set lesson_durations = array[20, 75, 120], default_lesson_duration = 75 where id = '${A}'`)
+  assert.deepEqual(await row(db, A), { lesson_durations: [20, 75, 120], default_lesson_duration: 75 })
+  for (const bad of [`lesson_durations = array[7], default_lesson_duration = null`, `lesson_durations = array[30, 250], default_lesson_duration = null`, `lesson_durations = array[12], default_lesson_duration = null`, `lesson_durations = array[10, 20, 30, 40, 50, 60, 70], default_lesson_duration = null`]) {
+    await assert.rejects(db.exec(`update public.tutors set ${bad} where id = '${A}'`), /violates check constraint/, bad)
+  }
+})
+
+test('running 018 again changes no data: the rows saved under the first version are exactly as they were, and still valid', async () => {
+  const db = await dbWithFirstVersion()
+  await db.exec(`update public.tutors set lesson_durations = array[30, 45, 60, 90], default_lesson_duration = 60 where id = '${A}'`)
+  await db.exec(`update public.tutors set lesson_durations = array[45], default_lesson_duration = 45 where id = '${B}'`)
+  const before = (await db.query(`select * from public.tutors order by id`)).rows
+  await db.exec(readMigration(FILE))
+  await db.exec(readMigration(FILE)) // and a third time: the owner may press the button twice
+  assert.deepEqual((await db.query(`select * from public.tutors order by id`)).rows, before)
+  await db.exec(`update public.tutors set name = name || ' (renamed)'`) // re-checks every row
+  assert.equal((await db.query(`select count(*)::int as n from public.tutors where name like '%(renamed)'`)).rows[0]!.n, 2)
+  const cols = await db.query<{ column_name: string }>(`select column_name from information_schema.columns where table_name = 'tutors' and column_name in ('lesson_durations', 'default_lesson_duration') order by 1`)
+  assert.equal(cols.rows.length, 2, 'the two columns are there once, not added again')
+})
+
+test('every list the first version accepted (1 to 4 of 30, 45, 60, 90, each with every default) is still accepted after 018 is run again', async () => {
+  const db = await dbWithFirstVersion()
+  await db.exec(readMigration(FILE))
+  const four = [30, 45, 60, 90]
+  let tried = 0
+  for (let mask = 1; mask < 16; mask++) {
+    const list = four.filter((_, i) => mask & (1 << i))
+    for (const def of [null, ...list]) {
+      await db.exec(`update public.tutors set lesson_durations = array[${list.join(', ')}], default_lesson_duration = ${def ?? 'null'} where id = '${A}'`)
+      tried++
+    }
+  }
+  assert.ok(tried >= 30, `tried ${tried} combinations`)
+})
+
+test('KNOWN LIMIT, measured: a row saved under the first version with the SAME length twice ([30, 30]) is refused by the new check when 018 is run again', async () => {
+  // The first version never forbade a repeat, and the app never writes one (cleanDurations keeps each length once). If such a row
+  // exists on the real database, running 018 again stops at the new check with an error and the owner is told which row to fix.
+  const db = await dbWithFirstVersion()
+  await db.exec(`update public.tutors set lesson_durations = array[30, 30], default_lesson_duration = 30 where id = '${A}'`)
+  await assert.rejects(db.exec(readMigration(FILE)), /violates check constraint "tutors_lesson_durations_valid"|is violated by some row/)
+  // the run is one batch, so it stops as a whole: the first version's checks are still in place, there is no gap without a check
+  await assert.rejects(db.exec(`update public.tutors set lesson_durations = array[7], default_lesson_duration = null where id = '${B}'`), /violates check constraint/)
+  await assert.rejects(db.exec(`update public.tutors set lesson_durations = array[75], default_lesson_duration = null where id = '${B}'`), /violates check constraint/, 'still the first version: 75 is refused')
+  // the fix the owner is given: make the repeated list a normal one, then run again
+  await db.exec(`update public.tutors set lesson_durations = array[30], default_lesson_duration = 30 where id = '${A}'`)
+  await db.exec(readMigration(FILE))
+  await db.exec(`update public.tutors set lesson_durations = array[75], default_lesson_duration = null where id = '${B}'`)
 })

@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/server'
 import { tutorMetadata, tutorNotFoundMetadata } from '@/lib/page-meta'
 import { tutorJsonLd } from '@/lib/tutor-seo'
 import { jsonLdScript } from '@/lib/seo'
+import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
 import Link from 'next/link'
+import { SiteFooter } from '@/components/SiteFooter'
 import { GraduationCap, Globe, Clock, Star, BookOpen, MessageCircle, ArrowRight, CheckCircle } from 'lucide-react'
 
 function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
@@ -48,6 +50,11 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
   if (!tutor) notFound()
 
   const initials = tutor.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+
+  // The lesson lengths this tutor takes (T-0698): the same two columns as the booking page, read apart from the rest so a
+  // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths.
+  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
 
   let reviews: any[] = []
   try {
@@ -209,7 +216,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
               <div className="space-y-2.5 mb-5">
                 <div className="flex items-center gap-2 text-[13px] text-gray-600">
                   <Clock className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-                  30, 45, 60 or 90 min sessions
+                  {describeDurations(lengths.durations)}
                 </div>
                 <div className="flex items-center gap-2 text-[13px] text-gray-600">
                   <MessageCircle className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
@@ -236,6 +243,8 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
           </div>
         </div>
       </div>
+
+      <SiteFooter />
     </div>
   )
 }

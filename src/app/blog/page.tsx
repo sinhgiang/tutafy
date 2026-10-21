@@ -65,6 +65,7 @@ export default function BlogPage() {
           </div>
           <div className="flex gap-5">
             <Link href="/about" className="text-[12px] text-gray-500 hover:text-gray-600">About</Link>
+            <Link href="/updates" className="text-[12px] text-gray-500 hover:text-gray-600">Updates</Link>
             <Link href="/contact" className="text-[12px] text-gray-500 hover:text-gray-600">Contact</Link>
             <Link href="/privacy" className="text-[12px] text-gray-500 hover:text-gray-600">Privacy</Link>
             <Link href="/terms" className="text-[12px] text-gray-500 hover:text-gray-600">Terms</Link>

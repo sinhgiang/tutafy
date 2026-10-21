@@ -4,8 +4,9 @@ import { createMailer, emailFromAddress, spamHintHtml } from '@/lib/email'
 import { createCalendarEvent } from '@/lib/google-calendar'
 import { fireWebhooks } from '@/lib/webhooks'
 import { normalizeCurrency } from '@/lib/currency'
-import { loadChosenDurations, durationAccepted } from '@/lib/lesson-durations'
+import { loadChosenDurations, durationAccepted, requestedLength } from '@/lib/lesson-durations'
 import { withinBookingTextLimits } from '@/lib/input-limits'
+import { clashWindowStart, overlappingLesson } from '@/lib/booking-slots'
 
 async function validateAndApplyCoupon(supabase: any, tutorId: string, code: string, basePrice: number | null) {
   if (!code || !basePrice) return { discount: 0, couponId: null }
@@ -55,9 +56,9 @@ function genRoomLink(origin: string, portalToken: string, lessonId: string): str
 
 export async function POST(request: Request) {
   try {
-    const { tutorId, date, time, duration, name, email, message, termsAgreed, isTrial, couponCode, teamMemberId } = await request.json()
+    const { tutorId, date, time, duration: requestedDuration, name, email, message, termsAgreed, isTrial, couponCode, teamMemberId } = await request.json()
 
-    if (!tutorId || !date || !time || !duration || !name || !email) {
+    if (!tutorId || !date || !time || !requestedDuration || !name || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -71,8 +72,14 @@ export async function POST(request: Request) {
     // A tutor who ticked lesson lengths in Settings only takes those; one who chose nothing is not limited.
     // The length comes from the browser, so the booking page hiding a button is not the check (T-0675).
     const chosen = await loadChosenDurations(supabase, tutorId)
-    if (!durationAccepted(chosen.lesson_durations, duration)) {
+    if (!durationAccepted(chosen.lesson_durations, requestedDuration)) {
       return NextResponse.json({ error: 'This tutor does not offer lessons of that length. Please pick one of the lengths shown.' }, { status: 400 })
+    }
+    // Whatever the tutor chose, the length is a real one (a whole number of minutes, 10 to 240, steps of 5): the lesson's end
+    // time, the calendar entry and both emails are worked out from it (T-0700).
+    const duration = requestedLength(requestedDuration)
+    if (duration === null) {
+      return NextResponse.json({ error: 'That is not a valid lesson length.' }, { status: 400 })
     }
 
     // A team member's booking page passes teamMemberId — verify it actually
@@ -96,14 +103,18 @@ export async function POST(request: Request) {
 
     // Check if slot is already booked — each team member has their own calendar,
     // so scope the conflict check to the specific assignee (owner if unassigned).
+    // A lesson clashes when its minutes overlap the new one, not only when it starts at the same minute: lengths are the tutor's
+    // own (T-0700), so a 75-minute lesson at 10:00 also blocks a 30-minute one at 10:45.
     let conflictQuery = supabase
       .from('lessons')
-      .select('id')
+      .select('id, starts_at, ends_at, duration_minutes')
       .eq('tutor_id', tutorId)
-      .eq('starts_at', startsAt.toISOString())
+      .gte('starts_at', clashWindowStart(startsAt))
+      .lt('starts_at', endsAt.toISOString())
       .neq('status', 'cancelled')
     conflictQuery = assignedTo ? conflictQuery.eq('assigned_to', assignedTo) : conflictQuery.is('assigned_to', null)
-    const { data: existing } = await conflictQuery.single()
+    const { data: nearby } = await conflictQuery
+    const existing = overlappingLesson(nearby ?? [], startsAt, endsAt)
 
     if (existing) {
       return NextResponse.json({ error: 'This slot is already booked. Please choose another time.' }, { status: 409 })

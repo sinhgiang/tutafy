@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Database, Copy, CheckCircle, ExternalLink, Play, Loader2, Key, Zap } from 'lucide-react'
+import { useAdminT } from '@/components/admin/AdminLang'
 
 const SQL_007_008 = `-- Migration 007 + 008 (idempotent — safe to run multiple times)
 
@@ -97,6 +98,7 @@ DO $$ BEGIN
 END $$;`
 
 export default function AdminMigratePage() {
+  const t = useAdminT()
   const [copied, setCopied] = useState(false)
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState<{ ok?: boolean; message?: string; method?: string; error?: string; fix?: string; sql_url?: string } | null>(null)
@@ -119,9 +121,9 @@ export default function AdminMigratePage() {
   return (
     <div className="max-w-[760px] space-y-5">
       <div>
-        <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Database Migrations</h1>
+        <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">{t('migrate.title')}</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">
-          Migrations 007 + 008 — Parent Portal, Group Class, Referral, Subscriptions, White-label
+          {t('migrate.subtitle')}
         </p>
       </div>
 
@@ -129,27 +131,27 @@ export default function AdminMigratePage() {
       <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-indigo-500" fill="currentColor" />
-          <p className="text-[13px] font-bold text-indigo-900">Automatic method (set up once, use forever)</p>
+          <p className="text-[13px] font-bold text-indigo-900">{t('migrate.autoTitle')}</p>
         </div>
         <p className="text-[12px] text-indigo-700 leading-relaxed">
-          Add <strong>SUPABASE_ACCESS_TOKEN</strong> to Vercel → then click &quot;Run&quot; and you're done. Next time there's a new migration, just click Run again — no more pasting SQL.
+          {t('migrate.autoIntro1')}<strong>SUPABASE_ACCESS_TOKEN</strong>{t('migrate.autoIntro2')}
         </p>
         <div className="space-y-3">
           <div className="flex items-start gap-3">
             <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
             <div>
-              <p className="text-[12px] text-indigo-800 font-medium">Get a Personal Access Token</p>
+              <p className="text-[12px] text-indigo-800 font-medium">{t('migrate.step1')}</p>
               <a href="https://supabase.com/dashboard/account/tokens" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-[12px] text-indigo-600 hover:text-indigo-800 font-semibold mt-0.5">
                 supabase.com/dashboard/account/tokens <ExternalLink className="h-3 w-3" />
               </a>
-              <p className="text-[11px] text-indigo-600 mt-0.5">Click &quot;Generate new token&quot; → name it &quot;Tutafy Deploy&quot; → Copy the token</p>
+              <p className="text-[11px] text-indigo-600 mt-0.5">{t('migrate.step1Note')}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
             <div>
-              <p className="text-[12px] text-indigo-800 font-medium">Add it to Vercel Environment Variables</p>
+              <p className="text-[12px] text-indigo-800 font-medium">{t('migrate.step2')}</p>
               <a href="https://vercel.com/sinh-giang-s-projects/tutafy/settings/environment-variables" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-[12px] text-indigo-600 hover:text-indigo-800 font-semibold mt-0.5">
                 vercel.com → tutafy → Settings → Env Vars <ExternalLink className="h-3 w-3" />
@@ -164,8 +166,8 @@ export default function AdminMigratePage() {
           <div className="flex items-start gap-3">
             <span className="w-5 h-5 rounded-full bg-indigo-200 text-indigo-700 font-bold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
             <div>
-              <p className="text-[12px] text-indigo-800 font-medium">Click Run below</p>
-              <p className="text-[11px] text-indigo-600 mt-0.5">Migrations run via the Supabase Management API — no need to paste SQL ever again</p>
+              <p className="text-[12px] text-indigo-800 font-medium">{t('migrate.step3')}</p>
+              <p className="text-[11px] text-indigo-600 mt-0.5">{t('migrate.step3Note')}</p>
             </div>
           </div>
         </div>
@@ -175,10 +177,10 @@ export default function AdminMigratePage() {
       <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
         <div className="flex items-center gap-2">
           <Play className="h-4 w-4 text-indigo-500" />
-          <p className="text-[13px] font-semibold text-gray-900">Run Migrations 007 + 008</p>
+          <p className="text-[13px] font-semibold text-gray-900">{t('migrate.runTitle')}</p>
         </div>
         <p className="text-[12px] text-gray-500">
-          Automatically picks the best method: Management API → pg fallback. Idempotent — safe to run multiple times.
+          {t('migrate.runNote')}
         </p>
 
         {result && (
@@ -188,7 +190,7 @@ export default function AdminMigratePage() {
                 ? <CheckCircle className="h-4 w-4 text-green-500" />
                 : <Database className="h-4 w-4 text-red-500" />}
               <p className={`text-[13px] font-bold ${result.ok ? 'text-green-800' : 'text-red-800'}`}>
-                {result.ok ? `✅ Done! (via ${result.method})` : '❌ Failed — use manual SQL below'}
+                {result.ok ? t('migrate.done', { method: String(result.method) }) : t('migrate.failed')}
               </p>
             </div>
             {result.message && <p className="text-[12px] text-green-600">{result.message}</p>}
@@ -200,7 +202,7 @@ export default function AdminMigratePage() {
         <button onClick={runMigration} disabled={running}
           className="flex items-center gap-2 text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-5 py-2.5 rounded-xl transition-colors">
           {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-          {running ? 'Running...' : 'Run Migrations'}
+          {running ? t('migrate.running') : t('migrate.run')}
         </button>
       </div>
 
@@ -209,21 +211,21 @@ export default function AdminMigratePage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Database className="h-4 w-4 text-gray-400" />
-            <p className="text-[13px] font-semibold text-gray-900">Backup: Supabase SQL Editor</p>
+            <p className="text-[13px] font-semibold text-gray-900">{t('migrate.backup')}</p>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={copySQL}
               className="flex items-center gap-1.5 text-[12px] font-semibold text-indigo-500 hover:text-indigo-700 transition-colors">
               {copied ? <CheckCircle className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? 'Copied!' : 'Copy SQL'}
+              {copied ? t('migrate.copied') : t('migrate.copy')}
             </button>
             <a href="https://supabase.com/dashboard/project/dkxngropifwsqsozerxb/sql/new" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-[12px] font-semibold text-gray-500 hover:text-gray-700 transition-colors">
-              <ExternalLink className="h-3.5 w-3.5" /> Open SQL Editor
+              <ExternalLink className="h-3.5 w-3.5" /> {t('migrate.openEditor')}
             </a>
           </div>
         </div>
-        <p className="text-[12px] text-gray-500">Use this when SUPABASE_ACCESS_TOKEN isn't set yet. Copy → paste into the SQL Editor → Run.</p>
+        <p className="text-[12px] text-gray-500">{t('migrate.backupNote')}</p>
         <pre className="bg-gray-50 border border-gray-100 rounded-lg p-4 text-[11px] text-gray-700 overflow-auto max-h-[350px] font-mono leading-relaxed whitespace-pre-wrap">
           {SQL_007_008}
         </pre>

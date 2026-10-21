@@ -15,6 +15,9 @@ export type ViewRow = TimelineEntry & {
   until?: string
   count?: number
   breakdown?: string
+  /** The same breakdown without its "+N more" tail, and N, so the page can word the tail in its own language. */
+  shownParts?: string
+  moreCount?: number
 }
 export type IndexedRow = { row: ViewRow; index: number }
 export type KeyMoment = IndexedRow & { page: number }
@@ -53,6 +56,8 @@ function describeRun(run: TimelineEntry[]): ViewRow {
     count: run.length,
     title: `In the app: ${run.length} page views`,
     breakdown: shown.join(', '),
+    shownParts: shown.slice(0, 6).join(', '),
+    moreCount: parts.length > 6 ? parts.length - 6 : 0,
   }
 }
 

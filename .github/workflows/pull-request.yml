@@ -1,0 +1,45 @@
+# Runs on every pull request (T-0684, T-0693, T-0703): the type check, the tests (they include the scan for comments that still
+# state a value rule that was replaced), the production build, the check that every line citation in the Markdown files of the
+# repository points inside its file, and the check that no Markdown file calls a merged pull request "waiting to merge". The
+# tests and the build need no secrets and send nothing anywhere (the build gets placeholder public values, never a key); the last
+# step only READS pull request states from GitHub.
+name: Pull request
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pull-request-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
+      - name: Build
+        run: npm run build
+        env:
+          # Placeholders for the two public settings the build reads; the build opens no connection and holds no secret.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.example.com
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+      - name: Line citations in the Markdown files point inside their files
+        run: npm run line-refs
+      - name: No merged pull request is written as waiting to merge
+        run: npm run pr-status
+        env:
+          GH_TOKEN: ${{ github.token }}

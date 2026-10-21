@@ -19,6 +19,7 @@ import { SITE_URL, PLANS, FAQ, FEATURES, KEY_PAGES } from '@/lib/site-content'
 import { PAGE_SEO, pageMetadata } from '@/lib/page-meta'
 import { PLAN_PRICE } from '@/lib/plans'
 import { POSTS } from '@/lib/blog'
+import { loadUpdates } from '@/lib/updates'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8')
@@ -207,6 +208,9 @@ test('the sitemap puts no date on static pages and the posts keep their own date
     } else if (e.url === `${SITE_URL}/blog`) {
       const newest = Math.max(...postDates.values())
       assert.equal(new Date(e.lastModified as Date).getTime(), newest, 'blog index = newest post')
+    } else if (e.url === `${SITE_URL}/updates`) {
+      // the Updates page has a real date: the day of its newest entry (content/updates/, T-0683)
+      assert.equal(new Date(e.lastModified as Date).toISOString().slice(0, 10), loadUpdates()[0].date, 'updates page = newest entry')
     } else {
       assert.equal(e.lastModified, undefined, `static page ${e.url} must not carry a date`)
     }

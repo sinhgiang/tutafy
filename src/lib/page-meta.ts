@@ -48,6 +48,11 @@ export const PAGE_SEO = {
     title: 'Tutafy Blog: Tips & Guides for Online Tutors',
     description: 'Practical advice on getting students, pricing lessons, running your tutoring business and keeping 100% of what you earn.',
   },
+  updates: {
+    path: '/updates',
+    title: "Tutafy Updates: What's New for Online Tutors",
+    description: "See what's new in Tutafy: every change tutors can see or use, from lesson settings and payments to phone support, newest first.",
+  },
   about: {
     path: '/about',
     title: 'About Tutafy: Software Built for Independent Tutors',

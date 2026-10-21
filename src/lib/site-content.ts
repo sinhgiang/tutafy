@@ -77,6 +77,7 @@ export const KEY_PAGES: { path: string; title: string; description: string }[] =
   { path: '/tutors', title: 'Find tutors', description: PAGE_SEO.tutors.description },
   { path: '/about', title: 'About Tutafy', description: PAGE_SEO.about.description },
   { path: '/customers', title: 'Customer stories', description: PAGE_SEO.customers.description },
+  { path: '/updates', title: 'Updates', description: PAGE_SEO.updates.description },
   { path: '/contact', title: 'Contact', description: PAGE_SEO.contact.description },
 ]
 

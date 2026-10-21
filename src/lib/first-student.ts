@@ -71,7 +71,7 @@ export function buildFirstStudent(f: FirstStudentFacts): FirstStudentCard | null
     },
     {
       id: 'lengths', title: 'Choose your lesson lengths',
-      hint: '30, 45, 60 or 90 minutes: tick the ones you teach.',
+      hint: 'Tick the lengths you teach, or type your own, like 75 minutes.',
       href: '/settings?tab=booking', action: 'Choose lengths',
       done: chosenDurations(f.lessonDurations) !== null, proOnly: false,
     },

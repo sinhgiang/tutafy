@@ -9,6 +9,7 @@ import { buildPaymentMethods, cardPaymentUrl, paypalUrl, showBuiltInCardCheckout
 import { formatMoney } from '@/lib/currency'
 import { ALL_DURATIONS, FALLBACK_DEFAULT } from '@/lib/lesson-durations'
 import { DEFAULT_FROM_ADDRESS, spamHintFor } from '@/lib/email-config'
+import { getSlots } from '@/lib/booking-slots'
 
 // "Continue with Google" — signs the student in, then returns to this booking
 // page with their name + email pre-filled (handled server-side via the session).
@@ -77,24 +78,6 @@ function convertSlot(dateStr: string, slotHHMM: string, tutorTz: string, student
   } catch {
     return slotHHMM
   }
-}
-
-function getSlots(avail: Availability[], dateStr: string, duration: number, bufferMinutes = 0): string[] {
-  if (!dateStr) return []
-  const day = new Date(dateStr + 'T00:00:00').getDay()
-  const slots: string[] = []
-  for (const a of avail.filter(a => a.day_of_week === day)) {
-    const [sh, sm] = a.start_time.split(':').map(Number)
-    const [eh, em] = a.end_time.split(':').map(Number)
-    let cur = sh * 60 + sm
-    const step = duration + bufferMinutes
-    while (cur + duration <= eh * 60 + em) {
-      const h = Math.floor(cur / 60), m = (cur % 60).toString().padStart(2, '0')
-      slots.push(`${h.toString().padStart(2,'0')}:${m}`)
-      cur += step
-    }
-  }
-  return slots
 }
 
 function fmt12(t: string) {

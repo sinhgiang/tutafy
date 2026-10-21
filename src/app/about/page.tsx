@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GraduationCap, ArrowLeft, ArrowRight, Heart, Shield, Sparkles } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
+import { SiteFooter } from '@/components/SiteFooter'
 
 export const metadata = pageMetadata('about')
 
@@ -81,6 +82,8 @@ export default function AboutPage() {
           </Link>
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   )
 }

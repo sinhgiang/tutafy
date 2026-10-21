@@ -7,8 +7,9 @@ import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { ArrowLeft, RefreshCw, Plus, X, Users } from 'lucide-react'
+import { DurationPicker } from '@/components/lessons/DurationPicker'
+import { loadChosenDurations, chosenDurations } from '@/lib/lesson-durations'
 
-const DURATIONS = [30, 45, 60, 90, 120]
 const RECURRENCE = [
   { v: 'none', l: 'Does not repeat' },
   { v: 'weekly', l: 'Every week' },
@@ -33,6 +34,8 @@ export default function NewLessonPage() {
   const [vocab, setVocab] = useState<{ word: string; def: string }[]>([])
   const [newWord, setNewWord] = useState('')
   const [newDef, setNewDef] = useState('')
+  // the lengths this tutor offers on their booking page, shown as buttons here too (T-0700)
+  const [offered, setOffered] = useState<number[] | null>(null)
 
   const [form, setForm] = useState({
     student_id: searchParams.get('student') ?? '',
@@ -55,6 +58,7 @@ export default function NewLessonPage() {
       if (!user) return
       const { data } = await supabase.from('students').select('id, name').eq('tutor_id', user.id).eq('status', 'active').order('name')
       setStudents(data ?? [])
+      setOffered(chosenDurations((await loadChosenDurations(supabase, user.id)).lesson_durations))
     }
     load()
   }, [])
@@ -178,14 +182,7 @@ export default function NewLessonPage() {
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-2">Duration</label>
-            <div className="flex gap-2 flex-wrap">
-              {DURATIONS.map(d => (
-                <button key={d} type="button" onClick={() => setForm(f => ({ ...f, duration_minutes: String(d) }))}
-                  className={`text-[13px] px-4 py-1.5 rounded-lg font-medium transition-all ${
-                    form.duration_minutes === String(d) ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}>{d} min</button>
-              ))}
-            </div>
+            <DurationPicker value={form.duration_minutes} offered={offered} onChange={minutes => setForm(f => ({ ...f, duration_minutes: minutes }))} />
           </div>
         </div>
 
