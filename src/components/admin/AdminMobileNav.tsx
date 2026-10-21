@@ -2,20 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { LogOut, Menu, Shield, X } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { usePathname } from 'next/navigation'
+import { Menu, Shield, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ADMIN_NAV } from './admin-nav'
 import { LangToggle, useAdminT } from './AdminLang'
+import { SignOutButton } from './SignOutButton'
 
-// On a phone the admin sidebar is hidden; this top bar replaces it. The menu button
-// opens a drawer with the same links and sign out; a link, the dark backdrop, the close
-// button or Escape closes it.
+// On a phone the admin sidebar is hidden; this top bar replaces it. It stays at the top of the window while the page
+// scrolls and always carries the language switch and the Sign out button (the one and only Sign out on a phone). The
+// menu button opens a drawer with the same links; a link, the dark backdrop, the close button or Escape closes it.
 export function AdminMobileNav() {
   const pathname = usePathname()
-  const router = useRouter()
-  const supabase = createClient()
   const t = useAdminT()
   // The drawer is open for the page it was opened on: going to another page closes it with no effect needed.
   const [openAt, setOpenAt] = useState<string | null>(null)
@@ -34,11 +32,6 @@ export function AdminMobileNav() {
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev }
   }, [open])
 
-  async function handleSignOut() {
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
   return (
     <>
       <header className="md:hidden sticky top-0 z-40 flex items-center gap-3 h-14 px-3 bg-gray-950 text-white border-b border-gray-800">
@@ -49,8 +42,9 @@ export function AdminMobileNav() {
         <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center flex-shrink-0">
           <Shield className="h-4 w-4 text-white" />
         </div>
-        <p className="font-bold text-[15px] leading-none">{t('shell.title')}</p>
+        <p className="hidden min-[480px]:block font-bold text-[15px] leading-none">{t('shell.title')}</p>
         <LangToggle className="ml-auto" />
+        <SignOutButton className="shrink-0 px-2 min-h-[44px] rounded-lg text-gray-200 hover:bg-gray-800 hover:text-white" />
       </header>
 
       {open && (
@@ -79,13 +73,6 @@ export function AdminMobileNav() {
                 )
               })}
             </nav>
-            <div className="px-3 py-3 border-t border-gray-800">
-              <button type="button" onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-3 min-h-[48px] rounded-lg text-[15px] text-gray-300 hover:bg-gray-800 hover:text-white bg-transparent border-0">
-                <LogOut className="h-5 w-5" />
-                {t('shell.signOut')}
-              </button>
-            </div>
           </aside>
         </div>
       )}

@@ -194,7 +194,7 @@ test('phone menu of the admin area: a top bar and drawer on phones, the sidebar 
   assert.match(mobile, /aria-expanded=\{open\}/)
   assert.match(mobile, /e\.key === 'Escape'/)
   assert.match(mobile, /aria-label=\{t\('shell\.closeMenu'\)\}/)
-  assert.match(mobile, /handleSignOut/)
+  assert.match(mobile, /<SignOutButton/)
   assert.ok(ADMIN_NAV.length >= 8 && ADMIN_NAV.every(i => i.href.startsWith('/admin') || i.href === '/super-admin'))
 })
 

@@ -241,3 +241,58 @@ test('a public page has no language switch and no Vietnamese; the switch is not 
   const rootLayout = readFileSync(path.join(SRC, 'app/layout.tsx'), 'utf8')
   assert.doesNotMatch(rootLayout, /AdminLang|LangToggle|admin-i18n/)
 })
+
+// ---- Sign out is always in view (T-0699) ---------------------------------------------------------------------------------------------------
+
+const AdminLayout = (await import('@/app/(admin)/layout.tsx')).default as (p: { children: React.ReactNode }) => Promise<React.ReactElement>
+
+/** The two pieces of the admin frame, from the real layout wrapped around a real page: the desktop sidebar and the phone top bar. */
+async function frame(page: Page, p: unknown) {
+  const html = renderToStaticMarkup(await AdminLayout({ children: await page(p) }))
+  const aside = html.match(/<aside[\s\S]*?<\/aside>/)?.[0] ?? ''
+  const header = html.match(/<header[\s\S]*?<\/header>/)?.[0] ?? ''
+  return { html, aside, header }
+}
+const signOuts = (html: string) => html.match(/<button[^>]*data-testid="sign-out"[^>]*>[\s\S]*?<\/button>/g) ?? []
+
+for (const name of Object.keys(Pages) as (keyof typeof Pages)[]) {
+  test(`${name}: exactly one Sign out in the sidebar (fixed to the window) and one in the phone top bar (fixed to the top), no Sign in`, async () => {
+    for (const lang of ['en', 'vi'] as const) {
+      setAdminLang(lang)
+      const word = ADMIN_DICTIONARIES[lang]['shell.signOut']
+      const { html, aside, header } = await frame(Pages[name], props[name])
+      // desktop: the sidebar is as tall as the window and sticks to its top, so the button at its foot never scrolls away
+      assert.equal(signOuts(aside).length, 1, `${lang}: one Sign out in the sidebar`)
+      assert.ok(signOuts(aside)[0].includes(`<span>${word}</span>`), `${lang}: it says ${word}`)
+      const asideClass = aside.match(/<aside class="([^"]*)"/)?.[1] ?? ''
+      for (const c of ['sticky', 'top-0', 'h-screen', 'self-start', 'md:flex', 'flex-col']) assert.ok(asideClass.split(' ').includes(c), `sidebar has ${c}`)
+      assert.ok(!asideClass.split(' ').includes('min-h-screen'), 'the sidebar is not as tall as a long page')
+      // the menu scrolls inside the sidebar; the sign-out block never shrinks away
+      assert.match(aside, /<nav class="[^"]*overflow-y-auto[^"]*"/)
+      assert.ok(aside.indexOf('data-testid="sign-out"') > aside.indexOf('</nav>'), 'Sign out is below the menu, at the foot')
+      // phone: the top bar sticks to the top of the window and holds the language switch and Sign out
+      assert.equal(signOuts(header).length, 1, `${lang}: one Sign out in the phone bar`)
+      assert.ok(signOuts(header)[0].includes(`<span>${word}</span>`))
+      const headerClass = header.match(/<header class="([^"]*)"/)?.[1] ?? ''
+      for (const c of ['sticky', 'top-0', 'md:hidden']) assert.ok(headerClass.split(' ').includes(c), `top bar has ${c}`)
+      assert.ok(header.includes('data-testid="lang-toggle"'))
+      // nothing else in the frame can sign out or sign in; the closed drawer is not drawn
+      assert.equal((html.match(/data-testid="sign-out"/g) ?? []).length, 2, 'one per screen size, no third')
+      assert.doesNotMatch(aside + header, /Sign in|Log in|Đăng nhập|href="\/login"|href="\/register"/)
+      assert.doesNotMatch(html, /id="admin-drawer"/)
+    }
+  })
+}
+
+test('the one Sign out signs out and goes to the login page, and the admin frame has no sign-in anywhere in its source', () => {
+  const button = readFileSync(path.join(SRC, 'components/admin/SignOutButton.tsx'), 'utf8')
+  assert.match(button, /await createClient\(\)\.auth\.signOut\(\)\s*router\.push\('\/login'\)/)
+  for (const f of ['components/admin/AdminSidebar.tsx', 'components/admin/AdminMobileNav.tsx', 'components/admin/SignOutButton.tsx']) {
+    const src = readFileSync(path.join(SRC, f), 'utf8')
+    assert.doesNotMatch(src, /signIn|signInWith|Sign in/i, f)
+    if (f !== 'components/admin/SignOutButton.tsx') assert.doesNotMatch(src, /\.auth\.signOut/, `${f} has no sign-out logic of its own`)
+  }
+  assert.match(readFileSync(path.join(SRC, 'components/admin/AdminSidebar.tsx'), 'utf8'), /<SignOutButton/)
+  // one in the phone top bar and none in the drawer (the drawer is not drawn while closed, so only the source can say so)
+  assert.equal((readFileSync(path.join(SRC, 'components/admin/AdminMobileNav.tsx'), 'utf8').match(/<SignOutButton/g) ?? []).length, 1)
+})
