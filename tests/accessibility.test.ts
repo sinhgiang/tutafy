@@ -85,6 +85,7 @@ const PUBLIC_PAGES = [
   'src/app/offline/page.tsx',
   'src/app/privacy/page.tsx',
   'src/app/terms/page.tsx',
+  'src/app/updates/page.tsx',
   'src/app/tutors/(directory)/page.tsx',
   'src/app/tutors/[slug]/page.tsx',
   'src/app/(auth)/login/page.tsx',
@@ -155,6 +156,9 @@ const PUBLIC_TEXT_FILES = [
   'src/app/offline/page.tsx',
   'src/app/blog/[slug]/page.tsx',
   'src/app/tutors/[slug]/page.tsx',
+  'src/app/updates/page.tsx',
+  'src/components/updates/UpdatesBrowser.tsx',
+  'src/components/SiteFooter.tsx',
 ]
 
 /**

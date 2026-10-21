@@ -439,6 +439,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <p className="text-[12px] text-gray-500">© 2026 Tutafy. Built for tutors, by people who get it.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             <Link href="/about" className="text-[12px] text-gray-500 hover:text-gray-600">About</Link>
+            <Link href="/updates" className="text-[12px] text-gray-500 hover:text-gray-600">Updates</Link>
             <Link href="/blog" className="text-[12px] text-gray-500 hover:text-gray-600">Blog</Link>
             <Link href="/customers" className="text-[12px] text-gray-500 hover:text-gray-600">Customers</Link>
             <Link href="/contact" className="text-[12px] text-gray-500 hover:text-gray-600">Contact</Link>

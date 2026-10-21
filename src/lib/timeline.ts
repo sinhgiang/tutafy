@@ -40,6 +40,7 @@ const FIXED_LABEL: Record<string, string> = {
   '/login': 'Log-in page',
   '/customers': 'Customers page',
   '/about': 'About page',
+  '/updates': 'Updates page',
   '/contact': 'Contact page',
   '/privacy': 'Privacy page',
   '/terms': 'Terms page',

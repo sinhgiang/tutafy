@@ -6,6 +6,7 @@ import { tutorMetadata, tutorNotFoundMetadata } from '@/lib/page-meta'
 import { tutorJsonLd } from '@/lib/tutor-seo'
 import { jsonLdScript } from '@/lib/seo'
 import Link from 'next/link'
+import { SiteFooter } from '@/components/SiteFooter'
 import { GraduationCap, Globe, Clock, Star, BookOpen, MessageCircle, ArrowRight, CheckCircle } from 'lucide-react'
 
 function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
@@ -236,6 +237,8 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
           </div>
         </div>
       </div>
+
+      <SiteFooter />
     </div>
   )
 }

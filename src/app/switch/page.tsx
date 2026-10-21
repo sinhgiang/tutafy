@@ -309,11 +309,12 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
         </div>
       </section>
 
-      {/* Minimal footer — legal links only, no exit paths to the rest of the site */}
+      {/* Minimal footer — legal links and Updates only, no exit paths to the rest of the site */}
       <footer className="border-t border-gray-100 py-6 px-6">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[12px] text-gray-400">© 2026 Tutafy.</p>
           <div className="flex gap-5">
+            <Link href="/updates" className="text-[12px] text-gray-400 hover:text-gray-600">Updates</Link>
             <Link href="/privacy" className="text-[12px] text-gray-400 hover:text-gray-600">Privacy</Link>
             <Link href="/terms" className="text-[12px] text-gray-400 hover:text-gray-600">Terms</Link>
           </div>
