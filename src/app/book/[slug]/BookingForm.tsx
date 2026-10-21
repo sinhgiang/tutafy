@@ -123,7 +123,7 @@ function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentN
       <div className="px-6 py-4 border-b border-gray-50">
         <p className="text-[13px] font-semibold text-gray-900">Pay for your lesson</p>
         {price && (
-          <p className="text-[12px] text-gray-400 mt-0.5">
+          <p className="text-[12px] text-gray-500 mt-0.5">
             {formatMoney(price, booked.currency)} · {duration} min session
           </p>
         )}
@@ -167,7 +167,7 @@ function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentN
             {payingCard ? 'Redirecting...' : 'Pay by Card'}
           </button>
         )}
-        <p className="text-[11px] text-gray-400 text-center pt-1">
+        <p className="text-[11px] text-gray-500 text-center pt-1">
           You will pay directly to the tutor. Tutafy does not process this payment.
         </p>
       </div>
@@ -191,7 +191,7 @@ function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackag
       <div className="px-5 py-4 border-b border-emerald-50 flex items-center gap-2">
         <Package className="h-4 w-4 text-emerald-500" />
         <p className="text-[13px] font-semibold text-gray-900">Lesson packages</p>
-        <span className="text-[11px] text-gray-400 ml-1">— save by buying in bulk</span>
+        <span className="text-[11px] text-gray-500 ml-1">— save by buying in bulk</span>
       </div>
       <div className="p-4 space-y-3">
         {packages.map(pkg => {
@@ -201,7 +201,7 @@ function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackag
             <div key={pkg.id} className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3">
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-gray-900">{pkg.name}</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">{pkg.lessons_count} lessons · {perLesson}/lesson</p>
+                <p className="text-[11px] text-gray-500 mt-0.5">{pkg.lessons_count} lessons · {perLesson}/lesson</p>
                 {pkg.description && <p className="text-[11px] text-gray-500 mt-0.5">{pkg.description}</p>}
               </div>
               <div className="text-right flex-shrink-0">
@@ -215,7 +215,7 @@ function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackag
             </div>
           )
         })}
-        <p className="text-[11px] text-gray-400 text-center">One-time payment · Paid directly to tutor</p>
+        <p className="text-[11px] text-gray-500 text-center">One-time payment · Paid directly to tutor</p>
       </div>
     </div>
   )
@@ -251,13 +251,13 @@ function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans
           <div key={plan.id} className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3">
             <div className="flex-1">
               <p className="text-[13px] font-semibold text-gray-900">{plan.name}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="text-[11px] text-gray-500 mt-0.5">
                 {plan.lessons_per_period} lessons/{plan.period} · {plan.duration_minutes} min each
               </p>
               {plan.description && <p className="text-[11px] text-gray-500 mt-0.5">{plan.description}</p>}
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-[15px] font-black text-gray-900">{formatMoney(plan.price, plan.currency)}<span className="text-[11px] font-normal text-gray-400">/{plan.period}</span></p>
+              <p className="text-[15px] font-black text-gray-900">{formatMoney(plan.price, plan.currency)}<span className="text-[11px] font-normal text-gray-500">/{plan.period}</span></p>
               <button onClick={() => subscribe(plan)} disabled={loading === plan.id}
                 className="mt-1 text-[11px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-3 py-1.5 rounded-lg transition-colors">
                 {loading === plan.id ? 'Loading...' : 'Subscribe'}
@@ -265,7 +265,7 @@ function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans
             </div>
           </div>
         ))}
-        <p className="text-[11px] text-gray-400 text-center">Recurring payment · Cancel anytime</p>
+        <p className="text-[11px] text-gray-500 text-center">Recurring payment · Cancel anytime</p>
       </div>
     </div>
   )
@@ -296,7 +296,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
       <div className="px-5 py-4 border-b border-amber-50 flex items-center gap-2">
         <Users className="h-4 w-4 text-amber-500" />
         <p className="text-[13px] font-semibold text-gray-900">Join the waitlist</p>
-        <span className="text-[11px] text-gray-400 ml-1">— we&apos;ll notify you when slots open</span>
+        <span className="text-[11px] text-gray-500 ml-1">— we&apos;ll notify you when slots open</span>
       </div>
       <div className="p-5 space-y-3">
         {!signedIn && (
@@ -304,7 +304,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
             <GoogleContinueButton slug={tutorSlug} label="Continue with Google — auto-fill" />
             <div className="relative py-0.5">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
-              <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-400">or enter manually</span></div>
+              <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-500">or enter manually</span></div>
             </div>
           </>
         )}
@@ -326,7 +326,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
           </div>
         </div>
         <div>
-          <label className="block text-[11px] font-medium text-gray-600 mb-1.5">Message <span className="text-gray-400 font-normal">(optional)</span></label>
+          <label className="block text-[11px] font-medium text-gray-600 mb-1.5">Message <span className="text-gray-500 font-normal">(optional)</span></label>
           <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2}
             placeholder="What are you looking to learn?"
             className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-colors resize-none" />
@@ -514,7 +514,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isTrial ? 'bg-emerald-500' : 'bg-gray-100'}`}>
-                <Star className={`h-4 w-4 ${isTrial ? 'text-white' : 'text-gray-400'}`} />
+                <Star className={`h-4 w-4 ${isTrial ? 'text-white' : 'text-gray-500'}`} />
               </div>
               <div>
                 <p className="text-[13px] font-bold text-gray-900">Trial lesson — {formatMoney(trialPrice, tutor.currency)}</p>
@@ -543,7 +543,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
 
       {/* 1 — Duration */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Session length</p>
+        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">Session length</p>
         <div className="flex gap-2 flex-wrap">
           {durations.map(v => (
             <button type="button" key={v}
@@ -575,7 +575,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
               </button>
             </div>
             <div className="grid grid-cols-7 mb-1">
-              {DAYS_SHORT.map(d => <p key={d} className="text-center text-[11px] font-bold text-gray-300 py-1">{d}</p>)}
+              {DAYS_SHORT.map(d => <p key={d} className="text-center text-[11px] font-bold text-gray-500 py-1">{d}</p>)}
             </div>
             <div className="grid grid-cols-7 gap-y-0.5">
               {Array.from({ length: firstDay }).map((_, i) => <div key={i} />)}
@@ -595,7 +595,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
                         isBlocked ? 'text-red-300 line-through cursor-not-allowed bg-red-50' :
                         isToday ? 'ring-2 ring-indigo-400 text-indigo-600 font-bold hover:bg-indigo-50' :
                         hasAvail ? 'text-gray-800 hover:bg-indigo-50 hover:text-indigo-600' :
-                        'text-gray-400 hover:bg-gray-50'}`}>
+                        'text-gray-500 hover:bg-gray-50'}`}>
                     {d}
                   </button>
                 )
@@ -607,16 +607,16 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
           <div className="p-5">
             {!date ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-8">
-                <p className="text-[12px] text-gray-300 font-medium">← Pick a date</p>
+                <p className="text-[12px] text-gray-500 font-medium">← Pick a date</p>
               </div>
             ) : slots.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-8 space-y-1">
-                <p className="text-[13px] font-semibold text-gray-400">No availability</p>
-                <p className="text-[11px] text-gray-300">Try another date</p>
+                <p className="text-[13px] font-semibold text-gray-500">No availability</p>
+                <p className="text-[11px] text-gray-500">Try another date</p>
               </div>
             ) : (
               <>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
                   {new Date(date + 'T00:00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' })}
                 </p>
                 <div className="space-y-1.5 max-h-[280px] overflow-y-auto">
@@ -631,7 +631,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
                         }`}>
                         <span className="text-[13px] font-semibold">{fmt12(s)}</span>
                         {studentTime && studentTime !== s && (
-                          <span className={`block text-[10px] mt-0.5 ${time === s ? 'text-indigo-200' : 'text-gray-400'}`}>
+                          <span className={`block text-[10px] mt-0.5 ${time === s ? 'text-indigo-200' : 'text-gray-500'}`}>
                             {fmt12(studentTime)} your time
                           </span>
                         )}
@@ -664,7 +664,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
         date && time ? 'border-gray-100 opacity-100' : 'border-gray-100 opacity-40 pointer-events-none'
       }`}>
         <div className="px-5 py-4 border-b border-gray-50">
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Your details</p>
+          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Your details</p>
         </div>
         <div className="p-5 space-y-4">
           {!prefillEmail && (
@@ -672,7 +672,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
               <GoogleContinueButton slug={tutorSlug} label="Continue with Google — auto-fill details" />
               <div className="relative">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
-                <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-400">or enter manually</span></div>
+                <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-500">or enter manually</span></div>
               </div>
             </>
           )}
@@ -694,7 +694,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
             </div>
           </div>
           <div>
-            <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Message <span className="text-gray-400 font-normal">(optional)</span></label>
+            <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Message <span className="text-gray-500 font-normal">(optional)</span></label>
             <textarea value={note} onChange={e => setNote(e.target.value)} rows={3}
               placeholder="What would you like to focus on in this lesson?"
               className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
@@ -706,8 +706,8 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
       {date && time && name.trim() && email.trim() && (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center gap-2 mb-3">
-            <Tag className="h-4 w-4 text-gray-400" />
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Promo code</p>
+            <Tag className="h-4 w-4 text-gray-500" />
+            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Promo code</p>
           </div>
           {couponApplied ? (
             <div className="flex items-center gap-3">
@@ -719,7 +719,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
                 </span>
               </div>
               <button type="button" onClick={() => { setCouponApplied(null); setCouponCode('') }}
-                className="text-[12px] text-gray-400 hover:text-gray-600 transition-colors">Remove</button>
+                className="text-[12px] text-gray-500 hover:text-gray-600 transition-colors">Remove</button>
             </div>
           ) : (
             <div className="flex gap-2">
@@ -744,7 +744,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
         }`}>
           <div className="px-5 py-4 border-b border-amber-50 flex items-center gap-2">
             <FileText className="h-4 w-4 text-amber-500" />
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Lesson agreement</p>
+            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Lesson agreement</p>
           </div>
           <div className="p-5 space-y-3">
             <div className="bg-gray-50 rounded-xl px-4 py-3 max-h-36 overflow-y-auto">
@@ -788,13 +788,13 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
         className={`w-full py-3.5 rounded-2xl text-[14px] font-bold transition-all shadow-sm ${
           canBook && !loading
             ? 'bg-indigo-500 hover:bg-indigo-600 text-white'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-gray-100 text-gray-500 cursor-not-allowed'
         }`}>
         {loading ? 'Confirming...' : canBook ? `Book ${duration} min lesson →` : 'Select date, time and fill your details'}
       </button>
 
       {canBook && (
-        <p className="text-center text-[11px] text-gray-400">
+        <p className="text-center text-[11px] text-gray-500">
           By booking you agree to the {tutor.cancellation_hours}h cancellation policy.
         </p>
       )}

@@ -11,7 +11,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           </div>
           <span className="text-[14px] font-semibold text-gray-900">Tutafy</span>
         </Link>
-        <span className="text-[11px] text-gray-400 ml-2">· Student</span>
+        <span className="text-[11px] text-gray-500 ml-2">· Student</span>
       </header>
       <main className="max-w-[720px] mx-auto px-4 py-8">
         {children}

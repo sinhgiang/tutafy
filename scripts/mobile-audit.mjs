@@ -3,6 +3,8 @@
 //   sideways scroll (page and the main column), content running off or cut inside a card,
 //   buttons / fields / stand-alone links under 44px, text under 14px, images wider than
 //   their frame. aria-hidden pieces (decorative pictures) are skipped.
+// Only findSmallTargets and findDistorted have rows in tests/support/measure-claims.ts and run in `npm test`; the rest of
+// audit() is described, not claimed, and is run by hand (see LEFT_WITHOUT_ROW in that file).
 //
 // How to run it (docs/feature-map.md, "Phone check"):
 //   1. node scripts/mock-supabase.mjs          (fake data, http://localhost:54399)
@@ -15,10 +17,9 @@
 //   m.fingerprint() is a hash of every box's size and place: equal before and after a change
 //   at 1440 wide proves the desktop layout did not move.
 // m.audit() measures the page it is loaded in; m.probe(url, width) one page with details.
-export function audit(win = window) {
-  const document = win.document, getComputedStyle = win.getComputedStyle.bind(win), innerWidth = win.innerWidth, location = win.location, NodeFilter = win.NodeFilter
-  const de = document.documentElement
-  const cw = de.clientWidth
+/** What the measures need from a window: its document, its styles, "is it on screen" and a short name for an element. */
+export function makeHelpers(win) {
+  const document = win.document, getComputedStyle = win.getComputedStyle.bind(win)
   const vis = el => {
     const cs = getComputedStyle(el)
     if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) === 0) return false
@@ -32,30 +33,20 @@ export function audit(win = window) {
     const txt = (el.innerText || el.getAttribute('aria-label') || el.getAttribute('placeholder') || el.getAttribute('alt') || '').trim().replace(/\s+/g, ' ').slice(0, 28)
     return `${el.tagName.toLowerCase()}${cls ? '.' + cls : ''}${txt ? ` "${txt}"` : ''}`
   }
-  const clipAncestor = el => {
-    for (let p = el.parentElement; p && p !== document.body && p !== de; p = p.parentElement) {
-      if (p.tagName === 'MAIN') return null // the main column is judged by mainScroll, it is not a place to hide content
-      const ox = getComputedStyle(p).overflowX
-      if (ox === 'auto' || ox === 'scroll' || ox === 'hidden' || ox === 'clip') return p
-    }
-    return null
-  }
-  const all = [...document.body.querySelectorAll('*')]
-  const offenders = []
-  for (const el of all) {
-    if (!vis(el)) continue
-    const cs = getComputedStyle(el)
-    if (cs.position === 'fixed') continue
-    const r = el.getBoundingClientRect()
-    if (r.right > cw + 1 || r.left < -1) {
-      const c = clipAncestor(el)
-      if (c) { const cr = c.getBoundingClientRect(); if (cr.right <= cw + 1 && cr.left >= -1) continue }
-      offenders.push({ el: describe(el), left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width) })
-    }
-  }
-  // only the outermost offenders (skip children of an offender)
-  const top = offenders.slice(0, 400)
+  return { document, getComputedStyle, vis, describe }
+}
 
+/**
+ * Every button, link, field (an input, a select or a textarea), summary, tab, menu item, checkbox and switch that is on screen and
+ * smaller than 44px (a switch: its invisible touch box smaller than 44px; a checkbox: unless its label is 44px high) is reported.
+ * An icon-only button is reported when it is short or narrow. Each kind has its own row in tests/support/measure-claims.ts (the
+ * name of the kind in its `covers`), and the test runs this function on a sample in the broken state and one in the right state;
+ * a kind named here without a row that covers it turns that test red:
+ * [claim: small-target-button] [claim: small-target-link] [claim: small-target-field] [claim: small-target-select] [claim: small-target-textarea]
+ * [claim: small-target-summary] [claim: small-target-tab] [claim: small-target-menuitem] [claim: small-target-checkbox]
+ * [claim: small-target-icon-button] [claim: small-target-icon-button-narrow] [claim: small-target-switch]
+ */
+export function findSmallTargets({ document, getComputedStyle, vis, describe }) {
   const small = []
   const seenSmall = new Set()
   const sel = 'a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button], [role=tab], [role=menuitem], [role=switch], [role=checkbox]'
@@ -89,10 +80,17 @@ export function audit(win = window) {
       small.push({ el: describe(el), w: Math.round(r.width), h: Math.round(r.height) })
     }
   }
+  return small
+}
 
-  // buttons stretched out of the shape they are drawn in (the 44px minimums once turned the settings switches into circles with the knob
-  // half way, and "no target under 44px" counted that as a pass): a switch must stay a pill with its knob at one end, and an icon-only
-  // fully rounded button must stay a circle
+/**
+ * [claim: distorted-switch] [claim: distorted-round-icon-button-svg] [claim: distorted-round-icon-button-img] [claim: distorted-round-icon-button-font]
+ * A button drawn in a fixed shape that a rule has stretched out of it is reported. A switch must stay a
+ * pill with its knob at one end; a fully rounded button with no text (an icon-only button, whatever the icon is made of: svg, img
+ * or a font) must stay a circle. The 44px minimums once turned the settings switches into circles with the knob half way, and
+ * "no target under 44px" counted that as a pass.
+ */
+export function findDistorted({ document, getComputedStyle, vis, describe }) {
   const distorted = []
   for (const el of document.body.querySelectorAll('button, [role=switch], [role=button]')) {
     if (!vis(el) || el.closest('[aria-hidden="true"]')) continue
@@ -104,10 +102,45 @@ export function audit(win = window) {
       const kr = knob && knob.getBoundingClientRect()
       const gaps = kr ? [kr.left - r.left, r.right - kr.right] : []
       if (r.width < r.height * 1.5 || !gaps.length || Math.min(...gaps) > 4) distorted.push({ el: describe(el), w: Math.round(r.width), h: Math.round(r.height), knobGap: gaps.map(Math.round) })
-    } else if (round && !(el.innerText || '').trim() && Math.abs(r.width - r.height) > 2 && el.querySelector('svg, img') == null) {
+    } else if (round && !(el.innerText || '').trim() && Math.abs(r.width - r.height) > 2) {
       distorted.push({ el: describe(el), w: Math.round(r.width), h: Math.round(r.height) })
     }
   }
+  return distorted
+}
+
+export function audit(win = window) {
+  const document = win.document, getComputedStyle = win.getComputedStyle.bind(win), innerWidth = win.innerWidth, location = win.location, NodeFilter = win.NodeFilter
+  const de = document.documentElement
+  const cw = de.clientWidth
+  const { vis, describe } = makeHelpers(win)
+  const clipAncestor = el => {
+    for (let p = el.parentElement; p && p !== document.body && p !== de; p = p.parentElement) {
+      if (p.tagName === 'MAIN') return null // the main column is judged by mainScroll, it is not a place to hide content
+      const ox = getComputedStyle(p).overflowX
+      if (ox === 'auto' || ox === 'scroll' || ox === 'hidden' || ox === 'clip') return p
+    }
+    return null
+  }
+  const all = [...document.body.querySelectorAll('*')]
+  const offenders = []
+  for (const el of all) {
+    if (!vis(el)) continue
+    const cs = getComputedStyle(el)
+    if (cs.position === 'fixed') continue
+    const r = el.getBoundingClientRect()
+    if (r.right > cw + 1 || r.left < -1) {
+      const c = clipAncestor(el)
+      if (c) { const cr = c.getBoundingClientRect(); if (cr.right <= cw + 1 && cr.left >= -1) continue }
+      offenders.push({ el: describe(el), left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width) })
+    }
+  }
+  // only the outermost offenders (skip children of an offender)
+  const top = offenders.slice(0, 400)
+
+  const small = findSmallTargets({ document, getComputedStyle, vis, describe })
+
+  const distorted = findDistorted({ document, getComputedStyle, vis, describe })
 
   // short labels (buttons, links) that break onto two lines: a squeezed menu or button
   const wrapped = []

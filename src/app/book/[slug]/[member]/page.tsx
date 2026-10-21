@@ -98,7 +98,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
+      <main className="max-w-5xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 items-start">
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-7 lg:sticky lg:top-8">
@@ -138,7 +138,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
                 <span>{timezone}</span>
               </div>
               {tutor.cancellation_hours > 0 && (
-                <div className="flex items-start gap-3 text-[13px] text-gray-400 pt-2">
+                <div className="flex items-start gap-3 text-[13px] text-gray-500 pt-2">
                   <div className="w-7 h-7 flex-shrink-0" />
                   <span>Cancel up to {tutor.cancellation_hours}h before lesson</span>
                 </div>
@@ -164,7 +164,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
             defaultDuration={lengths.defaultDuration}
           />
         </div>
-      </div>
+      </main>
     </div>
   )
 }

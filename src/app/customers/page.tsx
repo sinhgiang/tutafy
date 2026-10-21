@@ -29,7 +29,7 @@ export default function CustomersPage() {
         </div>
       </nav>
 
-      <section className="max-w-5xl mx-auto px-6 py-16">
+      <main className="max-w-5xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Customer stories</p>
           <h1 className="text-[36px] font-extrabold text-gray-900 tracking-tight">Tutors growing with Tutafy</h1>
@@ -48,13 +48,13 @@ export default function CustomersPage() {
                   {c.metrics.map(m => (
                     <div key={m.label}>
                       <p className="text-[22px] font-bold text-indigo-600">{m.value}</p>
-                      <p className="text-[11px] text-gray-400">{m.label}</p>
+                      <p className="text-[11px] text-gray-500">{m.label}</p>
                     </div>
                   ))}
                 </div>
                 <div className="border-t border-gray-50 pt-4">
                   <p className="text-[13px] font-semibold text-gray-900">{c.name}</p>
-                  <p className="text-[12px] text-gray-400">{c.role}</p>
+                  <p className="text-[12px] text-gray-500">{c.role}</p>
                 </div>
               </div>
             ))}
@@ -75,7 +75,7 @@ export default function CustomersPage() {
             </Link>
           </div>
         )}
-      </section>
+      </main>
     </div>
   )
 }

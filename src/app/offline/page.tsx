@@ -2,7 +2,7 @@
 
 export default function OfflinePage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="text-center max-w-sm">
         <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,6 +20,6 @@ export default function OfflinePage() {
           Try Again
         </button>
       </div>
-    </div>
+    </main>
   )
 }

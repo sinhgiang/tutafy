@@ -95,7 +95,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
+      <main className="max-w-5xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 items-start">
 
           {/* Left: Tutor Card */}
@@ -137,7 +137,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
                 <span>{tutor.timezone ?? 'UTC'}</span>
               </div>
               {tutor.cancellation_hours > 0 && (
-                <div className="flex items-start gap-3 text-[13px] text-gray-400 pt-2">
+                <div className="flex items-start gap-3 text-[13px] text-gray-500 pt-2">
                   <div className="w-7 h-7 flex-shrink-0" />
                   <span>Cancel up to {tutor.cancellation_hours}h before lesson</span>
                 </div>
@@ -154,7 +154,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
                     ))}
                   </div>
                   <span className="text-[12px] font-semibold text-gray-700">{((tutor as any).average_rating ?? 0).toFixed(1)}</span>
-                  <span className="text-[11px] text-gray-400">({(tutor as any).review_count} reviews)</span>
+                  <span className="text-[11px] text-gray-500">({(tutor as any).review_count} reviews)</span>
                 </div>
                 <div className="space-y-3">
                   {reviews.map((r: any) => (
@@ -192,7 +192,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
             prefillEmail={prefillEmail}
           />
         </div>
-      </div>
+      </main>
     </div>
   )
 }

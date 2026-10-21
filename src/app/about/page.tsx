@@ -27,7 +27,7 @@ export default function AboutPage() {
         </div>
       </nav>
 
-      <section className="max-w-3xl mx-auto px-6 py-16">
+      <main className="max-w-3xl mx-auto px-6 py-16">
         <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Our story</p>
         <h1 className="text-[38px] font-extrabold text-gray-900 tracking-tight leading-tight">
           Tutoring should pay the tutor — not the middleman.
@@ -80,7 +80,7 @@ export default function AboutPage() {
             Start free — no credit card <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-      </section>
+      </main>
     </div>
   )
 }

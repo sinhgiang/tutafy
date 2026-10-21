@@ -23,9 +23,9 @@ export default function PrivacyPage() {
         </div>
       </nav>
 
-      <article className="max-w-3xl mx-auto px-6 py-14 prose-tutafy">
+      <main className="max-w-3xl mx-auto px-6 py-14 prose-tutafy">
         <h1 className="text-[32px] font-extrabold text-gray-900 tracking-tight">Privacy Policy</h1>
-        <p className="text-[13px] text-gray-400 mt-1 mb-8">Last updated: {UPDATED}</p>
+        <p className="text-[13px] text-gray-500 mt-1 mb-8">Last updated: {UPDATED}</p>
 
         <div className="space-y-7 text-[14px] text-gray-600 leading-relaxed">
           <p>Tutafy (&quot;we&quot;, &quot;us&quot;) provides software that helps tutors run their tutoring business. This policy explains what we collect, why, and your choices. We keep it short and plain.</p>
@@ -60,18 +60,18 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="Cookies & analytics">
-            <p>We use <b>essential cookies</b> to keep you signed in and run the app. On tutafy.com, <b>including the app after you sign in</b>, we also use, <b>only with your consent</b>, analytics and advertising cookies to understand how visitors find us and how the product is used, and to measure our ads — including Google Analytics 4 and Google Ads (both loaded through one Google tag) and the Meta (Facebook) Pixel. Google Analytics tells us how many people visit, which pages they view (in the app too, once you are signed in) and, as two events, when someone signs up for an account or clicks a Go Pro button; those events carry no name or email address. The page addresses we send to Google never include an access code, a record ID or anything after a question mark (except advertising campaign tags such as utm_source), and pages that open a student&apos;s portal or a private record send nothing to Google at all. Google may set its own cookies and process this data under its own privacy policy. If you decline, no Google tag is loaded and nothing is sent to Google. You can accept or decline these in the cookie banner, and change your mind anytime by clearing your browser storage. Declining does not affect your ability to use Tutafy.</p>
+            <p>We use <b>essential cookies</b> to keep you signed in and run the app. On tutafy.com, <b>including the app after you sign in</b>, we also use, <b>only with your consent</b>, analytics and advertising cookies to understand how visitors find us and how the product is used, and to measure our ads — including Google Analytics 4 and Google Ads (both loaded through one Google tag) and the Meta (Facebook) Pixel.{/* [promise: tags-only-after-accept] */} Google Analytics tells us how many people visit, which pages they view (in the app too, once you are signed in) and, as two events, when someone signs up for an account or clicks a Go Pro button; those events carry no name or email address.{/* [promise: events-no-personal-data] */} The page addresses we send to Google never include an access code, a record ID or anything after a question mark (except advertising campaign tags such as utm_source), as long as the automatic page-change option of Google Analytics (called Enhanced Measurement) stays switched off in our Google Analytics settings.{/* [promise: addresses-no-codes] */} Pages that open a student&apos;s portal or a private record send nothing to Google at all.{/* [promise: private-pages-send-nothing] */} Google may set its own cookies and process this data under its own privacy policy. If you decline, no Google tag is loaded and nothing is sent to Google.{/* [promise: decline-sends-nothing] */} You can accept or decline these in the cookie banner, and change your mind anytime by clearing your browser storage. Declining does not affect your ability to use Tutafy.</p>
           </Section>
 
           <Section title="How visitors find us (our own measurement)">
-            <p>Only if you accept cookies, we also keep a short record of your visit in our own database (not with an advertising company), so we can learn which sites and searches lead to Tutafy and which pages help people decide. We store:</p>
+            <p>Only if you accept cookies, we also keep a short record of your visit in our own database (not with an advertising company), so we can learn which sites and searches lead to Tutafy and which pages help people decide.{/* [promise: own-record-after-accept, own-record-not-ad-company] */} We store:</p>
             <ul className="list-disc pl-5 space-y-1.5 mt-2">
               <li>a random visitor ID kept in one cookie (<code>tutafy_vid</code>) that lasts up to 13 months;</li>
               <li>your country (two-letter code, taken from our host&apos;s country header), the website, search or assistant that sent you (for example Google, an AI assistant such as ChatGPT, Gemini, Claude, Perplexity or Copilot, a social site, or none) and any campaign tags in the link;</li>
               <li>the pages you open on tutafy.com, as short page names with no personal details (for example <code>/blog</code> or <code>/upgrade</code>), their order and time, whether you pressed an upgrade button, and whether a paid plan followed;</li>
               <li>if you create a tutor account or sign in while this cookie is set, a link between the visitor ID and your account, so we can see which journey ended in a purchase.</li>
             </ul>
-            <p className="mt-2">We do <b>not</b> store your IP address, your browser details, the full web address (no search terms or ids) or the content of anything you type. Only the Tutafy owner can see these records. If you decline in the cookie banner, nothing is recorded and anything already stored for your visitor ID is deleted. We keep these records for at most 13 months. To have the records linked to your account deleted sooner, email us at the address below.</p>
+            <p className="mt-2">We do <b>not</b> store your IP address, your browser details, the full web address (no search terms or ids) or the content of anything you type. Only the Tutafy owner can see these records. If you decline in the cookie banner, nothing is recorded and anything already stored for your visitor ID is deleted.{/* [promise: own-record-deleted-on-decline] */} Records older than 13 months are removed by a clean-up that the Tutafy owner runs by hand; it is not yet automatic.{/* [promise: retention-13-months] */} To have the records linked to your account deleted sooner, email us at the address below.</p>
           </Section>
 
           <Section title="International visitors (GDPR / CCPA)">
@@ -82,9 +82,9 @@ export default function PrivacyPage() {
             <p>Questions about privacy? Email <a href="mailto:tubxeebyajtube@gmail.com" className="text-indigo-500 hover:underline">tubxeebyajtube@gmail.com</a>.</p>
           </Section>
 
-          <p className="text-[12px] text-gray-400 border-t border-gray-100 pt-6">This policy is provided for transparency and to meet advertising and app-store requirements. It is not legal advice; please have a lawyer review it for your jurisdiction before relying on it commercially.</p>
+          <p className="text-[12px] text-gray-500 border-t border-gray-100 pt-6">This policy is provided for transparency and to meet advertising and app-store requirements. It is not legal advice; please have a lawyer review it for your jurisdiction before relying on it commercially.</p>
         </div>
-      </article>
+      </main>
     </div>
   )
 }

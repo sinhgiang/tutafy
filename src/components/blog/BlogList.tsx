@@ -85,7 +85,7 @@ export function BlogList({ posts }: { posts: BlogCard[] }) {
             <p className="text-[14px] text-gray-500 mt-3 leading-relaxed line-clamp-2">{featured.description}</p>
             <div className="flex items-center gap-3 mt-5">
               <AuthorAvatar size={32} />
-              <div className="text-[12px] text-gray-400"><span className="font-semibold text-gray-700">{featured.author}</span> · {fmt(featured.date)} · {featured.minutes} min</div>
+              <div className="text-[12px] text-gray-500"><span className="font-semibold text-gray-700">{featured.author}</span> · {fmt(featured.date)} · {featured.minutes} min</div>
             </div>
           </div>
         </Link>
@@ -104,7 +104,7 @@ export function BlogList({ posts }: { posts: BlogCard[] }) {
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
                   <div className="flex items-center gap-2">
                     <AuthorAvatar size={24} />
-                    <span className="text-[11px] text-gray-400">{fmt(p.date)} · {p.minutes} min</span>
+                    <span className="text-[11px] text-gray-500">{fmt(p.date)} · {p.minutes} min</span>
                   </div>
                   <ArrowRight className="h-4 w-4 text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
                 </div>
