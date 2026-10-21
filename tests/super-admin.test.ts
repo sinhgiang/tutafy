@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createFakeDb } from './support/fake-db.ts'
+import './support/admin-lang.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -93,7 +94,7 @@ test('the page sits under the admin layout and runs the admin check itself befor
   const query = page.indexOf('createAdminClient()')
   assert.ok(gate > 0 && query > gate)
   // the menu list moved to admin-nav.ts (T-0629) so the desktop sidebar and the phone drawer share it
-  assert.match(read('components/admin/admin-nav.ts'), /href: '\/super-admin', label: 'Super admin'/)
+  assert.match(read('components/admin/admin-nav.ts'), /href: '\/super-admin', labelKey: 'nav\.superAdmin'/)
   assert.match(read('components/admin/AdminSidebar.tsx'), /ADMIN_NAV\.map/)
   assert.match(read('proxy.ts'), /path === '\/super-admin' \|\| path\.startsWith\('\/super-admin\/'\)/)
 })
@@ -253,7 +254,7 @@ test('the funnel reads events for exactly the visitors it counts, in groups: not
   // the page text and the cap come from one constant, and the cap is what the database answers per request
   const { FUNNEL_VISITOR_LIMIT } = await import('@/lib/super-admin-data.ts')
   assert.equal(FUNNEL_VISITOR_LIMIT, 1000)
-  assert.ok(readFileSync(path.join(SRC, 'app/(admin)/super-admin/page.tsx'), 'utf8').includes('{FUNNEL_VISITOR_LIMIT}'))
+  assert.ok(readFileSync(path.join(SRC, 'app/(admin)/super-admin/page.tsx'), 'utf8').includes('n: FUNNEL_VISITOR_LIMIT'))
 })
 
 test('the newest visitors are never the ones cut: with more visitors than the cap, a notice says so', async () => {

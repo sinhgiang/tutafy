@@ -4,6 +4,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createFakeDb, SERVER_ROW_CAP } from './support/fake-db.ts'
+import './support/admin-lang.ts'
 
 const { loadSuperAdmin, MAX_PAGES, FALLBACK_PAGE_VIEWS, ROWS_PER_REQUEST } = await import('@/lib/super-admin-data.ts')
 

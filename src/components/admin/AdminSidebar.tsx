@@ -7,12 +7,14 @@ import { ADMIN_NAV } from './admin-nav'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { LangToggle, useAdminT } from './AdminLang'
 
 
 export function AdminSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const t = useAdminT()
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -27,14 +29,15 @@ export function AdminSidebar() {
             <Shield className="h-4 w-4 text-white" />
           </div>
           <div>
-            <p className="font-bold text-sm leading-none">Tutafy Admin</p>
-            <p className="text-xs text-gray-400 mt-0.5">Platform Control</p>
+            <p className="font-bold text-sm leading-none">{t('shell.title')}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{t('shell.subtitle')}</p>
           </div>
         </div>
+        <LangToggle className="mt-4" />
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {ADMIN_NAV.map(({ href, label, icon: Icon, exact }) => {
+        {ADMIN_NAV.map(({ href, labelKey, icon: Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href)
           return (
             <Link
@@ -48,7 +51,7 @@ export function AdminSidebar() {
               )}
             >
               <Icon className="h-4 w-4 flex-shrink-0" />
-              {label}
+              {t(labelKey)}
             </Link>
           )
         })}
@@ -60,7 +63,7 @@ export function AdminSidebar() {
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
         >
           <LogOut className="h-4 w-4" />
-          Sign out
+          {t('shell.signOut')}
         </button>
       </div>
     </aside>

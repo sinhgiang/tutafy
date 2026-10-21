@@ -20,10 +20,10 @@ export type PolarIncome =
 type Fetch = (url: string, init: { method: 'GET'; headers: Record<string, string>; cache: 'no-store'; signal?: AbortSignal }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
 
 export const NOT_READABLE: Record<Exclude<PolarIncome, { ok: true }>['reason'], string> = {
-  no_token: 'chưa đọc được: máy chủ chưa có khoá đọc Polar (POLAR_ACCESS_TOKEN)',
-  refused: 'chưa đọc được: Polar không chấp nhận khoá đọc của máy chủ',
-  unreachable: 'chưa đọc được: không nối được tới Polar lúc này',
-  unexpected: 'chưa đọc được: Polar trả lời theo dạng mà trang chưa hiểu',
+  no_token: 'could not be read: the server has no Polar read key (POLAR_ACCESS_TOKEN)',
+  refused: "could not be read: Polar does not accept the server's read key",
+  unreachable: 'could not be read: Polar cannot be reached right now',
+  unexpected: 'could not be read: Polar answered in a form this page does not understand',
 }
 
 /** Cents per month of one subscription, or null when it is not one the reader understands. */

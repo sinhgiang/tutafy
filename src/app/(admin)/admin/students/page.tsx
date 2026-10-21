@@ -1,5 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
+import { getAdminT } from '@/lib/admin-lang'
+import { statusText } from '@/lib/admin-i18n'
 
 const LEVEL_COLOR: Record<string, string> = {
   A1: 'bg-gray-100 text-gray-600',
@@ -14,6 +16,7 @@ const LEVEL_COLOR: Record<string, string> = {
 export default async function AdminStudentsPage() {
   // Own check, before any query (the layout alone is not a safe gate): this page reads other people's data with the service-role key.
   await requireAdminPage()
+  const { t } = await getAdminT()
 
   const admin = createAdminClient()
 
@@ -25,8 +28,8 @@ export default async function AdminStudentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">All Students</h1>
-        <p className="text-sm text-gray-500 mt-1">{students?.length ?? 0} students across all tutors</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('students.title')}</h1>
+        <p className="text-sm text-gray-500 mt-1">{t('students.count', { n: students?.length ?? 0 })}</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -34,17 +37,17 @@ export default async function AdminStudentsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="text-left px-5 py-3 font-medium text-gray-500">Student</th>
-                <th className="text-left px-5 py-3 font-medium text-gray-500">Tutor</th>
-                <th className="text-left px-5 py-3 font-medium text-gray-500">Country</th>
-                <th className="text-center px-5 py-3 font-medium text-gray-500">Level</th>
-                <th className="text-center px-5 py-3 font-medium text-gray-500">Status</th>
-                <th className="text-left px-5 py-3 font-medium text-gray-500">Added</th>
+                <th className="text-left px-5 py-3 font-medium text-gray-500">{t('common.student')}</th>
+                <th className="text-left px-5 py-3 font-medium text-gray-500">{t('common.tutor')}</th>
+                <th className="text-left px-5 py-3 font-medium text-gray-500">{t('common.country')}</th>
+                <th className="text-center px-5 py-3 font-medium text-gray-500">{t('common.level')}</th>
+                <th className="text-center px-5 py-3 font-medium text-gray-500">{t('common.status')}</th>
+                <th className="text-left px-5 py-3 font-medium text-gray-500">{t('students.colAdded')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {(students ?? []).length === 0 && (
-                <tr><td colSpan={6} className="text-center py-10 text-gray-400">No students yet</td></tr>
+                <tr><td colSpan={6} className="text-center py-10 text-gray-400">{t('students.empty')}</td></tr>
               )}
               {(students ?? []).map((s: any) => (
                 <tr key={s.id} className="hover:bg-gray-50 transition-colors">
@@ -64,7 +67,7 @@ export default async function AdminStudentsPage() {
                       s.status === 'active' ? 'bg-green-100 text-green-700' :
                       s.status === 'paused' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-gray-100 text-gray-500'
-                    }`}>{s.status}</span>
+                    }`}>{statusText(t, s.status)}</span>
                   </td>
                   <td className="px-5 py-3 text-gray-400 text-xs">
                     {new Date(s.created_at).toLocaleDateString()}

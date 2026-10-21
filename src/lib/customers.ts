@@ -1,4 +1,4 @@
-// The numbers on the owner's first page, "Khách hàng của tôi" (T-0699): who pays, how many moved from the free plan to a paid
+// The numbers on the owner's first page, "My customers" (T-0699): who pays, how many moved from the free plan to a paid
 // one, and what the tutors do. Pure functions over rows already read (the reading is in platform-overview.ts and
 // customers-data.ts), so the node tests can hand in rows. Read-only; nothing is stored.
 //

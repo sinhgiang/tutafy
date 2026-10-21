@@ -1,4 +1,4 @@
-// T-0699: the owner's first page "Khách hàng của tôi" (/admin) and the page that used to be called Revenue.
+// T-0699: the owner's first page "My customers" (/admin) and the page that used to be called Revenue.
 // The REAL pages are rendered to HTML over an in-memory database (Supabase and next/navigation are faked), the REAL functions
 // that count run on the same rows, and the Polar reader runs against a pretend Polar. Nothing is written anywhere.
 import { test, mock, beforeEach } from 'node:test'
@@ -8,6 +8,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import './support/admin-lang.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -33,6 +34,7 @@ const customers = await import('@/lib/customers.ts')
 const data = await import('@/lib/customers-data.ts')
 const polar = await import('@/lib/polar-income.ts')
 const { ADMIN_NAV } = await import('@/components/admin/admin-nav.ts')
+const { makeT } = await import('@/lib/admin-i18n.ts')
 const OverviewPage = (await import('@/app/(admin)/admin/page.tsx')).default as () => Promise<React.ReactElement>
 const RevenuePage = (await import('@/app/(admin)/admin/revenue/page.tsx')).default as () => Promise<React.ReactElement>
 
@@ -178,7 +180,7 @@ test('/admin: only the admin gets in; a tutor and a signed-out visitor are turne
   await assert.rejects(OverviewPage(), /NEXT_REDIRECT:\/login/)
   assert.equal(adminClients, 0, 'the service-role client is not even created for them')
   currentUser = ADMIN
-  assert.ok((await render(OverviewPage)).includes('Khách hàng của tôi'))
+  assert.ok((await render(OverviewPage)).includes('My customers'))
 })
 
 test('/admin prints who pays: people on each plan, the rate, the new buyers, from the real rows', async () => {
@@ -188,7 +190,7 @@ test('/admin prints who pays: people on each plan, the rate, the new buyers, fro
     Object.fromEntries(['pro', 'academy', 'free', 'moved-up', 'new-paying-7', 'new-paying-30'].map(id => [id, card(html, id)])),
     { pro: '2', academy: '1', free: '7', 'moved-up': '30%', 'new-paying-7': '2', 'new-paying-30': '3' },
   )
-  assert.match(html, /3 trong 10 gia sư đang trả phí/)
+  assert.match(html, /3 of 10 tutors are paying/)
   assert.ok(!html.includes('overview-error'), 'no error box when every read worked')
 })
 
@@ -199,15 +201,15 @@ test('/admin prints how they use it: tutors used, lessons booked, new tutors wit
     Object.fromEntries(['used-7', 'booked-7', 'new-real-7', 'new-real-30'].map(id => [id, card(html, id)])),
     { 'used-7': '4', 'booked-7': '3', 'new-real-7': '1', 'new-real-30': '3' },
   )
-  assert.match(html, /trong 4 gia sư đăng ký 7 ngày qua/)
+  assert.match(html, /out of 4 tutors who signed up in the last 7 days/)
   assert.equal([...html.matchAll(/data-week="/g)].length, 12)
-  assert.match(html, /Tuần này/)
+  assert.match(html, /This week/)
 })
 
-test('/admin keeps the platform-wide numbers of T-0680 under "Toàn nền tảng"', async () => {
+test('/admin keeps the platform-wide numbers of T-0680 under "Whole platform"', async () => {
   db = sample()
   const html = await render(OverviewPage)
-  assert.match(html, /Toàn nền tảng/)
+  assert.match(html, /Whole platform/)
   assert.equal(stat(html, 'tutors'), '10')
   assert.equal(stat(html, 'total-students'), '5')
   assert.equal(stat(html, 'real-students'), '4')
@@ -220,14 +222,14 @@ test('/admin lists the paying tutors, each name a link to that person’s page, 
   const html = await render(OverviewPage)
   const rows = [...html.matchAll(/data-customer="([^"]+)"[^>]*>.*?href="([^"]+)"[^>]*>([^<]+)</g)].map(m => [m[1], m[2], m[3]])
   assert.deepEqual(rows, [['A', '/super-admin/people/A', 'Ann'], ['C', '/super-admin/people/C', 'Cy'], ['B', '/super-admin/people/B', 'Bo']])
-  assert.match(html, /\(đăng ký\)/, 'Cy has no recorded order: her sign-up day stands in, and the row says so')
-  assert.match(html, /1 trong các người mới nâng gói chưa có ngày thanh toán/)
+  assert.match(html, /\(signed up\)/, 'Cy has no recorded order: her sign-up day stands in, and the row says so')
+  assert.match(html, /1 of the newly upgraded tutors have no recorded payment date/)
 })
 
 test('/admin says when the purchase dates could not be read (migration 015 not applied), and still shows the people', async () => {
   db = failing(sample(), 'visitors', 'visitor_events')
   const html = await render(OverviewPage)
-  assert.match(html, /data-testid="date-note"[^>]*>Chưa đọc được ngày thanh toán/)
+  assert.match(html, /data-testid="date-note"[^>]*>Payment dates could not be read/)
   assert.equal(card(html, 'pro'), '2')
   assert.equal(card(html, 'academy'), '1')
 })
@@ -244,7 +246,7 @@ test('an empty database shows zeros, no rate, and no error', async () => {
   const html = await render(OverviewPage)
   assert.equal(card(html, 'pro'), '0')
   assert.equal(card(html, 'moved-up'), '—', 'no tutors: no rate')
-  assert.match(html, /Chưa có ai trả phí/)
+  assert.match(html, /Nobody is paying yet/)
   assert.ok(!html.includes('overview-error'))
 })
 
@@ -261,13 +263,14 @@ test('nothing is written: the pages only read', async () => {
 test('Revenue is renamed and says what it is: students paying tutors, not the owner’s income', async () => {
   db = sample()
   const html = await render(RevenuePage)
-  assert.match(html, /<h1[^>]*>Tiền học sinh trả cho gia sư<\/h1>/)
-  assert.match(html, /data-testid="revenue-subtitle"[^>]*>Thanh toán buổi học của học sinh cho gia sư, không phải thu nhập của bạn</)
+  assert.match(html, /<h1[^>]*>Lesson payments to tutors<\/h1>/)
+  assert.match(html, /data-testid="revenue-subtitle"[^>]*>Money students paid tutors for lessons, not your income from plans</)
   assert.doesNotMatch(html, />Total Revenue<|>Revenue<\/h1>|Platform-wide payment overview/)
-  assert.match(html, /Đây là tiền của gia sư, không phải của bạn/)
+  assert.match(html, /This is the tutors’ money, not yours/)
   const nav = ADMIN_NAV.find(n => n.href === '/admin/revenue')!
-  assert.equal(nav.label, 'Tiền học sinh trả')
-  assert.equal(ADMIN_NAV.find(n => n.href === '/admin')!.label, 'Khách hàng của tôi')
+  assert.equal(makeT('en')(nav.labelKey), 'Lesson payments to tutors')
+  assert.equal(makeT('en')(ADMIN_NAV.find(n => n.href === '/admin')!.labelKey), 'My customers')
+  assert.match(html, /Your income from plans/)
 })
 
 test('Revenue: only the admin gets in', async () => {
@@ -279,10 +282,10 @@ test('Revenue: only the admin gets in', async () => {
   assert.equal(adminClients, 0)
 })
 
-test('Revenue: with no Polar key on the server it says "chưa đọc được" and gives no number', async () => {
+test('Revenue: with no Polar key on the server it says it could not be read and gives no number', async () => {
   db = sample()
   const html = await render(RevenuePage)
-  assert.match(html, /data-testid="plan-income-unreadable"[^>]*>chưa đọc được: máy chủ chưa có khoá đọc Polar/)
+  assert.match(html, /data-testid="plan-income-unreadable"[^>]*>Could not be read: the server has no Polar read key/)
   assert.doesNotMatch(html, /plan-income-value/)
 })
 
@@ -298,7 +301,7 @@ test('Revenue: with a readable Polar it shows the monthly income of the plans, a
   try {
     const html = await render(RevenuePage)
     assert.match(html, /data-testid="plan-income-value"[^>]*>\$44\.00</)
-    assert.match(html, /Cộng từ 3 gói đang chạy trên Polar/)
+    assert.match(html, /Added up from 3 active subscriptions on Polar/)
     assert.doesNotMatch(html, /plan-income-unreadable|polar_test_token_value/)
     assert.deepEqual(calls.map(c => c.method), ['GET'])
     assert.match(calls[0].url, /^https:\/\/api\.polar\.sh\/v1\/subscriptions\/\?active=true&limit=100&page=1$/)

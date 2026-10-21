@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createFakeDb } from './support/fake-db.ts'
+import './support/admin-lang.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -128,7 +129,7 @@ test('the page draws from the view: key moments block, page links, header facts,
   assert.ok(page.includes('view.keyMoments.map'))
   assert.ok(page.includes('data-testid="key-moments"'))
   assert.ok(page.includes('data-testid="timeline-pages"') && page.includes('steps-next') && page.includes('steps-prev'))
-  assert.ok(page.includes('data-testid="person-checkout"') && page.includes('Last page before checkout'))
+  assert.ok(page.includes('data-testid="person-checkout"') && page.includes("t('journey.lastBeforeCheckout')"))
   assert.ok(!/\.slice\(0,/.test(page) && !/first \{?\d+/i.test(page) && !page.includes('TIMELINE_SHOWN'), 'no hard cut of the first N steps on the page')
   const data = readFileSync(path.join(SRC, 'lib/people-data.ts'), 'utf8')
   assert.ok(!data.includes('TIMELINE_SHOWN') && !/shown:/.test(data))

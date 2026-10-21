@@ -1,4 +1,4 @@
-// What the owner's first page ("Khách hàng của tôi", T-0699) reads besides the overview: the paying tutors (the same function as the
+// What the owner's first page ("My customers", T-0699) reads besides the overview: the paying tutors (the same function as the
 // Buyers page, so the two never disagree) and the day each one's paid order was recorded. Read-only. The client is passed in (the
 // service-role client, from a page that already passed the admin gate), so the node tests can use a fake.
 //
