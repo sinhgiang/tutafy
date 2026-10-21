@@ -47,7 +47,7 @@ const tutors = [
   // the row that pages list shows a made-up address; only the login session below carries the real one, because the admin gate compares it
   { id: ADMIN_ID, email: 'platform-admin@example.com', name: 'Platform Admin', slug: 'platform-admin', subscription_status: 'academy', created_at: iso(-200), languages: [], timezone: 'UTC' },
   { id: id(2, 'b'), email: 'tutor2@example.com', name: 'Diego Prueba', slug: 'diego-prueba', subscription_status: 'free', languages: ['Spanish'], timezone: 'Europe/Madrid', created_at: iso(-30), average_rating: 4.5, review_count: 3, booking_url_active: true, default_lesson_price: 25, currency: 'EUR', lesson_durations: [45, 90], default_lesson_duration: 45 },
-  { id: id(3, 'b'), email: 'tutor3@example.com', name: 'Mai Thử', slug: 'mai-thu', subscription_status: 'pro', languages: ['Vietnamese', 'English'], timezone: 'Asia/Ho_Chi_Minh', created_at: iso(-12), average_rating: 5, review_count: 1, booking_url_active: true, default_lesson_price: 500000, currency: 'VND' },
+  { id: id(3, 'b'), email: 'tutor3@example.com', name: 'Mai Thử', slug: 'mai-thu', subscription_status: 'pro', hide_branding: true, languages: ['Vietnamese', 'English'], timezone: 'Asia/Ho_Chi_Minh', created_at: iso(-12), average_rating: 5, review_count: 1, booking_url_active: true, default_lesson_price: 500000, currency: 'VND' },
 ]
 const students = NAMES.map((name, i) => ({
   id: id(i + 1), tutor_id: TUTOR_ID, name, email: `student${i + 1}@example.com`, phone: null, country: ['Brazil', 'UK', 'Japan', 'Germany', 'Spain', 'China', 'Italy', 'Egypt'][i],
@@ -69,6 +69,8 @@ const messages = students.slice(0, 5).flatMap((s, i) => [
   { id: id(i * 2 + 2, 'e'), tutor_id: TUTOR_ID, student_id: s.id, sender_type: 'tutor', content: 'Of course, Thursday at 6 pm works for me.', created_at: iso(-i - 1, 9), read_at: iso(-i - 1, 10) },
 ])
 const availability = [1, 2, 3, 4, 5].map(d => ({ id: id(d, 'f'), tutor_id: TUTOR_ID, day_of_week: d, start_time: '09:00:00', end_time: '17:00:00', created_at: iso(-30) }))
+// the booking pages of Diego (Free) and Mai (Pro, "Made with Tutafy" turned off) need open hours to show the booking form
+for (const [k, tid] of [[20, id(2, 'b')], [30, id(3, 'b')]]) for (const d of [1, 2, 3, 4, 5]) availability.push({ id: id(k + d, 'f'), tutor_id: tid, day_of_week: d, start_time: '09:00:00', end_time: '17:00:00', created_at: iso(-30) })
 const packages = [
   { id: id(1, '1'), tutor_id: TUTOR_ID, name: '10 lesson pack', description: 'Ten one-hour lessons, use within six months.', lessons_count: 10, price: 360, currency: 'USD', active: true, created_at: iso(-20) },
   { id: id(2, '1'), tutor_id: TUTOR_ID, name: '5 lesson pack', description: 'Five lessons to get started.', lessons_count: 5, price: 190, currency: 'USD', active: true, created_at: iso(-20) },
