@@ -5,7 +5,9 @@
 // work is handed in and nobody reads it again after the merge.
 //
 // The rule: every pull request number that belongs to a waiting phrase must not be MERGED on GitHub.
-//   - A waiting phrase: "chờ ... gộp" with up to five words between ("chờ gộp", "chờ chủ gộp", "chờ review rồi chủ gộp"), "chủ gộp"
+//   - A waiting phrase: "chờ ... gộp" with up to five words between ("chờ gộp", "chờ chủ gộp", "chờ review rồi chủ gộp", and the list
+//     forms "Việc chờ W-2067 (gộp #36)", "Việc chờ: W-2067 (gộp #36)", "Việc chờ của chủ: W-1918 (gộp #24)": a colon after "chờ", a
+//     colon, comma or bracket inside, "gộp" after a bracket; a full stop or a semicolon between them ends the reach), "chủ gộp"
 //     (the owner has to merge: "W-1844: chủ gộp pull request #1"; "chủ đã gộp" is not one), "chưa gộp", "chưa được gộp", "chờ merge",
 //     "awaiting merge", "waiting to be merged", "not (yet) merged" (any case).
 //   - A pull request number: "#37", "pull request 37", "PR #37", "/pull/37".
@@ -18,7 +20,8 @@
 // GitHub is asked read-only (`gh pr view <n> --json state`). When GitHub cannot be reached (no gh, not logged in, no network, a
 // pull request that gh cannot find) the number is skipped and listed, never a failure: a check that fails offline would be turned off.
 //
-// NOT caught: a waiting sentence in other words ("còn mở", "chưa vào master", "đợi duyệt"), a phrase with no pull request number in
+// NOT caught: a waiting sentence in other words ("còn mở", "chưa vào master", "đợi duyệt"), a waiting word and "gộp" with a full stop,
+// a semicolon or more than five words between them ("Việc chờ cho chủ: W-1909 (đọc kết quả rồi bấm Done; gộp #21 ...)"), a phrase with no pull request number in
 // its item or more than MAX_LINES lines away, a number written without "#", "PR" or "pull request" in front, and a number whose
 // state GitHub does not give. A pull request that is waiting in a sentence that also has another number is asked for both.
 //
@@ -34,7 +37,10 @@ export const NEAR = 160
 export const MAX_LINES = 5
 
 const WAITING = new RegExp([
-  'ch(?:ờ|o)(?:\\s+[^\\s.;:]+){0,5}?\\s+(?:chủ\\s+)?(?:được\\s+)?(?:gộp|merge)(?![\\p{L}])', // chờ gộp, chờ chủ gộp, chờ review rồi chủ gộp
+  // chờ gộp, chờ chủ gộp, chờ review rồi chủ gộp, and the way a list of waiting items is written: "Việc chờ W-2067 (gộp #36)",
+  // "Việc chờ: W-2067 (gộp #36, kind do)", "Việc chờ của chủ: W-1918 (gộp #24)". After "chờ" a colon or comma may come; the words between
+  // may carry a colon, a comma or an opening bracket; "gộp" may stand after a space or a bracket. A full stop or a semicolon ends the reach.
+  "(?<![\\p{L}])ch(?:ờ|o)(?![\\p{L}])[:,]?(?:\\s+[^\\s.;]+){0,5}?[\\s(]+(?:chủ\\s+)?(?:được\\s+)?(?:gộp|merge)(?![\\p{L}])",
   'chủ\\s+(?:cần\\s+)?gộp(?![\\p{L}])', // chủ gộp pull request #1
   'chưa\\s+(?:được\\s+)?(?:gộp|merge)(?![\\p{L}])',
   'awaiting\\s+merge', 'waiting\\s+(?:to\\s+be\\s+)?merged?', 'not\\s+(?:yet\\s+)?merged',

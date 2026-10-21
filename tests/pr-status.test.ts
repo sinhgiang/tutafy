@@ -274,3 +274,59 @@ test('npm run pr-status -- <file> exits 1 on "chủ gộp pull request #N" and o
   assert.match(out.stdout, /status-items\.md:3: pull request #37 is MERGED .*"chủ gộp"/)
   assert.match(out.stdout, /status-items\.md:5: pull request #37 is MERGED .*"chờ review rồi chủ gộp"/)
 })
+
+// ---- the ways Helme writes a list of waiting items, word for word (third review of T-0693) -----------------------------------
+
+// Taken from the project's status file, entry T-0683 (the Updates page): the same pull request, written three ways, and none of
+// them has "chờ gộp" side by side.
+const T0683_A = '- T-0683: xong. Pull request https://github.com/sinhgiang/tutafy/pull/36 báo MERGEABLE; Vercel đang dựng bản xem thử khi tôi ghi. Việc chờ W-2067 (gộp #36) giữ nguyên; W-2068 (xem ảnh) trỏ tới ảnh CŨ nay đã thay bằng ảnh mới.'
+const T0683_B = '- T-0683: xong, chờ Chief xem. Nhánh `helme/updates-page`, GitHub báo MERGEABLE. Việc chờ: W-2067 (gộp #36), W-2068 (xem ảnh). Không đổi gói, giá, cơ sở dữ liệu hay biến môi trường.'
+const T0683_C = '- T-0683: xong. Pull request #36 đích `master` (https://github.com/sinhgiang/tutafy/pull/36). Việc chờ: W-2067 (gộp #36, kind do, kèm link), W-2068 (xem ảnh, approve). Không đổi gói.'
+// from entry T-0609, the same shape with the owner named
+const T0609 = '  - Việc chờ của chủ: W-1918 (gộp #24), W-1920 (hướng dẫn xoá và tắt tự ghi trong GA4). W-1919 là bản trùng của W-1920.'
+
+test('"Việc chờ W-2067 (gộp #36)", "Việc chờ: W-2067 (gộp #36)" and "Việc chờ của chủ: W-1918 (gộp #24)" are waiting phrases, copied from the status file', () => {
+  assert.deepEqual(waitingMentionsIn(T0683_A).map(m => m.pr), [36])
+  assert.deepEqual(waitingMentionsIn(T0683_B).map(m => m.pr), [36])
+  assert.deepEqual(waitingMentionsIn(T0683_C).map(m => m.pr), [36])
+  assert.deepEqual(waitingMentionsIn(T0609).map(m => m.pr), [24])
+  for (const line of [T0683_A, T0683_B, T0683_C]) {
+    const report = mergedWaitingReport(line, 'status.md', stateTable({ 36: 'MERGED' }))
+    assert.equal(report.problems.length, 1, line.slice(0, 60))
+    assert.match(report.problems[0], /^status\.md:1: pull request #36 is MERGED on GitHub/)
+    assert.deepEqual(mergedWaitingReport(line, 'status.md', stateTable({ 36: 'OPEN' })).problems, [], 'open: nothing to report')
+  }
+  assert.equal(mergedWaitingReport(T0609, 'status.md', stateTable({ 24: 'MERGED' })).problems.length, 1)
+})
+
+test('when #36 is merged, EVERY line of the entry that still waits for it is reported, not only the one with "chờ gộp"', () => {
+  const entry = [T0683_A, T0683_B, T0683_C, '- T-0683: xong, chờ review rồi chủ gộp (W-2067).', '  - Pull request #36.'].join('\n\n')
+  const report = mergedWaitingReport(entry, 'status.md', stateTable({ 36: 'MERGED' }))
+  assert.deepEqual(report.problems.map(p => /:(\d+):/.exec(p)![1]), ['1', '3', '5', '7'])
+})
+
+test('the list form is cleared by the same entry saying the pull request is merged, and by nothing else', () => {
+  const saysMerged = [T0609, '  - Pull request #24 đã gộp (commit gộp 1234abc).'].join('\n')
+  assert.deepEqual(waitingMentionsIn(saysMerged), [], '#24 has its own "đã gộp" in the item')
+  const otherMerged = [T0609, '  - Pull request #25 đã gộp (commit gộp 1234abc).'].join('\n')
+  assert.deepEqual(waitingMentionsIn(otherMerged).map(m => m.pr), [24], 'another number being merged does not clear #24')
+})
+
+test('"Việc chờ: W-2068 (xem ảnh)" has no "gộp", so it is not a waiting-to-merge phrase, whatever number is near', () => {
+  assert.deepEqual(waitingMentionsIn('Việc chờ: W-2068 (xem ảnh). Pull request #36 đích master.'), [])
+  assert.deepEqual(waitingMentionsIn('Việc chờ W-2068 (xem ảnh, approve) cho #36'), [])
+  assert.deepEqual(waitingMentionsIn('Việc chờ của chủ: W-1920 (hướng dẫn xoá và tắt tự ghi trong GA4). #24'), [])
+  // a full stop between the waiting word and "gộp" ends the reach
+  assert.deepEqual(waitingMentionsIn('xong, chờ Chief xem. Nhánh `helme/x` (gộp `origin/master` #36)'), [])
+})
+
+test('what the list form does NOT reach is said in the header: a semicolon or a long stretch between "chờ" and "gộp"', () => {
+  // Known limit, written in the header of tests/support/pr-status.ts: this is not caught.
+  assert.deepEqual(waitingMentionsIn('Việc chờ cho chủ: W-1909 (đọc kết quả rồi bấm Done; gộp #21 đã có sẵn W-1905).'), [])
+  assert.match(read('tests/support/pr-status.ts'), /NOT caught:[\s\S]*semicolon/)
+})
+
+test('the wider reach does not catch a word that only contains "cho" or "chờ"', () => {
+  assert.deepEqual(waitingMentionsIn('Echo gộp #36'), [])
+  assert.deepEqual(waitingMentionsIn('chọn gộp #36 sau'), [])
+})
