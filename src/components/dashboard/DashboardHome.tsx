@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { FirstStudentCard } from '@/components/dashboard/FirstStudentCard'
+import type { FirstStudentCard as FirstStudentData } from '@/lib/first-student'
 import {
   Search, Play, MoreVertical, Paperclip, FileText, Video, Users, User,
   ChevronRight, AlertTriangle, Calendar, CreditCard, ListTodo, ArrowUpRight,
@@ -48,6 +50,8 @@ export type DashboardData = {
   week: { labels: string[]; lessons: number[]; revenue: number[] }
   weekTotalLessons: number
   currencySymbol: string
+  tutorId: string
+  firstStudent: FirstStudentData | null // T-0681: null when every step is done
 }
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -460,6 +464,8 @@ export function DashboardHome({ data }: { data: DashboardData }) {
           )}
         </div>
       </div>
+
+      {data.firstStudent && <FirstStudentCard card={data.firstStudent} tutorId={data.tutorId} />}
 
       {/* Row 1: Lessons + At risk */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

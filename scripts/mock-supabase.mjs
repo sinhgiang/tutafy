@@ -9,7 +9,7 @@
 // Then run the app against it (values given on the command line, never written to a file):
 //   NEXT_PUBLIC_SUPABASE_URL=http://localhost:54399 NEXT_PUBLIC_SUPABASE_ANON_KEY=mock-anon \
 //   SUPABASE_SERVICE_ROLE_KEY=mock-service npx next dev -p 3131
-// and give the browser a session with GET http://localhost:54399/__session?as=tutor (or as=admin),
+// and give the browser a session with GET http://localhost:54399/__session?as=tutor (or as=admin, or as=newtutor: a Free tutor who has only a self-added student),
 // which answers the JSON for the cookie `sb-localhost-auth-token` (see docs/feature-map.md).
 //
 // It speaks the part of PostgREST the app uses: select (with embedded many-to-one and
@@ -28,6 +28,7 @@ const ADMIN_EMAIL = /ADMIN_EMAIL = '([^']+)'/.exec(readFileSync(path.join(HERE, 
 
 const TUTOR_ID = '00000000-0000-4000-8000-000000000001'
 const ADMIN_ID = '00000000-0000-4000-8000-0000000000ad'
+const NEW_TUTOR_ID = '00000000-0000-4000-8000-0000000000ee'
 const id = (n, kind = 'a') => `00000000-0000-4000-${kind}000-${String(n).padStart(12, '0')}`
 const iso = (daysFromNow, hour = 10) => {
   const d = new Date(); d.setUTCDate(d.getUTCDate() + daysFromNow); d.setUTCHours(hour, 0, 0, 0); return d.toISOString()
@@ -196,15 +197,17 @@ const b64 = o => Buffer.from(typeof o === 'string' ? o : JSON.stringify(o)).toSt
 function sessionFor(who) {
   const user = who === 'admin'
     ? { id: ADMIN_ID, email: ADMIN_EMAIL }
-    : { id: TUTOR_ID, email: 'tutor@example.com' }
+    : who === 'newtutor'
+      ? { id: NEW_TUTOR_ID, email: 'nina@example.com' }
+      : { id: TUTOR_ID, email: 'tutor@example.com' }
   const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24
   const jwt = `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ sub: user.id, email: user.email, role: 'authenticated', aud: 'authenticated', exp })}.mocksignature`
-  const fullUser = { id: user.id, aud: 'authenticated', role: 'authenticated', email: user.email, app_metadata: { provider: 'email' }, email_confirmed_at: iso(-90), confirmation_sent_at: iso(-90), user_metadata: { full_name: user.email === 'tutor@example.com' ? 'Sarah Test' : 'Platform Admin' }, created_at: iso(-90) }
+  const fullUser = { id: user.id, aud: 'authenticated', role: 'authenticated', email: user.email, app_metadata: { provider: 'email' }, email_confirmed_at: iso(-90), confirmation_sent_at: iso(-90), user_metadata: { full_name: user.email === 'tutor@example.com' ? 'Sarah Test' : who === 'newtutor' ? 'Nina Nueva' : 'Platform Admin' }, created_at: iso(-90) }
   return { access_token: jwt, token_type: 'bearer', expires_in: 86400, expires_at: exp, refresh_token: `mock-refresh-${who}`, user: fullUser }
 }
 const userFromAuth = req => {
   const tok = (req.headers.authorization ?? '').replace(/^Bearer /, '')
-  try { const p = JSON.parse(Buffer.from(tok.split('.')[1], 'base64url').toString()); return sessionFor(p.sub === ADMIN_ID ? 'admin' : 'tutor').user } catch { return null }
+  try { const p = JSON.parse(Buffer.from(tok.split('.')[1], 'base64url').toString()); return sessionFor(p.sub === ADMIN_ID ? 'admin' : p.sub === NEW_TUTOR_ID ? 'newtutor' : 'tutor').user } catch { return null }
 }
 
 // The sample tutor is also a student of the second tutor (Diego): the "View as student" / "Back to tutor" switch needs both roles (T-0676).
@@ -216,6 +219,10 @@ lessons.push(
   { id: id(900, 'd'), tutor_id: id(2, 'b'), student_id: id(30), starts_at: iso(3, 15), ends_at: iso(3, 16), duration_minutes: 60, status: 'scheduled', meet_link: null, zoom_link: null, homework: null, price: 25, payment_status: 'pending', currency: 'EUR', created_at: iso(-5) },
   { id: id(901, 'd'), tutor_id: id(2, 'b'), student_id: id(30), starts_at: iso(-4, 15), ends_at: iso(-4, 16), duration_minutes: 45, status: 'completed', meet_link: null, zoom_link: null, homework: 'Read chapter 3', price: 25, payment_status: 'paid', currency: 'EUR', created_at: iso(-9) },
 )
+
+// A brand-new Free tutor (session as=newtutor): nothing done yet, and one "student" under her own address, which must not count.
+tutors.push({ id: NEW_TUTOR_ID, email: 'nina@example.com', name: 'Nina Nueva', slug: 'nina-nueva', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-1), booking_url_active: true, currency: 'USD' })
+students.push({ id: id(40), tutor_id: NEW_TUTOR_ID, name: 'Nina Nueva', email: 'nina@example.com', status: 'active', portal_token: id(40, 'c'), created_at: iso(-1) })
 
 // ---------- server ----------
 const send = (res, status, body, headers = {}) => {
@@ -230,7 +237,8 @@ http.createServer(async (req, res) => {
   const p = url.pathname
 
   if (p === '/__session') {
-    const s = sessionFor(url.searchParams.get('as') === 'admin' ? 'admin' : 'tutor')
+    const as = url.searchParams.get('as')
+    const s = sessionFor(as === 'admin' ? 'admin' : as === 'newtutor' ? 'newtutor' : 'tutor')
     return send(res, 200, { cookieName: 'sb-localhost-auth-token', cookieValue: 'base64-' + b64(s) })
   }
   // Optional: lets a measuring page hand its results back. Only when MOCK_SAVE_DIR is set, only a plain file name, only under that folder.
