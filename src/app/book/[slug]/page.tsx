@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { BookingForm } from './BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
+import { loadShowMadeWith } from '@/lib/branding'
+import { MadeWithTutafy } from '@/components/MadeWithTutafy'
 import { GraduationCap, Globe, Clock, Star } from 'lucide-react'
 
 export default async function BookingPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -20,6 +22,8 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
   // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
   const chosen = await loadChosenDurations(supabase, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
+  // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
+  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
 
   // If a student is signed in (e.g. via "Continue with Google"), pre-fill the form
   const { data: { user } } = await supabase.auth.getUser()
@@ -193,6 +197,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
           />
         </div>
       </main>
+      <MadeWithTutafy show={showMadeWith} surface="booking-page" />
     </div>
   )
 }

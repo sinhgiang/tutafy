@@ -13,6 +13,7 @@ import { LockedFeature } from '@/components/plan/LockedFeature'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
+import { hasPlan } from '@/lib/plans'
 import { ALL_DURATIONS, MAX_DURATIONS, lengthSaveErrorMessage, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations, durationColumnsToSave } from '@/lib/lesson-durations'
 
 const TIMEZONES = [
@@ -67,6 +68,8 @@ export default function SettingsPage() {
     contract_template: '', trial_enabled: false, trial_price: '', currency: 'USD',
     // lesson lengths on the booking page: a tutor who chose nothing sees all four, 60 selected first
     lesson_durations: [...ALL_DURATIONS] as number[], default_lesson_duration: 60,
+    // the "Made with Tutafy" line on the booking page: true = the tutor turned it off (a paid plan only; migration 021)
+    hide_branding: false,
   })
   // Snapshot of the last loaded/saved values → detect unsaved changes for the sticky bar
   const [savedSnapshot, setSavedSnapshot] = useState('')
@@ -122,6 +125,7 @@ export default function SettingsPage() {
           trial_enabled: (data as any).trial_enabled ?? false,
           trial_price: (data as any).trial_price ? String((data as any).trial_price) : '',
           currency: (data as any).currency ?? 'USD',
+          hide_branding: (data as any).hide_branding === true,
           ...(() => {
             const lengths = resolveDurationConfig(data.lesson_durations, data.default_lesson_duration)
             return { lesson_durations: lengths.durations, default_lesson_duration: lengths.defaultDuration }
@@ -158,7 +162,7 @@ export default function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     // currency and the lesson lengths are written on their own below: their columns may not exist yet
-    const { currency, lesson_durations, default_lesson_duration, ...rest } = form
+    const { currency, lesson_durations, default_lesson_duration, hide_branding, ...rest } = form
     const { error } = await supabase.from('tutors').update({
       ...rest,
       paddle_checkout_link: linkCheck.value,
@@ -170,6 +174,19 @@ export default function SettingsPage() {
     try {
       await supabase.from('tutors').update({ currency }).eq('id', user.id)
     } catch { /* currency column pending migration */ }
+    // "Made with Tutafy": its own column may not exist yet (migration 021), so it is written apart, and only when the tutor changed it.
+    // The pages decide by the PLAN first (src/lib/branding.ts), so a Free tutor writing true here changes nothing on their page.
+    const savedBranding = savedSnapshot ? JSON.parse(savedSnapshot).hide_branding === true : false
+    if (hide_branding !== savedBranding) {
+      const { error: brandingError } = await supabase.from('tutors').update({ hide_branding }).eq('id', user.id)
+      if (brandingError) {
+        // The rest is saved; this one is not, so the save bar stays and says so.
+        setSavedSnapshot(JSON.stringify({ ...form, hide_branding: savedBranding }))
+        toast.error('This option is not available yet. Your other settings are saved.')
+        setSaving(false)
+        return
+      }
+    }
     // Lesson lengths: only when the tutor changed them. The update names this signed-in tutor's own row
     // (the database policy allows nothing else) and the values are cleaned first: whole minutes from 10 to 240 in steps of 5, one
     // to six lengths, none twice, and the default one of them (cleanDurations in src/lib/lesson-durations.ts).
@@ -325,6 +342,28 @@ export default function SettingsPage() {
                     }`} />
                   </button>
                 </div>
+                {/* "Made with Tutafy" (T-0717): shown for everyone; only a paid plan can switch it off */}
+                {(() => {
+                  const paid = hasPlan(subscriptionStatus, 'pro')
+                  const shown = !(paid && form.hide_branding)
+                  return (
+                    <div className="flex items-center justify-between gap-4" data-testid="made-with-setting">
+                      <div>
+                        <p className="text-[13px] font-medium text-gray-900">Show &quot;Made with Tutafy&quot; on my booking page</p>
+                        <p className="text-[11px] text-gray-500 mt-0.5">
+                          {paid ? 'A small line under your booking page and the embed window.' : (<>A small line under your booking page. Pro and Academy plans can turn it off. <a href="/upgrade" className="text-indigo-600 font-medium hover:underline">See plans</a></>)}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <button type="button" role="switch" aria-checked={shown} aria-label="Show Made with Tutafy on my booking page" disabled={!paid}
+                          onClick={() => setForm(f => ({ ...f, hide_branding: !f.hide_branding }))}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${shown ? 'bg-indigo-500' : 'bg-gray-200'} ${paid ? '' : 'opacity-50 cursor-not-allowed'}`}>
+                          <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${shown ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })()}
                 {slug && (
                   <div className="bg-gray-50 rounded-lg px-3 py-2.5">
                     <p className="text-[11px] text-gray-400 mb-1.5">Your booking link</p>

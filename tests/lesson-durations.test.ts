@@ -258,7 +258,7 @@ test('the pages still open when the database has no such columns (the tutor quer
 const settings = readFileSync(path.join(SRC, 'app/(dashboard)/settings/page.tsx'), 'utf8').split('\r\n').join('\n')
 
 test('Settings source: the lengths stay out of the main update (their columns may not exist yet) and go through the clean-up and the changed-only rule', () => {
-  assert.match(settings, /const \{ currency, lesson_durations, default_lesson_duration, \.\.\.rest \} = form/)
+  assert.match(settings, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, \.\.\.rest \} = form/)
   assert.match(settings, /durationColumnsToSave\(/)
   assert.match(settings, /supabase\.from\('tutors'\)\.update\(lengthColumns\)\.eq\('id', user\.id\)/, 'the update names the signed-in tutor’s own row')
   assert.match(settings, /ALL_DURATIONS\.map\(d =>/, 'one tick for each of the four lengths')
