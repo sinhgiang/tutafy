@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GraduationCap, ArrowLeft } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
 import { SiteFooter } from '@/components/SiteFooter'
+import { ContactEmails } from '@/components/ContactEmails'
 
 export const metadata = pageMetadata('privacy')
 
@@ -80,7 +81,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="Contact">
-            <p>Questions about privacy? Email <a href="mailto:tubxeebyajtube@gmail.com" className="text-indigo-500 hover:underline">tubxeebyajtube@gmail.com</a>.</p>
+            <p>Questions about privacy? Email <ContactEmails linkClassName="text-indigo-500 hover:underline" />.</p>
           </Section>
 
           <p className="text-[12px] text-gray-500 border-t border-gray-100 pt-6">This policy is provided for transparency and to meet advertising and app-store requirements. It is not legal advice; please have a lawyer review it for your jurisdiction before relying on it commercially.</p>

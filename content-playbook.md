@@ -74,7 +74,7 @@ If a section, sentence, visual, or widget advances neither goal, cut it. Write a
 - Bullet-only pages with no flowing prose.
 - Fake urgency/scarcity that is not literally true.
 - **Fabricated proof** — invented customer counts, ratings, testimonials, or "our tutors earn X% more." Cardinal sin (see honesty rule up top).
-- Contradictions across our own channels — plan names, prices (Free / $12 / $29), the support email (tubxeebyajtube@gmail.com), the "0% commission" promise, and competitor facts must match everywhere (site, blog, schema, footer).
+- Contradictions across our own channels — plan names, prices (Free / $12 / $29), the contact addresses in `src/lib/contact.ts`, the "0% commission" promise, and competitor facts must match everywhere (site, blog, schema, footer).
 
 **4.6 E-E-A-T signals to include on-page:** real bylined author linked to `/about`, real product screenshots (dashboard, booking page, video classroom, student portal), accurate outbound links to authoritative sources (a marketplace's own commission help page, a Stripe fees page), and — instead of fake reviews — the *free Commission Calculator* as verifiable, first-party proof the reader generates themselves.
 

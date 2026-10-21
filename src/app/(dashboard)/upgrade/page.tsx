@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Check, X, Zap, Crown, Users } from 'lucide-react'
 import Link from 'next/link'
+import { ContactEmails } from '@/components/ContactEmails'
 import { TrackedCheckoutLink } from '@/components/plan/TrackedCheckoutLink'
 
 const PRO_URL = process.env.NEXT_PUBLIC_POLAR_CHECKOUT_PRO ?? '#'
@@ -260,7 +261,7 @@ export default async function UpgradePage() {
         </p>
         <p className="text-[11px] text-gray-400 mt-3">
           After payment, your account is upgraded automatically within a few minutes.
-          If you don't see the change after 10 minutes, email <strong>tubxeebyajtube@gmail.com</strong>
+          If you don't see the change after 10 minutes, email <strong><ContactEmails /></strong>
         </p>
       </div>
 
