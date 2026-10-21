@@ -135,6 +135,27 @@ export function addCustomDuration(current: DurationConfig, text: string): { conf
   return { config: { durations: cleanDurations([...current.durations, parsed.value]), defaultDuration: current.defaultDuration }, error: null }
 }
 
+/**
+ * What the Settings page says when the database refuses to save the two length columns. Migration 018 (already on the real
+ * database) only allows 30, 45, 60 and 90 minutes; the wider rule is migration 019. Until 019 is run, a tutor who typed a length of
+ * their own gets a plain sentence instead of the database's own words, and the rest of Settings has already been saved.
+ */
+export const LENGTHS_NEED_UPDATE = 'Your own lesson lengths cannot be saved yet: the database still only takes 30, 45, 60 and 90 minutes. The owner of Tutafy has to run the database update first (migration 019). Your other settings are saved.'
+
+/** True when the error is the database's check on the length columns refusing a value (a check violation, code 23514). */
+export function isLengthCheckRefusal(error: unknown): boolean {
+  const e = (error ?? {}) as { code?: unknown; message?: unknown }
+  const message = typeof e.message === 'string' ? e.message : ''
+  return /tutors_(lesson_durations|default_lesson_duration)_valid/.test(message) || (e.code === '23514' && /lesson_duration/.test(message))
+}
+
+export function lengthSaveErrorMessage(error: unknown, attempted: { durations: number[]; defaultDuration: number }): string {
+  const message = typeof (error as { message?: unknown } | null)?.message === 'string' ? (error as { message: string }).message : 'unknown error'
+  const custom = attempted.durations.some(d => !(ALL_DURATIONS as readonly number[]).includes(d)) || !(ALL_DURATIONS as readonly number[]).includes(attempted.defaultDuration)
+  if (custom && isLengthCheckRefusal(error)) return LENGTHS_NEED_UPDATE
+  return 'Your other settings are saved, but your lesson lengths were not: ' + message
+}
+
 /** Pick the default length among the ticked ones; anything not ticked is refused. */
 export function chooseDefault(current: DurationConfig, length: number): DurationConfig {
   return current.durations.includes(length) ? { ...current, defaultDuration: length } : current

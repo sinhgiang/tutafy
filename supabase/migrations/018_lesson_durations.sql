@@ -1,8 +1,6 @@
--- Let a tutor choose which lesson lengths they take, and type lengths of their own (T-0675, custom lengths T-0700).
+-- Let a tutor choose which lesson lengths they take (T-0675).
 --
--- WRITTEN BUT NOT APPLIED: the owner decides when this runs on the real database. It is ONE file: nobody has run an
--- earlier version of it, so this is the whole change (the first version only allowed 30, 45, 60 and 90; T-0700 edited it in
--- place so the owner runs a single file).
+-- WRITTEN BUT NOT APPLIED: the owner decides when this runs on the real database.
 -- Tested on a local copy only (tests/lesson-durations-migration.test.ts, PGlite).
 --
 -- Two columns on public.tutors:
@@ -18,40 +16,29 @@
 -- two columns. Who may read them: the same rows the public booking page already reads
 -- ("Anyone can view tutor for booking", only rows with booking_url_active). No policy changes.
 --
--- What the checks allow (the same rule as src/lib/lesson-durations.ts): every length is a whole number of minutes from 10
--- to 240 and a multiple of 5; no length twice; no empty slot; at least one and at most six lengths; and the default has to
--- be one of the lengths chosen. So 75 or 120 is fine, 7, 12, 250 or a repeat is refused by the database whatever sends it.
--- The rule lives in one small function, because a CHECK cannot look inside an array on its own. The function only reads
--- the array it is given (no table, no setting), so it is safe for anyone to call.
--- Safe to run twice.
+-- The checks keep out values the booking page cannot show: only 30, 45, 60 or 90, at least one length,
+-- and the default has to be one of the lengths chosen. Safe to run twice.
 
 alter table public.tutors add column if not exists lesson_durations integer[];
 alter table public.tutors add column if not exists default_lesson_duration integer;
 
-create or replace function public.lesson_durations_valid(d integer[])
-returns boolean
-language sql
-immutable
-set search_path = ''
-as $$
-  select d is null or (
-    cardinality(d) between 1 and 6
-    and not exists (select 1 from unnest(d) as x where x is null or x < 10 or x > 240 or x % 5 <> 0)
-    and (select count(distinct x) from unnest(d) as x) = cardinality(d)
-  )
-$$;
-
 alter table public.tutors drop constraint if exists tutors_lesson_durations_valid;
 alter table public.tutors add constraint tutors_lesson_durations_valid
-  check (public.lesson_durations_valid(lesson_durations));
+  check (
+    lesson_durations is null
+    or (
+      cardinality(lesson_durations) between 1 and 4
+      and lesson_durations <@ array[30, 45, 60, 90]
+      and array_position(lesson_durations, null) is null
+    )
+  );
 
 alter table public.tutors drop constraint if exists tutors_default_lesson_duration_valid;
 alter table public.tutors add constraint tutors_default_lesson_duration_valid
   check (
     default_lesson_duration is null
     or (
-      default_lesson_duration between 10 and 240
-      and default_lesson_duration % 5 = 0
+      default_lesson_duration in (30, 45, 60, 90)
       and (lesson_durations is null or default_lesson_duration = any (lesson_durations))
     )
   );
