@@ -12,6 +12,7 @@ import { CustomDomainCard } from './CustomDomainCard'
 import { LockedFeature } from '@/components/plan/LockedFeature'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
+import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -422,10 +423,16 @@ export default function SettingsPage() {
                     <p data-testid="card-link-error" role="alert" className="text-[11px] text-red-600 mt-1">{cardLinkError} Your saved link has not changed.</p>
                   ) : (
                     <p data-testid="card-link-help" className="text-[11px] text-gray-400 mt-1">
-                      In your Stripe Dashboard open <a href="https://dashboard.stripe.com/payment-links" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Payment links</a>,
+                      In your Stripe Dashboard open <a href={CARD_LINK_HELP_LINKS.stripePaymentLinks} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Payment links</a>,
                       create a link for your lesson price, then paste it here. Students will see a &ldquo;Pay by card&rdquo; button on your booking page.
                     </p>
                   )}
+                  <p data-testid="card-link-guides" className="text-[11px] text-gray-400 mt-1">
+                    New to Stripe?{' '}
+                    <a href={CARD_LINK_HELP_LINKS.stepByStepGuide} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Step-by-step guide</a>
+                    {' · '}
+                    <a href={CARD_LINK_HELP_LINKS.stripeOfficialGuide} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">Stripe&apos;s official guide</a>
+                  </p>
                 {savedCardLinkUnusable && (
                   <p data-testid="card-link-saved-warning" role="status" className="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mt-2">
                     The card payment link you saved earlier does not start with https://, so students do not see a &ldquo;Pay by card&rdquo; button. Paste a new https:// link and save.

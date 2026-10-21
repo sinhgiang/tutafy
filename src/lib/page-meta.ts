@@ -193,6 +193,10 @@ export const BLOG_SEO: Record<string, { title: string; description: string }> = 
     title: 'How to Build a Tutor Referral Program That Works',
     description: 'Why referrals beat paid ads for independent tutors, how to design an incentive that protects your margin and the best moments to ask.',
   },
+  'how-to-take-card-payments-with-a-stripe-payment-link': {
+    title: 'Take Card Payments With a Stripe Payment Link',
+    description: 'Create a Stripe Payment Link, paste it into Tutafy so students see a Pay by card button, and learn the limits of one link before you rely on it.',
+  },
 }
 
 function build(path: string, title: string, description: string, opts: { noindex?: boolean; article?: boolean; image?: { url: string; width?: number; height?: number; alt?: string } } = {}): Metadata {

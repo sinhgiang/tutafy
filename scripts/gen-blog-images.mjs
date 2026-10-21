@@ -279,6 +279,20 @@ const HEROES = {
       <circle cx="200" cy="240" r="30" fill="#ffffff" opacity="0.7"/>
       <circle cx="320" cy="130" r="34" fill="#ffffff" opacity="0.85"/>
     </g>` }),
+
+  // Stripe Payment Link — a payment card with a chain link beside it
+  'how-to-take-card-payments-with-a-stripe-payment-link': base({ from: '#4f46e5', to: '#0ea5e9', label: 'How-to', motif: `
+    <g transform="translate(720,150)" opacity="0.95">
+      <rect x="0" y="40" width="300" height="190" rx="22" fill="#ffffff" opacity="0.92"/>
+      <rect x="0" y="80" width="300" height="38" fill="#4f46e5" opacity="0.35"/>
+      <rect x="28" y="150" width="70" height="46" rx="8" fill="#4f46e5" opacity="0.55"/>
+      <rect x="120" y="164" width="150" height="14" rx="7" fill="#4f46e5" opacity="0.30"/>
+      <rect x="120" y="188" width="90" height="14" rx="7" fill="#4f46e5" opacity="0.30"/>
+      <g transform="translate(230,230)" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round">
+        <rect x="0" y="0" width="92" height="46" rx="23"/>
+        <rect x="64" y="40" width="92" height="46" rx="23"/>
+      </g>
+    </g>` }),
 }
 
 const out = []

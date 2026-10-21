@@ -28,6 +28,7 @@
 //  - how-to-leave-preply-migration-guide: how-to · axis = step-by-step migration · compare + calculator + callout(warn) + 3 inline images, NO statCards/prosCons
 //  - how-to-hire-tutors-and-build-a-team: how-to · axis = hiring stage (signal→pay→classify→vet→onboard→scale) · statCards + compare + prosCons + calculator + 2× callout(tip/warn/info) + 3 inline images
 //  - how-to-build-a-tutor-referral-program: operations/growth · axis = 5 best moments to ask · statCards + compare + calculator + 2× callout(warn/tip) + 3 inline images, NO prosCons
+//  - how-to-take-card-payments-with-a-stripe-payment-link: how-to · axis = 5 numbered steps (Stripe account → link → copy → paste → check) · statCards + compare + 2× callout(tip/info) + callout(warn) + 1 inline image (own Settings screenshot), NO calculator/prosCons
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3700,6 +3701,88 @@ export const POSTS: Post[] = [
   ] },
     ],
   },
+  {
+    slug: 'how-to-take-card-payments-with-a-stripe-payment-link',
+    title: 'How to Take Card Payments From Your Students With a Stripe Payment Link',
+    description: 'A step-by-step guide to creating a Stripe Payment Link, pasting it into Tutafy so students see a Pay by card button, and the limits to know before you rely on it.',
+    date: '2026-10-21',
+    category: 'How-to',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: [
+  { type: 'takeaways', items: [
+    'A Stripe Payment Link is a web address you create in your own Stripe account; paste it into Tutafy and students who book you see a "Pay by card" button that opens it.',
+    'The money goes through your Stripe account, not through Tutafy, and Tutafy takes 0% commission on your lessons. Stripe charges its own processing fees; check them on Stripe\'s pricing page for your country.',
+    'One link means one fixed product and price. If your lessons cost different amounts, you need a link per price, or a link with a quantity the student chooses (details below).',
+    'Tutafy does not yet mark a lesson as paid when a student pays through your own Stripe link. You check the payment in Stripe and then set the lesson\'s payment status yourself.',
+    'The Payments tab in Settings is part of the Pro and Academy plans.',
+  ] },
+  { type: 'p', text: `To take card payments from your students with a Stripe Payment Link, you create a link for your lesson price in the Stripe Dashboard, copy the address that starts with https://buy.stripe.com/, and paste it into the Card payment link field in Tutafy under Settings, Payments. From then on, a student who books a lesson sees a Pay by card button on the confirmation screen that opens your Stripe checkout page.` },
+  { type: 'p', text: `That is the whole idea, and the steps below take you through it in order, using the names of the buttons as Stripe's official guide to creating payment links gives them. Because Stripe changes its Dashboard from time to time, keep Stripe's own page open next to this one: if a label here differs from what you see, trust Stripe. And because a single link has real limits, the later sections say plainly what the setup does not do.` },
+  { type: 'statCards', cards: [
+    { value: '5 steps', label: 'from a Stripe account to a live Pay by card button' },
+    { value: '0%', label: 'commission Tutafy takes on your lessons' },
+    { value: '1 link', label: 'is one fixed product and price in Stripe' },
+  ] },
+  { type: 'h2', text: 'Before you start: what you need' },
+  { type: 'p', text: `You need three things before the steps make sense: a Stripe account, a Tutafy plan that includes the Payments tab, and your lesson price written down. Stripe decides which countries it works in and what it asks you to submit when you sign up, so check Stripe's own pages for your country; Tutafy has no say in that part.` },
+  { type: 'ul', items: [
+    'A Stripe account in your own name or your business\'s name. If you do not have one, Stripe\'s guide says to sign up first, then come back to create the link.',
+    'A Tutafy Pro or Academy plan. On the Free plan the Payments tab in Settings shows an upgrade prompt instead of the Card payment link field.',
+    'The price and length of the lesson you want to sell, for example "English conversation, 60 minutes, 30 USD". Decide this first so the product you create in Stripe matches what you book in Tutafy.',
+  ] },
+  { type: 'h2', text: 'Step 1: Open the Payment Links page in Stripe' },
+  { type: 'p', text: `Sign in to the Stripe Dashboard and open the Payment Links page at https://dashboard.stripe.com/payment-links/create/standard-pricing. Click New (shown as a plus sign in some layouts) and choose Payment link if Stripe asks which kind you want. This opens the form for a link that sells a product at a fixed price, which is what a normal lesson is.` },
+  { type: 'h2', text: 'Step 2: Add your lesson as a product and create the link' },
+  { type: 'p', text: `Select an existing product, or click Add a new product, fill in its details and click Add product. Give it a name your student will recognise on the checkout page, such as "60-minute English lesson", and set the price to your real lesson price. Then click Create link. Stripe's guide lists these exact buttons, and they are the only part you cannot skip.` },
+  { type: 'image', src: '/blog/inline/stripe-link-settings', alt: 'The Payments tab in Tutafy Settings with a Stripe Payment Link pasted into the Card payment link field and three help links underneath', caption: 'The Card payment link field in Tutafy Settings, Payments tab (screenshot with example data). Paste your Stripe link here and press Save.' },
+  { type: 'p', text: `While you are on that form, Stripe offers a few optional settings. Three are useful for a tutor: Collect customer names, so the payment in your Dashboard shows who paid; Let customers adjust quantity, which we come back to in the limits section; and the After the payment tab, where you can show Stripe's confirmation page or send the student to a page of your own. You can leave every other option as it is.` },
+  { type: 'callout', variant: 'tip', title: 'Name the student on the payment', text: 'Stripe lets you add custom fields (text, numbers only or a dropdown) to a payment link. A "Student name" text field means every payment in your Dashboard carries the name of the learner, which makes matching payments to lessons much easier. Do not ask for anything sensitive in a custom field; Stripe itself advises against collecting personal, protected or sensitive data that way.' },
+  { type: 'h2', text: 'Step 3: Copy the link' },
+  { type: 'p', text: `After you create it, the link appears on the Payment Links page. Click the copy icon next to it, or open the link's details page and copy it from there. A link made in your live Stripe account starts with https://buy.stripe.com/. Stripe's documentation also shows links containing test_ (for example https://buy.stripe.com/test_...), which are made in Stripe's test mode and are for trying things out; check that you copy the live one before you tell students about it.` },
+  { type: 'h2', text: 'Step 4: Paste it into Tutafy' },
+  { type: 'ul', items: [
+    'In Tutafy open Settings, then the Payments tab.',
+    'Find the field called Card payment link (Stripe Payment Link) and paste the address into it.',
+    'Press Save. Tutafy accepts only addresses that start with https://; anything else is refused with a message and your previously saved link stays as it was.',
+    'To remove the button later, clear the field and save.',
+  ] },
+  { type: 'h2', text: 'Step 5: Check what your students see' },
+  { type: 'p', text: `The easiest test is to book a lesson yourself through your own booking page. When the booking is confirmed, the screen shows a "Pay for your lesson" panel, and your link appears in it as a green "Pay by card" button. If you also saved a PayPal link, both buttons show. The button opens your Stripe checkout page in a new tab. If you used a test link, do not enter a real card; use Stripe's test cards from its documentation, and then replace the link with a live one.` },
+  { type: 'callout', variant: 'info', title: 'Where the button appears', text: 'The Pay by card button shows on the confirmation screen after a student books, not on the page where they pick a time. It is a plain link to your Stripe page, so a student who closes that screen can still pay later only if you send them the link yourself.' },
+  { type: 'h2', text: 'The limits, said plainly' },
+  { type: 'p', text: `A Stripe Payment Link is simple and it works, but it does less than people expect, and it is better to know that before your first student pays.` },
+  { type: 'compare', caption: 'Which Stripe option fits which kind of lesson', headers: ['Option in Stripe', 'Good for', 'Watch out for'], rows: [
+    ['A product with one price', 'A tutor who sells one lesson at one price', 'Every student pays exactly that amount, whatever lesson they booked in Tutafy'],
+    ['Same product with "Let customers adjust quantity"', 'Selling by the hour or by a 30-minute block, or two lessons at once', 'The student picks the quantity, so a wrong number means a wrong total; check each payment'],
+    ['"Customers choose what to pay"', 'Lessons whose price varies, or a tip', 'Stripe allows only this one item at quantity 1; the student types the amount, so it relies on them typing the right one. You can set a minimum'],
+  ] },
+  { type: 'ul', items: [
+    'One link, one price. Tutafy has a single Card payment link field, so the Pay by card button opens the same Stripe page for every lesson, even when you teach 30 and 60-minute lessons at different prices. Choose the quantity option or the customer-chooses option, or keep the button for your standard lesson only.',
+    'The amount shown by Tutafy and the amount charged by Stripe are separate. Tutafy shows the lesson price above the buttons, but the Stripe page charges whatever you set in Stripe. If you change your price in one place, change it in the other.',
+    'Lesson packages. If you sell packages on your booking page and have no PayPal link saved, the buy button on a package opens this same Stripe link, whatever the package costs. Either keep packages off your page, or sell them another way.',
+    'Changing a link\'s price: Stripe\'s guide does not say that you can edit it afterwards. The safe way is to create a new link, paste it into Tutafy, and deactivate the old one (open the three-dot menu next to it and choose Deactivate). Stripe does not let you delete a payment link once it exists.',
+    'Currency. Stripe says Adaptive Pricing is always on for payment links, so a student in another country may be shown the price in their local currency. Check how that looks to your students on your own test payment.',
+    'Fees. Stripe charges its own processing fees on every card payment, and they depend on your country. Tutafy adds nothing on top: 0% commission on your lessons.',
+  ] },
+  { type: 'callout', variant: 'warn', title: 'Tutafy does not mark the lesson as paid', text: 'When a student pays through your own Stripe link, Tutafy is not told. The lesson stays on "pending" until you change it. After a payment comes in, check it in Stripe (the Payments page of the Dashboard, or the Payments and analytics tab of the link itself, which Stripe says can lag by up to 18 hours), then open the lesson in Tutafy, press Edit and set Payment to paid.' },
+  { type: 'h2', text: 'Checking who has paid' },
+  { type: 'p', text: `Because the payment happens in your Stripe account, Stripe is where you confirm it. Open the Payments page in the Stripe Dashboard to see every payment, or open the payment link and its Payments and analytics tab to see just the ones that came through that link, along with views, sales and revenue. If you added a Student name field or turned on Collect customer names, the name is on the payment, so matching it to a lesson takes seconds. Then update the lesson in Tutafy so your own payment list stays accurate.` },
+  { type: 'cta', title: 'Add a Pay by card button to your booking flow', text: 'Pro includes the Payments tab, unlimited students and 0% commission on every lesson. Start free and upgrade when you are ready to take payments.', button: 'Start free — no credit card', href: '/register' },
+  { type: 'h2', text: 'Stripe\'s own guide' },
+  { type: 'p', text: `Stripe keeps the authoritative steps, and it is the page to trust if anything above has changed. Read it at https://docs.stripe.com/payment-links/create. The same site has pages on customising a link, sharing it with a QR code, and what happens after payment.` },
+  { type: 'faq', items: [
+    { q: 'Do I need a Stripe account to use a Stripe Payment Link in Tutafy?', a: 'Yes. The link is created in your own Stripe account, and the payments go to that account. Tutafy only stores the address and shows it as a Pay by card button.' },
+    { q: 'Where do I paste the Stripe link in Tutafy?', a: 'In Settings, open the Payments tab, paste the address into Card payment link (Stripe Payment Link) and press Save. The Payments tab is part of the Pro and Academy plans.' },
+    { q: 'Why does the student not see a Pay by card button?', a: 'The button shows on the confirmation screen after a student books, and only when the saved link starts with https://. Check that you pressed Save, that the link starts with https://, and that you are looking at the screen after a booking.' },
+    { q: 'Will Tutafy mark the lesson as paid when the student pays?', a: 'No, not when they pay through your own Stripe link. Check the payment in Stripe, then open the lesson in Tutafy, press Edit and set Payment to paid.' },
+    { q: 'Can I use one link for lessons with different prices?', a: 'A link is one product with one price in Stripe. Either create a product priced per hour or per 30 minutes and turn on Let customers adjust quantity, or use Customers choose what to pay, or keep the button for your standard lesson. Tutafy has one Card payment link field, so the same link opens for every lesson.' },
+    { q: 'How do I change the price on my link?', a: 'Stripe\'s guide does not say a link\'s price can be edited afterwards. Create a new link at the new price, paste it into Tutafy, and deactivate the old one from the three-dot menu on the Payment Links page. Links cannot be deleted.' },
+    { q: 'Does Tutafy take a commission on payments made through my Stripe link?', a: 'No. Tutafy takes 0% commission on your lessons. Stripe charges its own processing fees on card payments, which depend on your country, so check Stripe\'s pricing page.' },
+    { q: 'Is a test link safe to leave saved?', a: 'A link made in Stripe\'s test mode contains test_ in its address and is only for trying things out. Replace it with a live link before students use it, otherwise the button leads to a page that cannot take a real payment.' },
+  ] },
+    ],
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3733,6 +3816,7 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-leave-preply-migration-guide': "Illustration of a tutor migrating away from Preply",
   'how-to-hire-tutors-and-build-a-team': "Illustration of a solo tutor hiring and building a small team",
   'how-to-build-a-tutor-referral-program': "Illustration of a tutor referral program growing through word of mouth",
+  'how-to-take-card-payments-with-a-stripe-payment-link': "Illustration of a payment card and a link, for taking card payments from students",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
