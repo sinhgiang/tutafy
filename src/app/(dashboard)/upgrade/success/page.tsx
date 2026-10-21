@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { ContactEmails } from '@/components/ContactEmails'
 import { CheckCircle2, Sparkles, LayoutDashboard } from 'lucide-react'
 
 // Where Polar sends the tutor after a successful checkout. The subscription is
@@ -81,7 +82,7 @@ export default async function UpgradeSuccessPage() {
       </div>
 
       <p className="text-[11px] text-gray-400 text-center mt-5">
-        If you still don't see the upgrade after 10 minutes, please email tubxeebyajtube@gmail.com
+        If you still don't see the upgrade after 10 minutes, please email <ContactEmails linkClassName="underline" />
       </p>
     </div>
   )
