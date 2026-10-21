@@ -1,7 +1,7 @@
 ﻿import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { cronGate } from '@/lib/secrets'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -31,8 +31,7 @@ export async function GET(request: Request) {
   }
 
   const supabase = createAdminClient()
-  const resend = new Resend(process.env.RESEND_API_KEY)
-  const from = 'Tutafy <noreply@tutafy.com>'
+  const resend = createMailer(process.env.RESEND_API_KEY, 'bookings')
   const now = new Date()
 
   const win24h_start = new Date(now.getTime() + 23 * 3600 * 1000)
@@ -71,7 +70,6 @@ export async function GET(request: Request) {
     // 24h reminder
     if (!lesson.reminder_24h_sent && lessonTime >= win24h_start && lessonTime <= win24h_end) {
       await resend.emails.send({
-        from,
         to: student.email,
         subject: `Reminder: Lesson with ${tutor?.name ?? 'your tutor'} tomorrow at ${timeLabel}`,
         html: reminderHtml({
@@ -97,7 +95,6 @@ export async function GET(request: Request) {
     // 1h reminder
     if (!lesson.reminder_1h_sent && lessonTime >= win1h_start && lessonTime <= win1h_end) {
       await resend.emails.send({
-        from,
         to: student.email,
         subject: `Lesson today with ${tutor?.name ?? 'your tutor'} at ${timeLabel}`,
         html: reminderHtml({
@@ -143,7 +140,6 @@ export async function GET(request: Request) {
       const lessonDate = new Date(lesson.starts_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 
       await resend.emails.send({
-        from,
         to: student.email,
         subject: `Payment reminder — ${tutor?.name ?? 'Your tutor'} lesson on ${lessonDate}`,
         html: paymentReminderHtml({

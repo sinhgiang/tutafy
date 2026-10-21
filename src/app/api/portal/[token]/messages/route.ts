@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 import { sendPushNotification } from '@/lib/push'
 
 // GET /api/portal/[token]/messages  — student polls for messages
@@ -65,9 +65,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
   }
 
   if (process.env.RESEND_API_KEY?.startsWith('re_') && tutor?.email) {
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = createMailer(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from: 'Tutafy <noreply@tutafy.com>',
       to: tutor.email,
       subject: `New message from ${student.name}`,
       html: `

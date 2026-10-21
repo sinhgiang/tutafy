@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,12 +67,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
     const tutor = lesson?.tutors as any
     if (tutor?.email && process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('your_')) {
-      const resend = new Resend(process.env.RESEND_API_KEY)
+      const resend = createMailer(process.env.RESEND_API_KEY)
       const dateLabel = lesson?.starts_at
         ? new Date(lesson.starts_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
         : 'your lesson'
       await resend.emails.send({
-        from: 'Tutafy <noreply@tutafy.com>',
         to: tutor.email,
         subject: `${student.name || 'Your student'} submitted homework`,
         html: `

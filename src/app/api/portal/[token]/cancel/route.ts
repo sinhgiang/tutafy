@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createMailer } from '@/lib/email'
 import { deleteCalendarEvent } from '@/lib/google-calendar'
 
 export const dynamic = 'force-dynamic'
@@ -56,12 +56,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
   // Email tutor
   if (process.env.RESEND_API_KEY?.startsWith('re_') && tutor?.email) {
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = createMailer(process.env.RESEND_API_KEY, 'bookings')
     const dateLabel = startTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
     const timeLabel = startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
     await resend.emails.send({
-      from: 'Tutafy <noreply@tutafy.com>',
       to: tutor.email,
       subject: `${student.name} cancelled their lesson on ${dateLabel}`,
       html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
