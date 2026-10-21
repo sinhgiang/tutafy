@@ -1,4 +1,4 @@
-// /admin (Platform Overview, T-0680): real students apart from self-added ones, active and activated
+// /admin (Platform Overview, T-0680; since T-0699 the first page is "My customers" and keeps these numbers under "Whole platform"): real students apart from self-added ones, active and activated
 // tutors, sign-ups per week, and an error box that names the table. The real page is rendered to HTML
 // over an in-memory database; Supabase and next/navigation are faked.
 import { test, mock, beforeEach } from 'node:test'
@@ -8,6 +8,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import './support/admin-lang.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -110,7 +111,7 @@ test('a tutor and a signed-out visitor are turned away before any read; the admi
   currentUser = null
   await assert.rejects(Page(), /NEXT_REDIRECT:\/login/)
   assert.equal(adminClients, 0, 'the service-role client must not even be created for them')
-  assert.ok((await render()).includes('Platform Overview'))
+  assert.ok((await render()).includes('My customers'))
 })
 
 // ---- the numbers --------------------------------------------------------------------
@@ -268,6 +269,6 @@ test('/super-admin: the data layer reports WHICH tables failed (visitors vs tuto
 
 test('/super-admin page prints that message instead of its old general sentence', () => {
   const page = read('app/(admin)/super-admin/page.tsx')
-  assert.match(page, /readErrorMessage\(failedTables\)/)
+  assert.match(page, /readErrorText\(t, failedTables\)/)
   assert.doesNotMatch(page, /the tutors table or the visitor tables/)
 })

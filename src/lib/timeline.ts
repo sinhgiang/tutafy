@@ -73,6 +73,8 @@ export type TimelineEntry = {
   country?: string | null
   referrerHost?: string | null
   campaign?: string | null
+  /** On a first_visit: true for a second or later browser of the same tutor. */
+  another?: boolean
 }
 
 const RANK: Record<TimelineKind, number> = { first_visit: 0, page_view: 1, signup: 2, checkout_click: 3, order_paid: 4 }
@@ -101,6 +103,7 @@ export function buildTimeline(input: {
       country: v.country,
       referrerHost: v.first_referrer_host ?? null,
       campaign: v.utm_campaign ?? null,
+      another: i > 0,
     })
   })
 

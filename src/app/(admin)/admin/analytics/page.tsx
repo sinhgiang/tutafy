@@ -1,7 +1,14 @@
 import { createAdminClient } from '@/lib/supabase/server'
+import { requireAdminPage } from '@/lib/admin-guard'
+import { getAdminT } from '@/lib/admin-lang'
+import { statusText } from '@/lib/admin-i18n'
 import { BarChart3, TrendingUp, Globe, Award } from 'lucide-react'
 
 export default async function AdminAnalyticsPage() {
+  // Own check, before any query (the layout alone is not a safe gate): this page reads other people's data with the service-role key.
+  await requireAdminPage()
+  const { t } = await getAdminT()
+
   const admin = createAdminClient()
 
   const [
@@ -49,15 +56,15 @@ export default async function AdminAnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-        <p className="text-sm text-gray-500 mt-1">Platform growth and usage insights</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('analytics.title')}</h1>
+        <p className="text-sm text-gray-500 mt-1">{t('analytics.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-5">
             <Award className="h-4 w-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-900 text-sm">Students by Level</h2>
+            <h2 className="font-semibold text-gray-900 text-sm">{t('analytics.byLevel')}</h2>
           </div>
           <div className="space-y-3">
             {levelOrder.map(level => {
@@ -82,10 +89,10 @@ export default async function AdminAnalyticsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-5">
             <Globe className="h-4 w-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-900 text-sm">Top Student Countries</h2>
+            <h2 className="font-semibold text-gray-900 text-sm">{t('analytics.topCountries')}</h2>
           </div>
           <div className="space-y-3">
-            {topCountries.length === 0 && <p className="text-sm text-gray-400">No country data yet</p>}
+            {topCountries.length === 0 && <p className="text-sm text-gray-400">{t('analytics.noCountry')}</p>}
             {topCountries.map(([country, count]) => {
               const pct = Math.round((count / maxCountry) * 100)
               return (
@@ -107,14 +114,14 @@ export default async function AdminAnalyticsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-5">
             <BarChart3 className="h-4 w-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-900 text-sm">Lessons by Status</h2>
+            <h2 className="font-semibold text-gray-900 text-sm">{t('analytics.byStatus')}</h2>
           </div>
           <div className="space-y-3">
-            {Object.entries(statusCount).length === 0 && <p className="text-sm text-gray-400">No lessons yet</p>}
+            {Object.entries(statusCount).length === 0 && <p className="text-sm text-gray-400">{t('analytics.noLessons')}</p>}
             {Object.entries(statusCount).map(([status, count]) => (
               <div key={status} className="flex items-center justify-between">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${statusColors[status] ?? 'bg-gray-100 text-gray-600'}`}>
-                  {status.replace('_', ' ')}
+                  {statusText(t, status)}
                 </span>
                 <span className="text-sm font-semibold text-gray-900">{count}</span>
               </div>
@@ -125,15 +132,15 @@ export default async function AdminAnalyticsPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
           <div className="flex items-center gap-2 mb-5">
             <TrendingUp className="h-4 w-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-900 text-sm">Tutor Growth</h2>
+            <h2 className="font-semibold text-gray-900 text-sm">{t('analytics.growth')}</h2>
           </div>
           {(tutorGrowth ?? []).length === 0 ? (
-            <p className="text-sm text-gray-400">No tutors yet</p>
+            <p className="text-sm text-gray-400">{t('analytics.noTutors')}</p>
           ) : (
             <div className="space-y-2">
               {(() => {
-                const byMonth = (tutorGrowth ?? []).reduce((acc: Record<string, number>, t: { created_at: string }) => {
-                  const month = t.created_at.slice(0, 7)
+                const byMonth = (tutorGrowth ?? []).reduce((acc: Record<string, number>, row: { created_at: string }) => {
+                  const month = row.created_at.slice(0, 7)
                   acc[month] = (acc[month] ?? 0) + 1
                   return acc
                 }, {})

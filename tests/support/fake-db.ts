@@ -104,6 +104,8 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
       ilike(col: string, pattern: string) { const re = likeToRegExp(pattern); filters.push(r => typeof r[col] === 'string' && re.test(r[col] as string)); return q },
       in(col: string, vs: unknown[]) { filters.push(r => vs.includes(r[col])); return q },
       is(col: string, v: unknown) { filters.push(r => (r[col] ?? null) === v); return q },
+      // .not(col, 'is', null) and .not(col, 'eq', v), the two forms the admin pages use
+      not(col: string, operator: string, v: unknown) { filters.push(r => (operator === 'is' ? (r[col] ?? null) !== v : r[col] !== v)); return q },
       gte(col: string, v: string) { filters.push(r => String(r[col]) >= v); return q },
       lt(col: string, v: string) { filters.push(r => String(r[col]) < v); return q },
       lte(col: string, v: string) { filters.push(r => String(r[col]) <= v); return q },
