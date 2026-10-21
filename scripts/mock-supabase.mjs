@@ -179,13 +179,23 @@ function sessionFor(who) {
     : { id: TUTOR_ID, email: 'tutor@example.com' }
   const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24
   const jwt = `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ sub: user.id, email: user.email, role: 'authenticated', aud: 'authenticated', exp })}.mocksignature`
-  const fullUser = { id: user.id, aud: 'authenticated', role: 'authenticated', email: user.email, app_metadata: { provider: 'email' }, user_metadata: { full_name: user.email === 'tutor@example.com' ? 'Sarah Test' : 'Platform Admin' }, created_at: iso(-90) }
+  const fullUser = { id: user.id, aud: 'authenticated', role: 'authenticated', email: user.email, app_metadata: { provider: 'email' }, email_confirmed_at: iso(-90), confirmation_sent_at: iso(-90), user_metadata: { full_name: user.email === 'tutor@example.com' ? 'Sarah Test' : 'Platform Admin' }, created_at: iso(-90) }
   return { access_token: jwt, token_type: 'bearer', expires_in: 86400, expires_at: exp, refresh_token: `mock-refresh-${who}`, user: fullUser }
 }
 const userFromAuth = req => {
   const tok = (req.headers.authorization ?? '').replace(/^Bearer /, '')
   try { const p = JSON.parse(Buffer.from(tok.split('.')[1], 'base64url').toString()); return sessionFor(p.sub === ADMIN_ID ? 'admin' : 'tutor').user } catch { return null }
 }
+
+// The sample tutor is also a student of the second tutor (Diego): the "View as student" / "Back to tutor" switch needs both roles (T-0676).
+students.push({
+  id: id(30), tutor_id: id(2, 'b'), name: 'Sarah Test', email: 'tutor@example.com', phone: null, country: 'US', timezone: 'UTC', level: 'B1', goals: 'Practise Spanish.', native_language: 'English',
+  notes: '', tags: [], status: 'active', avatar_url: null, portal_token: id(30, 'c'), parent_email: null, created_at: iso(-20), updated_at: iso(-2),
+})
+lessons.push(
+  { id: id(900, 'd'), tutor_id: id(2, 'b'), student_id: id(30), starts_at: iso(3, 15), ends_at: iso(3, 16), duration_minutes: 60, status: 'scheduled', meet_link: null, zoom_link: null, homework: null, price: 25, payment_status: 'pending', currency: 'EUR', created_at: iso(-5) },
+  { id: id(901, 'd'), tutor_id: id(2, 'b'), student_id: id(30), starts_at: iso(-4, 15), ends_at: iso(-4, 16), duration_minutes: 45, status: 'completed', meet_link: null, zoom_link: null, homework: 'Read chapter 3', price: 25, payment_status: 'paid', currency: 'EUR', created_at: iso(-9) },
+)
 
 // ---------- server ----------
 const send = (res, status, body, headers = {}) => {

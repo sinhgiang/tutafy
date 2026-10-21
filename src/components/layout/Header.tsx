@@ -8,7 +8,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Bell, LogOut, Settings, ChevronRight, Calendar, MessageCircle, Star, X, UserPlus, Clock, Volume2, VolumeX } from 'lucide-react'
+import { Bell, LogOut, Settings, ChevronRight, Calendar, MessageCircle, Star, X, UserPlus, Clock, Volume2, VolumeX, Users } from 'lucide-react'
 import Link from 'next/link'
 import type { Tutor } from '@/types'
 
@@ -53,7 +53,7 @@ function NotifIcon({ type }: { type: string }) {
   return <div className="w-7 h-7 bg-amber-50 rounded-full flex items-center justify-center flex-shrink-0"><Star className="h-3.5 w-3.5 text-amber-500" /></div>
 }
 
-export function Header({ tutor }: { tutor: Tutor }) {
+export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canViewAsStudent?: boolean }) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
@@ -293,6 +293,13 @@ export function Header({ tutor }: { tutor: Tutor }) {
 
       {/* Right */}
       <div className="flex items-center gap-2">
+        {/* A tutor who is also a student of another tutor (T-0676); a plain link, the server decides where it goes */}
+        {canViewAsStudent && (
+          <a href="/api/student/view-as" data-testid="view-as-student"
+            className="hidden sm:inline-flex items-center text-[12px] font-semibold text-indigo-600 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-colors rounded-lg px-3 py-1.5">
+            View as student
+          </a>
+        )}
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>
           <button onClick={openNotif}
@@ -369,6 +376,12 @@ export function Header({ tutor }: { tutor: Tutor }) {
               <p className="text-[12px] font-semibold text-gray-900">{tutor.name}</p>
               <p className="text-[11px] text-gray-400 truncate">{tutor.email}</p>
             </div>
+            {canViewAsStudent && (
+              <DropdownMenuItem onClick={() => window.location.assign('/api/student/view-as')} className="gap-2 text-[13px] mt-1 sm:hidden">
+                <Users className="h-3.5 w-3.5" />
+                View as student
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => router.push('/settings')} className="gap-2 text-[13px] mt-1">
               <Settings className="h-3.5 w-3.5" />
               Settings
