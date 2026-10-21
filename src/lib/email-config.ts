@@ -2,14 +2,16 @@
 // the mail service, so the booking page (which runs in the browser) can use the same address and the same sentence.
 //
 // One place decides:
-//   - who a mail comes from: a named, real address ("Tutafy Bookings <bookings@tutafy.com>") instead of a no-reply
+//   - who a mail comes from: a named, real address ("Tutafy Bookings <booking@tutafy.com>") instead of a no-reply
 //     one, because mail from "noreply" with a bare name is judged harsher by spam filters (school mailboxes especially);
 //   - where a reply goes: a real, read mailbox (support@tutafy.com), so a student's answer reaches a person;
 //   - a plain-text version beside every HTML one (mail with only HTML is another thing filters mark down).
+// Resend sends from the domain tutafy.com, which is verified there, so booking@tutafy.com can send; an address at any other
+// domain would be refused until that domain is verified too. The mailboxes booking@ and support@ both exist (forwarded to the owner).
 // The two addresses can be changed without touching code: EMAIL_FROM_ADDRESS and EMAIL_REPLY_TO (optional; a value
 // that is not a plain address is ignored and the default stays).
 
-export const DEFAULT_FROM_ADDRESS = 'bookings@tutafy.com'
+export const DEFAULT_FROM_ADDRESS = 'booking@tutafy.com'
 export const DEFAULT_REPLY_TO = 'support@tutafy.com'
 
 /** "bookings": lesson and booking mail; "general": account, invoice and message mail. Same address, a clearer name. */
@@ -34,7 +36,7 @@ export function emailReplyTo(env: Env = process.env): string {
   return address(env.EMAIL_REPLY_TO, DEFAULT_REPLY_TO)
 }
 
-/** "Tutafy Bookings <bookings@tutafy.com>" */
+/** "Tutafy Bookings <booking@tutafy.com>" */
 export function emailFrom(kind: MailKind = 'general', env: Env = process.env): string {
   return `${SENDER_NAME[kind]} <${emailFromAddress(env)}>`
 }
