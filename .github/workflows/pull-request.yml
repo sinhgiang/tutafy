@@ -1,5 +1,6 @@
-# Runs on every pull request (T-0684): the type check, the tests, and the check that every line citation in the
-# Markdown files of the repository points inside its file. The tests need no secrets and send nothing anywhere.
+# Runs on every pull request (T-0684, T-0693): the type check, the tests, the check that every line citation in the Markdown
+# files of the repository points inside its file, and the check that no Markdown file calls a merged pull request "waiting to
+# merge". The tests need no secrets and send nothing anywhere; the last step only READS pull request states from GitHub.
 name: Pull request
 
 on:
@@ -7,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: pull-request-${{ github.event.pull_request.number }}
@@ -29,3 +31,7 @@ jobs:
         run: npm test
       - name: Line citations in the Markdown files point inside their files
         run: npm run line-refs
+      - name: No merged pull request is written as waiting to merge
+        run: npm run pr-status
+        env:
+          GH_TOKEN: ${{ github.token }}
