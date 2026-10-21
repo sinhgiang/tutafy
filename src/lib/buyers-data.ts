@@ -41,5 +41,6 @@ export async function loadBuyers(admin: BuyersClient) {
     buyers: list.data ?? [],
     // True when any query failed: the page must say so instead of showing 0 / 0 / 0 as if nobody bought.
     failed: Boolean(pro.error || academy.error || list.error),
+    failedTables: pro.error || academy.error || list.error ? ['tutors'] : [],
   }
 }

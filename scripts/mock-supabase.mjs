@@ -93,6 +93,26 @@ const lesson_card_payments = []
 const availability_exceptions = []
 const lesson_students = []
 
+// MOCK_OVERVIEW=1 adds a crowd of fake tutors for the admin Overview (sign-ups over 12 weeks, one
+// self-added student each, a few real students and lessons). Off by default so other pages keep their small data.
+if (process.env.MOCK_OVERVIEW) {
+  const perWeek = [3, 6, 2, 9, 5, 12, 8, 4, 7, 3, 10, 5] // sign-ups, oldest week first
+  let n = 0
+  perWeek.forEach((count, w) => {
+    for (let k = 0; k < count; k++, n++) {
+      const tid = id(100 + n, 'b')
+      const daysAgo = (11 - w) * 7 + (k % 6)
+      tutors.push({ id: tid, email: `fake-tutor${n}@example.com`, name: `Fake Tutor ${n}`, slug: `fake-tutor-${n}`, subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-daysAgo), booking_url_active: true })
+      students.push({ id: id(100 + n, 'a'), tutor_id: tid, name: `Fake Tutor ${n}`, email: `fake-tutor${n}@example.com`, status: 'active', portal_token: id(100 + n, 'c'), created_at: iso(-daysAgo) })
+      if (n % 9 === 0) {
+        const real = { id: id(200 + n, 'a'), tutor_id: tid, name: `Real Student ${n}`, email: `real-student${n}@example.com`, status: 'active', portal_token: id(200 + n, 'c'), created_at: iso(-daysAgo) }
+        students.push(real)
+        lessons.push({ id: id(200 + n, 'd'), tutor_id: tid, student_id: real.id, starts_at: iso(-daysAgo + 1), ends_at: iso(-daysAgo + 1, 11), status: n % 18 === 0 ? 'completed' : 'scheduled', created_at: iso(-daysAgo + 1) })
+      }
+    }
+  })
+}
+
 const DB = { tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
   subscription_plans, student_subscriptions, waitlist, referrals, api_keys, webhook_subscriptions, lesson_card_payments, availability_exceptions, lesson_students }
 

@@ -7,11 +7,18 @@ export const MAX_PAGES = 100 // one read stops after this many pages (100 000 ro
 export const CHUNK = 100 // ids per database request, to keep the request address short
 export const PARALLEL = 10 // requests or visitors handled at the same time
 
-export type ReadState = { error: boolean; truncated: boolean }
+// `tables` names every table whose read failed (T-0680), so a page can say which part it could not read.
+export type ReadState = { error: boolean; truncated: boolean; tables: string[] }
 export type RangeQuery = { range(from: number, to: number): PromiseLike<{ data: unknown[] | null; error: unknown }> }
 
 export function newReadState(): ReadState {
-  return { error: false, truncated: false }
+  return { error: false, truncated: false, tables: [] }
+}
+
+/** A read of `table` failed: the page must not show its numbers as if they were zero. */
+export function markFailed(state: ReadState, table: string): void {
+  state.error = true
+  if (!state.tables.includes(table)) state.tables.push(table)
 }
 
 export function chunks<T>(items: T[], size: number): T[][] {
@@ -29,15 +36,16 @@ export async function inBatches<T>(items: T[], fn: (item: T) => Promise<void>): 
  * Read every row of a query, page by page, until a page comes back with fewer rows than a
  * full page. `build` must return a fresh query each time, with a fixed order (the caller
  * orders by a column and by id), so pages never overlap or skip. An error stops the read and
- * sets state.error; hitting MAX_PAGES sets state.truncated.
+ * sets state.error (and records `table`, when given); hitting MAX_PAGES sets state.truncated.
  */
-export async function readAll<T>(build: () => RangeQuery, state: ReadState): Promise<T[]> {
+export async function readAll<T>(build: () => RangeQuery, state: ReadState, table = ''): Promise<T[]> {
   const out: T[] = []
   for (let page = 0; page < MAX_PAGES; page++) {
     const from = page * ROWS_PER_REQUEST
     const { data, error } = await build().range(from, from + ROWS_PER_REQUEST - 1)
     if (error) {
-      state.error = true
+      if (table) markFailed(state, table)
+      else state.error = true
       return out
     }
     const got = (data ?? []) as T[]
