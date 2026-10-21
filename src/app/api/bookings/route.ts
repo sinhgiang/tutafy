@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { createCalendarEvent } from '@/lib/google-calendar'
 import { fireWebhooks } from '@/lib/webhooks'
 import { normalizeCurrency } from '@/lib/currency'
+import { loadChosenDurations, durationAccepted } from '@/lib/lesson-durations'
 
 async function validateAndApplyCoupon(supabase: any, tutorId: string, code: string, basePrice: number | null) {
   if (!code || !basePrice) return { discount: 0, couponId: null }
@@ -60,6 +61,13 @@ export async function POST(request: Request) {
     }
 
     const supabase = createAdminClient()
+
+    // A tutor who ticked lesson lengths in Settings only takes those; one who chose nothing is not limited.
+    // The length comes from the browser, so the booking page hiding a button is not the check (T-0675).
+    const chosen = await loadChosenDurations(supabase, tutorId)
+    if (!durationAccepted(chosen.lesson_durations, duration)) {
+      return NextResponse.json({ error: 'This tutor does not offer lessons of that length. Please pick one of the lengths shown.' }, { status: 400 })
+    }
 
     // A team member's booking page passes teamMemberId — verify it actually
     // belongs to this tutor and is bookable before trusting it.

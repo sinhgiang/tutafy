@@ -13,6 +13,7 @@ import { LockedFeature } from '@/components/plan/LockedFeature'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
+import { ALL_DURATIONS, resolveDurationConfig, toggleDuration, chooseDefault, durationColumnsToSave } from '@/lib/lesson-durations'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -61,6 +62,8 @@ export default function SettingsPage() {
     cancellation_hours: 24, booking_url_active: true, buffer_minutes: 15,
     paypal_link: '', paddle_checkout_link: '', default_lesson_price: '',
     contract_template: '', trial_enabled: false, trial_price: '', currency: 'USD',
+    // lesson lengths on the booking page: a tutor who chose nothing sees all four, 60 selected first
+    lesson_durations: [...ALL_DURATIONS] as number[], default_lesson_duration: 60,
   })
   // Snapshot of the last loaded/saved values → detect unsaved changes for the sticky bar
   const [savedSnapshot, setSavedSnapshot] = useState('')
@@ -116,6 +119,10 @@ export default function SettingsPage() {
           trial_enabled: (data as any).trial_enabled ?? false,
           trial_price: (data as any).trial_price ? String((data as any).trial_price) : '',
           currency: (data as any).currency ?? 'USD',
+          ...(() => {
+            const lengths = resolveDurationConfig(data.lesson_durations, data.default_lesson_duration)
+            return { lesson_durations: lengths.durations, default_lesson_duration: lengths.defaultDuration }
+          })(),
         }
         setForm(loaded)
         setSavedSnapshot(JSON.stringify(loaded))
@@ -139,7 +146,8 @@ export default function SettingsPage() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    const { currency, ...rest } = form
+    // currency and the lesson lengths are written on their own below: their columns may not exist yet
+    const { currency, lesson_durations, default_lesson_duration, ...rest } = form
     const { error } = await supabase.from('tutors').update({
       ...rest,
       paddle_checkout_link: linkCheck.value,
@@ -151,6 +159,23 @@ export default function SettingsPage() {
     try {
       await supabase.from('tutors').update({ currency }).eq('id', user.id)
     } catch { /* currency column pending migration */ }
+    // Lesson lengths: only when the tutor changed them. The update names this signed-in tutor's own row
+    // (the database policy allows nothing else) and the values are cleaned to 30/45/60/90 first.
+    const before = savedSnapshot ? JSON.parse(savedSnapshot) : null
+    const lengthColumns = durationColumnsToSave(
+      before ? { durations: before.lesson_durations, defaultDuration: before.default_lesson_duration } : null,
+      { durations: lesson_durations, defaultDuration: default_lesson_duration },
+    )
+    if (lengthColumns) {
+      const { error: lengthError } = await supabase.from('tutors').update(lengthColumns).eq('id', user.id)
+      if (lengthError) {
+        // The rest is saved; the lengths are not, so the save bar stays and says so.
+        setSavedSnapshot(JSON.stringify({ ...form, lesson_durations: before?.lesson_durations ?? form.lesson_durations, default_lesson_duration: before?.default_lesson_duration ?? form.default_lesson_duration }))
+        toast.error('Your other settings are saved, but your lesson lengths were not: ' + lengthError.message)
+        setSaving(false)
+        return
+      }
+    }
     setSavedSnapshot(JSON.stringify(form)) // mark current values as saved → hides the bar
     toast.success('Settings saved!')
     setSaving(false)
@@ -347,6 +372,50 @@ export default function SettingsPage() {
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-gray-400 mt-2">Prevents back-to-back bookings — adds a gap between lessons on your booking page.</p>
+              </div>
+            </div>
+
+            {/* Lesson lengths */}
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-gray-400" />
+                <p className="text-[13px] font-semibold text-gray-900">Lesson lengths</p>
+              </div>
+              <div className="p-5 space-y-4">
+                <div>
+                  <p id="lesson-lengths-label" className="block text-[12px] font-medium text-gray-600 mb-1.5">Lengths you take</p>
+                  <div className="flex gap-2 flex-wrap" role="group" aria-labelledby="lesson-lengths-label">
+                    {ALL_DURATIONS.map(d => {
+                      const on = form.lesson_durations.includes(d)
+                      return (
+                        <button key={d} type="button" role="checkbox" aria-checked={on} aria-label={`${d} minutes`}
+                          onClick={() => setForm(f => {
+                            const next = toggleDuration({ durations: f.lesson_durations, defaultDuration: f.default_lesson_duration }, d)
+                            return { ...f, lesson_durations: next.durations, default_lesson_duration: next.defaultDuration }
+                          })}
+                          className={`text-[13px] px-5 py-2 rounded-xl font-semibold border transition-colors ${
+                            on ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                          }`}>
+                          {d} min
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-2">Students can only book the lengths you tick. At least one stays ticked.</p>
+                </div>
+                <div>
+                  <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Length selected first</label>
+                  <Select value={String(form.default_lesson_duration)} onValueChange={v => setForm(f => {
+                    const next = chooseDefault({ durations: f.lesson_durations, defaultDuration: f.default_lesson_duration }, parseInt(v ?? '60'))
+                    return { ...f, default_lesson_duration: next.defaultDuration }
+                  })}>
+                    <SelectTrigger className="text-[13px] border-gray-200" aria-label="Length selected first"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {form.lesson_durations.map(d => <SelectItem key={d} value={String(d)} className="text-[13px]">{d} minutes</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-gray-400 mt-2">The length that is already picked when a student opens your booking page. It applies to your booking page, the embedded widget and your team members&apos; pages.</p>
+                </div>
               </div>
             </div>
 

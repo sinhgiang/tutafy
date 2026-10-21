@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { buildPaymentMethods, cardPaymentUrl, paypalUrl, showBuiltInCardCheckout } from '@/lib/payment-methods'
 import { formatMoney } from '@/lib/currency'
+import { ALL_DURATIONS, FALLBACK_DEFAULT } from '@/lib/lesson-durations'
 
 // "Continue with Google" — signs the student in, then returns to this booking
 // page with their name + email pre-filled (handled server-side via the session).
@@ -40,7 +41,7 @@ function GoogleContinueButton({ slug, label = 'Continue with Google' }: { slug: 
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-const DURATIONS = [{ v: 30, l: '30 min' }, { v: 45, l: '45 min' }, { v: 60, l: '60 min' }, { v: 90, l: '90 min' }]
+const durationLabel = (v: number) => `${v} min`
 
 interface Availability { day_of_week: number; start_time: string; end_time: string }
 
@@ -339,7 +340,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
   )
 }
 
-export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null, cardCheckoutEnabled = false }: { cardCheckoutEnabled?: boolean; tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null }) {
+export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null, cardCheckoutEnabled = false, durations = [...ALL_DURATIONS], defaultDuration = FALLBACK_DEFAULT }: { durations?: number[]; defaultDuration?: number; cardCheckoutEnabled?: boolean; tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null }) {
   const today = new Date()
   const todayStr = toDS(today.getFullYear(), today.getMonth(), today.getDate())
 
@@ -347,7 +348,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [month, setMonth] = useState(today.getMonth())
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
-  const [duration, setDuration] = useState(60)
+  const [duration, setDuration] = useState(defaultDuration)
   const [name, setName] = useState(prefillName)
   const [email, setEmail] = useState(prefillEmail)
   const [note, setNote] = useState('')
@@ -544,13 +545,13 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Session length</p>
         <div className="flex gap-2 flex-wrap">
-          {DURATIONS.map(d => (
-            <button type="button" key={d.v}
-              onClick={() => { setDuration(d.v); setTime('') }}
+          {durations.map(v => (
+            <button type="button" key={v}
+              onClick={() => { setDuration(v); setTime('') }}
               className={`text-[13px] px-5 py-2 rounded-xl font-semibold transition-all ${
-                duration === d.v ? 'bg-indigo-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                duration === v ? 'bg-indigo-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}>
-              {d.l}
+              {durationLabel(v)}
             </button>
           ))}
         </div>

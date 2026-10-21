@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { BookingForm } from '../BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
+import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
 import { GraduationCap, Globe, Clock } from 'lucide-react'
 
 // Booking page for a single Academy team member — same flow as /book/[slug],
@@ -20,6 +21,10 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
     .single()
 
   if (!tutor || !tutor.booking_url_active) notFound()
+
+  // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
+  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
 
   // Use the admin client for the member lookup so we only ever select the
   // non-sensitive columns needed for a public page (never pay_rate/email).
@@ -124,7 +129,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
                 <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Clock className="h-3.5 w-3.5 text-indigo-500" />
                 </div>
-                <span>30, 45, 60 or 90 min sessions</span>
+                <span>{describeDurations(lengths.durations)}</span>
               </div>
               <div className="flex items-center gap-3 text-[13px] text-gray-500">
                 <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -155,6 +160,8 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
             prefillName={prefillName}
             prefillEmail={prefillEmail}
             teamMemberId={member.id}
+            durations={lengths.durations}
+            defaultDuration={lengths.defaultDuration}
           />
         </div>
       </div>
