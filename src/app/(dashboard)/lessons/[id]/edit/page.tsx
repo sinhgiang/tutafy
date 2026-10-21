@@ -7,8 +7,9 @@ import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { ArrowLeft, RefreshCw, Plus, X } from 'lucide-react'
+import { DurationPicker } from '@/components/lessons/DurationPicker'
+import { loadChosenDurations, chosenDurations } from '@/lib/lesson-durations'
 
-const DURATIONS = [30, 45, 60, 90, 120]
 const STATUSES = ['scheduled', 'completed', 'cancelled', 'no_show']
 const PAYMENT_STATUSES = ['pending', 'paid', 'refunded', 'free']
 
@@ -33,6 +34,8 @@ export default function EditLessonPage() {
   const [vocab, setVocab] = useState<{ word: string; def: string }[]>([])
   const [newWord, setNewWord] = useState('')
   const [newDef, setNewDef] = useState('')
+  // the lengths this tutor offers on their booking page, shown as buttons here too (T-0700)
+  const [offered, setOffered] = useState<number[] | null>(null)
 
   const [form, setForm] = useState({
     starts_at: '',
@@ -64,6 +67,7 @@ export default function EditLessonPage() {
           homework: data.homework ?? '',
         })
         setVocab(Array.isArray(data.vocabulary) ? data.vocabulary : [])
+        if (data.tutor_id) setOffered(chosenDurations((await loadChosenDurations(supabase, data.tutor_id)).lesson_durations))
       }
       setLoading(false)
     }
@@ -140,14 +144,7 @@ export default function EditLessonPage() {
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-2">Duration</label>
-            <div className="flex gap-2 flex-wrap">
-              {DURATIONS.map(d => (
-                <button key={d} type="button" onClick={() => setForm(f => ({ ...f, duration_minutes: String(d) }))}
-                  className={`text-[13px] px-4 py-1.5 rounded-lg font-medium transition-all ${
-                    form.duration_minutes === String(d) ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}>{d} min</button>
-              ))}
-            </div>
+            <DurationPicker value={form.duration_minutes} offered={offered} onChange={minutes => setForm(f => ({ ...f, duration_minutes: minutes }))} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

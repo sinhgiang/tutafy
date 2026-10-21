@@ -35,13 +35,14 @@ const embedPage = (await import('@/app/embed/[slug]/page.tsx')).default
 // ---- the pure rules ---------------------------------------------------------------------------
 
 test('a tutor who chose nothing keeps all four lengths and 60 first (nothing changes for them)', () => {
-  for (const raw of [null, undefined, [], [7, 120], 'x', {}]) {
+  for (const raw of [null, undefined, [], [7, 12, 250], [0, -30, 62.5], ['x', null, true], 'x', {}]) {
     assert.deepEqual(lib.resolveDurationConfig(raw, null), { durations: [30, 45, 60, 90], defaultDuration: 60 }, JSON.stringify(raw))
   }
 })
 
-test('the chosen lengths are shown in order, each once, and anything outside 30/45/60/90 is dropped', () => {
-  assert.deepEqual(lib.resolveDurationConfig([90, 30, 30, 15, 45], 30).durations, [30, 45, 90])
+test('the chosen lengths are shown in order, each once, and anything that is not a length (10 to 240, steps of 5) is dropped', () => {
+  assert.deepEqual(lib.resolveDurationConfig([90, 30, 30, 15, 45], 30).durations, [15, 30, 45, 90], '15 is a length now (T-0700)')
+  assert.deepEqual(lib.resolveDurationConfig([90, 30, 7, 12, 250, 5, 245], 30).durations, [30, 90])
   assert.deepEqual(lib.resolveDurationConfig(['60', 45], null).durations, [45, 60])
 })
 
@@ -86,8 +87,9 @@ test('Settings: the last ticked length cannot be unticked, and the default follo
   assert.equal(lib.toggleDuration(picked, 45).defaultDuration, 60, '45 unticked: back to 60')
   const sixtyLess = lib.toggleDuration(lib.toggleDuration(lib.toggleDuration(lib.chooseDefault(all, 90), 30), 45), 60)
   assert.deepEqual(sixtyLess, { durations: [90], defaultDuration: 90 })
-  only = lib.toggleDuration(all, 120)
-  assert.deepEqual(only, all, 'a length that is not one of the four is refused')
+  assert.deepEqual(lib.toggleDuration(all, 12), all, 'a length that is not a length is refused')
+  assert.deepEqual(lib.toggleDuration(all, 250), all)
+  assert.deepEqual(lib.toggleDuration(all, 120).durations, [30, 45, 60, 90, 120], '120 is a length (T-0700): it is added in order')
 })
 
 test('Settings: a default that is not ticked is refused', () => {

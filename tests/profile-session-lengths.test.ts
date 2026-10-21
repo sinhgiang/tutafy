@@ -40,7 +40,7 @@ beforeEach(() => {
       { id: T(2), name: 'Tutor Two', slug: 'tutor-two', ...base, lesson_durations: [30, 60], default_lesson_duration: 30 },
       { id: T(3), name: 'Tutor One', slug: 'tutor-one', ...base, lesson_durations: [45], default_lesson_duration: 45 },
       { id: T(4), name: 'Tutor Three', slug: 'tutor-three', ...base, lesson_durations: [90, 45, 60], default_lesson_duration: 60 },
-      { id: T(5), name: 'Tutor Invalid', slug: 'tutor-invalid', ...base, lesson_durations: [7, 120], default_lesson_duration: 7 },
+      { id: T(5), name: 'Tutor Invalid', slug: 'tutor-invalid', ...base, lesson_durations: [7, 12, 250], default_lesson_duration: 7 },
       { id: T(6), name: 'Tutor Off', slug: 'tutor-off', ...base, booking_url_active: false, lesson_durations: [30], default_lesson_duration: 30 },
     ],
   })

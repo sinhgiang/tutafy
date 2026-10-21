@@ -14,9 +14,12 @@
 //               a LIST after any of them, every number and every range is checked:  `path` dòng 64 và 99   dòng 75, 88
 //               dòng 163 và 280-281   path:10-12, 40   path lines 3 and 9   (separators: ", ", " và ", ", và ", " and ")
 //               the numbers first:  dòng 75-93 của `path`   dòng 64 và 99 của path   lines 3-9 of path   dòng 5 trong tệp path
-// (a "-", an en dash or an em dash between N and M). In a list a number is a line unless a word that is not a connector
-// (của, ở, trong, of, in, và, and) follows it, so "dòng 12 và 300 test khác" reads only 12; but a bare number after a comma is
-// always a line, so write "dòng 18-20, trả mã 401" and not "dòng 18-20, 401" (401 is not a line of the file). A path is a name with an extension of source, data or text (ts, tsx, js, mjs,
+// (a "-", an en dash or an em dash between N and M). In a list EVERY number is a line, whatever word follows it ("dòng 10 và 83
+// kiểm" checks 83), except a number followed by a unit of counting or measuring, which counts something else: "dòng 12 và 300 test
+// khác" and "dòng 196, 45 ký tự" read only 12 and 196 (the units are the closed list UNIT below: test, ký tự, chars, ms, giây, phút,
+// giờ, ngày, tệp, files, lần, dòng, bytes, trang, mục, ... ; a unit that is not on it is read as a line, so add it there). A bare
+// number after a comma is always a line, so write "dòng 18-20, trả mã 401" and not "dòng 18-20, 401" (401 is not a line of the
+// file). A path is a name with an extension of source, data or text (ts, tsx, js, mjs,
 // json, md, sql, css, yml ...), with folders in front of it or alone. A path is read from the repository root; if no file is there,
 // it may be the end of a longer path ("settings/page.tsx") or a bare file name, and it is looked up among all files of the
 // repository (node_modules and build folders are not searched). It is wrong only when it is too short for EVERY file it names.
@@ -37,11 +40,13 @@ const EXT = '(?:tsx?|jsx?|mjs|cjs|json|md|mdx|sql|css|ya?ml|html|txt|toml|sh)'
 const SEG = '(?:[\\w.@-]|\\[[\\w.-]+\\]|\\([\\w.-]+\\))+'
 const PATH = `(?:${SEG}/)*${SEG}\\.${EXT}`
 const ITEM = '\\d+(?!\\d)(?:\\s*[-\\u2013\\u2014]\\s*\\d+(?!\\d))?'
-// the words that may follow a number in a list without making it a count of something else ("dòng 64 và 99 của tệp x.ts")
-const CONNECTOR = '(?:c\\u1ee7a|\\u1edf|trong|of|in|v\\u00e0|and)'
-// A number after ", " / " và " / " and " is one more line of the same citation, unless a word that is not a connector follows it
-// ("dòng 12 và 300 test khác": 300 counts tests). The first number is always a line.
-const MORE = `(?:\\s*,\\s*(?:(?:v\\u00e0|and)\\s+)?|\\s+(?:v\\u00e0|and)\\s+)${ITEM}(?!\\s*(?!${CONNECTOR}(?!\\p{L}))\\p{L})`
+// The words that make a number NOT a line: a unit of counting or measuring. "dòng 12 và 300 test khác", "dòng 196, 45 ký tự",
+// "dòng 5 và 40 ms": the number after the comma or "và" counts tests, characters, milliseconds. ONLY a unit lets a number off: a
+// number followed by anything else (a verb, a noun, no word at all) is read as a line, so "dòng 10 và 83 kiểm" is checked against 83.
+// The units are a closed list kept by hand, and what is not on it is read as a line (a new unit is added here and in the test).
+const UNIT = '(?:tests?|k[ýí] tự|chars?|characters?|ms|gi\u00e2y|seconds?|secs?|ph\u00fat|minutes?|mins?|gi\u1edd|hours?|ng\u00e0y|days?|t\u1ec7p|files?|l\u1ea7n|times|d\u00f2ng|lines?|bytes?|kb|mb|trang|pages?|m\u1ee5c|items?|c\u00e1i|ch\u1ed7|bản|ng\u01b0\u1eddi|gia s\u01b0|h\u1ecdc sinh|bu\u1ed5i|lessons?|students?|tutors?|%)'
+// A number after ", " / " và " / " and " is one more line of the same citation, unless a unit follows it. The first number is always a line.
+const MORE = `(?:\\s*,\\s*(?:(?:v\\u00e0|and)\\s+)?|\\s+(?:v\\u00e0|and)\\s+)${ITEM}(?!\\s*${UNIT}(?!\\p{L}))`
 const LIST = `${ITEM}(?:${MORE})*`
 const OF = '(?:c\\u1ee7a|\\u1edf|trong|of|in)'
 // 1. path, then closing quotes/backticks/brackets, then ":LIST" or " dòng LIST" / " line LIST" / " (dòng LIST)"
