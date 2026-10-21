@@ -226,8 +226,11 @@ test('POST /api/bookings: whatever the tutor chose, a length that is not a lengt
     }
   }
   assert.equal(lessons().length, 0, 'no lesson ended before it started or ran for days')
-  // a tutor who chose nothing still takes any real length, a custom one too (unchanged for 30, 45, 60, 90)
-  for (const [d, time] of [[30, '09:00'], [45, '10:00'], [60, '11:00'], [75, '13:00'], [90, '15:00']] as const) assert.equal((await book(T_NONE, d, time)).status, 200, String(d))
+  // a tutor who chose nothing takes the four ordinary lengths (unchanged) and refuses a custom one: their page does not offer it,
+  // and, while the database still has the first version of 018, they cannot have chosen one
+  for (const [d, time] of [[30, '09:00'], [45, '10:00'], [60, '11:00'], [90, '15:00']] as const) assert.equal((await book(T_NONE, d, time)).status, 200, String(d))
+  for (const custom of [75, 20, 120, '75']) assert.equal((await book(T_NONE, custom, '13:00')).status, 400, 'custom length from a tutor who did not choose it: ' + custom)
+  assert.equal(lessons().length, 4, 'only the four ordinary lessons were saved')
 })
 
 test('POST /api/bookings: a lesson that overlaps another is refused (409), one that only touches is taken', async () => {

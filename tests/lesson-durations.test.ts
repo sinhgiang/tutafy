@@ -54,10 +54,12 @@ test('the default is the tutor’s pick when it is a chosen length, else 60, els
   assert.equal(lib.resolveDurationConfig([45, 90], 60).defaultDuration, 45)
 })
 
-test('the server accepts any length from a tutor who chose nothing, and only the chosen ones from one who did', () => {
-  assert.equal(lib.durationAccepted(null, 90), true)
-  assert.equal(lib.durationAccepted(null, 20), true, 'unchanged: this route never limited a tutor who chose nothing')
+test('the server accepts the four ordinary lengths from a tutor who chose nothing, a custom one from them never, and only the chosen ones from one who did', () => {
+  for (const d of [30, 45, 60, 90]) assert.equal(lib.durationAccepted(null, d), true, String(d))
+  for (const d of [20, 75, 120, 10, 240, 5, 0]) assert.equal(lib.durationAccepted(null, d), false, 'a custom length is not offered to a tutor who did not choose it: ' + d)
   assert.equal(lib.durationAccepted([], 90), true)
+  assert.equal(lib.durationAccepted([], 75), false)
+  assert.equal(lib.durationAccepted(undefined, 75), false)
   assert.equal(lib.durationAccepted([30, 60], 60), true)
   assert.equal(lib.durationAccepted([30, 60], '60'), true, 'the browser may send a string')
   assert.equal(lib.durationAccepted([30, 60], 90), false)

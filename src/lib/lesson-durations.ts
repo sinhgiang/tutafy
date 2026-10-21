@@ -83,13 +83,13 @@ export function resolveDurationConfig(rawDurations: unknown, rawDefault: unknown
 }
 
 /**
- * Server check for a booking. A tutor who chose lengths only takes those. A tutor who chose nothing
- * is not restricted to a list (this route never limited them before, and that does not change).
+ * Server check for a booking: a length is accepted when the tutor's booking page offers it. A tutor who chose lengths takes those;
+ * a tutor who chose nothing (every tutor before custom lengths, and every tutor while the database still has the first version
+ * of migration 018) offers the four ordinary lengths, so a custom length from one of them, say from a made-up request, is refused.
  */
 export function durationAccepted(rawDurations: unknown, requested: unknown): boolean {
-  const chosen = chosenDurations(rawDurations)
-  if (!chosen) return true
-  return chosen.includes(Number(requested))
+  const offered: readonly number[] = chosenDurations(rawDurations) ?? ALL_DURATIONS
+  return offered.includes(Number(requested))
 }
 
 /**
@@ -133,6 +133,27 @@ export function addCustomDuration(current: DurationConfig, text: string): { conf
   const parsed = parseCustomLength(text, current.durations)
   if (!parsed.ok) return { config: current, error: parsed.error }
   return { config: { durations: cleanDurations([...current.durations, parsed.value]), defaultDuration: current.defaultDuration }, error: null }
+}
+
+/**
+ * What the Settings page says when the database refuses to save the two length columns. Until the owner has run migration 018 again
+ * on the real database, the database still has the first version's checks (30, 45, 60 and 90 only), so a tutor who typed a length of
+ * their own is refused there. They get this plain sentence instead of the database's own words, and the rest of Settings is saved.
+ */
+export const LENGTHS_NEED_UPDATE = 'Custom lengths are not available yet, try again later. Your other settings are saved.'
+
+/** True when the error is the database's check on the length columns refusing a value (a check violation, code 23514). */
+export function isLengthCheckRefusal(error: unknown): boolean {
+  const e = (error ?? {}) as { code?: unknown; message?: unknown }
+  const message = typeof e.message === 'string' ? e.message : ''
+  return /tutors_(lesson_durations|default_lesson_duration)_valid/.test(message) || (e.code === '23514' && /lesson_duration/.test(message))
+}
+
+export function lengthSaveErrorMessage(error: unknown, attempted: { durations: number[]; defaultDuration: number }): string {
+  const message = typeof (error as { message?: unknown } | null)?.message === 'string' ? (error as { message: string }).message : 'unknown error'
+  const custom = attempted.durations.some(d => !(ALL_DURATIONS as readonly number[]).includes(d)) || !(ALL_DURATIONS as readonly number[]).includes(attempted.defaultDuration)
+  if (custom && isLengthCheckRefusal(error)) return LENGTHS_NEED_UPDATE
+  return 'Your other settings are saved, but your lesson lengths were not: ' + message
 }
 
 /** Pick the default length among the ticked ones; anything not ticked is refused. */
