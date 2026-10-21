@@ -1,11 +1,16 @@
 import { Shield, Mail, Globe, Key } from 'lucide-react'
+import { requireAdminPage } from '@/lib/admin-guard'
+import { getAdminT } from '@/lib/admin-lang'
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  // Own check (the layout alone is not a safe gate): this page names the admin account.
+  await requireAdminPage()
+  const { t } = await getAdminT()
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Admin Settings</h1>
-        <p className="text-sm text-gray-500 mt-1">Platform configuration</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('settings.title')}</h1>
+        <p className="text-sm text-gray-500 mt-1">{t('settings.subtitle')}</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
@@ -14,10 +19,10 @@ export default function AdminSettingsPage() {
             <Shield className="h-5 w-5 text-red-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">Admin Account</p>
+            <p className="text-sm font-medium text-gray-900">{t('settings.account')}</p>
             <p className="text-xs text-gray-500 mt-0.5">tubxeebyajtube@gmail.com</p>
           </div>
-          <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">Owner</span>
+          <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">{t('settings.owner')}</span>
         </div>
 
         <div className="px-5 py-4 flex items-center gap-4">
@@ -25,8 +30,8 @@ export default function AdminSettingsPage() {
             <Globe className="h-5 w-5 text-blue-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">Platform Domain</p>
-            <p className="text-xs text-gray-500 mt-0.5">tutafy.com (custom domain — configure in Vercel)</p>
+            <p className="text-sm font-medium text-gray-900">{t('settings.domain')}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('settings.domainNote')}</p>
           </div>
         </div>
 
@@ -35,8 +40,8 @@ export default function AdminSettingsPage() {
             <Mail className="h-5 w-5 text-green-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">Transactional Email</p>
-            <p className="text-xs text-gray-500 mt-0.5">Resend — configure RESEND_API_KEY in Vercel env vars</p>
+            <p className="text-sm font-medium text-gray-900">{t('settings.email')}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('settings.emailNote')}</p>
           </div>
         </div>
 
@@ -45,20 +50,20 @@ export default function AdminSettingsPage() {
             <Key className="h-5 w-5 text-purple-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">Stripe Connect</p>
-            <p className="text-xs text-gray-500 mt-0.5">Payment processing — configure STRIPE_SECRET_KEY in Vercel env vars</p>
+            <p className="text-sm font-medium text-gray-900">{t('settings.stripe')}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('settings.stripeNote')}</p>
           </div>
         </div>
       </div>
 
       <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-        <p className="text-sm font-medium text-yellow-800">Coming soon in Phase 2</p>
+        <p className="text-sm font-medium text-yellow-800">{t('settings.soon')}</p>
         <ul className="text-xs text-yellow-700 mt-2 space-y-1 list-disc list-inside">
-          <li>Platform fee percentage (Stripe Connect)</li>
-          <li>Email templates customization</li>
-          <li>Feature flags per tutor</li>
-          <li>Subscription plan management</li>
-          <li>Announcement broadcasts to all tutors</li>
+          <li>{t('settings.soon1')}</li>
+          <li>{t('settings.soon2')}</li>
+          <li>{t('settings.soon3')}</li>
+          <li>{t('settings.soon4')}</li>
+          <li>{t('settings.soon5')}</li>
         </ul>
       </div>
     </div>

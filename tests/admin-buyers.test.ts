@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import './support/admin-lang.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -125,10 +126,10 @@ test('the admin layout and the Buyers page both run the admin check themselves',
 
 test('the admin sidebar links to Buyers, and the Tutors page shows a Plan column', () => {
   // the menu list moved to admin-nav.ts (T-0629) so the desktop sidebar and the phone drawer share it
-  assert.match(read('components/admin/admin-nav.ts'), /href: '\/admin\/buyers', label: 'Buyers'/)
+  assert.match(read('components/admin/admin-nav.ts'), /href: '\/admin\/buyers', labelKey: 'nav\.buyers'/)
   assert.match(read('components/admin/AdminSidebar.tsx'), /ADMIN_NAV\.map/)
   const tutors = read('app/(admin)/admin/tutors/page.tsx')
-  assert.match(tutors, />Plan<\/th>/)
+  assert.match(tutors, />\{t\('common\.plan'\)\}<\/th>/)
   assert.match(tutors, /subscription_status/)
 })
 

@@ -10,6 +10,7 @@ import { createFakeDb } from './support/fake-db.ts'
 import { currencySymbol, formatMoney, normalizeCurrency, totalsByCurrency } from '@/lib/currency.ts'
 import { loadTutorCurrency } from '@/lib/tutor-currency.ts'
 import { loadAdminRevenue } from '@/lib/admin-revenue.ts'
+import './support/admin-lang.ts'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src')
 const read = (f: string) => readFileSync(path.join(SRC, f), 'utf8')
