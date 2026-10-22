@@ -30,6 +30,7 @@ const load = (): Map<string, string> => new Map(sourceFiles(path.join(ROOT, 'src
 
 /** Reads with the signed-in user's own session client. Each file: how many reads, how many of them are not narrowed to the user's own row in the query itself, and why that is safe. */
 const OWN_SESSION: Record<string, { reads: number; unscoped?: number; reason: string }> = {
+  'src/app/api/tutors/avatar/route.ts': { reads: 4, reason: 'T-0766 (pull request #67): a signed-in tutor reads and changes their own photo address (.eq id, user.id); the route answers 401 without a session. Not in the tree until #67 is merged: a listed file that is absent is not reported' },
   'src/app/api/ai/lesson-summary/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own name; the route answers 401 without a session' },
   'src/app/api/custom-domain/route.ts': { reads: 3, reason: 'a signed-in tutor reads and writes their own domain; the route answers 401 without a session' },
   'src/app/api/invoices/send/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own name and address for an invoice they send' },
