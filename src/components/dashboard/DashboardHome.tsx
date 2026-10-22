@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { FirstStudentCard } from '@/components/dashboard/FirstStudentCard'
 import { NoHoursBanner } from '@/components/dashboard/NoHoursBanner'
+import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard'
+import type { ProfileCompletion } from '@/lib/profile-completion'
 import type { NoHoursBanner as NoHoursData } from '@/lib/no-hours-banner'
 import type { FirstStudentCard as FirstStudentData } from '@/lib/first-student'
 import {
@@ -55,6 +57,7 @@ export type DashboardData = {
   tutorId: string
   firstStudent: FirstStudentData | null // T-0681: null when every step is done
   noHours: NoHoursData | null // T-0739: the banner for a tutor with no free hours; null when they have some
+  profile?: ProfileCompletion | null // T-0765: the profile-completion card; null when its read failed
 }
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -471,6 +474,7 @@ export function DashboardHome({ data }: { data: DashboardData }) {
       </div>
 
       {data.firstStudent && <FirstStudentCard card={data.firstStudent} tutorId={data.tutorId} />}
+      {data.profile && <ProfileCompletionCard card={data.profile} />}
 
       {/* Row 1: Lessons + At risk */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

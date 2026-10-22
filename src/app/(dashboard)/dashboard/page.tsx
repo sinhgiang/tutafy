@@ -3,6 +3,7 @@ import { DashboardHome, type DashboardData, type LessonRow, type AtRiskRow, type
 import { currencySymbol as symbolOf } from '@/lib/currency'
 import { loadFirstStudent } from '@/lib/first-student'
 import { loadNoHoursBanner } from '@/lib/no-hours-banner'
+import { loadProfileCompletion } from '@/lib/profile-completion'
 
 function toLessonRow(l: any): LessonRow {
   const s = Array.isArray(l.students) ? l.students[0] : l.students
@@ -56,6 +57,7 @@ export default async function DashboardPage() {
     { data: invoicesRaw },
     firstStudent,
     noHours,
+    profile,
   ] = await Promise.all([
     supabase.from('tutors').select('name, currency').eq('id', user!.id).single(),
     supabase.from('lessons').select(LESSON_COLS).eq('tutor_id', user!.id).eq('status', 'scheduled').gte('starts_at', nowIso).order('starts_at').limit(12),
@@ -68,6 +70,8 @@ export default async function DashboardPage() {
     loadFirstStudent(supabase, user!.id),
     // Banner for a tutor with no free hours (T-0739): a read of this tutor's own rows; nothing is written or sent
     loadNoHoursBanner(supabase, user!.id),
+    // Profile-completion card (T-0765): a percentage worked out from this tutor's own rows; nothing is stored or sent
+    loadProfileCompletion(supabase, user!.id),
   ])
 
   const upcoming = (upcomingRaw ?? []).map(toLessonRow)
@@ -146,6 +150,7 @@ export default async function DashboardPage() {
     tutorId: user!.id,
     firstStudent,
     noHours,
+    profile,
   }
 
   return <DashboardHome data={data} />

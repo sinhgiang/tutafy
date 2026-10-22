@@ -300,7 +300,7 @@ test('the profile page file uses the shared metadata and structured data, reads 
   assert.match(src, /tutorMetadata\(tutor\)/)
   assert.match(src, /tutorNotFoundMetadata\(\)/)
   assert.doesNotMatch(src, /\bcanonical\b|\balternates\b|title:\s*['"`]/, 'the page writes no title or canonical of its own')
-  assert.match(src, /tutor\.booking_url_active && tutorJsonLd\(tutor\)/)
+  assert.match(src, /tutor\.booking_url_active && tutorJsonLd\(\{ \.\.\.tutor, reviews: shown \}\)/) // T-0765: the Person also carries the real public reviews
   assert.match(src, /jsonLdScript\(data\)/)
   const select = /\.select\('([^']+)'\)/.exec(src)![1]
   assert.doesNotMatch(select, /email|phone|tel/i, 'the profile query must not read contact details')

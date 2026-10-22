@@ -76,7 +76,7 @@ const packages = [
   { id: id(2, '1'), tutor_id: TUTOR_ID, name: '5 lesson pack', description: 'Five lessons to get started.', lessons_count: 5, price: 190, currency: 'USD', active: true, created_at: iso(-20) },
 ]
 const coupons = [{ id: id(1, '2'), tutor_id: TUTOR_ID, code: 'WELCOME20', discount_type: 'percent', discount_value: 20, max_uses: 50, uses: 3, active: true, expires_at: null, created_at: iso(-10) }]
-const reviews = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '3'), tutor_id: TUTOR_ID, student_id: s.id, rating: 5 - (i % 2), comment: 'Patient, clear and always well prepared.', created_at: iso(-5 - i), students: undefined }))
+const reviews = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '3'), tutor_id: TUTOR_ID, student_id: s.id, rating: 5 - (i % 2), comment: 'Patient, clear and always well prepared.', is_public: true, created_at: iso(-5 - i), students: undefined }))
 const invoices = students.slice(0, 4).map((s, i) => ({ id: id(i + 1, '4'), tutor_id: TUTOR_ID, student_id: s.id, lesson_id: lessons[i].id, amount: 40 + i * 5, currency: 'USD', status: ['paid', 'sent', 'overdue', 'draft'][i], due_date: iso(i - 2).slice(0, 10), created_at: iso(-10) }))
 const homework_submissions = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '5'), lesson_id: lessons[i].id, student_id: s.id, content: 'I have worked here for three years. She has lived in Spain since 2019.', ai_feedback: null, tutor_feedback: null, feedback_at: null, submitted_at: iso(-i - 1) }))
 const team_members = [
@@ -241,6 +241,13 @@ lessons.push(
 // A brand-new Free tutor (session as=newtutor): nothing done yet, and one "student" under her own address, which must not count.
 tutors.push({ id: NEW_TUTOR_ID, email: 'nina@example.com', name: 'Nina Nueva', slug: 'nina-nueva', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-1), booking_url_active: true, currency: 'USD' })
 students.push({ id: id(40), tutor_id: NEW_TUTOR_ID, name: 'Nina Nueva', email: 'nina@example.com', status: 'active', portal_token: id(40, 'c'), created_at: iso(-1) })
+
+// Profile page samples (T-0765): a NEW tutor (Priya: hours and a price, no bio, no photo, no reviews, not Pro) and public reviews for the Free tutor
+// Diego, so /tutors/priya-nair and /tutors/diego-prueba show the "new" and the "Free plan" states; /tutors/sarah-test is the full one.
+tutors.push({ id: id(4, 'b'), email: 'tutor4@example.com', name: 'Priya Nair', slug: 'priya-nair', subscription_status: 'free', languages: ['English'], timezone: 'Asia/Kolkata', created_at: iso(-10), booking_url_active: true, default_lesson_price: 12, currency: 'USD', cancellation_hours: 0, average_rating: 0, review_count: 0, bio: null, avatar_url: null })
+for (const d of [1, 2, 3, 4, 5, 6]) availability.push({ id: id(40 + d, 'f'), tutor_id: id(4, 'b'), day_of_week: d, start_time: '08:00:00', end_time: '12:00:00', created_at: iso(-10) })
+Object.assign(tutors.find(t => t.slug === 'diego-prueba'), { bio: 'Spanish for people moving to Spain, and for DELE exam candidates. Clear grammar, lots of speaking.', cancellation_hours: 12, trial_enabled: true, trial_price: 8, review_count: 3, average_rating: 4.7 })
+for (const [i, [rating, comment]] of [[5, 'I passed DELE B1 after three months.'], [5, 'Very clear explanations and friendly.'], [4, 'Good lessons. I would like a few more speaking games.']].entries()) reviews.push({ id: id(60 + i, '3'), tutor_id: id(2, 'b'), student_id: id(30), rating, comment, is_public: true, created_at: iso(-6 - i), students: undefined })
 
 // The seven lessons of the Revenue report (T-0741), with made-up tutors and students: four cancelled lessons marked paid (30 each), one lesson
 // past its day and still scheduled (300), two completed lessons (300 each). The admin page /admin/revenue must show 600 as its main number.

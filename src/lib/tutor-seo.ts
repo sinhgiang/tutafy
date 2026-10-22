@@ -20,6 +20,8 @@ export interface TutorSeoInput {
   languages?: string[] | null
   /** Set by the tutor in Settings. Only a tutor who turned the public page on is indexed. */
   booking_url_active?: boolean | null
+  /** The tutor's PUBLIC reviews (is_public), newest first. Only these ever become Review markup, and only when there are some. */
+  reviews?: { rating: unknown; comment?: string | null; created_at?: string | null }[] | null
 }
 
 // Slugs Tutafy makes are lower-case letters, digits and hyphens; anything else is not put in a sitemap or a link.
@@ -94,7 +96,8 @@ export function tutorProfileUrl(slug: string): string {
   return absoluteUrl(`/tutors/${slug}`)
 }
 
-function httpsImage(url: string | null | undefined): string | undefined {
+/** A photo address safe to put in a page: https only, no user or password in it, not absurdly long. Anything else is undefined. */
+export function httpsImage(url: string | null | undefined): string | undefined {
   if (typeof url !== 'string' || url.length > 500) return undefined
   try {
     const u = new URL(url)
@@ -104,10 +107,31 @@ function httpsImage(url: string | null | undefined): string | undefined {
 
 type JsonLd = Record<string, unknown>
 
+/** Review markup for the tutor's real public reviews: a whole rating of 1 to 5 each, at most 10, cleaned text, no student name (the page shows none). */
+function reviewMarkup(reviews: TutorSeoInput['reviews']): JsonLd[] {
+  const out: JsonLd[] = []
+  for (const r of Array.isArray(reviews) ? reviews : []) {
+    const rating = r.rating
+    if (typeof rating !== 'number' || !Number.isInteger(rating) || rating < 1 || rating > 5) continue
+    const body = cleanText(r.comment, 500)
+    const when = typeof r.created_at === 'string' && Number.isFinite(Date.parse(r.created_at)) ? new Date(r.created_at).toISOString().slice(0, 10) : ''
+    out.push({
+      '@type': 'Review',
+      reviewRating: { '@type': 'Rating', ratingValue: rating, bestRating: 5, worstRating: 1 },
+      author: { '@type': 'Person', name: 'Tutafy student' },
+      ...(when ? { datePublished: when } : {}),
+      ...(body ? { reviewBody: body } : {}),
+    })
+    if (out.length === 10) break
+  }
+  return out
+}
+
 /**
  * ProfilePage + Person + BreadcrumbList for a profile. The Person has a name, an address, the languages
- * the tutor teaches, the photo and the cleaned bio; no email, no telephone, no rating (a rating the
- * business shows about itself is not valid markup for a person).
+ * the tutor teaches, the photo and the cleaned bio; no email, no telephone, and no aggregate rating (a rating
+ * the business shows about itself is not valid markup for a person). Only when the tutor has real public
+ * reviews does the Person carry them, as Review items (T-0765); with none there is no review key at all.
  */
 export function tutorJsonLd(t: TutorSeoInput): JsonLd[] {
   const url = tutorProfileUrl(t.slug)
@@ -115,6 +139,7 @@ export function tutorJsonLd(t: TutorSeoInput): JsonLd[] {
   const langs = cleanLanguages(t.languages)
   const bio = cleanText(t.bio, 300)
   const image = httpsImage(t.avatar_url)
+  const reviews = reviewMarkup(t.reviews)
   const person: JsonLd = {
     '@type': 'Person',
     '@id': `${url}#person`,
@@ -124,6 +149,7 @@ export function tutorJsonLd(t: TutorSeoInput): JsonLd[] {
     ...(langs.length ? { knowsLanguage: langs } : {}),
     ...(bio ? { description: bio } : {}),
     ...(image ? { image } : {}),
+    ...(reviews.length ? { review: reviews } : {}),
   }
   return [
     {
