@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { loadPublicTutor, loadBlockedDates } from '@/lib/public-tutor'
+import { BOOKING_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
 import { BookingForm } from './BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
@@ -10,20 +12,19 @@ import { GraduationCap, Globe, Clock, Star } from 'lucide-react'
 export default async function BookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
+  // The tutor and the blocked days are read on the server with the admin client, only the public columns (T-0774): a visitor's own
+  // key cannot read the tutors table. The other tables below (hours, plans, reviews, packages) stay public reads.
+  const admin = createAdminClient()
 
-  const { data: tutor } = await supabase
-    .from('tutors')
-    .select('id, name, bio, avatar_url, timezone, languages, cancellation_hours, booking_url_active, buffer_minutes, paypal_link, paddle_checkout_link, stripe_account_id, default_lesson_price, average_rating, review_count, contract_template, trial_enabled, trial_price, currency')
-    .eq('slug', slug)
-    .single()
+  const tutor = await loadPublicTutor(admin, slug, BOOKING_PAGE_COLUMNS)
 
   if (!tutor || !tutor.booking_url_active) notFound()
 
   // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
-  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const chosen = await loadChosenDurations(admin, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
   // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
-  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
+  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
   // If a student is signed in (e.g. via "Continue with Google"), pre-fill the form
   const { data: { user } } = await supabase.auth.getUser()
@@ -61,17 +62,8 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
     reviews = r ?? []
   } catch { /* table may not exist yet */ }
 
-  // Fetch blocked dates (graceful if table doesn't exist)
-  let blockedDates: string[] = []
-  try {
-    const today = new Date().toISOString().split('T')[0]
-    const { data: exc } = await supabase
-      .from('availability_exceptions')
-      .select('date')
-      .eq('tutor_id', tutor.id)
-      .gte('date', today)
-    blockedDates = (exc ?? []).map((e: any) => e.date)
-  } catch { /* table may not exist yet */ }
+  // Blocked dates: the date only, never the tutor's note for the day (graceful if the table doesn't exist)
+  const blockedDates = await loadBlockedDates(admin, tutor.id)
 
   // Fetch active packages (graceful if table doesn't exist)
   let packages: any[] = []

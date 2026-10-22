@@ -16,9 +16,13 @@ export async function proxy(request: NextRequest) {
 
   if (!isMain) {
     try {
+      // T-0774: a visitor's key cannot read the tutors table, so this lookup is made with the server's key (this file runs on the
+      // server only). It asks for the slug only, and only for a tutor whose booking page is on, as the old policy allowed.
+      const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+      if (!serverKey) throw new Error('no server key')
       const res = await fetch(
-        `${supabaseUrl}/rest/v1/tutors?custom_domain=eq.${encodeURIComponent(hostname)}&select=slug&limit=1`,
-        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+        `${supabaseUrl}/rest/v1/tutors?custom_domain=eq.${encodeURIComponent(hostname)}&booking_url_active=eq.true&select=slug&limit=1`,
+        { headers: { apikey: serverKey, Authorization: `Bearer ${serverKey}` } }
       )
       const rows = await res.json() as { slug: string }[]
       if (rows.length > 0 && rows[0].slug) {
@@ -100,12 +104,10 @@ export async function proxy(request: NextRequest) {
   let isTutor = true
   if (user && (isDashboardPage || isAuthPage)) {
     try {
-      const r = await fetch(
-        `${supabaseUrl}/rest/v1/tutors?id=eq.${user.id}&select=id&limit=1`,
-        { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-      )
-      const rows = await r.json() as unknown[]
-      isTutor = Array.isArray(rows) && rows.length > 0
+      // T-0774: asked with the signed-in account's own session (the policy "Tutors can view own profile"), never with the public key:
+      // that key cannot read the tutors table, and, before, it saw only tutors whose booking page is on.
+      const { data: own, error } = await supabase.from('tutors').select('id').eq('id', user.id).maybeSingle()
+      isTutor = error ? true : !!own
     } catch {
       isTutor = true // fail open: never lock a real tutor out on a transient error
     }

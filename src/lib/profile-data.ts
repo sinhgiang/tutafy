@@ -1,8 +1,8 @@
 // The two reads the public tutor profile makes beyond the tutor row (T-0765): the next free times, and how many lessons each
-// reviewing student had. Both need lessons, which a visitor's own session cannot read (row level security: only the tutor reads
-// their lessons), so they use the server's admin client and let NOTHING of a lesson leave except what the page shows:
-//   - free times: only start and end times of this tutor's saved lessons are read, and only the free times that remain are returned
-//     (no student, no title, no link, no price);
+// reviewing student had. Both need tables a visitor's own session cannot read (lessons: only the tutor reads their lessons; blocked
+// days: the tutor's note for a day is private, T-0774), so they use the server's admin client and let NOTHING leave except what the page shows:
+//   - free times: only start and end times of this tutor's saved lessons and the DATE of each blocked day are read (never the note for the
+//     day), and only the free times that remain are returned (no student, no title, no link, no price);
 //   - lesson counts: only a number per student id, and the student id itself is never sent to the browser or into the markup.
 // A failed read never guesses: the times become 'unknown' (the page says "open the booking page"), the counts are simply absent.
 import { clashWindowStart, type AvailabilityRow, type LessonWindow } from '@/lib/booking-slots'
@@ -19,8 +19,8 @@ export const TIMES_HORIZON_DAYS = 14
 export type FreeTimes = { slots: FreeSlot[]; state: 'ok' | 'none' | 'unknown' }
 
 /**
- * The tutor's next free times for the profile. `anon` is the visitor's session client (hours and blocked days are public, the booking
- * page reads them the same way); `getAdmin` makes the admin client for the lessons and may throw when it is not configured.
+ * The tutor's next free times for the profile. `anon` is the visitor's session client (the weekly hours are public, the booking page
+ * reads them the same way); `getAdmin` makes the admin client for the blocked days and the lessons and may throw when it is not configured.
  */
 export async function loadFreeTimes(
   anon: ReadClient,
@@ -38,11 +38,15 @@ export async function loadFreeTimes(
     const tz = safeZone(tutor.timezone)
     const today = now.toISOString().slice(0, 10)
     let blockedDates: string[] = []
-    try {
-      // the table may not exist on an older database: no blocked days is the right answer then
-      const blocked = await anon.from('availability_exceptions').select('date').eq('tutor_id', tutor.id).gte('date', today)
-      if (!blocked.error) blockedDates = (blocked.data ?? []).map(r => String(r.date))
-    } catch { /* no blocked days */ }
+    // the table may not exist on an older database: no blocked days is the right answer then. Any other failure is not: a day the
+    // tutor blocked must never be offered, so the times become 'unknown'.
+    const blocked = await getAdmin().from('availability_exceptions').select('date').eq('tutor_id', tutor.id).gte('date', today)
+    if (blocked.error) {
+      const code = (blocked.error as { code?: string }).code
+      if (code !== '42P01' && code !== 'PGRST205') return { slots: [], state: 'unknown' }
+    } else {
+      blockedDates = (blocked.data ?? []).map(r => String(r.date))
+    }
 
     // lessons that could overlap a slot in the window: the same read the booking route does (clashWindowStart goes back far enough
     // for the longest lesson), for the tutor's own calendar (assigned_to is null), and cancelled lessons free their time

@@ -224,8 +224,10 @@ test('a database that is missing, fails or answers with an error gives an empty 
 /** A stand-in for Supabase's REST service that, like the database policy, only returns tutors where booking_url_active is true when the request says so. */
 function fakeDatabase(rows: { slug: string; email: string; booking_url_active: boolean }[]) {
   const requests: string[] = []
+  const keys: string[] = [] // the key each request was made with
   const server = http.createServer((req, res) => {
     requests.push(req.url ?? '')
+    keys.push(String(req.headers.apikey ?? ''))
     const url = new URL(req.url ?? '/', 'http://localhost')
     let out = rows
     if (url.searchParams.get('booking_url_active') === 'eq.true') out = out.filter(r => r.booking_url_active)
@@ -234,10 +236,10 @@ function fakeDatabase(rows: { slug: string; email: string; booking_url_active: b
     res.setHeader('content-type', 'application/json')
     res.end(JSON.stringify(picked))
   })
-  return new Promise<{ url: string; requests: string[]; close: () => Promise<void> }>(resolve => {
+  return new Promise<{ url: string; requests: string[]; keys: string[]; close: () => Promise<void> }>(resolve => {
     server.listen(0, '127.0.0.1', () => {
       const { port } = server.address() as { port: number }
-      resolve({ url: `http://127.0.0.1:${port}`, requests, close: () => new Promise(r => server.close(() => r())) })
+      resolve({ url: `http://127.0.0.1:${port}`, requests, keys, close: () => new Promise(r => server.close(() => r())) })
     })
   })
 }
@@ -248,8 +250,9 @@ test('the real sitemap lists a profile only for a tutor who turned the public pa
     { slug: 'hidden-hana', email: 'hana@example.com', booking_url_active: false },
     { slug: 'diego-prueba', email: 'diego@example.com', booking_url_active: true },
   ])
-  const before = { url: process.env.NEXT_PUBLIC_SUPABASE_URL, key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY }
+  const before = { url: process.env.NEXT_PUBLIC_SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY, anon: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY }
   process.env.NEXT_PUBLIC_SUPABASE_URL = db.url
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'server-key-for-test'
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'public-anon-key-for-test'
   try {
     const entries = await sitemap()
@@ -262,6 +265,8 @@ test('the real sitemap lists a profile only for a tutor who turned the public pa
     assert.doesNotMatch(JSON.stringify(entries), EMAIL_IN_TEXT)
     // exactly one request, for the slug column only, filtered on the flag
     assert.equal(db.requests.length, 1, db.requests.join('\n'))
+    // T-0774: the read is made on the server with the server's key; the visitor's (public) key is not used for the tutors table
+    assert.deepEqual(db.keys, ['server-key-for-test'])
     const q = new URL(db.requests[0], 'http://localhost').searchParams
     assert.equal(q.get('select'), 'slug')
     assert.equal(q.get('booking_url_active'), 'eq.true')
@@ -272,17 +277,18 @@ test('the real sitemap lists a profile only for a tutor who turned the public pa
     assert.ok(entries.filter(e => e.url.startsWith(`${SITE_URL}/tutors/`)).every(e => e.lastModified === undefined))
   } finally {
     if (before.url === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL; else process.env.NEXT_PUBLIC_SUPABASE_URL = before.url
-    if (before.key === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = before.key
+    if (before.key === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY; else process.env.SUPABASE_SERVICE_ROLE_KEY = before.key
+    if (before.anon === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = before.anon
     await db.close()
   }
 })
 
 test('with no database configured, or one that is down, the sitemap still lists the static pages and every post', async () => {
-  const before = { url: process.env.NEXT_PUBLIC_SUPABASE_URL, key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY }
+  const before = { url: process.env.NEXT_PUBLIC_SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY }
   try {
     for (const [url, key] of [['', ''], ['http://127.0.0.1:9', 'k'], ['your_supabase_url', 'k']]) {
       process.env.NEXT_PUBLIC_SUPABASE_URL = url
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = key
+      process.env.SUPABASE_SERVICE_ROLE_KEY = key
       const urls = (await sitemap()).map(e => e.url)
       assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/tutors/`)).length, 0, url)
       assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/blog/`)).length, POSTS.length, url)
@@ -290,7 +296,7 @@ test('with no database configured, or one that is down, the sitemap still lists 
     }
   } finally {
     if (before.url === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL; else process.env.NEXT_PUBLIC_SUPABASE_URL = before.url
-    if (before.key === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = before.key
+    if (before.key === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY; else process.env.SUPABASE_SERVICE_ROLE_KEY = before.key
   }
 })
 
