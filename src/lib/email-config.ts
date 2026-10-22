@@ -160,6 +160,8 @@ export type MailInput = {
   replyTo?: string | string[]
   cc?: string | string[]
   bcc?: string | string[]
+  /** Extra mail headers, for example List-Unsubscribe on the tips mail. */
+  headers?: Record<string, string>
 }
 
 /**

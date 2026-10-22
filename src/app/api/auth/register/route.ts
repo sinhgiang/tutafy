@@ -77,11 +77,12 @@ export async function POST(request: NextRequest) {
     if (referrer) referredBy = referrer.id
   }
 
+  const slug = generateSlug(accountName)
   const { error } = await admin.from('tutors').insert({
     id: accountId,
     email: accountEmail,
     name: accountName,
-    slug: generateSlug(accountName),
+    slug,
     ...(referredBy ? { referred_by: referredBy } : {}),
   })
 
@@ -92,10 +93,11 @@ export async function POST(request: NextRequest) {
   const safeName = escapeHtml(accountName)
   const email = accountEmail
 
-  // Send onboarding to new tutor
-  try {
-    const { createMailer, spamHintHtml } = await import('@/lib/email')
-    if (process.env.RESEND_API_KEY?.startsWith('re_')) {
+  // The welcome mail. While the welcome series is off (the default) this is the mail that has always gone out (`legacy`);
+  // once the owner switches the series on, sendWelcomeAtSignup sends the new day-0 mail instead of it (src/lib/welcome-send.ts).
+  const apiKey = process.env.RESEND_API_KEY
+  const sendLegacyWelcome = async () => {
+      const { createMailer, spamHintHtml } = await import('@/lib/email')
       const resend = createMailer(process.env.RESEND_API_KEY)
       await resend.emails.send({
         to: email,
@@ -138,6 +140,12 @@ export async function POST(request: NextRequest) {
           </div>
         `,
       })
+  }
+  try {
+    const { sendWelcomeAtSignup } = await import('@/lib/welcome-send')
+    const { resendSender, hasMailKey } = await import('@/lib/welcome-mailer')
+    if (hasMailKey(apiKey)) {
+      await sendWelcomeAtSignup({ db: admin, tutor: { id: accountId, email, name: accountName, slug }, send: resendSender(), legacy: sendLegacyWelcome })
     }
   } catch { /* email is non-critical */ }
 
