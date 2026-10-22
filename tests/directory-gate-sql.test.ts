@@ -9,8 +9,10 @@ import type { PGlite } from '@electric-sql/pglite'
 import { applyMigrationsBefore, newDb } from './support/local-db.ts'
 
 const DIR = path.resolve(import.meta.dirname, '..', 'docs', 'directory-design')
-const COUNT_SQL = readFileSync(path.join(DIR, 'eligible-tutors-count.sql'), 'utf8')
-const LANG_SQL = readFileSync(path.join(DIR, 'eligible-tutors-by-language.sql'), 'utf8')
+// A Windows checkout may turn line ends into CRLF while the tests cut the text at a newline, so read it with LF only.
+const readSql = (name: string) => readFileSync(path.join(DIR, name), 'utf8').replace(/\r\n/g, '\n')
+const COUNT_SQL = readSql('eligible-tutors-count.sql')
+const LANG_SQL = readSql('eligible-tutors-by-language.sql')
 
 const BIO80 = 'I teach English to adults and children, one to one, with a plan for every lesson and clear homework.' // 100 characters
 const BIO79 = BIO80.slice(0, 79)
