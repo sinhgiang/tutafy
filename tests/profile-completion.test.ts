@@ -36,11 +36,12 @@ beforeEach(() => { currentUser = null })
 
 const LONG = 'I teach English to busy professionals. '.repeat(6) // 234 characters
 const none = { slug: 'maya', bio: null, avatarUrl: null, defaultLessonPrice: null, reviewCount: 0, availabilityRows: 0 }
-const pct = (f: Partial<typeof none>, ready?: boolean) => lib.buildProfileCompletion({ ...none, ...f }, ready).percent
+// `ready` false is the switch OFF (PHOTO_UPLOAD_READY false: the photo row says "Coming soon" and counts for nothing); the tests of the switch ON use true
+const pct = (f: Partial<typeof none>, ready = false) => lib.buildProfileCompletion({ ...none, ...f }, ready).percent
 
 // ---- the percentage ------------------------------------------------------------------------------------------------------------------
 
-test('nothing filled in is 0%; each step adds its own share; all four that can be done today is 100%', () => {
+test('with the photo switch off: nothing filled in is 0%; each step adds its own share; the four other steps are 100%', () => {
   assert.equal(pct({}), 0)
   assert.equal(pct({ availabilityRows: 1 }), 30)
   assert.equal(pct({ bio: LONG }), 25)
@@ -69,16 +70,33 @@ test('with a photo upload (when it exists) the photo is worth 20 and the others 
   assert.equal(pct({ availabilityRows: 1, bio: LONG, defaultLessonPrice: 10, reviewCount: 1 }, true), 80, 'no photo yet: 80')
 })
 
-test('the photo step cannot hold a tutor below 100% while nobody can add a photo: it says "Coming soon" and counts for nothing', () => {
-  assert.equal(lib.PHOTO_UPLOAD_READY, false, 'if an upload is ever built, flip this flag and the weights change with it')
-  const c = lib.buildProfileCompletion({ ...none, bio: LONG, defaultLessonPrice: 10, reviewCount: 1, availabilityRows: 1 })
+test('with the photo switch off, the photo step cannot hold a tutor below 100%: it says "Coming soon" and counts for nothing', () => {
+  const c = lib.buildProfileCompletion({ ...none, bio: LONG, defaultLessonPrice: 10, reviewCount: 1, availabilityRows: 1 }, false)
   const photo = c.steps.find(s => s.id === 'photo')!
   assert.deepEqual([photo.weight, photo.soon, photo.done], [0, true, false])
   assert.match(photo.hint, /Coming soon/)
   assert.equal(c.complete, true)
   // a photo that is already there is just done
-  const has = lib.buildProfileCompletion({ ...none, avatarUrl: 'https://x.example/p.jpg' }).steps.find(s => s.id === 'photo')!
+  const has = lib.buildProfileCompletion({ ...none, avatarUrl: 'https://x.example/p.jpg' }, false).steps.find(s => s.id === 'photo')!
   assert.deepEqual([has.done, has.soon], [true, false])
+})
+
+test('T-0766: the photo switch is ON, so the photo step counts (20 of 100), is open until a photo is added, and sends the tutor to Settings, Profile', () => {
+  assert.equal(lib.PHOTO_UPLOAD_READY, true)
+  const none20 = lib.buildProfileCompletion(none)
+  const photo = none20.steps.find(s => s.id === 'photo')!
+  assert.deepEqual([photo.weight, photo.soon, photo.done, photo.href, photo.action], [20, false, false, '/settings?tab=profile', 'Add photo'])
+  assert.doesNotMatch(photo.hint, /Coming soon/)
+  assert.equal(none20.steps.reduce((a, s) => a + s.weight, 0), 100)
+  // by default the steps are worth hours 25, photo 20, introduction 20, price 20, review 15
+  assert.equal(lib.buildProfileCompletion({ ...none, avatarUrl: 'https://x.example/p.jpg' }).percent, 20)
+  assert.equal(lib.buildProfileCompletion({ ...none, availabilityRows: 1 }).percent, 25)
+  // the four other steps are no longer 100%: without the photo a tutor stops at 80
+  const four = { availabilityRows: 1, bio: LONG, defaultLessonPrice: 10, reviewCount: 1 }
+  assert.deepEqual([lib.buildProfileCompletion({ ...none, ...four }).percent, lib.buildProfileCompletion({ ...none, ...four }).complete], [80, false])
+  assert.deepEqual([lib.buildProfileCompletion({ ...none, ...four, avatarUrl: 'https://x.example/p.jpg' }).percent, lib.buildProfileCompletion({ ...none, ...four, avatarUrl: 'https://x.example/p.jpg' }).complete], [100, true])
+  // a blank or spaces-only address is no photo
+  assert.equal(lib.buildProfileCompletion({ ...none, ...four, avatarUrl: '   ' }).complete, false)
 })
 
 test('an introduction counts from 200 characters, trimmed, and not while a template\'s [bracketed part] is still in it', () => {
@@ -113,7 +131,7 @@ test('a photo counts when the address is text with something in it', () => {
 // ---- the list ------------------------------------------------------------------------------------------------------------------------
 
 test('the list: open steps first (the biggest gain first), then what is done, then what cannot be done yet; one next action at the top', () => {
-  const ids = (f: Partial<typeof none>) => lib.buildProfileCompletion({ ...none, ...f }).steps.map(s => s.id)
+  const ids = (f: Partial<typeof none>) => lib.buildProfileCompletion({ ...none, ...f }, false).steps.map(s => s.id)
   assert.deepEqual(ids({}), ['hours', 'intro', 'prices', 'review', 'photo'])
   assert.deepEqual(ids({ availabilityRows: 1 }), ['intro', 'prices', 'review', 'hours', 'photo'])
   assert.deepEqual(ids({ availabilityRows: 1, bio: LONG, defaultLessonPrice: 5, reviewCount: 1 }), ['hours', 'intro', 'prices', 'review', 'photo'])
@@ -139,7 +157,7 @@ test('the public link: the main site address and the slug, or none when the tuto
 
 // ---- the card as HTML ----------------------------------------------------------------------------------------------------------------
 
-const view = (f: Partial<typeof none>, extra: Record<string, unknown> = {}) => renderToStaticMarkup(createElement(ProfileCompletionView, { card: lib.buildProfileCompletion({ ...none, ...f }), ...extra }))
+const view = (f: Partial<typeof none>, extra: Record<string, unknown> = {}, ready = false) => renderToStaticMarkup(createElement(ProfileCompletionView, { card: lib.buildProfileCompletion({ ...none, ...f }, ready), ...extra }))
 
 test('the card at 30%: the percent, a progress bar with its numbers, the next step first and highlighted, "+25%" on what is open, "Done" on what is done', () => {
   const html = view({ availabilityRows: 1 })
@@ -174,6 +192,19 @@ test('at 100% the card shrinks to one line with the link and the copy button; no
   assert.doesNotMatch(html, /role="progressbar"|data-step=|<ol/)
   assert.match(view(full, { copied: true }), /Copied/)
   assert.doesNotMatch(view({ ...full, slug: null }), /copy-profile-link/, 'no slug, no link to copy')
+})
+
+test('T-0766: with the photo switch on the card shows the photo as a task with a button, and a tutor without a photo does not get the one-line card', () => {
+  const html = view({ availabilityRows: 1, bio: LONG, defaultLessonPrice: 20, reviewCount: 1 }, {}, true)
+  assert.match(html, /data-testid="profile-percent">80%</)
+  assert.match(html, /<span class="sr-only">To do: <\/span>Add a clear photo of your face/)
+  const go = /<a [^>]*data-testid="go-photo"[^>]*>Add photo<\/a>/.exec(html)
+  assert.ok(go, 'the photo has a button')
+  assert.match(go[0], /href="\/settings\?tab=profile"/)
+  assert.doesNotMatch(html, /Coming soon/)
+  assert.doesNotMatch(html, /profile-completion-done/)
+  const done = view({ availabilityRows: 1, bio: LONG, defaultLessonPrice: 20, reviewCount: 1, avatarUrl: 'https://x.example/p.jpg' }, {}, true)
+  assert.match(done, /profile-completion-done/)
 })
 
 test('99% is not complete: only a whole 100 shrinks the card', () => {
@@ -215,7 +246,7 @@ test('the real dashboard: each tutor sees their OWN percentage, and it follows t
   assert.doesNotMatch(mine.html, /tutors\/omar/, 'never another tutor\'s link')
 
   const theirs = await renderFor(OTHER, d)
-  assert.equal(theirs.page.props.data.profile?.percent, 100, 'hours 30 + introduction 25 + price 25 + a review 20')
+  assert.equal(theirs.page.props.data.profile?.percent, 100, 'hours 25 + photo 20 + introduction 20 + price 20 + a review 15')
   assert.match(theirs.html, /data-testid="profile-completion-done"/, 'at 100% the card is one line')
   assert.doesNotMatch(theirs.html, /data-testid="profile-completion-card"|tutors\/mia/)
 })
@@ -223,12 +254,12 @@ test('the real dashboard: each tutor sees their OWN percentage, and it follows t
 test('loadProfileCompletion: every read names the tutor, a failed read gives no card (never a wrong 0%), and nothing is written', async () => {
   const d = world()
   const ok = await lib.loadProfileCompletion(d as never, OTHER)
-  assert.equal(ok?.percent, 100, 'hours, a long introduction, a price and a review')
+  assert.equal(ok?.percent, 100, 'hours, a long introduction, a price, a review and a photo')
   assert.equal(ok?.complete, true)
   const mine = await lib.loadProfileCompletion(d as never, ME)
-  assert.equal(mine?.percent, 0, 'the other tutor\'s hours and price do not count for me')
+  assert.equal(mine?.percent, 0, 'the other tutor\'s hours, price and photo do not count for me')
   d.tables.availability.push({ id: 'a2', tutor_id: ME, day_of_week: 2, start_time: '10:00', end_time: '12:00' })
-  assert.equal((await lib.loadProfileCompletion(d as never, ME))?.percent, 30)
+  assert.equal((await lib.loadProfileCompletion(d as never, ME))?.percent, 25, 'hours are worth 25 now that the photo counts')
 
   const broken = { from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: { message: 'boom' } }), then: (r: (v: unknown) => unknown) => r({ count: null, error: { message: 'boom' } }) }) }) }) }
   assert.equal(await lib.loadProfileCompletion(broken as never, ME), null)
