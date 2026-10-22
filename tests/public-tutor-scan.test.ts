@@ -79,7 +79,7 @@ const BROWSER_HELPER_OK: Record<string, string> = {
 /** Open to a visitor (or to a student with a link): these read only with the admin client, and call the helpers above only with it. */
 const PUBLIC_SURFACE = [
   'src/app/book/', 'src/app/embed/', 'src/app/tutors/', 'src/app/student/', 'src/app/portal/', 'src/app/sitemap.ts',
-  'src/app/api/tutors/', 'src/app/api/portal/', 'src/app/api/bookings/', 'src/app/api/reviews/', 'src/app/api/waitlist/', 'src/app/api/coupons/',
+  'src/app/api/tutors/public/', 'src/app/api/portal/', 'src/app/api/bookings/', 'src/app/api/reviews/', 'src/app/api/waitlist/', 'src/app/api/coupons/',
   'src/app/api/subscriptions/checkout/', 'src/app/api/stripe/checkout/', 'src/app/api/ai/homework-check/', 'src/app/api/track/', 'src/app/api/student/',
   'src/app/unsubscribe/', 'src/app/api/unsubscribe/', 'src/lib/public-tutor.ts', 'src/lib/profile-data.ts', 'src/lib/directory-cache.ts',
 ]
