@@ -122,6 +122,11 @@ if (process.env.MOCK_BUYERS) {
   const set = (tid, sid) => { tutors.find(t => t.id === tid).polar_subscription_id = sid }
   set(TUTOR_ID, 'sub_mock_1'); set(id(3, 'b'), 'sub_mock_2'); set(ADMIN_ID, 'sub_mock_3')
   tutors.push({ id: id(150, 'b'), email: 'hana@example.com', name: 'Hana Ejemplo', slug: 'hana-ejemplo', subscription_status: 'academy', polar_subscription_id: 'sub_mock_4', languages: ['German'], timezone: 'Europe/Berlin', created_at: iso(-45), booking_url_active: true })
+  // a journey for Sarah (the Pro tutor) so her page at /admin/tutors/<id> has a first source, pages, a sign-up and an upgrade; the others have none
+  visitors.push({ id: id(1, 'f'), tutor_id: TUTOR_ID, first_seen_at: iso(-93, 8), country: 'DE', first_source: 'ai_chatgpt', first_path: '/', first_referrer_host: null, utm_source: null, utm_medium: null, utm_campaign: null })
+  for (const [n, kind, p, plan, day, hour] of [[1, 'page_view', '/', null, -93, 8], [2, 'page_view', '/blog/how-to-take-card-payments-with-a-stripe-payment-link', null, -93, 9], [3, 'page_view', '/upgrade', null, -92, 10], [4, 'checkout_click', null, 'pro', -92, 11], [5, 'order_paid', null, 'pro', -90, 12]]) {
+    visitor_events.push({ id: id(n, 'f'), visitor_id: id(1, 'f'), kind, path: p, plan, created_at: iso(day, hour) })
+  }
   tutors.push({ id: id(151, 'b'), email: 'noor@example.com', name: 'Noor Prueba', slug: 'noor-prueba', subscription_status: 'pro', polar_subscription_id: null, languages: ['Arabic'], timezone: 'Asia/Dubai', created_at: iso(-20), booking_url_active: true })
 }
 

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
 import { getAdminT } from '@/lib/admin-lang'
@@ -5,11 +6,11 @@ import { loadBuyers, BUYERS_LIST_LIMIT } from '@/lib/buyers-data'
 import { planBadgeClass, planLabel, POLAR_DASHBOARD_URL } from '@/lib/buyers'
 import { readPolarBilling, buildBuyerBilling, summarizeBilling } from '@/lib/buyer-billing'
 import { formatMoney } from '@/lib/currency'
+import { formatDayLabel as dayLabel } from '@/lib/format'
 import { ShoppingBag, GraduationCap, BookOpen, ExternalLink, Wallet, Repeat, CalendarClock } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-const dayLabel = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—')
 const STATUS_STYLE = { active: 'bg-green-100 text-green-700', cancelled: 'bg-gray-100 text-gray-600', past_due: 'bg-red-100 text-red-700', other: 'bg-gray-100 text-gray-500' } as const
 
 export default async function AdminBuyersPage() {
@@ -159,7 +160,7 @@ export default async function AdminBuyersPage() {
                 return (
                   <tr key={b.id} data-buyer={b.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-3 py-3">
-                      <p className="font-medium text-gray-900">{b.name}</p>
+                      <Link href={`/admin/tutors/${b.id}`} className="font-medium text-gray-900 hover:text-indigo-700">{b.name}</Link>
                       <p className="text-xs text-gray-400">{b.email}</p>
                     </td>
                     <td className="px-3 py-3 text-gray-400 text-xs whitespace-nowrap">{dayLabel(b.created_at)}</td>
