@@ -15,6 +15,7 @@ import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
 import { hasPlan } from '@/lib/plans'
 import { IntroEditor } from '@/components/IntroEditor'
+import { AvatarUploader } from '@/components/settings/AvatarUploader'
 import { unfilledParts } from '@/lib/intro-templates'
 import { ALL_DURATIONS, MAX_DURATIONS, lengthSaveErrorMessage, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations, durationColumnsToSave } from '@/lib/lesson-durations'
 
@@ -52,6 +53,8 @@ export default function SettingsPage() {
   const [gcalConnected, setGcalConnected] = useState(false)
   const [disconnectingGcal, setDisconnectingGcal] = useState(false)
   const [slug, setSlug] = useState('')
+  // the profile photo (T-0766): saved the moment it is chosen, by its own route, so it is not part of `form` or of the Save bar
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [linkCopied, setLinkCopied] = useState(false)
   const [cardLinkError, setCardLinkError] = useState('')
   // the Custom box under "Lengths you take" (T-0700)
@@ -110,6 +113,7 @@ export default function SettingsPage() {
       const { data } = await supabase.from('tutors').select('*').eq('id', user.id).single()
       if (data) {
         setSlug(data.slug ?? '')
+        setAvatarUrl(typeof data.avatar_url === 'string' && data.avatar_url ? data.avatar_url : null)
         setStripeConnected(data.stripe_onboarding_complete ?? false)
         setSubscriptionStatus(data.subscription_status ?? 'free')
         setGcalConnected(!!(data as any).google_calendar_refresh_token)
@@ -297,6 +301,7 @@ export default function SettingsPage() {
                 <p className="text-[13px] font-semibold text-gray-900">Profile</p>
               </div>
               <div className="p-5 space-y-4">
+                <AvatarUploader name={form.name} url={avatarUrl} onChange={setAvatarUrl} />
                 <div>
                   <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Full name</label>
                   <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}

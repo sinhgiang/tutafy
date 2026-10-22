@@ -275,6 +275,7 @@ const send = (res, status, body, headers = {}) => {
 }
 const readBody = req => new Promise(r => { let s = ''; req.on('data', c => { s += c }); req.on('end', () => { try { r(s ? JSON.parse(s) : null) } catch { r(null) } }) })
 
+const STORED = new Map() // "bucket/path" -> { type, bytes }
 http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`)
   if (req.method === 'OPTIONS') return send(res, 204)
@@ -292,6 +293,28 @@ http.createServer(async (req, res) => {
     let text = ''; for await (const c of req) text += c
     writeFileSync(path.join(process.env.MOCK_SAVE_DIR, name), text)
     return send(res, 200, { saved: name, bytes: text.length })
+  }
+  // Storage (T-0766): the photo bucket, kept in memory. MOCK_STORAGE_MISSING=1 answers "Bucket not found" to every upload (the bucket was never made).
+  if (p.startsWith('/storage/v1/object/')) {
+    const rest = decodeURIComponent(p.slice('/storage/v1/object/'.length))
+    const chunks = []; for await (const c of req) chunks.push(c)
+    const bytes = Buffer.concat(chunks)
+    if (req.method === 'GET' && rest.startsWith('public/')) {
+      const f = STORED.get(rest.slice('public/'.length))
+      if (!f) return send(res, 404, { message: 'not found' })
+      res.writeHead(200, { 'content-type': f.type, 'access-control-allow-origin': '*' }); return res.end(f.bytes)
+    }
+    if (req.method === 'POST') {
+      if (process.env.MOCK_STORAGE_MISSING) return send(res, 404, { statusCode: '404', error: 'Bucket not found', message: 'Bucket not found' })
+      STORED.set(rest, { type: String(req.headers['content-type'] ?? 'application/octet-stream'), bytes })
+      return send(res, 200, { Key: rest, Id: rest })
+    }
+    if (req.method === 'DELETE') {
+      let prefixes = []; try { prefixes = JSON.parse(bytes.toString() || '{}').prefixes ?? [] } catch { /* none */ }
+      for (const x of prefixes) STORED.delete(`${rest}/${x}`)
+      return send(res, 200, [])
+    }
+    return send(res, 405, { message: 'method not allowed' })
   }
   if (p === '/auth/v1/user') {
     const u = userFromAuth(req)

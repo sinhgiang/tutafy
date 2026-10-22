@@ -4,14 +4,14 @@
 // photo and reviews. It is computed every time and never stored: no table or column is added, nothing is sent to anyone.
 // The reads use the signed-in tutor's own session client and name the tutor's id in every query, like src/lib/first-student.ts.
 //
-// Photo: nothing in the app lets a tutor add a photo yet (no upload, and tutors.avatar_url is written nowhere), so a step that
-// cannot be finished must not hold the percentage down. While PHOTO_UPLOAD_READY is false the photo row says "Coming soon", counts
-// for nothing, and the other four steps share the 100. When an upload exists, set it to true: the photo gets its own weight.
+// Photo (T-0766): a tutor can now add one in Settings, Profile (src/app/api/tutors/avatar/route.ts), so the photo step counts and has its own
+// weight. PHOTO_UPLOAD_READY stays as the switch: false puts the photo row back to "Coming soon" and shares its weight among the other steps
+// (for a database where the photo bucket of supabase/migrations/024_tutor_avatars.sql has not been made, or if the upload is ever withdrawn).
 import type { BuyersClient } from '@/lib/buyers-data'
 import { SITE_URL } from '@/lib/site-url'
 import { unfilledParts } from '@/lib/intro-templates'
 
-export const PHOTO_UPLOAD_READY = false
+export const PHOTO_UPLOAD_READY = true
 
 /** An introduction counts as written from this many characters: a few sentences, not a single line. */
 export const BIO_MIN_CHARS = 200
