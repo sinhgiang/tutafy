@@ -206,7 +206,9 @@ test('Settings: a switch in the Booking page tab, switchable only on a paid plan
   assert.match(src, /const shown = !\(paid && form\.hide_branding\)/, 'shown unless a PAID tutor turned it off')
   assert.match(src, /Pro and Academy plans can turn it off/)
   assert.match(src, /hide_branding: \(data as any\)\.hide_branding === true/, 'read from the loaded row; a missing column reads as false')
-  assert.match(src, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, \.\.\.rest \} = form/, 'left out of the main update, because its column may not exist yet')
-  assert.match(src, /if \(hide_branding !== savedBranding\) \{\s*const \{ error: brandingError \} = await supabase\.from\('tutors'\)\.update\(\{ hide_branding \}\)\.eq\('id', user\.id\)/, 'written alone, only when changed, on the signed-in tutor\'s own row')
-  assert.match(src, /This option is not available yet\. Your other settings are saved\./)
+  // the writes live in src/lib/settings-save.ts; their ORDER and what the saved copy takes are run for real in tests/settings-save.test.ts
+  const save = read('src/lib/settings-save.ts')
+  assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, \.\.\.rest \} = form/, 'left out of the main update, because its column may not exist yet')
+  assert.match(save, /if \(hide_branding !== savedBranding\) \{\s*const \{ error: brandingError \} = await db\.from\('tutors'\)\.update\(\{ hide_branding \}\)\.eq\('id', userId\)/, 'written alone, only when changed, on the signed-in tutor\'s own row')
+  assert.match(save, /This option is not available yet\. Your other settings are saved\./)
 })
