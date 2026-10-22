@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { FirstStudentCard } from '@/components/dashboard/FirstStudentCard'
+import { NoHoursBanner } from '@/components/dashboard/NoHoursBanner'
+import type { NoHoursBanner as NoHoursData } from '@/lib/no-hours-banner'
 import type { FirstStudentCard as FirstStudentData } from '@/lib/first-student'
 import {
   Search, Play, MoreVertical, Paperclip, FileText, Video, Users, User,
@@ -52,6 +54,7 @@ export type DashboardData = {
   currencySymbol: string
   tutorId: string
   firstStudent: FirstStudentData | null // T-0681: null when every step is done
+  noHours: NoHoursData | null // T-0739: the banner for a tutor with no free hours; null when they have some
 }
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -428,6 +431,8 @@ export function DashboardHome({ data }: { data: DashboardData }) {
 
   return (
     <div className="max-w-[1200px] mx-auto">
+      {data.noHours && <NoHoursBanner banner={data.noHours} />}
+
       {/* Top bar */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
         <div className="flex-shrink-0">
