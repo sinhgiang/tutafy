@@ -15,6 +15,8 @@ import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
 import { hasPlan } from '@/lib/plans'
 import { saveTutorSettings } from '@/lib/settings-save'
+import { IntroEditor } from '@/components/IntroEditor'
+import { unfilledParts } from '@/lib/intro-templates'
 import { ALL_DURATIONS, MAX_DURATIONS, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations } from '@/lib/lesson-durations'
 
 const TIMEZONES = [
@@ -151,6 +153,14 @@ export default function SettingsPage() {
       return
     }
     setCardLinkError('')
+    // An introduction still holding a template's [bracketed part] would go on the public profile as it is, so a CHANGED bio with one is
+    // not saved. A bio the tutor did not touch is never judged here (an old one may hold brackets of its own).
+    const savedBio = savedSnapshot ? (JSON.parse(savedSnapshot).bio ?? '') : ''
+    if (form.bio !== savedBio && unfilledParts(form.bio).length > 0) {
+      setTab('profile')
+      toast.error('Your introduction still has parts in [square brackets]. Replace them or delete them, then save.')
+      return
+    }
     // The lesson lengths must be real ones before anything is saved (the database check of 018 says the same, so a value that
     // got past this is refused there too).
     const lengthCheck = checkDurations(form.lesson_durations)
@@ -253,14 +263,7 @@ export default function SettingsPage() {
                   <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
                 </div>
-                <div>
-                  <label className="block text-[12px] font-medium text-gray-600 mb-1.5">
-                    Bio <span className="text-gray-400 font-normal">(shown on booking page)</span>
-                  </label>
-                  <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
-                    placeholder="Tell your students about yourself..." rows={4}
-                    className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
-                </div>
+                <IntroEditor value={form.bio} onChange={bio => setForm(f => ({ ...f, bio }))} />
               </div>
             </div>
           )}

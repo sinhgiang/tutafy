@@ -1,5 +1,5 @@
-// The small "Made with Tutafy" line at the foot of a tutor's public booking pages (T-0717): /book/<slug>, /book/<slug>/<member>
-// and the embed window /embed/<slug).
+// The small "Made with Tutafy" line at the foot of a tutor's public pages (T-0717): the booking pages /book/<slug> and
+// /book/<slug>/<member>, the embed window /embed/<slug>, and (T-0765) the public profile /tutors/<slug>.
 //
 // Who sees it: every tutor on the Free plan, always. A tutor on Pro or Academy sees it too until they turn it off in Settings
 // (Booking page tab); the choice is the column tutors.hide_branding (migration 021). The PLAN decides first, on the server, from the
@@ -11,7 +11,7 @@ import { SITE_URL } from '@/lib/site-url'
 export const MADE_WITH_TEXT = 'Made with Tutafy'
 
 /** Where the line is shown; it becomes the `ref` of the link, so the visits it brings can be counted by surface. */
-export type BrandingSurface = 'booking-page' | 'booking-embed'
+export type BrandingSurface = 'booking-page' | 'booking-embed' | 'profile-page'
 
 /**
  * The address the line points to: the home page, with the source in `ref` (the examples the owner gave) and the same source as the

@@ -155,6 +155,7 @@ const PUBLIC_TEXT_FILES = [
   'src/app/book/[slug]/[member]/page.tsx',
   'src/app/embed/[slug]/page.tsx',
   'src/components/MadeWithTutafy.tsx',
+  'src/components/profile/FreeTimes.tsx',
   'src/app/offline/page.tsx',
   'src/app/blog/[slug]/page.tsx',
   'src/app/tutors/[slug]/page.tsx',
@@ -170,7 +171,6 @@ const PUBLIC_TEXT_FILES = [
 const GREY_EXEMPT: Record<string, { line: string; why: string }[]> = {
   'src/app/page.tsx': [{ line: '<X className=', why: 'the "no" cross in the comparison table is an icon; the row label carries the meaning' }],
   'src/app/blog/[slug]/page.tsx': [{ line: '<X className=', why: 'the "no" cross in the comparison table is an icon; the row label carries the meaning' }],
-  'src/app/tutors/(directory)/page.tsx': [{ line: '<Star key={s}', why: 'an empty rating star is an icon; the rating number is printed beside it' }],
   'src/app/tutors/[slug]/page.tsx': [{ line: '<Star key={s}', why: 'an empty rating star is an icon; the rating number is printed beside it' }],
   'src/app/book/[slug]/page.tsx': [{ line: '<Star key={s}', why: 'an empty rating star is an icon; the rating number is printed beside it' }],
   'src/app/book/[slug]/BookingForm.tsx': [{ line: "isPast ? 'text-gray-200 cursor-default'", why: 'a past day of the calendar is a disabled button (disabled={isPast || isBlocked}); WCAG exempts disabled controls' }],
@@ -297,7 +297,7 @@ test('scanner checks: pale grey put back into a layout or a page makes greyOffen
     ['src/app/blog/layout.tsx', /<main/, '<main className="text-gray-300"'],
     ['src/app/book/[slug]/BookingForm.tsx', /text-gray-500 font-medium">← Pick a date/, 'text-gray-300 font-medium">← Pick a date'],
     ['src/components/MadeWithTutafy.tsx', /text-gray-500 hover:text-gray-700/, 'text-gray-300 hover:text-gray-700'],
-    ['src/app/tutors/[slug]/page.tsx', /text-\[10px\] text-gray-500/, 'text-[10px] text-gray-300'],
+    ['src/app/tutors/[slug]/page.tsx', /text-\[12px\] text-gray-500">\{new Date/, 'text-[12px] text-gray-300">{new Date'],
     ['src/app/blog/[slug]/page.tsx', /<span className="text-gray-500">\{b\.credit\}/, '<span className="text-gray-300">{b.credit}'],
   ]
   for (const [rel, from, to] of cases) {
