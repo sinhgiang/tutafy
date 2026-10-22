@@ -1,6 +1,6 @@
 // A small stand-in for the part of the Supabase client that the onboarding code uses, written over a REAL Postgres (PGlite), so code that
 // talks to the database can be run against the schema the migrations make, with the database's own type checks and constraints.
-// Supports: from(t).select(cols).eq(col, v) / .in(col, [v]) / .gte(col, v) / .lte(col, v) / .order(col, { ascending }) / .limit(n),
+// Supports: from(t).select(cols).eq(col, v) / .neq / .is / .in(col, [v]) / .gte(col, v) / .lt / .lte(col, v) / .order(col, { ascending }) / .limit(n) / .range(a, b),
 // from(t).insert(rows).select(cols), from(t).upsert(rows, { onConflict, ignoreDuplicates }), from(t).delete().in(col, [v]) / .eq(col, v).
 // Every answer is { data, error } like the real client; a database error is { code, message } and never thrown.
 // Values are written into the SQL as quoted literals (test data only, never user input); identifiers must be plain lower-case names.
@@ -21,13 +21,15 @@ class Query implements PromiseLike<DbAnswer> {
   private conflict: { onConflict: string; ignoreDuplicates: boolean } | null = null
   private orders: string[] = []
   private max: number | null = null
+  private skip = 0
   private cols = '*'
   private rows: Record<string, unknown>[] = []
   private returning: string | null = null
   private wheres: string[] = []
   private db: PGlite
   private table: string
-  constructor(db: PGlite, table: string) { this.db = db; this.table = table }
+  private rest: boolean
+  constructor(db: PGlite, table: string, rest = false) { this.db = db; this.table = table; this.rest = rest }
 
   select(cols = '*') { if (this.op === 'insert') this.returning = cols; else { this.op = 'select'; this.cols = cols } return this }
   insert(rows: Record<string, unknown> | Record<string, unknown>[]) { this.op = 'insert'; this.rows = Array.isArray(rows) ? rows : [rows]; return this }
@@ -41,6 +43,10 @@ class Query implements PromiseLike<DbAnswer> {
   lte(col: string, v: unknown) { this.wheres.push(`${ident(col)} <= ${lit(v)}`); return this }
   order(col: string, opts: { ascending?: boolean } = {}) { this.orders.push(`${ident(col)} ${opts.ascending === false ? 'desc' : 'asc'}`); return this }
   limit(n: number) { this.max = n; return this }
+  range(from: number, to: number) { this.skip = from; this.max = to - from + 1; return this }
+  neq(col: string, v: unknown) { this.wheres.push(`${ident(col)} <> ${lit(v)}`); return this }
+  is(col: string, v: unknown) { this.wheres.push(`${ident(col)} is ${v === null ? 'null' : lit(v)}`); return this }
+  lt(col: string, v: unknown) { this.wheres.push(`${ident(col)} < ${lit(v)}`); return this }
   eq(col: string, v: unknown) { this.wheres.push(`${ident(col)} = ${lit(v)}`); return this }
   in(col: string, vs: unknown[]) { this.wheres.push(vs.length ? `${ident(col)} in (${vs.map(lit).join(', ')})` : 'false'); return this }
 
@@ -57,7 +63,7 @@ class Query implements PromiseLike<DbAnswer> {
     }
     if (this.op === 'delete') return `delete from ${t}${where}`
     const order = this.orders.length ? ` order by ${this.orders.join(', ')}` : ''
-    const limit = this.max === null ? '' : ` limit ${Math.floor(this.max)}`
+    const limit = (this.max === null ? '' : ` limit ${Math.floor(this.max)}`) + (this.skip > 0 ? ` offset ${Math.floor(this.skip)}` : '')
     return `select ${this.cols === '*' ? '*' : this.cols.split(',').map(c => ident(c.trim())).join(', ')} from ${t}${where}${order}${limit}`
   }
 
@@ -67,13 +73,20 @@ class Query implements PromiseLike<DbAnswer> {
   private async run(): Promise<DbAnswer> {
     try {
       const res = await this.db.query<Record<string, unknown>>(this.sql())
-      return { data: this.op === 'delete' || ((this.op === 'insert' || this.op === 'upsert') && !this.returning) ? null : res.rows, error: null }
+      let rows = res.rows
+      // like PostgREST: a date is "YYYY-MM-DD" and a timestamp an ISO string (PGlite hands back Date objects)
+      if (this.rest) {
+        const kind = new Map(res.fields.map(f => [f.name, f.dataTypeID]))
+        rows = rows.map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v instanceof Date ? (kind.get(k) === 1082 ? v.toISOString().slice(0, 10) : v.toISOString()) : v])))
+      }
+      return { data: this.op === 'delete' || ((this.op === 'insert' || this.op === 'upsert') && !this.returning) ? null : rows, error: null }
     } catch (e) {
       return { data: null, error: { code: (e as { code?: string }).code, message: (e as Error).message } }
     }
   }
 }
 
-export function pgliteClient(db: PGlite) {
-  return { from: (table: string) => new Query(db, table) }
+/** `restStyle` makes dates and timestamps come back as strings, the way the real service sends them. */
+export function pgliteClient(db: PGlite, opts: { restStyle?: boolean } = {}) {
+  return { from: (table: string) => new Query(db, table, opts.restStyle === true) }
 }
