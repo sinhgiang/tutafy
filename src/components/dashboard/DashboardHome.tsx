@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { FirstStudentCard } from '@/components/dashboard/FirstStudentCard'
 import { NoHoursBanner } from '@/components/dashboard/NoHoursBanner'
 import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard'
+import { ListingCard } from '@/components/dashboard/ListingCard'
+import type { ListingCardData } from '@/lib/listing-status'
 import type { ProfileCompletion } from '@/lib/profile-completion'
 import type { NoHoursBanner as NoHoursData } from '@/lib/no-hours-banner'
 import type { FirstStudentCard as FirstStudentData } from '@/lib/first-student'
@@ -58,6 +60,7 @@ export type DashboardData = {
   firstStudent: FirstStudentData | null // T-0681: null when every step is done
   noHours: NoHoursData | null // T-0739: the banner for a tutor with no free hours; null when they have some
   profile?: ProfileCompletion | null // T-0765: the profile-completion card; null when its read failed
+  listing?: ListingCardData | null // T-0769: the "Your listing in the tutor directory" card; null when its read failed
 }
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -475,6 +478,7 @@ export function DashboardHome({ data }: { data: DashboardData }) {
 
       {data.firstStudent && <FirstStudentCard card={data.firstStudent} tutorId={data.tutorId} />}
       {data.profile && <ProfileCompletionCard card={data.profile} />}
+      {data.listing && <ListingCard card={data.listing} />}
 
       {/* Row 1: Lessons + At risk */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
