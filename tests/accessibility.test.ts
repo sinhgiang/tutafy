@@ -171,7 +171,6 @@ const PUBLIC_TEXT_FILES = [
 const GREY_EXEMPT: Record<string, { line: string; why: string }[]> = {
   'src/app/page.tsx': [{ line: '<X className=', why: 'the "no" cross in the comparison table is an icon; the row label carries the meaning' }],
   'src/app/blog/[slug]/page.tsx': [{ line: '<X className=', why: 'the "no" cross in the comparison table is an icon; the row label carries the meaning' }],
-  'src/app/tutors/(directory)/page.tsx': [{ line: '<Star key={s}', why: 'an empty rating star is an icon; the rating number is printed beside it' }],
   'src/app/tutors/[slug]/page.tsx': [{ line: '<Star key={s}', why: 'an empty rating star is an icon; the rating number is printed beside it' }],
   'src/app/book/[slug]/page.tsx': [{ line: '<Star key={s}', why: 'an empty rating star is an icon; the rating number is printed beside it' }],
   'src/app/book/[slug]/BookingForm.tsx': [{ line: "isPast ? 'text-gray-200 cursor-default'", why: 'a past day of the calendar is a disabled button (disabled={isPast || isBlocked}); WCAG exempts disabled controls' }],
