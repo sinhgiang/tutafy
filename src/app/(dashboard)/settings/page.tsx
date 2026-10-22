@@ -14,9 +14,10 @@ import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { CARD_LINK_HELP_LINKS } from '@/lib/card-link-help'
 import { hasPlan } from '@/lib/plans'
+import { saveTutorSettings } from '@/lib/settings-save'
 import { IntroEditor } from '@/components/IntroEditor'
 import { unfilledParts } from '@/lib/intro-templates'
-import { ALL_DURATIONS, MAX_DURATIONS, lengthSaveErrorMessage, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations, durationColumnsToSave } from '@/lib/lesson-durations'
+import { ALL_DURATIONS, MAX_DURATIONS, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations } from '@/lib/lesson-durations'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -171,51 +172,11 @@ export default function SettingsPage() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    // currency and the lesson lengths are written on their own below: their columns may not exist yet
-    const { currency, lesson_durations, default_lesson_duration, hide_branding, ...rest } = form
-    const { error } = await supabase.from('tutors').update({
-      ...rest,
-      paddle_checkout_link: linkCheck.value,
-      default_lesson_price: rest.default_lesson_price ? parseFloat(rest.default_lesson_price) : null,
-      trial_price: rest.trial_price ? parseFloat(rest.trial_price) : null,
-    }).eq('id', user.id)
-    if (error) { toast.error(error.message); setSaving(false); return }
-    // Currency column may not exist yet — update separately and swallow errors
-    try {
-      await supabase.from('tutors').update({ currency }).eq('id', user.id)
-    } catch { /* currency column pending migration */ }
-    // "Made with Tutafy": its own column may not exist yet (migration 021), so it is written apart, and only when the tutor changed it.
-    // The pages decide by the PLAN first (src/lib/branding.ts), so a Free tutor writing true here changes nothing on their page.
-    const savedBranding = savedSnapshot ? JSON.parse(savedSnapshot).hide_branding === true : false
-    if (hide_branding !== savedBranding) {
-      const { error: brandingError } = await supabase.from('tutors').update({ hide_branding }).eq('id', user.id)
-      if (brandingError) {
-        // The rest is saved; this one is not, so the save bar stays and says so.
-        setSavedSnapshot(JSON.stringify({ ...form, hide_branding: savedBranding }))
-        toast.error('This option is not available yet. Your other settings are saved.')
-        setSaving(false)
-        return
-      }
-    }
-    // Lesson lengths: only when the tutor changed them. The update names this signed-in tutor's own row
-    // (the database policy allows nothing else) and the values are cleaned first: whole minutes from 10 to 240 in steps of 5, one
-    // to six lengths, none twice, and the default one of them (cleanDurations in src/lib/lesson-durations.ts).
-    const before = savedSnapshot ? JSON.parse(savedSnapshot) : null
-    const lengthColumns = durationColumnsToSave(
-      before ? { durations: before.lesson_durations, defaultDuration: before.default_lesson_duration } : null,
-      { durations: lesson_durations, defaultDuration: default_lesson_duration },
-    )
-    if (lengthColumns) {
-      const { error: lengthError } = await supabase.from('tutors').update(lengthColumns).eq('id', user.id)
-      if (lengthError) {
-        // The rest is saved; the lengths are not, so the save bar stays and says so.
-        setSavedSnapshot(JSON.stringify({ ...form, lesson_durations: before?.lesson_durations ?? form.lesson_durations, default_lesson_duration: before?.default_lesson_duration ?? form.default_lesson_duration }))
-        toast.error(lengthSaveErrorMessage(lengthError, { durations: lesson_durations, defaultDuration: default_lesson_duration }))
-        setSaving(false)
-        return
-      }
-    }
-    setSavedSnapshot(JSON.stringify(form)) // mark current values as saved → hides the bar
+    // The writes (main columns, then currency, "Made with Tutafy" and the lesson lengths, each on its own) live in src/lib/settings-save.ts.
+    // A part that fails does not stop the ones after it, and the saved copy only takes what was really written.
+    const result = await saveTutorSettings(supabase, user.id, form, savedSnapshot, linkCheck.value)
+    setSavedSnapshot(result.snapshot) // only what was written → the bar stays when a part failed
+    if (!result.ok) { toast.error(result.message); setSaving(false); return }
     toast.success('Settings saved!')
     setSaving(false)
   }

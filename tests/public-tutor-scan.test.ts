@@ -60,6 +60,7 @@ const TAKES_A_CLIENT: Record<string, { reads: number; helpers: string[]; reason:
   'src/lib/lesson-durations.ts': { reads: 1, helpers: ['loadChosenDurations'], reason: 'the lengths a tutor takes; public pages call it with the admin client' },
   'src/lib/listing-status.ts': { reads: 2, helpers: ['loadListingCard'], reason: 'the signed-in tutor\'s own dashboard card' },
   'src/lib/profile-completion.ts': { reads: 1, helpers: ['loadProfileCompletion'], reason: 'the signed-in tutor\'s own dashboard card' },
+  'src/lib/settings-save.ts': { reads: 4, helpers: ['saveTutorSettings'], reason: 'writes the signed-in tutor own row (userId); called only by the Settings page with that tutor session client' },
   'src/lib/role-switch.ts': { reads: 1, helpers: ['canBackToTutor'], reason: 'asks whether the signed-in account is a tutor; the student page gives it the admin client' },
   'src/lib/tutor-currency.ts': { reads: 1, helpers: ['loadTutorCurrency'], reason: 'the currency of a tutor, for the tutor\'s own pages and the owner\'s admin pages' },
   'src/lib/tutor-sitemap.ts': { reads: 1, helpers: ['listPublicTutorSlugs'], reason: 'the sitemap gives it a client built with the server\'s key' },
@@ -73,6 +74,7 @@ const REST_READS: Record<string, { reads: number; reason: string }> = {
 const BROWSER_OK = ['src/app/(dashboard)/availability/page.tsx', 'src/app/(dashboard)/settings/page.tsx', 'src/app/onboarding/page.tsx']
 /** Browser code that reaches the tutors table through a helper (and the id it passes): the signed-in tutor's own lengths for the lesson forms. */
 const BROWSER_HELPER_OK: Record<string, string> = {
+  'src/app/(dashboard)/settings/page.tsx': 'saveTutorSettings(supabase, user.id, ...): the signed-in tutor saves their own row',
   'src/app/(dashboard)/lessons/new/page.tsx': 'loadChosenDurations(supabase, user.id): the signed-in tutor own row',
   'src/app/(dashboard)/lessons/[id]/edit/page.tsx': 'loadChosenDurations(supabase, data.tutor_id): the tutor id of a lesson the signed-in tutor could open (the lessons policy is each tutor own)',
 }

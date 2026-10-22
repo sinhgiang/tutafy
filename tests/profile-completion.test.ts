@@ -274,7 +274,7 @@ test('Settings: the introduction box offers the templates, and a CHANGED bio tha
   const settings = read('app/(dashboard)/settings/page.tsx')
   assert.match(settings, /<IntroEditor value=\{form\.bio\} onChange=\{bio => setForm\(f => \(\{ \.\.\.f, bio \}\)\)\} \/>/)
   assert.match(settings, /form\.bio !== savedBio && unfilledParts\(form\.bio\)\.length > 0/)
-  assert.ok(settings.indexOf('form.bio !== savedBio') < settings.indexOf("supabase.from('tutors').update({"), 'the check is before anything is written')
+  assert.ok(settings.indexOf('form.bio !== savedBio') < settings.indexOf('saveTutorSettings(supabase'), 'the check is before anything is written (the writes live in src/lib/settings-save.ts since T-0717)')
   const guard = settings.slice(settings.indexOf('form.bio !== savedBio'), settings.indexOf('form.bio !== savedBio') + 400)
   assert.match(guard, /return/, 'it stops the save')
   const editor = renderToStaticMarkup(createElement(IntroEditor as never, { value: '', onChange: () => {} }))
