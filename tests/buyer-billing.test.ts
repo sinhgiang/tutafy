@@ -10,6 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import './support/admin-lang.ts'
 import { setAdminLang } from './support/admin-lang.ts'
+import { at, sub, order, reply, withPolar } from './support/pretend-polar.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -58,7 +59,6 @@ const BuyersPage = (await import('@/app/(admin)/admin/buyers/page.tsx')).default
 const ADMIN = { id: 'u-0', email: ADMIN_EMAIL }
 const TUTOR = { id: 'u-1', email: 'ten@example.com' }
 const NOW = new Date()
-const at = (days: number) => new Date(NOW.getTime() + days * 86_400_000).toISOString()
 const dayText = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
 
 beforeEach(() => {
@@ -89,8 +89,6 @@ const BUYERS = [
   { id: 'G', name: 'Gus', email: 'gus@example.com', created_at: '2025-12-01T00:00:00Z', subscription_status: 'pro', polar_subscription_id: 'sub_missing', timezone: null, students: [], lessons: [] },
   { id: 'Z', name: 'Zed', email: 'zed@example.com', created_at: '2025-11-01T00:00:00Z', subscription_status: 'free', polar_subscription_id: 'sub_Z', timezone: null, students: [], lessons: [] }, // free: not a buyer
 ]
-const sub = (id: string, o: Record<string, unknown>) => ({ id, status: 'active', amount: 1200, currency: 'usd', recurring_interval: 'month', cancel_at_period_end: false, started_at: at(-80), current_period_end: at(5), ends_at: null, customer: { email: 'private-customer@example.com' }, ...o })
-const order = (subscriptionId: string, total: number, o: Record<string, unknown> = {}) => ({ id: `ord_${Math.random()}`, status: 'paid', total_amount: total, currency: 'usd', subscription_id: subscriptionId, ...o })
 const SUBSCRIPTIONS = [
   sub('sub_A', {}),
   sub('sub_B', { amount: 12000, recurring_interval: 'year', started_at: '2026-03-09T10:00:00Z', current_period_end: '2027-03-09T10:00:00Z' }),
@@ -107,23 +105,6 @@ const ORDERS = [
   order('sub_F', 2500, { currency: 'eur' }),
   order('sub_Z', 9900), // a tutor who is no longer a buyer: never in the totals
 ]
-
-type Call = { url: string; method: string; auth: string }
-/** Replace the global fetch with a Polar that answers from these two lists (paged like the real one) and writes down every request. */
-function withPolar(subscriptions: unknown[], orders: unknown[], over: { subs?: () => unknown; ordersReply?: () => unknown } = {}) {
-  const calls: Call[] = []
-  const realFetch = globalThis.fetch
-  globalThis.fetch = (async (url: string, init?: { method?: string; headers?: Record<string, string> }) => {
-    calls.push({ url: String(url), method: init?.method ?? 'GET', auth: init?.headers?.Authorization ?? '' })
-    const page = Number(/page=(\d+)/.exec(String(url))?.[1] ?? 1)
-    const all = String(url).includes('/v1/orders/') ? orders : subscriptions
-    const special = String(url).includes('/v1/orders/') ? over.ordersReply?.() : over.subs?.()
-    if (special) return special
-    return { ok: true, status: 200, json: async () => ({ items: all.slice((page - 1) * 100, page * 100) }) }
-  }) as unknown as typeof fetch
-  return { calls, restore: () => { globalThis.fetch = realFetch } }
-}
-const reply = (status: number, body: unknown = {}) => ({ ok: status >= 200 && status < 300, status, json: async () => body })
 
 const render = async () => renderToStaticMarkup(await BuyersPage())
 const row = (html: string, id: string) => new RegExp(`<tr[^>]*data-buyer="${id}".*?</tr>`, 's').exec(html)?.[0] ?? ''

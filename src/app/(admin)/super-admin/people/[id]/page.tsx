@@ -7,62 +7,14 @@ import { isTutorId, loadJourney, parsePage, parsePlanFilter, parseStageFilter } 
 import { buildJourneyView, parseStepsPage, VIEW_PAGE_SIZE, type ViewRow } from '@/lib/journey-view'
 import type { TimelineEntry } from '@/lib/timeline'
 import { countryName, formatWhen } from '@/lib/format'
+import { JourneyStep } from '@/components/admin/JourneyStep'
 import { getAdminT } from '@/lib/admin-lang'
-import { pageLabelText, sourceText, stageText, type AdminT } from '@/lib/admin-i18n'
+import { pageLabelText, sourceText, stageText } from '@/lib/admin-i18n'
 import { parseRange } from '@/lib/journey'
 import { planBadgeClass, planLabel } from '@/lib/buyers'
-import { ArrowLeft, Eye, Flag, UserPlus, MousePointerClick, BadgeCheck } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-
-const ICON = { first_visit: Flag, page_view: Eye, signup: UserPlus, checkout_click: MousePointerClick, order_paid: BadgeCheck } as const
-const DOT: Record<TimelineEntry['kind'], string> = {
-  first_visit: 'bg-indigo-100 text-indigo-600',
-  page_view: 'bg-gray-100 text-gray-500',
-  signup: 'bg-blue-100 text-blue-600',
-  checkout_click: 'bg-amber-100 text-amber-700',
-  order_paid: 'bg-green-100 text-green-700',
-}
-
-// The words of one line of the journey, in the owner's language (the timeline itself only carries the facts).
-function stepTitle(t: AdminT, e: ViewRow): string {
-  if (e.count) return t('journey.appRun', { n: e.count })
-  switch (e.kind) {
-    case 'first_visit': return t(e.another ? 'journey.anotherBrowser' : 'journey.firstVisit', { source: e.source ? sourceText(t, e.source) : '' })
-    case 'page_view': return pageLabelText(t, e.path)
-    case 'signup': return t('journey.signedUp')
-    case 'checkout_click': return e.plan ? t('journey.clickedCheckoutPlan', { plan: planLabel(e.plan) }) : t('journey.clickedCheckout')
-    case 'order_paid': return e.plan ? t('journey.upgradedTo', { plan: planLabel(e.plan) }) : t('journey.upgradedToPaid')
-  }
-}
-
-function Step({ e, id, extra, t }: { e: ViewRow; id?: string; extra?: ReactNode; t: AdminT }) {
-  const Icon = ICON[e.kind]
-  return (
-    <li id={id} className="flex items-start gap-3 px-5 py-2.5 scroll-mt-4" data-kind={e.kind}>
-      <span className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${DOT[e.kind]}`}><Icon className="h-3.5 w-3.5" /></span>
-      <time className="w-36 flex-shrink-0 text-xs text-gray-400 pt-1 font-mono">{formatWhen(e.at)}</time>
-      <div className="min-w-0">
-        <p className={`text-sm ${e.kind === 'page_view' ? 'text-gray-700' : 'font-semibold text-gray-900'}`}>{stepTitle(t, e)}</p>
-        {e.count && (
-          <p className="text-xs text-gray-500" data-testid="app-run">
-            {e.shownParts}{e.moreCount ? `, ${t('journey.more', { n: e.moreCount })}` : ''}{e.until && e.until !== e.at && t('journey.until', { when: formatWhen(e.until) })}
-          </p>
-        )}
-        {e.kind === 'first_visit' && (
-          <p className="text-xs text-gray-500">
-            {countryName(e.country)}
-            {e.referrerHost && t('journey.from', { host: e.referrerHost })}
-            {e.campaign && t('journey.campaign', { name: e.campaign })}
-            {e.path && <>{t('journey.landed', { page: pageLabelText(t, e.path) })} <span className="font-mono text-gray-400">({e.path})</span></>}
-          </p>
-        )}
-        {e.kind !== 'first_visit' && !e.count && e.path && <p className="text-xs font-mono text-gray-400">{e.path}</p>}
-        {extra}
-      </div>
-    </li>
-  )
-}
 
 export default async function PersonJourneyPage({
   params, searchParams,
@@ -155,7 +107,7 @@ export default async function PersonJourneyPage({
           </div>
           <ol className="divide-y divide-gray-50">
             {view.keyMoments.map(m => (
-              <Step key={m.index} e={m.row} t={t} extra={
+              <JourneyStep key={m.index} e={m.row} t={t} extra={
                 <p className="text-xs mt-0.5">
                   <Link href={journeyHref(m.page, `#step-${m.index}`)} className="text-indigo-600 hover:underline">
                     {m.page === view.page ? t('journey.jump') : t('journey.open', { page: m.page, pages: view.pages })}
@@ -175,7 +127,7 @@ export default async function PersonJourneyPage({
           )}
         </div>
         <ol className="divide-y divide-gray-50" data-testid="timeline">
-          {view.rows.map(({ row, index }) => <Step key={index} e={row} id={`step-${index}`} t={t} />)}
+          {view.rows.map(({ row, index }) => <JourneyStep key={index} e={row} id={`step-${index}`} t={t} />)}
           {view.rows.length === 0 && <li className="px-5 py-8 text-center text-sm text-gray-400">{t('journey.nothing')}</li>}
         </ol>
         {view.pages > 1 && (
