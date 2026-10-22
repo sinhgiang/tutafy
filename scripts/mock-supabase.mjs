@@ -242,6 +242,25 @@ lessons.push(
 tutors.push({ id: NEW_TUTOR_ID, email: 'nina@example.com', name: 'Nina Nueva', slug: 'nina-nueva', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-1), booking_url_active: true, currency: 'USD' })
 students.push({ id: id(40), tutor_id: NEW_TUTOR_ID, name: 'Nina Nueva', email: 'nina@example.com', status: 'active', portal_token: id(40, 'c'), created_at: iso(-1) })
 
+// The seven lessons of the Revenue report (T-0741), with made-up tutors and students: four cancelled lessons marked paid (30 each), one lesson
+// past its day and still scheduled (300), two completed lessons (300 each). The admin page /admin/revenue must show 600 as its main number.
+{
+  const ALPHA = id(50, 'b'), BETA = id(51, 'b')
+  tutors.push(
+    { id: ALPHA, email: 'alpha@example.com', name: 'Tutor Alpha', slug: 'tutor-alpha', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-60), booking_url_active: true, currency: 'USD' },
+    { id: BETA, email: 'beta@example.com', name: 'Tutor Beta', slug: 'tutor-beta', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-60), booking_url_active: true, currency: 'USD' },
+  )
+  const kid = (n, tid, name) => ({ id: id(n), tutor_id: tid, name, email: `kid${n}@example.com`, status: 'active', portal_token: id(n, 'c'), created_at: iso(-60) })
+  students.push(kid(60, ALPHA, 'Student One'), kid(61, ALPHA, 'Student Two'), kid(62, BETA, 'Student Beta'))
+  const lesson = (n, tid, sid, status, from, price) => ({ id: id(n, 'd'), tutor_id: tid, student_id: sid, starts_at: iso(from, 15), ends_at: iso(from, 16), duration_minutes: 60, status, price, payment_status: 'paid', currency: 'USD', created_at: iso(-60) })
+  lessons.push(
+    lesson(910, BETA, id(62), 'cancelled', 6, 30), lesson(911, BETA, id(62), 'cancelled', 6, 30), lesson(912, BETA, id(62), 'cancelled', -1, 30), lesson(913, BETA, id(62), 'cancelled', -1, 30),
+    lesson(914, ALPHA, id(60), 'scheduled', -43, 300), lesson(915, ALPHA, id(60), 'completed', -45, 300), lesson(916, ALPHA, id(61), 'completed', -46, 300),
+  )
+  // MOCK_REVENUE_SEVEN=1: make every other sample lesson unpaid, so the Revenue page holds exactly these seven (for a picture of the report's case).
+  if (process.env.MOCK_REVENUE_SEVEN === '1') for (const l of lessons) if (!/^00000000-0000-4000-d000-0000000009(1[0-6])$/.test(l.id)) l.payment_status = 'pending'
+}
+
 // ---------- server ----------
 const send = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*', 'access-control-expose-headers': 'content-range', ...headers })
