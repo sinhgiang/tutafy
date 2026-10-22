@@ -337,7 +337,7 @@ test('Settings source: the Custom box, the chips with an x, the rule shown, the 
   assert.match(settings, /\{MIN_DURATION\} to \{MAX_DURATION\} minutes, in steps of \{DURATION_STEP\}\. Up to \{MAX_DURATIONS\} lengths in all\./)
   assert.match(settings, /role="alert"/, 'the sentence for a refused value is announced')
   const save = settings.slice(settings.indexOf('async function handleSave()'))
-  assert.ok(save.indexOf('checkDurations(form.lesson_durations)') > 0 && save.indexOf('checkDurations(form.lesson_durations)') < save.indexOf("supabase.from('tutors').update("), 'the list is checked before anything is written')
+  assert.ok(save.indexOf('checkDurations(form.lesson_durations)') > 0 && save.indexOf('checkDurations(form.lesson_durations)') < save.indexOf('saveTutorSettings('), 'the list is checked before anything is written')
   assert.match(settings, /\{form\.lesson_durations\.map\(d => <SelectItem key=\{d\}/, '"Length selected first" offers every length, custom ones too')
 })
 

@@ -140,7 +140,8 @@ test('settings: new label and placeholder, same stored column, https check on sa
   assert.match(src, /placeholder="https:\/\/buy\.stripe\.com\/\.\.\."/)
   assert.ok(!src.includes('Paddle checkout link'))
   assert.match(src, /cardLinkForSave\(form\.paddle_checkout_link, savedLink\)/)
-  assert.match(src, /paddle_checkout_link: linkCheck\.value/)
+  assert.match(src, /saveTutorSettings\(supabase, user\.id, form, savedSnapshot, linkCheck\.value\)/, 'the checked value is what gets written')
+  assert.match(read('lib/settings-save.ts'), /paddle_checkout_link: cardLink,/)
   assert.match(src, /\(stripeConnected \|\| stripeEnabled === true\) &&/)
 })
 
