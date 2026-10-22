@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { DashboardHome, type DashboardData, type LessonRow, type AtRiskRow, type ReminderRow } from '@/components/dashboard/DashboardHome'
 import { currencySymbol as symbolOf } from '@/lib/currency'
 import { loadFirstStudent } from '@/lib/first-student'
+import { loadNoHoursBanner } from '@/lib/no-hours-banner'
 
 function toLessonRow(l: any): LessonRow {
   const s = Array.isArray(l.students) ? l.students[0] : l.students
@@ -54,6 +55,7 @@ export default async function DashboardPage() {
     { data: weekLessonsRaw },
     { data: invoicesRaw },
     firstStudent,
+    noHours,
   ] = await Promise.all([
     supabase.from('tutors').select('name, currency').eq('id', user!.id).single(),
     supabase.from('lessons').select(LESSON_COLS).eq('tutor_id', user!.id).eq('status', 'scheduled').gte('starts_at', nowIso).order('starts_at').limit(12),
@@ -64,6 +66,8 @@ export default async function DashboardPage() {
     supabase.from('invoices').select('id, amount, status, due_date, students(name)').eq('tutor_id', user!.id).in('status', ['sent', 'overdue']).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
     // "Get your first student" card: this tutor's own rows only (the session client, every query names the tutor)
     loadFirstStudent(supabase, user!.id),
+    // Banner for a tutor with no free hours (T-0739): a read of this tutor's own rows; nothing is written or sent
+    loadNoHoursBanner(supabase, user!.id),
   ])
 
   const upcoming = (upcomingRaw ?? []).map(toLessonRow)
@@ -141,6 +145,7 @@ export default async function DashboardPage() {
     currencySymbol,
     tutorId: user!.id,
     firstStudent,
+    noHours,
   }
 
   return <DashboardHome data={data} />
