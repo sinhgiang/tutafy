@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { BookingForm } from '../BookingForm'
+import { loadPublicTutor, loadBlockedDates } from '@/lib/public-tutor'
+import { MEMBER_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
 import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
@@ -16,18 +18,15 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
   const supabase = await createClient()
   const admin = createAdminClient()
 
-  const { data: tutor } = await supabase
-    .from('tutors')
-    .select('id, name, timezone, languages, cancellation_hours, booking_url_active, buffer_minutes, paypal_link, paddle_checkout_link, stripe_account_id, default_lesson_price, contract_template, trial_enabled, trial_price, currency')
-    .eq('slug', slug)
-    .single()
+  // The tutor and the blocked days are read here on the server, only the public columns (T-0774): a visitor's own key cannot read the tutors table.
+  const tutor = await loadPublicTutor(admin, slug, MEMBER_PAGE_COLUMNS)
 
   if (!tutor || !tutor.booking_url_active) notFound()
 
   // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
-  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const chosen = await loadChosenDurations(admin, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
-  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
+  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
   // Use the admin client for the member lookup so we only ever select the
   // non-sensitive columns needed for a public page (never pay_rate/email).
@@ -64,16 +63,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
     subscriptionPlans = plans ?? []
   } catch { /* table may not exist yet */ }
 
-  let blockedDates: string[] = []
-  try {
-    const today = new Date().toISOString().split('T')[0]
-    const { data: exc } = await supabase
-      .from('availability_exceptions')
-      .select('date')
-      .eq('tutor_id', tutor.id)
-      .gte('date', today)
-    blockedDates = (exc ?? []).map((e: any) => e.date)
-  } catch { /* table may not exist yet */ }
+  const blockedDates = await loadBlockedDates(admin, tutor.id)
 
   let packages: any[] = []
   try {

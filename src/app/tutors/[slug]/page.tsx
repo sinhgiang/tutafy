@@ -7,6 +7,8 @@ import { tutorJsonLd, httpsImage } from '@/lib/tutor-seo'
 import { jsonLdScript } from '@/lib/seo'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
+import { loadPublicTutor } from '@/lib/public-tutor'
+import { PROFILE_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
 import { loadFreeTimes, loadReviewLessonCounts, type ReadClient } from '@/lib/profile-data'
 import {
   bioParagraphs, firstNameOf, hasTrial, initialsOf, joinedLabel, priceLabel, profileNotes, reviewText, safeZone, usableReviews,
@@ -28,14 +30,12 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }
   )
 }
 
-// One read of the tutor per request, shared by the page and its metadata.
+// One read of the tutor per request, shared by the page and its metadata. Read on the server with the admin client, only the public
+// columns (T-0774); a tutor whose page is off is found only by that tutor themselves, signed in (their own preview), as the old policy did.
 const getTutor = cache(async (slug: string) => {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('tutors')
-    .select('id, name, bio, avatar_url, timezone, languages, slug, average_rating, review_count, default_lesson_price, booking_url_active, cancellation_hours, trial_enabled, trial_price, currency, buffer_minutes, created_at')
-    .eq('slug', slug)
-    .single()
+  let viewerId: string | null = null
+  try { viewerId = (await (await createClient()).auth.getUser()).data.user?.id ?? null } catch {}
+  const data = await loadPublicTutor(createAdminClient(), slug, PROFILE_PAGE_COLUMNS, viewerId)
   return data
 })
 
@@ -66,13 +66,14 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
 
   // The lesson lengths this tutor takes (T-0698): the same two columns as the booking page, read apart from the rest so a
   // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths.
-  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const admin = createAdminClient()
+  const chosen = await loadChosenDurations(admin, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
   // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
-  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
+  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
-  // The admin client (lessons are not readable by a visitor) is made only when a read needs it; a missing key just means no times and no lesson counts.
-  const getAdmin = () => createAdminClient() as unknown as ReadClient
+  // The admin client reads what a visitor's key cannot: the tutor (T-0774), the blocked days, the lessons. A failed read there means no times and no lesson counts.
+  const getAdmin = () => admin as unknown as ReadClient
 
   // Public reviews: the newest 100 (the page shows six, the structured data ten), and only rows with a real 1-5 rating.
   let reviews: { id: string; rating: number; comment: string | null; created_at: string; student_id: string | null }[] = []

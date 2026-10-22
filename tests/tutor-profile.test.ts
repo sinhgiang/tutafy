@@ -18,21 +18,24 @@ const SRC = path.join(ROOT, 'src')
 const read = (rel: string) => readFileSync(path.join(SRC, rel), 'utf8').replace(/\r\n/g, '\n')
 
 let db: FakeDb
-let adminFails = false
+let adminFails = false // the lessons cannot be read (the admin client answers for every table but `lessons`)
+let noAdminKey = false // no admin key at all: the page cannot even read the tutor (T-0774)
+let viewer: string | null = null // the signed-in account that opens the page
 const adminReads: { table: string; cols: string }[] = []
 mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
   namedExports: {
     // the admin client records what it is asked to read, so a test can say "only these columns, nothing else"
     createAdminClient: () => {
-      if (adminFails) throw new Error('Supabase admin client is not configured')
-      return { from: (table: string) => { const q = db.from(table); return { select: (cols: string, o?: { head?: boolean }) => { adminReads.push({ table, cols }); return q.select(cols, o) } } } }
+      if (noAdminKey) throw new Error('Supabase admin client is not configured')
+      return { from: (table: string) => { if (adminFails && table === 'lessons') throw new Error('lessons cannot be read'); const q = db.from(table); return { select: (cols: string, o?: { head?: boolean }) => { adminReads.push({ table, cols }); return q.select(cols, o) } } } }
     },
-    createClient: async () => ({ from: (t: string) => db.from(t), auth: { getUser: async () => ({ data: { user: null } }) } }),
+    createClient: async () => ({ from: (t: string) => db.from(t), auth: { getUser: async () => ({ data: { user: viewer ? { id: viewer } : null } }) } }),
   },
 })
 mock.module('next/navigation', { namedExports: { notFound: () => { throw new Error('NEXT_NOT_FOUND') }, useRouter: () => ({ push() {}, replace() {} }), useSearchParams: () => new URLSearchParams() } })
 
 const lib = await import('@/lib/tutor-profile.ts')
+const { PROFILE_PAGE_COLUMNS } = await import('@/lib/public-tutor-columns.ts')
 const data = await import('@/lib/profile-data.ts')
 const seo = await import('@/lib/tutor-seo.ts')
 const profile = (await import('@/app/tutors/[slug]/page.tsx'))
@@ -318,7 +321,7 @@ function world(): FakeDb {
   })
 }
 
-beforeEach(() => { db = world(); adminFails = false; adminReads.length = 0 })
+beforeEach(() => { db = world(); adminFails = false; noAdminKey = false; viewer = null; adminReads.length = 0 })
 
 const render = async (slug: string) => renderToStaticMarkup(await page({ params: Promise.resolve({ slug }) }))
 const ldBlocks = (html: string) => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]) as Record<string, unknown>)
@@ -390,7 +393,12 @@ test('Free plan: the line is always shown, even when the column says to hide it 
   assert.match(html, /1 lesson with Daniel/)
 })
 
-test('a tutor whose page is off: no booking card button, no bar, no free times, no structured data, and the old sentence', async () => {
+test('a tutor whose page is off: only that tutor, signed in, sees it (a preview): no booking card button, no bar, no free times, no structured data, and the old sentence', async () => {
+  // a visitor, and another signed-in account, are told the page does not exist (the rule the database policy used to keep, now kept in code)
+  await assert.rejects(() => render('olga-off'), /NEXT_NOT_FOUND/, 'a visitor')
+  viewer = T_FULL
+  await assert.rejects(() => render('olga-off'), /NEXT_NOT_FOUND/, 'another tutor')
+  viewer = T_OFF
   const html = await render('olga-off')
   assert.match(html, /data-testid="booking-closed"[\s\S]*?Booking currently unavailable/)
   assert.doesNotMatch(html, /href="\/book\/olga-off"/)
@@ -406,7 +414,7 @@ test('the free times: shown on the page in the tutor\'s zone first (named), as l
   assert.match(html, /Next free time: (Today|Tomorrow|[A-Z][a-z]{2}) \d{1,2}:\d{2} (AM|PM) \(Toronto\)/, 'the bar names the zone until the browser says its own')
 })
 
-test('when the lessons cannot be read (no admin key) the page still opens: no times promised, no lesson counts, everything else there', async () => {
+test('when the lessons cannot be read the page still opens: no times promised, no lesson counts, everything else there', async () => {
   adminFails = true
   const html = await render('maya-reyes')
   assert.match(html, /<h1[^>]*>Maya Reyes<\/h1>/)
@@ -484,11 +492,19 @@ test('a photo address that is not plain https (http, javascript:, data:, one wit
   }
 })
 
-test('a stranger cannot change what the page reads: it uses the slug\'s own tutor id, and the admin client reads only lesson times and student ids, nothing else', async () => {
+test('a stranger cannot change what the page reads: it uses the slug\'s own tutor id, and the admin client reads only the public columns of the tutor, the dates of blocked days, lesson times and student ids, nothing else (T-0774)', async () => {
   await render('maya-reyes')
   assert.ok(adminReads.length >= 2, 'the page used the admin client')
   const columns = new Set(adminReads.map(r => `${r.table}: ${r.cols}`))
-  assert.deepEqual([...columns].sort(), ['lessons: starts_at, ends_at, duration_minutes', 'lessons: student_id'])
+  assert.deepEqual([...columns].sort(), [
+    'availability_exceptions: date',
+    'lessons: starts_at, ends_at, duration_minutes',
+    'lessons: student_id',
+    'tutors: hide_branding',
+    `tutors: ${PROFILE_PAGE_COLUMNS}`,
+    'tutors: lesson_durations, default_lesson_duration',
+    'tutors: subscription_status',
+  ].sort(), 'the tutor row is read with the profile list of public columns, never with *')
   // neither the student ids nor a lesson's own id, link, price or note reach the page
   const html = await render('maya-reyes')
   for (const secret of [S1, S2, S3, 'LESSON-ID', 'meet_link', 'zoom_link']) assert.equal(html.includes(secret), false, secret)

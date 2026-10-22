@@ -151,6 +151,9 @@ test('the revenue page checks the admin itself before it creates the service-key
 })
 
 test('the embedded booking widget gets the tutor\'s currency too', () => {
-  assert.ok(/default_lesson_price, currency,/.test(read('app/embed/[slug]/page.tsx')))
-  assert.ok(/currency/.test(read('app/book/[slug]/page.tsx')) && /currency/.test(read('app/book/[slug]/[member]/page.tsx')))
+  // the pages read the tutor with the lists of src/lib/public-tutor-columns.ts (T-0774); the currency is in each of them
+  const cols = read('lib/public-tutor-columns.ts')
+  assert.ok(/EMBED_PAGE_COLUMNS = list\(\[[^\]]*'default_lesson_price', 'currency'/.test(cols), 'the embed list has the currency')
+  assert.ok(/BOOKING_PAGE_COLUMNS = list\(\[[^\]]*'currency'/.test(cols) && /MEMBER_PAGE_COLUMNS = list\(\[[^\]]*'currency'/.test(cols))
+  assert.ok(read('app/embed/[slug]/page.tsx').includes('EMBED_PAGE_COLUMNS') && read('app/book/[slug]/page.tsx').includes('BOOKING_PAGE_COLUMNS') && read('app/book/[slug]/[member]/page.tsx').includes('MEMBER_PAGE_COLUMNS'))
 })
