@@ -4,6 +4,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { canBackToTutor, escapeLike } from '@/lib/role-switch'
 import { cleanUrl } from '@/lib/url'
 import { verifyStudentToken } from '@/lib/student-auth'
+import { STUDENT_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
 import { FeedbackButton } from '@/components/FeedbackButton'
 import { Calendar, BookOpen, Video, Clock, ChevronRight, Star } from 'lucide-react'
 
@@ -64,7 +65,7 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
   const now = new Date().toISOString()
 
   const [{ data: tutors }, { data: upcoming }, { data: recent }] = await Promise.all([
-    supabase.from('tutors').select('id, name, avatar_url, slug').in('id', tutorIds),
+    supabase.from('tutors').select(STUDENT_PAGE_COLUMNS).in('id', tutorIds), // the admin client, only the public columns (T-0774)
     supabase.from('lessons')
       .select('id, starts_at, duration_minutes, meet_link, zoom_link, status, student_id, tutor_id')
       .in('student_id', studentIds)

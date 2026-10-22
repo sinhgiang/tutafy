@@ -1,10 +1,10 @@
 // Which tutor profiles go into the sitemap: ONLY tutors who turned their public page on
 // (Settings, "Booking page active" = tutors.booking_url_active). One column is read, the
 // slug; no name, email, phone or any other field leaves the database for the sitemap.
-// Two things keep a hidden profile out, so a mistake in one does not list it:
-//   - the query asks for booking_url_active = true;
-//   - the database policy "Anyone can view tutor for booking" (supabase/migrations/002_rls.sql)
-//     only lets the public (anon) key read rows where booking_url_active is true.
+// The read is made on the SERVER with the admin client (T-0774): a visitor's key cannot read the tutors table any more (the policy
+// "Anyone can view tutor for booking", supabase/migrations/002_rls.sql, let it read every column). So what keeps a hidden profile out
+// is the query itself, which asks for booking_url_active = true; tests/tutor-seo.test.ts runs it against a stand-in that answers
+// every row when the filter is missing.
 import { isPublicSlug } from '@/lib/tutor-seo'
 
 /** The part of a Supabase client this file uses, so a test can pass a small fake. */

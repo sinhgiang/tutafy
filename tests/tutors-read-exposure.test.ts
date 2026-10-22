@@ -265,7 +265,7 @@ test('FIX: the proposal changes no row and no column, can be run twice, touches 
   const code = proposalSql().split('\n').filter(l => !l.trim().startsWith('--')).join('\n')
   assert.ok(!/\b(create|alter\s+table|insert|update|delete|truncate|grant)\b/i.test(code), 'the file only drops two policies and revokes two privileges')
   assert.deepEqual([...code.matchAll(/(?:on|from)\s+(public\.\w+)/gi)].map(m => m[1]).sort(), ['public.availability_exceptions', 'public.availability_exceptions', 'public.tutors', 'public.tutors'])
-  assert.match(proposalSql(), /NOT APPLIED/)
+  assert.match(proposalSql(), /READY, NOT RUN/) // T-0774: the code is changed; the owner has not run it yet (tests/tutors-025-ready.test.ts holds the rest of that claim)
   assert.match(proposalSql(), /T-0767-FIX/, 'the marker the tests look for once the file is in supabase/migrations')
 })
 

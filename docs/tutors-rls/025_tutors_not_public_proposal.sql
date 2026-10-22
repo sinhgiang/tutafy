@@ -1,10 +1,12 @@
--- T-0767 PROPOSAL: stop letting a visitor read other tutors' private columns.
+-- T-0767 / T-0774: stop letting a visitor read other tutors' private columns.
 --
--- NOT APPLIED. NOT IN supabase/migrations ON PURPOSE. Do not run it, and do not move it there, until the code in docs/tutors-rls/README.md
--- ("Order of work") reads these tables on the server: the booking pages, the embed, the public profile and the sitemap read `tutors`
--- (and the blocked days) with a visitor's key today, and they would show "not found" the moment this runs. The owner approves it; the Chief
--- schedules it after the code change. Tested on a local copy only (tests/tutors-read-exposure.test.ts, PGlite): nothing here ran on a real database.
--- When it is moved into supabase/migrations it must keep the marker below, which makes the test that documents today's exposure expect the fix.
+-- READY, NOT RUN. Run it ONLY AFTER the code of T-0774 is merged and live: the public pages now read the tutor on the server, with the admin
+-- client, and the proxy asks "is this a tutor?" with the signed-in account's own session. Before that code is live, this file would make the booking
+-- pages show "not found". The owner runs it in the SQL Editor of the Supabase project (nothing else runs it). Steps, the two read-only checks and
+-- the way back are in docs/tutors-rls/README.md ("Running it"); the way back is docs/tutors-rls/025_tutors_not_public_rollback.sql.
+-- Tested on a local copy only (tests/tutors-read-exposure.test.ts and tests/tutors-025-ready.test.ts, PGlite): nothing here ran on a real database.
+-- It stays outside supabase/migrations on purpose. Once the owner has run it, move it into supabase/migrations WITH the marker below: the test that
+-- documents today's exposure then expects the fix and becomes the guard that keeps it closed.
 --
 -- T-0767-FIX
 --
@@ -22,8 +24,8 @@
 --   - changes no row, no column and no other table (availability, packages, reviews and subscription_plans stay public on purpose: no private
 --     column in them; see the policy list test).
 --
--- WHAT MUST CHANGE IN THE CODE FIRST (each reads with a visitor's key today; each must read on the server with the admin client, only the
--- columns the page shows): the list is in docs/tutors-rls/README.md. Safe to run again.
+-- THE CODE THAT HAD TO CHANGE FIRST (done in T-0774, each one is proved by tests/public-tutor-reads.test.ts, tests/public-tutor-scan.test.ts and
+-- tests/proxy-tutor-reads.test.ts): the booking pages, the embed, the public profile, the sitemap, the student page and the proxy. Safe to run again.
 
 drop policy if exists "Anyone can view tutor for booking" on public.tutors;
 revoke select on public.tutors from anon;

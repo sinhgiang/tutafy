@@ -11,13 +11,13 @@ import { tutorProfileUrl } from '@/lib/tutor-seo'
 export const revalidate = 3600
 
 /**
- * The public (anon) key, no cookies: the sitemap is for crawlers, and with this key the
- * database only returns tutors who turned their public page on. Null when the database is
- * not configured (tests, a build without the variables).
+ * The server's own key, no cookies (T-0774): a visitor's key cannot read the tutors table, so the sitemap reads the one column it
+ * needs (the slug) of the tutors whose page is on, here on the server. The key is read when the sitemap is built and never leaves
+ * this file. Null when the database is not configured (tests, a build without the variables): the sitemap then lists its other pages.
  */
-function publicClient(): TutorSlugClient | null {
+function serverClient(): TutorSlugClient | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
   if (!url.startsWith('http') || url.includes('your_') || !key) return null
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } }) as unknown as TutorSlugClient
 }
@@ -54,6 +54,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: p.priority,
   }))
   const postUrls = POSTS.map(p => ({ url: `${SITE}/blog/${p.slug}`, lastModified: postDate(postDates(p).modified), changeFrequency: 'monthly' as const, priority: 0.6 }))
-  const tutorUrls = (await listPublicTutorSlugs(publicClient())).map(slug => ({ url: tutorProfileUrl(slug), changeFrequency: 'weekly' as const, priority: 0.5 }))
+  const tutorUrls = (await listPublicTutorSlugs(serverClient())).map(slug => ({ url: tutorProfileUrl(slug), changeFrequency: 'weekly' as const, priority: 0.5 }))
   return [...staticUrls, ...postUrls, ...tutorUrls]
 }

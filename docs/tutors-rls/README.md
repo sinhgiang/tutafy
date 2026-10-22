@@ -29,22 +29,38 @@ select grantee, privilege_type from information_schema.role_table_grants where t
 
 If the first shows "Anyone can view tutor for booking" with `(booking_url_active = true)` and the second shows `SELECT` for `anon`, the exposure is real.
 
-## The fix, proposed and NOT applied: `025_tutors_not_public_proposal.sql`
+## Where things stand (T-0774)
 
-It is in this folder, not in `supabase/migrations`, on purpose: it must not be applied before the code below is changed. It drops the two public read policies and takes `select` on `tutors` and `availability_exceptions` away from `anon`. A signed-in tutor keeps reading and writing their own rows; the server's own key is unaffected; no row or column changes; `availability`, `packages`, `reviews` and `subscription_plans` stay public. Tested on the copy: a visitor reads nothing from the two tables in any column or form; tutor A still reads every column of their own row; tutor B reads and changes nothing of tutor A's; the server's key still reads everything; it can be run twice. When the owner approves it and the code is changed, move the file into `supabase/migrations` (keep the marker `T-0767-FIX` in it): the first tests of `tests/tutors-read-exposure.test.ts` then expect NO exposure and become the guard that keeps it closed.
+**The code is changed; the SQL is ready and has NOT been run.** Nothing was run on the real Supabase and no key was used.
 
-## Order of work (so the site does not break)
+| Page or API | Before | Now |
+|---|---|---|
+| `src/app/book/[slug]/page.tsx`, `src/app/book/[slug]/[member]/page.tsx`, `src/app/embed/[slug]/page.tsx` | the tutor row and the blocked days with the visitor's key, the PayPal link, the card link, the Stripe account id and the contract text in the same row | `loadPublicTutor` (`src/lib/public-tutor.ts`) with the admin client and the list of the page in `src/lib/public-tutor-columns.ts`; blocked days: the date only (`loadBlockedDates`); `loadChosenDurations` and `loadShowMadeWith` get the admin client. `stripe_account_id` is no longer read at all (nothing in the page used it). `paypal_link`, `paddle_checkout_link` and `contract_template` stay on the booking pages only: the student pays and signs there |
+| `src/app/tutors/[slug]/page.tsx` and `loadFreeTimes` in `src/lib/profile-data.ts` | the tutor row and the blocked days with the visitor's key | the tutor through `loadPublicTutor` (a tutor whose page is off is found only by that tutor, signed in); the blocked days through the admin client (a failed read of them is now "unknown", never "no blocked days") |
+| `src/app/sitemap.ts` with `src/lib/tutor-sitemap.ts` | the slugs with the public key | the slugs (the `slug` column only, `booking_url_active = true`) with the server's key |
+| `src/app/student/dashboard/page.tsx` | (the first version of this file said the student's session read the tutors: it already used the admin client) | unchanged in behaviour; `STUDENT_PAGE_COLUMNS` names the four columns it reads |
+| `src/app/api/tutors/public/route.ts` | replaced by the directory work (T-0769) | unchanged |
+| `src/proxy.ts` (**not in the list of the first version of this file**) | two reads of `tutors` with the PUBLIC key: the custom domain of a tutor, and "is this signed-in account a tutor?" | the custom domain is looked up with the server key (slug only, page on); "is this a tutor?" is asked with the signed-in account's own session. Without this change, the day 025 runs every custom domain would stop working and every signed-in tutor would be sent to the student sign-in |
 
-1. **Code first.** These places read `tutors` (or the blocked days) with a visitor's key today and would show "not found" or empty once the proposal runs. Each must read on the server with the admin client (`createAdminClient`) and select only the columns the page shows (the way the new directory does, `src/lib/directory-data.ts`):
-   - `src/app/book/[slug]/page.tsx`, `src/app/book/[slug]/[member]/page.tsx`, `src/app/embed/[slug]/page.tsx`: the tutor row (`createClient()`), the blocked days, and, through them, `loadChosenDurations` and `loadShowMadeWith` (they are given the visitor's client). They select `paypal_link`, `paddle_checkout_link`, `stripe_account_id` and `contract_template`: the page may keep showing what the student needs to pay or sign, but the browser should get a yes/no for Stripe, not the account id.
-   - `src/app/tutors/[slug]/page.tsx` (the tutor row, and `loadFreeTimes` in `src/lib/profile-data.ts`, which reads the hours and blocked days with `anon`).
-   - `src/app/student/dashboard/page.tsx` (the student's session reads the name, photo and slug of their tutors).
-   - `src/app/sitemap.ts` with `src/lib/tutor-sitemap.ts` (reads the slugs with the public key; its comment names the policy this proposal drops).
-   - `src/app/api/tutors/public/route.ts` (already replaced by the directory work of T-0769, pull request #66).
-   Already safe (they use the admin client): the booking route, the portal pages and routes, the reviews route, the homework check.
-2. **Then the owner applies the proposal** (it is one short file, safe to run twice).
-3. **If the exposure is confirmed on the real database,** the Google Calendar refresh tokens (and any other secret in those columns) must be treated as possibly copied: the owner decides whether to make every tutor connect Google Calendar again. Nothing here says anyone read them; nothing says nobody did.
+Already safe (they use the admin client): the booking route, the portal pages and routes, the reviews route, the homework check, the subscription and Stripe checkout routes.
+
+What keeps it that way: `tests/public-tutor-reads.test.ts` renders the real pages over a database that has 025 applied (a visitor's key reads nothing from the two tables) and searches the markup and the props of every element for the made-up private values; `tests/public-tutor-scan.test.ts` scans all of `src` and fails on any read of `tutors` or `availability_exceptions` with a client that is not the admin client unless it is listed with a reason; `tests/public-tutor-columns.test.ts` keeps the lists of columns honest; `tests/proxy-tutor-reads.test.ts` proves the proxy.
+
+## Running it (the owner; the steps with links are in the waiting item)
+
+1. **Merge the pull request of T-0774 and wait for the site to deploy.** Before that, 025 would break the booking pages.
+2. **Open a booking page** (`/tutors`, pick a tutor, press Book) and check it shows the tutor and the free times.
+3. **Run `025_checks_read_only.sql` first** (two select statements; shows "open").
+4. **Run `025_tutors_not_public_proposal.sql`** in the SQL Editor of the Supabase project.
+5. **Run the two checks again.** Check 1 must no longer list "Anyone can view tutor for booking" or "Public read exceptions"; check 2 must show no row.
+6. **Open the booking page, the embed and a tutor's profile again,** and sign in as a tutor: the dashboard must open. If a page shows "not found" or the dashboard sends you to the student sign-in, run `025_tutors_not_public_rollback.sql` (it puts both policies and the visitor's right to select back, exactly as before; it re-opens the exposure, so it is a stop-gap) and tell the Chief.
+7. **Then** move `025_tutors_not_public_proposal.sql` into `supabase/migrations` (keep the marker `T-0767-FIX`): `tests/tutors-read-exposure.test.ts` then expects no exposure and becomes the guard that keeps it closed.
+8. **Decide about Google Calendar** (not done by anyone): the refresh tokens of the tutors who connected Google Calendar were readable by anyone with the public key. Nothing says anyone read them; nothing says nobody did. The owner decides whether to ask every tutor to disconnect and connect Google Calendar again (Settings, Google Calendar).
+
+`tests/tutors-025-ready.test.ts` proves, on a copy built from every migration: the two checks only select; before the fix they show the two public policies and the visitor's right to select, after it neither; the fix can be run twice; fix then rollback gives back exactly the same policies and grants as the migration files made.
 
 ## Not done here, and why
 
-No code of the pages was changed: moving them is a separate, larger change with its own tests, and it is safe to do before the owner decides. Nothing was run on the real database.
+- **The tutor's own dashboard** reads its own full tutor row (`select('*')` in `src/app/(dashboard)/layout.tsx`) and gives it to the header. That is the signed-in tutor's own data, in their own browser, so it is not what this folder is about; but the row holds the Google Calendar refresh token and the push subscription, and a browser does not need them. A separate, small change (list the columns the header shows) is proposed in the report of T-0774.
+- **`paypal_link` can be an e-mail address** (the booking page accepts "a full link or a paypal.me name / email"), and it goes to every visitor of the booking page, because the package buttons use it before any booking. Taking it out of the page would need a server step that redirects to the payment after the student chooses; that is a product decision, not a security patch, and it is on the report for the owner.
+- A `tutors(...)` join inside a select string is not seen by the scan. Every one in the code is made by the admin client or by the signed-in tutor on their own lessons (listed in the report of T-0774).
