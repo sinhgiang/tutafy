@@ -1,9 +1,11 @@
 // Test helper: the admin pages read the owner's language from a cookie (src/lib/admin-lang.ts → next/headers). Importing this file
 // fakes that cookie jar; setAdminLang('vi') makes the next render Vietnamese, setAdminLang(null) goes back to the default (English).
+// `cookieJar` holds any OTHER cookie a test wants the server to see (the "View as this tutor" cookie, T-0708): cookieJar.set(name, value).
 import { mock } from 'node:test'
 import { ADMIN_LANG_COOKIE, type AdminLang } from '../../src/lib/admin-i18n.ts'
 
 let value: string | undefined
+export const cookieJar = new Map<string, string>()
 
 export function setAdminLang(lang: AdminLang | string | null): void {
   value = lang ?? undefined
@@ -12,8 +14,8 @@ export function setAdminLang(lang: AdminLang | string | null): void {
 mock.module('next/headers', {
   namedExports: {
     cookies: async () => ({
-      get: (name: string) => (name === ADMIN_LANG_COOKIE && value !== undefined ? { name, value } : undefined),
-      getAll: () => (value !== undefined ? [{ name: ADMIN_LANG_COOKIE, value }] : []),
+      get: (name: string) => (name === ADMIN_LANG_COOKIE && value !== undefined ? { name, value } : cookieJar.has(name) ? { name, value: cookieJar.get(name) } : undefined),
+      getAll: () => [...(value !== undefined ? [{ name: ADMIN_LANG_COOKIE, value }] : []), ...[...cookieJar].map(([name, v]) => ({ name, value: v }))],
       set: () => {},
     }),
   },

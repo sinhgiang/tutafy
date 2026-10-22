@@ -24,6 +24,7 @@ let exchanged: User | null = null // what the Google code is exchanged for, in t
 mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
   namedExports: {
     createAdminClient: () => db,
+    activeViewTutor: async () => null,
     createClient: async () => ({ from: (t: string) => db.from(t), auth: { getUser: async () => ({ data: { user: session } }) } }),
   },
 })

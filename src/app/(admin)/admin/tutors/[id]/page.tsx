@@ -12,7 +12,8 @@ import { isBuyerPlan, planBadgeClass, planLabel, POLAR_DASHBOARD_URL } from '@/l
 import { formatMoney } from '@/lib/currency'
 import { countryName, formatDayLabel } from '@/lib/format'
 import { JourneyStep } from '@/components/admin/JourneyStep'
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { VIEW_START_PATH } from '@/lib/view-as'
+import { ArrowLeft, Eye, ExternalLink } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,13 +31,18 @@ function Fact({ label, value, hint, testid }: { label: string; value: React.Reac
   )
 }
 
-export default async function AdminTutorPage({ params }: { params: Promise<{ id: string }> }) {
+// Why a view could not be opened (the start route sends the admin back with ?view=<reason>): written out here so each word has its own key.
+const VIEW_WHY = { unavailable: 'view.unavailable', no_such_tutor: 'view.no_such_tutor', bad_id: 'view.bad_id' } as const
+
+export default async function AdminTutorPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   // Own check, before any query: this page reads one tutor's account, payments and visits with the service-role key.
   await requireAdminPage()
   const { t } = await getAdminT()
 
   const { id } = await params
   if (!isTutorId(id)) notFound()
+  const viewParam = (await searchParams)?.view
+  const viewWhy = typeof viewParam === 'string' && Object.hasOwn(VIEW_WHY, viewParam) ? VIEW_WHY[viewParam as keyof typeof VIEW_WHY] : null
 
   const admin = createAdminClient()
   const [detail, journey] = await Promise.all([loadTutorDetail(admin, id), loadJourney(admin, id, false)])
@@ -84,6 +90,13 @@ export default async function AdminTutorPage({ params }: { params: Promise<{ id:
           </div>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${planBadgeClass(tutor.subscription_status)}`}>{planLabel(tutor.subscription_status)}</span>
         </div>
+        {/* A form post, never a link: opening a view writes a log line. The server checks the admin, the site and the tutor again. */}
+        <form method="POST" action={VIEW_START_PATH} className="mt-4 flex flex-wrap items-center gap-3">
+          <input type="hidden" name="tutor_id" value={id} />
+          <button type="submit" data-testid="view-as-start" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"><Eye className="h-4 w-4" /> {t('view.button')}</button>
+          <span className="text-xs text-gray-400">{t('view.note')}</span>
+        </form>
+        {viewWhy && <p data-testid="view-as-error" role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{t(viewWhy)}</p>}
       </div>
 
       <section className="bg-white rounded-xl p-5 shadow-sm border border-gray-100" aria-labelledby="tutor-account">

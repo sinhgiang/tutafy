@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation'
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient, activeViewTutor } from '@/lib/supabase/server'
 import { canViewAsStudent } from '@/lib/role-switch'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { ViewAsBanner } from '@/components/admin/ViewAsBanner'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -27,7 +28,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('sender_type', 'student')
     .is('read_at', null)
 
+  // The platform admin looking at this tutor's dashboard read-only (T-0708): a strip on every page says so and has the Exit button.
+  const view = await activeViewTutor()
+
   return (
+    <>
+    {view && <ViewAsBanner tutorName={view.name || view.email} />}
     <div className="flex min-h-screen bg-[#F7F8FA]">
       <Sidebar plan={plan} unreadMessages={unreadMessages ?? 0} />
       <div className="flex-1 flex flex-col min-w-0">
@@ -38,5 +44,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </div>
       <MobileNav plan={plan} unreadMessages={unreadMessages ?? 0} />
     </div>
+    </>
   )
 }

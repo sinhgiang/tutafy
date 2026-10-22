@@ -9,7 +9,7 @@ import { adminGateTarget, isAdminEmail } from '@/lib/admin'
  * Signed out goes to /login; any other account goes to /dashboard.
  */
 export async function requireAdminPage(): Promise<void> {
-  const supabase = await createClient()
+  const supabase = await createClient({ real: true })
   const { data: { user } } = await supabase.auth.getUser()
   const target = adminGateTarget(user)
   if (target) redirect(target)
@@ -20,7 +20,7 @@ export async function requireAdminPage(): Promise<void> {
  * 403 for any account that is not the admin, null when the caller may go on.
  */
 export async function adminApiGate(): Promise<Response | null> {
-  const supabase = await createClient()
+  const supabase = await createClient({ real: true })
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
   if (!isAdminEmail(user.email)) return Response.json({ error: 'Forbidden' }, { status: 403 })
