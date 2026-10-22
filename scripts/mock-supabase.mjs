@@ -116,6 +116,15 @@ if (process.env.MOCK_OVERVIEW) {
   })
 }
 
+// MOCK_BUYERS=1 gives the paying tutors the Polar subscription ids that scripts/mock-polar.mjs knows, and adds two more buyers (a
+// euro Academy plan, and a Pro tutor with no subscription id on record), for the admin Buyers page. Off by default.
+if (process.env.MOCK_BUYERS) {
+  const set = (tid, sid) => { tutors.find(t => t.id === tid).polar_subscription_id = sid }
+  set(TUTOR_ID, 'sub_mock_1'); set(id(3, 'b'), 'sub_mock_2'); set(ADMIN_ID, 'sub_mock_3')
+  tutors.push({ id: id(150, 'b'), email: 'hana@example.com', name: 'Hana Ejemplo', slug: 'hana-ejemplo', subscription_status: 'academy', polar_subscription_id: 'sub_mock_4', languages: ['German'], timezone: 'Europe/Berlin', created_at: iso(-45), booking_url_active: true })
+  tutors.push({ id: id(151, 'b'), email: 'noor@example.com', name: 'Noor Prueba', slug: 'noor-prueba', subscription_status: 'pro', polar_subscription_id: null, languages: ['Arabic'], timezone: 'Asia/Dubai', created_at: iso(-20), booking_url_active: true })
+}
+
 // the Feedback box (supabase/migrations/020_feedback.sql): made-up messages for the admin Feedback page; a POST to /api/feedback adds one in memory
 const feedback = [
   { id: id(1, 'e'), created_at: iso(0, 9), author_role: 'tutor', tutor_id: TUTOR_ID, author_email: 'tutor@example.com', kind: 'bug', message: 'The calendar does not load on my phone when I open it from the dashboard.\nIt works again after I refresh the page.' },

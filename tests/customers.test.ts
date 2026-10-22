@@ -398,12 +398,15 @@ test('Polar: the address can be moved with the variable the upgrade route alread
   const { fetchImpl, seen } = pretendPolar(() => reply(200, { items: [] }))
   await polar.readPolarIncome({ ...ENV, POLAR_API_BASE: 'https://sandbox-api.polar.sh//' }, fetchImpl)
   assert.match(seen[0].url, /^https:\/\/sandbox-api\.polar\.sh\/v1\/subscriptions\//)
-  assert.match(read('lib/polar-income.ts'), /env\.POLAR_API_BASE/)
-  assert.doesNotMatch(read('lib/polar-income.ts'), /process\.env\.[A-Z_]*(KEY|SECRET)/, 'no other variable is read')
+  // every Polar read goes through lib/polar-read.ts (T-0705 moved the reader out of polar-income.ts so the Buyers page uses the same one)
+  assert.match(read('lib/polar-read.ts'), /env\.POLAR_API_BASE/)
+  assert.doesNotMatch(POLAR_READERS(), /process\.env\.[A-Z_]*(KEY|SECRET)/, 'no other variable is read')
 })
 
-test('Polar: one kind of request only, a GET, and the reader has no way to write', () => {
-  const src = read('lib/polar-income.ts')
+const POLAR_READERS = () => ['lib/polar-read.ts', 'lib/polar-income.ts', 'lib/buyer-billing.ts'].map(read).join('\n')
+
+test('Polar: one kind of request only, a GET, and the readers have no way to write', () => {
+  const src = POLAR_READERS()
   assert.deepEqual([...new Set([...src.matchAll(/method: '(\w+)'/g)].map(m => m[1]))], ['GET'])
   assert.doesNotMatch(src, /method: '(POST|PUT|PATCH|DELETE)'|body: (JSON|`|'|{)/)
 })

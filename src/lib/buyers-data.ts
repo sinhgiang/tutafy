@@ -10,6 +10,8 @@ export type BuyerRow = {
   email: string
   created_at: string
   subscription_status: string
+  /** the Polar subscription the webhook recorded for this tutor (src/lib/buyer-billing.ts matches Polar's answer by it) */
+  polar_subscription_id?: string | null
   timezone: string | null
   students: { count: number }[]
   lessons: { count: number }[]
@@ -27,7 +29,7 @@ export async function loadBuyers(admin: BuyersClient) {
     countPlan('pro'),
     countPlan('academy'),
     admin.from('tutors')
-      .select('id, name, email, created_at, subscription_status, timezone, students(count), lessons(count)')
+      .select('id, name, email, created_at, subscription_status, polar_subscription_id, timezone, students(count), lessons(count)')
       .in('subscription_status', ['pro', 'academy'])
       .order('created_at', { ascending: false })
       .limit(BUYERS_LIST_LIMIT) as PromiseLike<{ data: BuyerRow[] | null; error?: unknown }>,
