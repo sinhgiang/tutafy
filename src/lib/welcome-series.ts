@@ -51,7 +51,12 @@ export type WelcomeRules = {
 }
 
 const PLAIN_ADDRESS = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/
-/** Addresses that are made up (examples, tests): never mailed. */
+/**
+ * Made-up addresses that are never mailed: ONLY the endings below. tests/absolute-claims.test.ts probes this pattern and fails when these two
+ * lists and the pattern disagree, so a new ending must be added to the pattern and to the list together.
+ * Blocked: example.com, example.org, example.net, .test, .invalid, .localhost
+ * Not blocked: .example, .local
+ */
 const TEST_DOMAIN = /@(?:[a-z0-9-]+\.)*(?:example\.(?:com|org|net)|[a-z0-9-]+\.test|localhost|invalid)$/i
 
 export function mailable(email: string | null): boolean {

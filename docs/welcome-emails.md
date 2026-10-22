@@ -84,7 +84,7 @@ A tutor is due a mail only when ALL of these are true (this is exactly what `due
 1. **The series is switched on, and the tutor signed up on or after the day it was switched on.** There is a start date, set by the owner
    when switching on. Without one the series is off and nobody is due anything. Every tutor who signed up before it (the 723) is never due
    anything from this series, on any day. Mailing them is a separate decision (decision 5).
-2. The address is a real, plain address (not a made-up `example.com` or `.test` address) and has **not unsubscribed**.
+2. The address is a real, plain address and has **not unsubscribed**. A made-up address is left out only when it ends in one of the endings of `TEST_DOMAIN` in `src/lib/welcome-series.ts`: example.com, example.org, example.net, .test, .invalid, .localhost. Other example endings (for instance .example and .local) are NOT filtered and would be mailed; `tests/absolute-claims.test.ts` keeps this sentence and the pattern in step.
 3. The mail was **not already sent** to this tutor (each of the three goes at most once).
 4. It is **inside its window**: welcome on day 0 (the first 24 hours), nudge from day 2 for two days, check-in from day 7 for three days.
    A cron that was down for a week does not send a "day 2" mail on day 6.
