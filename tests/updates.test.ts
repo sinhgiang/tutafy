@@ -380,7 +380,7 @@ test('/updates is in the sitemap, dated by the newest entry, and has its own tit
 
 test('MUTATION: a newer entry moves the sitemap date, and an unreadable folder leaves it out instead of breaking the sitemap', async () => {
   await inScratchProject(async root => {
-    writeFileSync(path.join(root, 'content', 'updates', '1.5.0.md'), GOOD.replace('2.0.0', '1.5.0').replace('2026-11-02', '2026-11-30'))
+    writeFileSync(path.join(root, 'content', 'updates', '9.9.8.md'), GOOD.replace('2.0.0', '9.9.8').replace('2026-11-02', '2026-11-30')) // a version above every real one, so a later real entry never makes this test go stale
     const entry = (await sitemap()).find(e => e.url === `${SITE_URL}/updates`)!
     assert.equal(new Date(entry.lastModified as Date).toISOString().slice(0, 10), '2026-11-30')
     // a deployed function has no public/ folder: the sitemap date must not depend on the pictures
