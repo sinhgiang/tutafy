@@ -81,7 +81,7 @@ test('Vietnamese is a translation, not a copy of the English (except the names l
 
 test('every key is used by an admin file (the families read through the table helpers are listed here)', () => {
   // Read through the helpers of the table file itself (readErrorText, pageLabelText, stageText, sourceText, statusText) or by the menu list; the next test checks their English against the old code.
-  const FAMILIES = ['revenue.polar.', 'stage.', 'source.', 'status.', 'table.', 'page.', 'nav.', 'readError.']
+  const FAMILIES = ['revenue.polar.', 'stage.', 'source.', 'status.', 'table.', 'page.', 'nav.', 'readError.', 'buyers.status.', 'buyers.why.']
   const used = new Set<string>()
   const files: string[] = []
   const walk = (dir: string) => { for (const f of readdirSync(dir)) { const p = path.join(dir, f); statSync(p).isDirectory() ? walk(p) : files.push(p) } }
