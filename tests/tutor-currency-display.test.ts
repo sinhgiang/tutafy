@@ -56,15 +56,15 @@ const S = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, '0')}
 function seed(extraPaidLessons = 0) {
   // every lesson says currency 'USD', as in the real database
   const lessons: Record<string, unknown>[] = [
-    { id: 'l1', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-01T10:00:00Z' },
-    { id: 'l2', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-02T10:00:00Z' },
-    { id: 'l3', tutor_id: T_VND, student_id: S(2), price: 500000, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-03T10:00:00Z' },
-    { id: 'l4', tutor_id: T_USD, student_id: S(3), price: 25, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-04T10:00:00Z' },
-    { id: 'l5', tutor_id: T_NONE, student_id: S(3), price: 10, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-05T10:00:00Z' },
+    { id: 'l1', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-01T10:00:00Z' },
+    { id: 'l2', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-02T10:00:00Z' },
+    { id: 'l3', tutor_id: T_VND, student_id: S(2), price: 500000, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-03T10:00:00Z' },
+    { id: 'l4', tutor_id: T_USD, student_id: S(3), price: 25, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-04T10:00:00Z' },
+    { id: 'l5', tutor_id: T_NONE, student_id: S(3), price: 10, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-05T10:00:00Z' },
     { id: 'l6', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'pending', starts_at: '2026-10-06T10:00:00Z' },
   ]
   for (let i = 0; i < extraPaidLessons; i++) {
-    lessons.push({ id: `x${String(i).padStart(5, '0')}`, tutor_id: T_VND, student_id: S(2), price: 1000, currency: 'USD', payment_status: 'paid', starts_at: '2026-09-01T10:00:00Z' })
+    lessons.push({ id: `x${String(i).padStart(5, '0')}`, tutor_id: T_VND, student_id: S(2), price: 1000, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-09-01T10:00:00Z' })
   }
   return createFakeDb({
     tutors: [
