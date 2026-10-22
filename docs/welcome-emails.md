@@ -1,9 +1,23 @@
-# Welcome series for new tutors (T-0724): DRAFT for the owner's approval
+# Welcome series for new tutors (T-0724 the words, T-0737 the sending)
 
-Status: **a draft. Nothing is sent, nothing in the app calls it, nothing was run against the real mail service or the real database.**
-The code that exists is `src/lib/welcome-series.ts` (the three mails and the rule for who is due which one) and
-`tests/welcome-series.test.ts` (15 tests of that rule and of the mails). No route, no table, no cron, no unsubscribe page is built yet:
-they come after the owner approves the copy, the recipient rule and the decisions at the end of this file.
+Status: **built, and OFF. Nothing is sent to anybody, and nothing was run against the real mail service or the real database.**
+The owner approved the copy, the recipient rule and the decisions below (W-2225). What exists:
+
+- `src/lib/welcome-series.ts` (the three mails and the rule for who is due which one) and `tests/welcome-series.test.ts`;
+- `src/lib/welcome-send.ts` (the two switches, the daily run, the day-0 mail at sign-up), `src/app/api/cron/welcome-series/route.ts`
+  (09:00 UTC in `vercel.json`), `src/app/unsubscribe/page.tsx`, `src/app/api/unsubscribe/route.ts`, `src/lib/unsubscribe-token.ts`;
+- `supabase/migrations/023_welcome_emails.sql` (the two tables), **written but NOT applied: the owner runs it**;
+- `tests/welcome-send.test.ts` and `tests/welcome-emails-migration.test.ts`, which run the real code on a throwaway Postgres (PGlite)
+  with the mail service replaced by a recorder.
+
+Two things differ from the draft below, on purpose:
+
+1. **While the series is off (or in dry run, or before the start date), the OLD welcome mail of each sign-up place still goes**, exactly as
+   before. Replacing it with a switch that is off would leave every new tutor with no welcome mail at all. Once the series is live, the new
+   day-0 mail goes INSTEAD of the old one (one mail, not two).
+2. **The day-0 mail is sent from the two sign-up places, never from the daily run**; the daily run does only the day-2 nudge and the day-7 check-in.
+
+The sections "How it would send" and "Rollout" below describe the design as it is built.
 
 ## Why
 

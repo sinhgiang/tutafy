@@ -112,29 +112,37 @@ export async function GET(request: NextRequest) {
     // New user via Google — create tutor profile
     const name = user.user_metadata?.full_name ?? user.user_metadata?.name ?? user.email?.split('@')[0] ?? 'Tutor'
     const email = user.email ?? ''
+    const slug = generateSlug(name)
 
     await admin.from('tutors').insert({
       id: user.id,
       email,
       name,
-      slug: generateSlug(name),
+      slug,
     })
 
-    // Send welcome email
-    try {
+    // The welcome mail. While the welcome series is off (the default) this is the mail that has always gone out (`legacy`);
+    // once the owner switches the series on, sendWelcomeAtSignup sends the new day-0 mail instead of it (src/lib/welcome-send.ts).
+    const apiKey = process.env.RESEND_API_KEY
+    const sendLegacyWelcome = async () => {
       const { createMailer, spamHintHtml } = await import('@/lib/email')
-      if (process.env.RESEND_API_KEY?.startsWith('re_')) {
-        const resend = createMailer(process.env.RESEND_API_KEY)
-        await resend.emails.send({
-          to: email,
-          subject: 'Welcome to Tutafy',
-          html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
-            <h1 style="color:#6366f1;">Welcome to Tutafy, ${name}! 🎉</h1>
-            <p>Your account is ready. Complete your setup to start accepting students.</p>
-            <a href="https://tutafy.com/onboarding" style="display:inline-block;background:#6366f1;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:16px;">Complete setup →</a>
-            ${spamHintHtml()}
-          </div>`,
-        })
+      const resend = createMailer(process.env.RESEND_API_KEY)
+      await resend.emails.send({
+        to: email,
+        subject: 'Welcome to Tutafy',
+        html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;">
+          <h1 style="color:#6366f1;">Welcome to Tutafy, ${name}! 🎉</h1>
+          <p>Your account is ready. Complete your setup to start accepting students.</p>
+          <a href="https://tutafy.com/onboarding" style="display:inline-block;background:#6366f1;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:16px;">Complete setup →</a>
+          ${spamHintHtml()}
+        </div>`,
+      })
+    }
+    try {
+      const { sendWelcomeAtSignup } = await import('@/lib/welcome-send')
+      const { resendSender, hasMailKey } = await import('@/lib/welcome-mailer')
+      if (hasMailKey(apiKey)) {
+        await sendWelcomeAtSignup({ db: admin, tutor: { id: user.id, email, name, slug }, send: resendSender(), legacy: sendLegacyWelcome })
       }
     } catch { /* non-critical */ }
 

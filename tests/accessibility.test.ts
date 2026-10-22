@@ -74,6 +74,7 @@ test('no page, layout or component limits pinch-zoom (no maximum scale, no user-
 /** The pages that anyone can open without signing in. */
 const PUBLIC_PAGES = [
   'src/app/page.tsx',
+  'src/app/unsubscribe/page.tsx',
   'src/app/about/page.tsx',
   'src/app/blog/page.tsx',
   'src/app/blog/[slug]/page.tsx',
