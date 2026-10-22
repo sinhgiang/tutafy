@@ -1,8 +1,8 @@
 // The welcome series for a new tutor (T-0724): three short mails, and the rule for who is due which one on which day.
 //
-// DRAFT FOR THE OWNER'S APPROVAL. Nothing in the app imports this file: no route calls it, nothing here talks to the
-// mail service, and nothing is sent. docs/welcome-emails.md has the copy, the sending design and the decisions the
-// owner has to make; once the owner approves, the wiring (cron route, tables, unsubscribe page) is a separate, small step.
+// APPROVED BY THE OWNER (W-2225) AND BUILT, BUT OFF (T-0737). This file stays pure: it holds the words and the rule, nothing here
+// talks to the mail service or the database. src/lib/welcome-send.ts is the only file that imports it; that file reads the database,
+// claims a step and sends, and it does so only when the owner has set the two switches (docs/welcome-emails.md).
 //
 //   welcome   day 0, at sign-up         three things to do first
 //   nudge     day 2, no lesson yet      "have you shared your link?"

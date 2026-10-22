@@ -178,9 +178,9 @@ function sourceFiles(dir: string, out: string[] = []): string[] {
 }
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
 
-test('the series is a draft: no file of src/ imports it, and it contains no call to the mail service, no network call and no address', () => {
-  const importers = sourceFiles('src').filter(f => f !== 'src/lib/welcome-series.ts' && /welcome-series/.test(read(f)))
-  assert.deepEqual(importers, [], 'switching the series on is a separate step, after the owner approves the copy and the list')
+test('the words and the rule stay pure: only src/lib/welcome-send.ts imports them, and they contain no call to the mail service, no network call and no address', () => {
+  const importers = sourceFiles('src').filter(f => f !== 'src/lib/welcome-series.ts' && /@\/lib\/welcome-series['"]/.test(read(f)))
+  assert.deepEqual(importers, ['src/lib/welcome-send.ts'], 'the sending (switches, claim, unsubscribe) is in one place, tests/welcome-send.test.ts')
   const src = read('src/lib/welcome-series.ts')
   const code = src.split('\n').filter(l => !/^\s*\/\//.test(l)).join('\n')
   for (const word of ['resend', 'emails.send', 'fetch(', 'createMailer', 'process.env', 'createAdminClient', 'createClient']) assert.ok(!code.includes(word), `the draft does not use ${word}`)
