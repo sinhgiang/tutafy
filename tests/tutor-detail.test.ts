@@ -305,3 +305,31 @@ test('the journey page draws its lines with the same component as this page (one
   assert.match(read('app/(admin)/admin/tutors/[id]/page.tsx'), /import \{ JourneyStep \} from '@\/components\/admin\/JourneyStep'/)
   assert.doesNotMatch(read('app/(admin)/super-admin/people/[id]/page.tsx'), /function stepTitle/)
 })
+
+// ---- "View as this tutor" (T-0708) ----------------------------------------------------------------------------------------------------
+
+test('the tutor page has a View as this tutor button that is a form POST to the start route (opening a view writes a log line, so it is never a link)', async () => {
+  const p = withPolar(SUBS, ORDERS)
+  try {
+    const html = await render(ANN)
+    assert.match(html, /<form [^>]*action="\/api\/admin\/view"[^>]*>/)
+    assert.match(html, /<form [^>]*method="POST"/)
+    assert.match(html, new RegExp(`<input type="hidden" name="tutor_id" value="${ANN}"`))
+    assert.match(html, /data-testid="view-as-start"[^>]*>.*View as this tutor/s)
+    assert.match(html, /Opens their dashboard read-only for 30 minutes\. Nothing can be changed, and the visit is written to a log\./)
+    assert.doesNotMatch(html, /data-testid="view-as-error"/)
+    setAdminLang('vi')
+    assert.match(await render(ANN), /Xem như gia sư này/)
+  } finally { p.restore() }
+})
+
+test('the tutor page says why a view could not be opened, in words, for each reason the start route can give, and ignores any other value', async () => {
+  const p = withPolar(SUBS, ORDERS)
+  const renderWith = async (view: string | string[] | undefined) => renderToStaticMarkup(await TutorPage({ params: Promise.resolve({ id: ANN }), searchParams: Promise.resolve({ view }) }))
+  try {
+    assert.match(await renderWith('unavailable'), /data-testid="view-as-error"[^>]*>The view could not be opened: the log table does not exist yet, so no view is opened without a log line\. Run migration 022 first\./)
+    assert.match(await renderWith('no_such_tutor'), /this tutor does not exist/)
+    assert.match(await renderWith('bad_id'), /not a tutor id/)
+    for (const odd of ['<script>', 'constructor', '__proto__', 'toString', ['unavailable'], undefined]) assert.doesNotMatch(await renderWith(odd as never), /data-testid="view-as-error"/, String(odd))
+  } finally { p.restore() }
+})

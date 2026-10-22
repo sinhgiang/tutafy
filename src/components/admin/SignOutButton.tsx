@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { LogOut } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { createRealClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { useAdminT } from './AdminLang'
 
@@ -15,7 +15,7 @@ export function SignOutButton({ className }: { className?: string }) {
   const t = useAdminT()
 
   async function handleSignOut() {
-    await createClient().auth.signOut()
+    await createRealClient().auth.signOut()
     router.push('/login')
   }
 

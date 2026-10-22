@@ -137,7 +137,9 @@ const feedback = [
   { id: id(3, 'e'), created_at: iso(-2, 11), author_role: 'tutor', tutor_id: id(2, 'b'), author_email: 'tutor2@example.com', kind: 'idea', message: 'Please let me send one reminder to the whole class at once.' },
   { id: id(4, 'e'), created_at: iso(-4, 8), author_role: 'student', tutor_id: null, author_email: 'student2@example.com', kind: 'idea', message: 'A dark mode for the lesson page would help in the evening.' },
 ]
-const DB = { feedback, tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
+// the log of "View as this tutor" (supabase/migrations/022_admin_view_log.sql): empty; the start route writes a row here
+const admin_view_log = []
+const DB = { admin_view_log, feedback, tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
   subscription_plans, student_subscriptions, waitlist, referrals, api_keys, webhook_subscriptions, lesson_card_payments, availability_exceptions, lesson_students }
 
 // ---------- query engine ----------
