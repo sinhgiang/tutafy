@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowRight, ArrowLeft, TrendingUp, Quote } from 'lucide-react'
-import { pageMetadata } from '@/lib/page-meta'
+import { pageMetadata, PAGE_SEO } from '@/lib/page-meta'
+import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteLogo } from '@/components/SiteLogo'
 
@@ -16,6 +17,7 @@ const CASE_STUDIES: {
 export default function CustomersPage() {
   return (
     <div className="min-h-screen bg-white">
+      {pageJsonLd(PAGE_SEO.customers, 'Customer stories', 'CollectionPage').map((d, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(d) }} />)}
       {/* Nav */}
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
@@ -28,7 +30,7 @@ export default function CustomersPage() {
 
       <main className="max-w-5xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
-          <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Customer stories</p>
+          <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">Customer stories</p>
           <h1 className="text-[36px] font-extrabold text-gray-900 tracking-tight">Tutors growing with Tutafy</h1>
           <p className="text-[16px] text-gray-500 mt-3 max-w-lg mx-auto">
             Real stories from independent tutors and small centers running their whole business in one place.
@@ -67,7 +69,7 @@ export default function CustomersPage() {
               tutoring business here.
             </p>
             <Link href="/register"
-              className="inline-flex items-center gap-2 mt-7 text-[14px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-7 py-3 rounded-xl">
+              className="inline-flex items-center gap-2 mt-7 text-[14px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-7 py-3 rounded-xl">
               Start free <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
