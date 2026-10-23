@@ -73,3 +73,7 @@ Checked on the competitors' public help pages (links below). I did not open the 
 ## 5. Not done in this ticket (on purpose)
 
 No live page, test or migration was changed. The dark theme is drawn but the public pages have no theme switch today; the first build can ship light only and keep the variables ready. A tutor-side editor for the new fields is not designed here.
+
+## Built (T-0810)
+
+The owner approved this design (W-2560) and `/book/<slug>` was built from it: see the T-0810 entry of `docs/feature-map.md`. The first build uses only data a tutor already has, so the headline, years of experience, subject chips, the formatted bio and the credentials line of these samples are not drawn. Other differences: times stay in the tutor's time zone with the visitor's time under each (the booking saves the tutor's clock reading); the price reads "$40 / lesson" (one price for every length) instead of "from"; no dark theme (the public pages have no theme switch); no "Privacy · Terms" line; packages are plain Buy links in the left column. `/book/<slug>` has its own title and description and its canonical is `/tutors/<slug>`.

@@ -255,11 +255,11 @@ test('POST /api/bookings: a cancelled lesson does not block, and a team member h
 
 /** The length buttons a student sees: [{ minutes, selected }] in page order. */
 function lengthButtons(html: string) {
-  const start = html.indexOf('Session length')
-  assert.ok(start >= 0, 'the page has the "Session length" block')
-  const block = html.slice(start, html.indexOf('</div></div>', start))
-  return [...block.matchAll(/<button type="button" class="([^"]*)">(\d+) min<\/button>/g)]
-    .map(m => ({ minutes: Number(m[2]), selected: m[1].includes('bg-indigo-500') }))
+  const start = html.indexOf('aria-label="Lesson length"')
+  assert.ok(start >= 0, 'the page has the "Lesson length" group')
+  const block = html.slice(start, html.indexOf('</div>', start))
+  return [...block.matchAll(/<button type="button" aria-pressed="(true|false)" class="[^"]*">(\d+) min<\/button>/g)]
+    .map(m => ({ minutes: Number(m[2]), selected: m[1] === 'true' }))
 }
 type Page = (props: { params: Promise<Record<string, string>> }) => Promise<React.ReactElement>
 const render = async (page: unknown, params: Record<string, string>) => renderToStaticMarkup(await (page as Page)({ params: Promise.resolve(params) }))
