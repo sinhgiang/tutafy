@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ALLOW_MARKER, MIN_REASON_LENGTH, OLD_RULE_PHRASES, SCANNED_ROOTS, describeFinding, scanRepository, scanText } from './support/old-rules.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
@@ -30,8 +31,8 @@ test('the scan reads src and the migrations, and the places that keep an old phr
     assert.ok(OLD_RULE_PHRASES.some(p => text.toLowerCase().includes(p.phrase.toLowerCase())), `${f} still has a phrase the marker covers`)
   }
   // the places that were wrong are fixed in the words, not marked
-  assert.doesNotMatch(read('src/app/(dashboard)/settings/page.tsx'), /30\/45\/60\/90/)
-  assert.doesNotMatch(read('src/app/(dashboard)/settings/page.tsx'), new RegExp(ALLOW_MARKER))
+  assert.doesNotMatch(settingsSource(), /30\/45\/60\/90/)
+  assert.doesNotMatch(settingsSource(), new RegExp(ALLOW_MARKER))
 })
 
 // ---- the list ------------------------------------------------------------------------------------------------------------------

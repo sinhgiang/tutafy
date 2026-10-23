@@ -41,7 +41,7 @@ test('the days are written as the numbers the rest of the app reads: 0 = Sunday 
   assert.deepEqual([...ONBOARDING_DAYS], ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'], 'the screen still shows Monday first')
   // the Availability page and the booking page read the same numbers
   assert.match(read('src/lib/availability-grid.ts'), /export const DAYS = \['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'\]/)
-  assert.match(read('src/app/(dashboard)/availability/page.tsx'), /DAYS, GRID_HOUR_PX/)
+  assert.match(read('src/app/(dashboard)/availability/page.tsx'), /import { DAYS, /)
 })
 
 test('the rows hold exactly tutor_id, day_of_week (a number), start_time and end_time: no day word, no is_available', () => {

@@ -308,8 +308,6 @@
 .av-gutter > div { font-size: 12px; color: var(--d-ink-3); text-align: right; padding: 0 6px; transform: translateY(-8px); }
 .av-col { position: relative; border-left: 1px solid var(--d-line); background-image: linear-gradient(to bottom, var(--d-line) 1px, transparent 1px); }
 .av-slot { position: absolute; left: 3px; right: 3px; border-radius: 6px; background: var(--d-brand-soft); border-left: 3px solid var(--d-brand); color: var(--d-ink); font-size: 12px; padding: 2px 4px; display: flex; justify-content: space-between; align-items: flex-start; gap: 2px; overflow: hidden; }
-.av-slot button { border: 0; background: transparent; color: var(--d-ink-3); cursor: pointer; padding: 2px; border-radius: 4px; }
-.av-slot button:hover { color: var(--d-err); }
 .set-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
 @media (min-width: 768px) { .set-shell { grid-template-columns: 190px minmax(0, 1fr); } }
 @media (min-width: 1440px) { .set-shell { grid-template-columns: 190px minmax(0, 720px) 340px; justify-content: center; } }
@@ -428,3 +426,39 @@
   .dash-table.is-cards.no-sel td.c-end { grid-column: 2; }
   .dash-table.is-cards.no-sel td.c-sub { grid-column: 1 / 3; }
 }
+
+/* ---- Availability: a grid you press and drag on (T-0844) ---- */
+.av-empty { display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; border-bottom: 1px solid var(--d-line); color: var(--d-ink-2); background: var(--d-brand-soft); }
+.av-empty svg { flex: none; margin-top: 2px; color: var(--d-brand); }
+.av-day-btn { display: inline-flex; align-items: center; justify-content: center; gap: 3px; min-height: 32px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: inherit; font: inherit; font-weight: 650; cursor: pointer; }
+.av-day-btn:hover:not(:disabled) { background: var(--d-brand-soft); color: var(--d-brand); }
+.av-day-btn:focus-visible, .av-slot-main:focus-visible, .av-slot-x:focus-visible { outline: 2px solid var(--d-brand); outline-offset: 1px; }
+.av-col.is-live { cursor: crosshair; touch-action: pan-x pan-y; }
+.av-slot { cursor: default; }
+.av-slot-main { flex: 1; min-width: 0; text-align: left; border: 0; background: transparent; color: var(--d-ink); font: inherit; padding: 2px 4px 2px 2px; cursor: pointer; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.av-slot .av-slot-x { flex: none; border: 0; background: transparent; color: var(--d-ink-3); cursor: pointer; padding: 2px; border-radius: 4px; }
+.av-slot .av-slot-x:hover { color: var(--d-err); }
+.av-grip { position: absolute; left: 0; right: 0; height: 8px; cursor: ns-resize; }
+.av-grip-start { top: 0; }
+.av-grip-end { bottom: 0; }
+.av-slot:hover .av-grip::after, .av-slot.is-resizing .av-grip::after { content: ''; position: absolute; left: 50%; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: var(--d-brand); }
+.av-grip-start::after { top: 2px; }
+.av-grip-end::after { bottom: 2px; }
+.av-slot.is-resizing { box-shadow: 0 0 0 2px var(--d-brand); z-index: 2; }
+.av-draft { background: var(--d-brand-soft); border: 2px dashed var(--d-brand); border-left-width: 2px; opacity: .9; pointer-events: none; z-index: 3; }
+.av-dialog { border: 0; padding: 0; border-radius: 14px; background: var(--d-surface); color: var(--d-ink); width: min(440px, calc(100vw - 32px)); box-shadow: 0 24px 60px rgba(15, 23, 42, .28); }
+.av-dialog::backdrop { background: rgba(15, 23, 42, .5); }
+.av-dialog-box { padding: 20px; display: grid; gap: 14px; }
+.av-dialog-box h2 { margin: 0; font-size: 17px; font-weight: 700; color: var(--d-ink); }
+.av-dialog-box p { margin: 0; color: var(--d-ink-3); }
+.av-dialog-problem { color: var(--d-err) !important; background: var(--d-err-soft); padding: 8px 10px; border-radius: 8px; }
+.av-dialog-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ---- Settings: each section starts with its own head (T-0844) ---- */
+.set-section-head { margin: 0 0 4px; }
+.set-section-head h2 { margin: 0; font-size: 18px; font-weight: 700; color: var(--d-ink); }
+.set-section-head p { margin: 2px 0 0; color: var(--d-ink-3); }
+.av-slot { position: absolute; }
+.av-slot .av-slot-x { position: absolute; right: 2px; top: 2px; opacity: 0; background: var(--d-surface); box-shadow: 0 0 0 1px var(--d-line); }
+.av-slot:hover .av-slot-x, .av-slot:focus-within .av-slot-x, .av-slot-x:focus-visible { opacity: 1; }
+.av-slot-main { padding-right: 4px; }
