@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Heart, Shield, Sparkles } from 'lucide-react'
-import { pageMetadata } from '@/lib/page-meta'
+import { pageMetadata, PAGE_SEO } from '@/lib/page-meta'
+import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteLogo } from '@/components/SiteLogo'
 
@@ -15,6 +16,7 @@ const VALUES = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
+      {pageJsonLd(PAGE_SEO.about, 'About', 'AboutPage').map((d, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(d) }} />)}
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <SiteLogo />
@@ -25,7 +27,7 @@ export default function AboutPage() {
       </nav>
 
       <main className="max-w-3xl mx-auto px-6 py-16">
-        <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Our story</p>
+        <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">Our story</p>
         <h1 className="text-[38px] font-extrabold text-gray-900 tracking-tight leading-tight">
           Tutoring should pay the tutor — not the middleman.
         </h1>
@@ -73,7 +75,7 @@ export default function AboutPage() {
         </div>
 
         <div className="mt-10">
-          <Link href="/register" className="inline-flex items-center gap-2 text-[14px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-7 py-3.5 rounded-xl">
+          <Link href="/register" className="inline-flex items-center gap-2 text-[14px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-7 py-3.5 rounded-xl">
             Start free — no credit card <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

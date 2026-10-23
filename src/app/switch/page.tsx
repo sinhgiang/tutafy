@@ -99,7 +99,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
       <header className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <SiteLogo />
-          <Link href="/register" className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">
+          <Link href="/register" className="text-[13px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-4 py-2 rounded-lg">
             Start free
           </Link>
         </div>
@@ -118,7 +118,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
           {subhead}
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
-          <Link href="/register" className="flex items-center gap-2 text-[15px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-7 py-3.5 rounded-xl shadow-lg shadow-indigo-200 w-full sm:w-auto justify-center">
+          <Link href="/register" className="flex items-center gap-2 text-[15px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-7 py-3.5 rounded-xl shadow-lg shadow-indigo-200 w-full sm:w-auto justify-center">
             Start free — no credit card <ArrowRight className="h-4 w-4" />
           </Link>
           <a href="#how" className="text-[15px] font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors px-7 py-3.5 rounded-xl w-full sm:w-auto text-center">
@@ -153,7 +153,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
       <section className="py-16 px-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Do the math</p>
+            <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">Do the math</p>
             <h2 className="text-[28px] font-extrabold text-gray-900 tracking-tight text-balance">
               {comp ? `What ${comp.name} costs you vs. Tutafy` : 'What a marketplace costs you vs. Tutafy'}
             </h2>
@@ -179,7 +179,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
                 <span className="text-[13px] text-gray-700">{row.label}</span>
                 <span className="text-center">{typeof row.tutafy === 'boolean'
                   ? (row.tutafy ? <Check className="h-5 w-5 text-emerald-500 mx-auto" /> : <X className="h-5 w-5 text-gray-300 mx-auto" />)
-                  : <span className="text-[13px] font-bold text-emerald-600">{row.tutafy}</span>}</span>
+                  : <span className="text-[13px] font-bold text-emerald-700">{row.tutafy}</span>}</span>
                 <span className="text-center">{typeof row.market === 'boolean'
                   ? (row.market ? <Check className="h-5 w-5 text-emerald-500 mx-auto" /> : <X className="h-5 w-5 text-gray-300 mx-auto" />)
                   : <span className="text-[13px] text-gray-500">{row.market}</span>}</span>
@@ -196,7 +196,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
       <section id="how" className="bg-gray-50 py-16 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">No big migration project</p>
+            <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">No big migration project</p>
             <h2 className="text-[30px] font-extrabold text-gray-900 tracking-tight">Three steps, most tutors are done same day</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -218,7 +218,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
       <section className="py-16 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">What you get on day one</p>
+            <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">What you get on day one</p>
             <h2 className="text-[30px] font-extrabold text-gray-900 tracking-tight">Everything the marketplace did — minus the cut</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -239,19 +239,19 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
       <section className="bg-gray-50 py-16 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Pricing</p>
+            <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-[30px] font-extrabold text-gray-900 tracking-tight">Simple pricing. No commission. Ever.</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {PLANS.map(p => (
-              <div key={p.name} className={`relative rounded-2xl p-7 border-2 ${p.highlight ? 'bg-indigo-500 border-indigo-500 shadow-xl shadow-indigo-200' : 'bg-white border-gray-100'}`}>
+              <div key={p.name} className={`relative rounded-2xl p-7 border-2 ${p.highlight ? 'bg-indigo-600 border-indigo-600 shadow-xl shadow-indigo-200' : 'bg-white border-gray-100'}`}>
                 {p.badge && (<div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide">{p.badge}</div>)}
-                <p className={`text-[11px] font-bold uppercase tracking-widest ${p.highlight ? 'text-indigo-200' : 'text-gray-400'}`}>{p.name}</p>
+                <p className={`text-[11px] font-bold uppercase tracking-widest ${p.highlight ? 'text-indigo-100' : 'text-gray-600'}`}>{p.name}</p>
                 <div className="flex items-end gap-1 mt-3 mb-1">
                   <span className={`text-[34px] font-extrabold leading-none ${p.highlight ? 'text-white' : 'text-gray-900'}`}>{p.price}</span>
-                  {p.per && <span className={`text-[13px] mb-1.5 ${p.highlight ? 'text-indigo-200' : 'text-gray-400'}`}>{p.per}</span>}
+                  {p.per && <span className={`text-[13px] mb-1.5 ${p.highlight ? 'text-indigo-100' : 'text-gray-600'}`}>{p.per}</span>}
                 </div>
-                <p className={`text-[12px] mb-6 ${p.highlight ? 'text-indigo-200' : 'text-gray-400'}`}>{p.tagline}</p>
+                <p className={`text-[12px] mb-6 ${p.highlight ? 'text-indigo-100' : 'text-gray-600'}`}>{p.tagline}</p>
                 <div className="space-y-2 mb-7">
                   {p.features.map(f => (
                     <div key={f} className="flex items-center gap-2">
@@ -271,7 +271,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
       <section className="py-16 px-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">Before you switch</p>
+            <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">Before you switch</p>
             <h2 className="text-[28px] font-extrabold text-gray-900 tracking-tight">Questions every tutor asks first</h2>
           </div>
           <div className="space-y-3">
@@ -298,7 +298,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
             {comp ? `Move your students off ${comp.name} today.` : 'Move your students off the marketplace today.'}
           </h2>
           <p className="text-[16px] text-gray-500 mt-4 max-w-lg mx-auto">Set up your account in two minutes and take your first commission-free booking today.</p>
-          <Link href="/register" className="inline-flex items-center gap-2 mt-8 text-[15px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-8 py-4 rounded-xl shadow-lg shadow-indigo-200">
+          <Link href="/register" className="inline-flex items-center gap-2 mt-8 text-[15px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-8 py-4 rounded-xl shadow-lg shadow-indigo-200">
             Start free — no credit card <ArrowRight className="h-4 w-4" />
           </Link>
           <p className="text-[12px] text-gray-400 mt-4">Free forever · Set up in 2 minutes · Cancel anytime</p>
@@ -319,7 +319,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
 
       {/* Sticky mobile CTA — keeps the primary action reachable without scrolling back up */}
       <div className="sm:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-t border-gray-100 p-3">
-        <Link href="/register" className="flex items-center justify-center gap-2 text-[14px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-6 py-3 rounded-xl">
+        <Link href="/register" className="flex items-center justify-center gap-2 text-[14px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-6 py-3 rounded-xl">
           Start free — no credit card <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
