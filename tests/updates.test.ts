@@ -443,7 +443,7 @@ test('the shared footer shows Updates next to Privacy and Terms, and the link go
   const labels = [...html.matchAll(/<a [^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(m => [m[2], m[1]])
   assert.ok(labels.some(([label, href]) => label === 'Updates' && href === '/updates'), html)
   for (const l of ['About', 'Blog', 'Customers', 'Contact', 'Privacy', 'Terms']) assert.ok(labels.some(([label]) => label === l), l)
-  assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
+  assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['Find tutors', 'About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
 })
 
 test('every public page has the Updates link in its footer', () => {

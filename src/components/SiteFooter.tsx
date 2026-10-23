@@ -5,6 +5,7 @@ import { SiteLogo } from '@/components/SiteLogo'
 // /switch keep their own footers and carry the same Updates link (tests/updates.test.ts checks every
 // public page file for one or the other).
 export const FOOTER_LINKS = [
+  { href: '/tutors', label: 'Find tutors' },
   { href: '/about', label: 'About' },
   { href: '/blog', label: 'Blog' },
   { href: '/updates', label: 'Updates' },

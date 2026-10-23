@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DirectoryView } from '@/components/directory/DirectoryView'
 import { getDirectory } from '@/lib/directory-cache'
+import { TutorsFaq } from '@/components/directory/TutorsFaq'
 import { parseFilters, refreshCards } from '@/lib/directory'
 import { SiteLogo } from '@/components/SiteLogo'
 import { PAGE_SEO } from '@/lib/page-meta'
@@ -34,6 +35,7 @@ export default async function TutorsPage({ searchParams }: { searchParams: Promi
       <main>
         <DirectoryView cards={cards} listed={directory?.listed ?? 0} truncated={directory?.truncated ?? false}
         initial={parseFilters(params)} nowIso={now.toISOString()} error={directory === null} />
+        {cards.length > 0 && <TutorsFaq />}
       </main>
 
       <SiteFooter />

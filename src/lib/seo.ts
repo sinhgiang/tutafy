@@ -100,3 +100,12 @@ export function homeJsonLd(): JsonLd[] {
     },
   ]
 }
+
+/** FAQPage data for a list of questions a page prints in full (T-0850): the same pairs, in the same order, nothing added. */
+export function faqPageJsonLd(items: { q: string; a: string }[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  }
+}

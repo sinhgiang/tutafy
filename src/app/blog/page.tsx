@@ -59,6 +59,7 @@ export default function BlogPage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <SiteLogo size="sm" />
           <div className="flex gap-5">
+            <Link href="/tutors" className="text-[12px] text-gray-500 hover:text-gray-600">Find tutors</Link>
             <Link href="/about" className="text-[12px] text-gray-500 hover:text-gray-600">About</Link>
             <Link href="/updates" className="text-[12px] text-gray-500 hover:text-gray-600">Updates</Link>
             <Link href="/contact" className="text-[12px] text-gray-500 hover:text-gray-600">Contact</Link>

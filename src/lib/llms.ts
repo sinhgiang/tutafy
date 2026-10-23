@@ -18,6 +18,15 @@ function header(): string[] {
   ]
 }
 
+/** The first three FAQ answers (what Tutafy is, who it is for, how it differs from a marketplace): the questions an assistant is asked most. */
+export const IN_SHORT_COUNT = 3
+function inShort(): string[] {
+  const lines = ['## In short', '']
+  for (const f of FAQ.slice(0, IN_SHORT_COUNT)) lines.push(`- ${f.q} ${f.a}`)
+  lines.push('')
+  return lines
+}
+
 function pricing(withFeatures: boolean): string[] {
   const lines = ['## Pricing', '', 'Prices are in US dollars per month. Tutafy takes 0% commission on every plan and you can cancel anytime.', '']
   for (const p of PLANS) {
@@ -60,7 +69,7 @@ function legal(): string[] {
 
 /** Short version: what Tutafy is, for whom, main features, prices and the pages that matter. */
 export function buildLlmsTxt(): string {
-  return [...header(), ...features(false), ...pricing(false), ...pages(), ...blog(false), ...legal()].join('\n')
+  return [...header(), ...inShort(), ...features(false), ...pricing(false), ...pages(), ...blog(false), ...legal()].join('\n')
 }
 
 /** Long version: the same plus plan contents, feature descriptions, the FAQ and each post's summary. */
