@@ -208,8 +208,10 @@ function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackag
   )
 }
 
-function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans: SubscriptionPlan[]; tutor: Tutor; name: string; email: string; onSubscribing: (v: boolean) => void }) {
+function SubscriptionPanel({ plans, highlightId = null, tutor, name, email, onSubscribing }: { plans: SubscriptionPlan[]; highlightId?: string | null; tutor: Tutor; name: string; email: string; onSubscribing: (v: boolean) => void }) {
   const [loading, setLoading] = useState<string | null>(null)
+  // A tutor's link for one plan (?plan=<id>, T-0841) brings the student to the plans with that one marked.
+  useEffect(() => { if (highlightId) document.getElementById('subscribe')?.scrollIntoView({ block: 'center' }) }, [highlightId])
 
   async function subscribe(plan: SubscriptionPlan) {
     if (!name.trim() || !email.trim()) { toast.error('Enter your name and email first'); return }
@@ -228,14 +230,14 @@ function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
+    <div id="subscribe" className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden scroll-mt-4">
       <div className="px-5 py-4 border-b border-indigo-50 flex items-center gap-2">
         <RefreshCw className="h-4 w-4 text-indigo-400" />
         <p className="text-[13px] font-semibold text-gray-900">Subscribe for recurring lessons</p>
       </div>
       <div className="p-4 space-y-3">
         {plans.map(plan => (
-          <div key={plan.id} className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3">
+          <div key={plan.id} data-highlighted={plan.id === highlightId ? 'true' : undefined} className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${plan.id === highlightId ? 'bg-indigo-50 ring-2 ring-indigo-500' : 'bg-gray-50'}`}>
             <div className="flex-1">
               <p className="text-[13px] font-semibold text-gray-900">{plan.name}</p>
               <p className="text-[12px] text-gray-500 mt-0.5">
@@ -275,6 +277,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
     })
     setLoading(false)
     if (res.ok) onJoined()
+    else if (res.status === 429) toast.error('Too many sign-ups right now. Please try again in a few minutes.')
     else toast.error('Failed to join waitlist')
   }
 
@@ -346,7 +349,7 @@ function Step({ n, title, locked = false, children }: { n: number; title: string
   )
 }
 
-export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null, cardCheckoutEnabled = false, durations = [...ALL_DURATIONS], defaultDuration = FALLBACK_DEFAULT, soonest = [] }: { durations?: number[]; defaultDuration?: number; cardCheckoutEnabled?: boolean; tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null; soonest?: SoonestSlot[] }) {
+export function BookingForm({ highlightPlanId = null, tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null, cardCheckoutEnabled = false, durations = [...ALL_DURATIONS], defaultDuration = FALLBACK_DEFAULT, soonest = [] }: { highlightPlanId?: string | null; durations?: number[]; defaultDuration?: number; cardCheckoutEnabled?: boolean; tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null; soonest?: SoonestSlot[] }) {
   const today = new Date()
   const todayStr = toDS(today.getFullYear(), today.getMonth(), today.getDate())
 
@@ -772,6 +775,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
     {subscriptionPlans.length > 0 && (
       <SubscriptionPanel
         plans={subscriptionPlans}
+        highlightId={highlightPlanId}
         tutor={tutor}
         name={name}
         email={email}

@@ -80,7 +80,7 @@ export function BlogList({ posts }: { posts: BlogCard[] }) {
           className="group grid md:grid-cols-2 rounded-3xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all mb-8">
           <Thumb category={featured.category} hero={featured.hero} big />
           <div className="p-7 flex flex-col justify-center">
-            <p className="text-[11px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Featured</p>
+            <p className="text-[11px] font-bold text-indigo-600 uppercase tracking-widest mb-2">Featured</p>
             <h2 className="text-[24px] font-extrabold text-gray-900 tracking-tight leading-snug group-hover:text-indigo-600 transition-colors">{featured.title}</h2>
             <p className="text-[14px] text-gray-500 mt-3 leading-relaxed line-clamp-2">{featured.description}</p>
             <div className="flex items-center gap-3 mt-5">

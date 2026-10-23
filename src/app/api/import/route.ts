@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireApiPlan } from '@/lib/api-guard'
-import { MAX_CSV_CHARS, PREVIEW_ROWS, detectPlatform, parseCSV, parsePreply, previewRow } from '@/lib/csv-import'
+import { MAX_CSV_CHARS, MAX_PROBLEMS, PREVIEW_ROWS, detectPlatform, parseCSV, parsePreplyWithProblems, previewRow, type ImportProblem } from '@/lib/csv-import'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   if (!headers.length) return NextResponse.json({ error: 'Could not parse CSV — check file format' }, { status: 400 })
 
   const platform = detectPlatform(headers)
-  const students = parsePreply(headers, rows)
+  const { students, problems: readProblems } = parsePreplyWithProblems(headers, rows)
 
   if (dryRun) {
     // The preview table (T-0824): the first rows with what would happen to each, BEFORE anything is saved. "Already your
@@ -44,12 +44,19 @@ export async function POST(req: NextRequest) {
       totalStudents: students.length,
       totalLessons: students.reduce((a, s) => a + s.lessons.length, 0),
       rowsInFile: rows.length,
+      // what the file holds that cannot be imported, with the reason, for the page and the problems file (T-0841)
+      problems: readProblems.slice(0, MAX_PROBLEMS),
+      problemsTotal: readProblems.length,
     })
   }
 
   let importedStudents = 0
   let importedLessons = 0
   const errors: string[] = []
+  const problems: ImportProblem[] = [...readProblems]
+  // A reason the tutor can read: what the database said stays on the server (T-0841).
+  const saveProblem = (s: { name: string; email: string; firstRow?: number }, problem: string, result: string) =>
+    problems.push({ row: s.firstRow ?? 0, student: s.name, email: s.email, problem, result })
 
   for (const s of students) {
     try {
@@ -77,7 +84,7 @@ export async function POST(req: NextRequest) {
           .select('id')
           .single()
 
-        if (ce || !created) { errors.push(`Failed to create student ${s.name}: ${ce?.message}`); continue }
+        if (ce || !created) { errors.push(`Could not save the student ${s.name}`); saveProblem(s, 'The student could not be saved', 'Student and lessons not saved'); continue }
         studentId = created.id
         importedStudents++
       }
@@ -95,9 +102,11 @@ export async function POST(req: NextRequest) {
           status: 'completed',
         })
         if (!le) importedLessons++
+        else saveProblem(s, `The lesson on ${l.date.slice(0, 10)} could not be saved`, 'Lesson not saved')
       }
-    } catch (e: any) {
-      errors.push(e.message)
+    } catch {
+      errors.push(`Could not import ${s.name}`)
+      saveProblem(s, 'Something went wrong while saving this student', 'Student not fully saved')
     }
   }
 
@@ -107,5 +116,7 @@ export async function POST(req: NextRequest) {
     importedStudents,
     importedLessons,
     errors: errors.slice(0, 10),
+    problems: problems.slice(0, MAX_PROBLEMS),
+    problemsTotal: problems.length,
   })
 }
