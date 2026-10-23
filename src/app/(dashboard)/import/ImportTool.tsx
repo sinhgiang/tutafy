@@ -3,15 +3,44 @@
 // Import (T-0824): three steps, Upload, Preview, Done. The preview is a TABLE of the first rows with what would happen to each
 // student (lessons, first and last date, a note), and nothing is saved until the tutor presses Import.
 import { useRef, useState } from 'react'
-import { CheckCircle, CircleAlert, FileText, Loader2, Upload } from 'lucide-react'
+import { CheckCircle, CircleAlert, Download, FileText, Loader2, Upload } from 'lucide-react'
 import { PageColumn } from '@/components/layout/PageFrame'
-import type { PreviewRow } from '@/lib/csv-import'
+import { problemsCsv, type ImportProblem, type PreviewRow } from '@/lib/csv-import'
 
-type Preview = { platform: string; totalStudents: number; totalLessons: number; rowsInFile: number; shown: number; rows: PreviewRow[] }
-type Result = { platform: string; importedStudents: number; importedLessons: number; errors: string[] }
+type Preview = { platform: string; totalStudents: number; totalLessons: number; rowsInFile: number; shown: number; rows: PreviewRow[]; problems?: ImportProblem[]; problemsTotal?: number }
+type Result = { platform: string; importedStudents: number; importedLessons: number; errors: string[]; problems?: ImportProblem[]; problemsTotal?: number }
 
 const PLATFORM_LABEL: Record<string, string> = { preply: 'Preply', italki: 'iTalki', generic: 'Generic CSV' }
 const day = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-')
+
+/** Saves the problems as a CSV file (built here from what the server sent; nothing is uploaded). */
+function downloadProblems(problems: ImportProblem[]) {
+  const url = URL.createObjectURL(new Blob([problemsCsv(problems)], { type: 'text/csv;charset=utf-8' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'import-problems.csv'
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
+/** The rows that cannot be imported: how many, the first few with the reason, and the file with all of them. */
+function ProblemsCard({ problems, total, title }: { problems: ImportProblem[]; total: number; title: string }) {
+  if (total === 0) return null
+  return (
+    <div className="dash-card dash-card-b" data-testid="import-problems">
+      <b style={{ color: 'var(--d-err)' }}>{title} ({total})</b>
+      <ul style={{ margin: '6px 0 0', paddingLeft: 18, color: 'var(--d-ink-2)' }}>
+        {problems.slice(0, 5).map((p, i) => <li key={i}>{p.row > 0 ? `Row ${p.row}` : 'Student'}{p.student ? `, ${p.student}` : ''}: {p.problem}. {p.result}.</li>)}
+      </ul>
+      {total > 5 && <p style={{ margin: '6px 0 0', color: 'var(--d-ink-3)' }}>and {total - 5} more in the file.</p>}
+      <button type="button" className="dash-btn" style={{ marginTop: 12 }} onClick={() => downloadProblems(problems)}>
+        <Download className="h-4 w-4" aria-hidden="true" /> Download the problems as a CSV file
+      </button>
+    </div>
+  )
+}
 
 export function ImportTool() {
   const [csvText, setCsvText] = useState('')
@@ -91,6 +120,7 @@ export function ImportTool() {
               This file holds <b>{preview.totalStudents}</b> student{preview.totalStudents === 1 ? '' : 's'} and <b>{preview.totalLessons}</b> lesson{preview.totalLessons === 1 ? '' : 's'} (from {preview.rowsInFile} rows). Nothing is saved until you press Import.
             </p>
           </div>
+          <ProblemsCard problems={preview.problems ?? []} total={preview.problemsTotal ?? 0} title="Rows that cannot be imported" />
           <div className="dash-card">
             <div className="dash-table-wrap overflow-x-auto">
               <table className="dash-table" aria-label="What will be imported">
@@ -122,17 +152,14 @@ export function ImportTool() {
 
       {step === 'done' && result && (
         <div className="space-y-4">
-          <div className="dash-card dash-card-b" data-testid="import-done" style={{ background: result.errors.length === 0 ? 'var(--d-ok-soft)' : 'var(--d-warn-soft)' }}>
+          <div className="dash-card dash-card-b" data-testid="import-done" style={{ background: (result.problemsTotal ?? result.errors.length) === 0 ? 'var(--d-ok-soft)' : 'var(--d-warn-soft)' }}>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-              {result.errors.length === 0 ? <CheckCircle className="h-5 w-5" aria-hidden="true" style={{ color: 'var(--d-ok)' }} /> : <CircleAlert className="h-5 w-5" aria-hidden="true" style={{ color: 'var(--d-warn)' }} />}
-              <b style={{ color: 'var(--d-ink)' }}>{result.errors.length === 0 ? 'Import complete' : 'Import finished with warnings'}</b>
+              {(result.problemsTotal ?? result.errors.length) === 0 ? <CheckCircle className="h-5 w-5" aria-hidden="true" style={{ color: 'var(--d-ok)' }} /> : <CircleAlert className="h-5 w-5" aria-hidden="true" style={{ color: 'var(--d-warn)' }} />}
+              <b style={{ color: 'var(--d-ink)' }}>{(result.problemsTotal ?? result.errors.length) === 0 ? 'Import complete' : 'Import finished with warnings'}</b>
             </div>
             <p style={{ margin: '8px 0 0', color: 'var(--d-ink-2)' }}>{result.importedStudents} student{result.importedStudents === 1 ? '' : 's'} created, {result.importedLessons} lesson{result.importedLessons === 1 ? '' : 's'} imported.</p>
           </div>
-          {result.errors.length > 0 && (
-            <div className="dash-card dash-card-b"><b style={{ color: 'var(--d-err)' }}>Problems ({result.errors.length})</b>
-              <ul style={{ margin: '6px 0 0', paddingLeft: 18, color: 'var(--d-ink-2)' }}>{result.errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>
-          )}
+          <ProblemsCard problems={result.problems ?? []} total={result.problemsTotal ?? result.errors.length} title="Problems" />
           <div style={{ display: 'flex', gap: 12 }}>
             <button type="button" className="dash-btn" style={{ flex: 1 }} onClick={reset}>Import another file</button>
             <a href="/students" className="dash-btn is-primary" style={{ flex: 1 }}>View students</a>

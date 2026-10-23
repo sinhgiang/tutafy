@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft, Mail, MessageCircle, HelpCircle } from 'lucide-react'
-import { pageMetadata } from '@/lib/page-meta'
+import { pageMetadata, PAGE_SEO } from '@/lib/page-meta'
+import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 import { SiteFooter } from '@/components/SiteFooter'
 import { ContactEmails } from '@/components/ContactEmails'
 import { CONTACT_EMAILS, PRIMARY_CONTACT_EMAIL, REPLY_PROMISE } from '@/lib/contact'
@@ -11,6 +12,7 @@ export const metadata = pageMetadata('contact')
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-white">
+      {pageJsonLd(PAGE_SEO.contact, 'Contact', 'ContactPage').map((d, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(d) }} />)}
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <SiteLogo />
@@ -37,7 +39,7 @@ export default function ContactPage() {
             <p className="text-[14px] font-bold text-gray-900">Email us</p>
             <p className="text-[12px] text-gray-500 mt-1">Support & general questions</p>
             {CONTACT_EMAILS.map(email => (
-              <a key={email} href={`mailto:${email}`} className="block text-[12px] font-semibold text-indigo-500 mt-2 break-all hover:underline">{email}</a>
+              <a key={email} href={`mailto:${email}`} className="block text-[12px] font-semibold text-indigo-600 mt-2 break-all hover:underline">{email}</a>
             ))}
           </div>
           {[
@@ -58,7 +60,7 @@ export default function ContactPage() {
         <div className="bg-gray-50 rounded-2xl p-6 text-center">
           <p className="text-[13px] text-gray-600">
             Prefer email? Reach us directly at{' '}
-            <ContactEmails linkClassName="font-semibold text-indigo-500 underline" />.
+            <ContactEmails linkClassName="font-semibold text-indigo-600 underline" />.
             {' '}{REPLY_PROMISE}
           </p>
         </div>
