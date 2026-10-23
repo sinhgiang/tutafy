@@ -10,7 +10,7 @@
 // its error state, never an empty list that looks like "no tutors".
 import { clashWindowStart, type AvailabilityRow, type LessonWindow } from '@/lib/booking-slots'
 import { chunks, ROWS_PER_REQUEST, MAX_PAGES } from '@/lib/paged-read'
-import { HORIZON_DAYS, MAX_LISTED, buildCard, checkListing, listingSlots, sortCards, type DirectoryCard } from '@/lib/directory'
+import { HORIZON_DAYS, MAX_LISTED, buildCard, checkListing, directoryIsOpen, listingSlots, sortCards, type DirectoryCard } from '@/lib/directory'
 
 type Row = Record<string, unknown>
 type Answer = { data: Row[] | null; error: { code?: string; message?: string } | null }
@@ -34,10 +34,12 @@ export class DirectoryReadError extends Error {
 }
 
 export type DirectoryList = {
-  /** Listed tutors in the "Recommended" order of the moment, at most MAX_LISTED. */
+  /** Listed tutors in the "Recommended" order of the moment, at most MAX_LISTED. EMPTY while the directory is closed (see `open`). */
   cards: DirectoryCard[]
   /** How many tutors the rule listed (may be more than the cards). */
   listed: number
+  /** False while fewer than DIRECTORY_OPENS_AT tutors are listed: the directory then carries no card at all (T-0803). */
+  open: boolean
   truncated: boolean
   asOf: string
 }
@@ -114,6 +116,8 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
     }
   }
 
-  const ordered = sortCards(cards, 'recommended', now)
-  return { cards: ordered.slice(0, MAX_LISTED), listed, truncated: ordered.length > MAX_LISTED, asOf: now.toISOString() }
+  // Closed: the cards are left out of the answer itself, so neither the page nor /api/tutors/public can show or leak a single tutor.
+  const open = directoryIsOpen(cards.length)
+  const ordered = open ? sortCards(cards, 'recommended', now) : []
+  return { cards: ordered.slice(0, MAX_LISTED), listed, open, truncated: ordered.length > MAX_LISTED, asOf: now.toISOString() }
 }

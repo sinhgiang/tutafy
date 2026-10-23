@@ -5,8 +5,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  CARD_KEYS, HORIZON_DAYS, LEAD_MINUTES, MAX_CARD_SLOTS, MAX_LISTED, MIN_INTRO_CHARS, NO_FILTERS, PRICE_BUCKETS,
-  applyFilters, approxUsd, buildCard, checkListing, cleanLanguage, filtersToQuery, headlineOf, isListable, languageCounts, listingSlots, nextAvailableText,
+  CARD_KEYS, DIRECTORY_OPENS_AT, FEW_TUTORS_BELOW, HORIZON_DAYS, LEAD_MINUTES, MAX_CARD_SLOTS, MAX_LISTED, MIN_INTRO_CHARS, NO_FILTERS, PRICE_BUCKETS,
+  applyFilters, approxUsd, buildCard, checkListing, cleanLanguage, directoryIsOpen, filtersToQuery, headlineOf, isListable, languageCounts, listingSlots, nextAvailableText,
   parseFilters, realZone, refreshCards, relaxations, slotFits, sortCards, stateOf, thinSlots, type DirectoryCard, type Filters,
 } from '@/lib/directory.ts'
 
@@ -307,8 +307,15 @@ test('"Recommended": a free time within 48 hours first, then a fuller profile, t
   assert.ok(days.size > 1, 'the order of equals rotates from day to day')
 })
 
-test('the three states: many, few (under 6) and empty', () => {
-  assert.deepEqual([0, 1, 5, 6, 40].map(stateOf), ['empty', 'few', 'few', 'many', 'many'])
+test('the directory opens at 6 listed tutors: 0 and 5 are the empty state, 6 and more are many (T-0803)', () => {
+  assert.equal(DIRECTORY_OPENS_AT, 6, 'the owner chose 6 (W-2547)')
+  assert.deepEqual([0, 1, 5, 6, 40].map(stateOf), ['empty', 'empty', 'empty', 'many', 'many'])
+  assert.deepEqual([0, 5, 6].map(directoryIsOpen), [false, false, true])
+  // the boundary is the named constant, not the number 6 written again
+  assert.equal(stateOf(DIRECTORY_OPENS_AT - 1), 'empty')
+  assert.equal(stateOf(DIRECTORY_OPENS_AT), DIRECTORY_OPENS_AT < FEW_TUTORS_BELOW ? 'few' : 'many')
+  assert.equal(directoryIsOpen(DIRECTORY_OPENS_AT - 1), false)
+  assert.equal(directoryIsOpen(DIRECTORY_OPENS_AT), true)
   assert.ok(MAX_LISTED >= 100)
 })
 

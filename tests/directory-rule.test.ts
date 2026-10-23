@@ -12,7 +12,7 @@ import type { PGlite } from '@electric-sql/pglite'
 import { applyMigrationsBefore, newDb } from './support/local-db.ts'
 import { pgliteClient } from './support/pglite-client.ts'
 import { loadDirectory, DirectoryReadError, TUTOR_COLUMNS, type DirectoryClient } from '@/lib/directory-data.ts'
-import { CARD_KEYS, MAX_LISTED } from '@/lib/directory.ts'
+import { CARD_KEYS, DIRECTORY_OPENS_AT, MAX_LISTED } from '@/lib/directory.ts'
 
 const DIR = path.resolve(import.meta.dirname, '..', 'docs', 'directory-design')
 const COUNT_SQL = readFileSync(path.join(DIR, 'eligible-tutors-count.sql'), 'utf8').replace(/\r\n/g, '\n')
@@ -130,10 +130,11 @@ test('the code lists exactly the tutors the owner\'s count query lists, and each
 
 test('the card a visitor gets has the fixed keys, the right price and the soonest free time first', async () => {
   const db = await freshDb()
-  await addTutor(db, { price: 25, avatar: 'https://example.com/a.jpg', langs: ['english', 'SPANISH'] })
+  const mine = await addTutor(db, { price: 25, avatar: 'https://example.com/a.jpg', langs: ['english', 'SPANISH'] })
+  for (let i = 1; i < DIRECTORY_OPENS_AT; i++) await addTutor(db) // the directory carries cards only once it is open
   const out = await loadDirectory(client(db))
-  assert.equal(out.cards.length, 1)
-  const c = out.cards[0]
+  assert.equal(out.cards.length, DIRECTORY_OPENS_AT)
+  const c = out.cards.find(x => x.slug === mine.slug)!
   assert.deepEqual(Object.keys(c).sort(), [...CARD_KEYS].sort())
   assert.deepEqual([c.price, c.currency, c.languages, c.rating, c.photo], [25, 'USD', ['English', 'Spanish'], null, 'https://example.com/a.jpg'])
   assert.ok(c.slots.length > 0 && c.slots.every((m, i, a) => i === 0 || m >= a[i - 1]))
@@ -177,11 +178,12 @@ test('a failed read throws (the page then says "could not load"); it never retur
 test('a database without the blocked-days table or the lesson-length columns still lists tutors (an older database), the lesson-length default is 60', async () => {
   const db = await freshDb()
   const t = await addTutor(db)
+  for (let i = 1; i < DIRECTORY_OPENS_AT; i++) await addTutor(db) // the directory carries cards only once it is open
   await db.exec('drop table public.availability_exceptions')
   const out = await loadDirectory(client(db))
-  assert.deepEqual(out.cards.map(c => c.slug), [t.slug])
+  assert.ok(out.open && out.cards.some(c => c.slug === t.slug))
   await db.exec('alter table public.tutors drop column lesson_durations')
-  assert.deepEqual((await loadDirectory(client(db))).cards.map(c => c.slug), [t.slug])
+  assert.ok((await loadDirectory(client(db))).cards.some(c => c.slug === t.slug))
 })
 
 test('more than 1000 hours rows and more than 25 tutors are all read (paging and groups), and a very long list is cut at MAX_LISTED and says so', async () => {

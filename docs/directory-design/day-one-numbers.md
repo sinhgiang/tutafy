@@ -70,7 +70,7 @@ Counts use only the row above. Where the row cannot tell, the range is given and
 - Cards on day one: **between 1 and 6**. At the extreme (no introduction rule) it is exactly 6, because 6 tutors have a free time and everyone has a name. How many of the 5 have 30 to 79 characters is not in the row; one more read-only query would tell.
 - It adds at most 5 cards, each with a thin introduction, and does nothing about the 696 who have neither hours nor an introduction. It lowers the quality of the first cards for a gain of 5. Not recommended.
 
-### Option 3 (recommended): keep the rule, show cards only from N listed tutors, and nudge the 26 first
+### Option 3 (chosen by the owner at W-2547, built in T-0803): keep the rule, show cards only from N listed tutors, and nudge the 26 first
 
 - Until N tutors are listed (suggest **N = 6**, the number below which the page already calls the list "few"), `/tutors` shows the existing empty state ("No tutors have open times right now", `src/components/directory/DirectoryView.tsx:176-179`) with its invitation for tutors, and no cards. Today that shows **0 cards** (1 is under 6); the page does not look half empty and does not put one unpriced, photo-less tutor in front of strangers.
 - It is a small change, not a rewrite: `stateOf` (`src/lib/directory.ts:430`) would return `empty` when fewer than N tutors are listed, plus a test for the boundary (5 and 6 listed). The single listed tutor keeps their own booking link and profile page. The empty wording may need a sentence saying tutors are joining; that is a design detail for when it is built.
