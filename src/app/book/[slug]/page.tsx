@@ -1,6 +1,5 @@
 import { cache } from 'react'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { loadPublicTutor, loadBlockedDates } from '@/lib/public-tutor'
@@ -17,7 +16,7 @@ import { httpsImage } from '@/lib/tutor-seo'
 import { loadFreeTimes, loadReviewLessonCounts, type ReadClient } from '@/lib/profile-data'
 import { hasTrial, joinedLabel, priceLabel, safeZone, usableReviews } from '@/lib/tutor-profile'
 import { About, Faq, Hero, MobileBookBar, Packages, Policy, Reviews, type PackageItem } from '@/components/booking/BookingSections'
-import { GraduationCap } from 'lucide-react'
+import { SiteLogo } from '@/components/SiteLogo'
 
 // One read of the tutor per request, shared by the page and its metadata. Read on the server with the admin client, only the public
 // columns (T-0774): a visitor's own key cannot read the tutors table. The other tables below (hours, plans, reviews, packages) stay public reads.
@@ -130,12 +129,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-[1120px] mx-auto px-4 h-14 flex items-center">
-          <Link href="/" className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
-            <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <GraduationCap className="h-4 w-4 text-white" aria-hidden="true" />
-            </div>
-            <span className="text-[16px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo size="md" />
         </div>
       </header>
 

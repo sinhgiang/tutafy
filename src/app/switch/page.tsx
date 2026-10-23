@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
-  GraduationCap, ArrowRight, Check, X, Shield, Lock, CreditCard,
+  ArrowRight, Check, X, Shield, Lock, CreditCard,
   UploadCloud, Link2, Send, Percent, Clock, Users, Video, Sparkles,
 } from 'lucide-react'
 import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
+import { SiteLogo } from '@/components/SiteLogo'
 
 // Dedicated, distraction-free landing page for Google Ads "switching / alternative"
 // keywords (preply alternative, italki alternative, commission free tutoring platform...).
@@ -97,12 +98,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
       {/* Minimal header — logo + single CTA, no nav links off this page */}
       <header className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <GraduationCap className="text-white" style={{ width: 18, height: 18 }} />
-            </div>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </div>
+          <SiteLogo />
           <Link href="/register" className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">
             Start free
           </Link>

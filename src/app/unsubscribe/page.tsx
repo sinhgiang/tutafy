@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { GraduationCap, MailX, CircleCheck, TriangleAlert } from 'lucide-react'
+import { MailX, CircleCheck, TriangleAlert } from 'lucide-react'
 import { SiteFooter } from '@/components/SiteFooter'
 import { verifyUnsubscribeToken } from '@/lib/unsubscribe-token'
+import { SiteLogo } from '@/components/SiteLogo'
 
 // The page behind the "Unsubscribe from these tips" link of the welcome mails (T-0737).
 // Opening it changes nothing: it only shows the address and a button. The BUTTON (a POST to /api/unsubscribe) does the
@@ -27,12 +28,7 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
     <div className="min-h-screen bg-white flex flex-col">
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-3xl mx-auto">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <span className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center" aria-hidden="true">
-              <GraduationCap className="text-white" style={{ width: 18, height: 18 }} />
-            </span>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo />
         </div>
       </nav>
 

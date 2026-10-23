@@ -210,8 +210,7 @@ test("the Updates page looks like the rest of Tutafy: Tutafy's own colours, type
   const blog = read('src/app/blog/page.tsx')
   for (const piece of [
     'className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40"',
-    '<div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">',
-    '<span className="text-[17px] font-bold text-gray-900">Tutafy</span>',
+    '<SiteLogo />', // the shared logo (T-0818): same block and word as before, now one link to the home page
     'className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">Start free</Link>',
     '<p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">',
     'text-[17px] text-gray-500',

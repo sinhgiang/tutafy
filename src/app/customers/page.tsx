@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { GraduationCap, ArrowRight, ArrowLeft, TrendingUp, Quote } from 'lucide-react'
+import { ArrowRight, ArrowLeft, TrendingUp, Quote } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
 import { SiteFooter } from '@/components/SiteFooter'
+import { SiteLogo } from '@/components/SiteLogo'
 
 export const metadata = pageMetadata('customers')
 
@@ -18,12 +19,7 @@ export default function CustomersPage() {
       {/* Nav */}
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
-            </div>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo />
           <Link href="/" className="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 hover:text-gray-900">
             <ArrowLeft className="h-3.5 w-3.5" /> Back to home
           </Link>
