@@ -462,3 +462,17 @@
 .av-slot .av-slot-x { position: absolute; right: 2px; top: 2px; opacity: 0; background: var(--d-surface); box-shadow: 0 0 0 1px var(--d-line); }
 .av-slot:hover .av-slot-x, .av-slot:focus-within .av-slot-x, .av-slot-x:focus-visible { opacity: 1; }
 .av-slot-main { padding-right: 4px; }
+
+/* ---------- legacy pages: the floor for small and pale text (T-0842) ----------
+   Pages not rebuilt yet still say text-gray-300/400/500 (1.5 to 4.5 against 1 on white) and text-[9px] to text-[11px].
+   One floor for all of them: pale greys become the shell's third ink (5.9 to 1 on white), and nothing is smaller than 12px.
+   The dark block above is more specific, so dark keeps its own greys. */
+.dash .text-gray-200, .dash .text-gray-300, .dash .text-gray-400, .dash .text-gray-500, .dash .text-slate-400, .dash .text-slate-500 { color: var(--d-ink-3); }
+.dash .text-amber-500, .dash .text-amber-600, .dash .text-orange-600 { color: var(--d-warn); }
+.dash .text-emerald-500, .dash .text-emerald-600, .dash .text-green-500, .dash .text-green-600 { color: var(--d-ok); }
+.dash .text-indigo-400, .dash .text-indigo-500, .dash .text-blue-400, .dash .text-blue-500, .dash .text-blue-600 { color: var(--d-brand); }
+.dash .bg-indigo-500 { background-color: #4F46E5; }
+.dash .bg-emerald-500 { background-color: #047857; }
+.dash .text-red-400, .dash .text-red-500 { color: var(--d-err); }
+.dash .text-\[9px\], .dash .text-\[10px\], .dash .text-\[11px\] { font-size: 12px; }
+.dash[data-theme="dark"] .dash-icon-btn .dash-dot { color: #1F0A09; }

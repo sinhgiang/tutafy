@@ -84,7 +84,7 @@ function Avatar({ name, url, size = 28 }: { name: string; url: string | null; si
   }
   return (
     <div className="rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 ring-2 ring-white" style={{ width: size, height: size }}>
-      <span aria-hidden="true" className="font-bold text-indigo-600" style={{ fontSize: size * 0.36 }}>{initials(name)}</span>
+      <span aria-hidden="true" className="font-bold text-indigo-600" style={{ fontSize: Math.max(12, size * 0.36) }}>{initials(name)}</span>
     </div>
   )
 }
@@ -346,11 +346,11 @@ function AnalyticsPanel({ data }: { data: DashboardData }) {
         </svg>
         {/* Tooltip bubble on active point */}
         <div
-          className="pointer-events-none absolute -translate-x-1/2 -translate-y-full"
-          style={{ left: `${(xOf(active) / W) * 100}%`, top: `${(yOf(values[active]) / H) * 100}%`, marginTop: -8 }}
+          className={`pointer-events-none absolute -translate-x-1/2 ${yOf(values[active]) / H < 0.22 ? '' : '-translate-y-full'}`}
+          style={{ left: `${(xOf(active) / W) * 100}%`, top: `${(yOf(values[active]) / H) * 100}%`, marginTop: yOf(values[active]) / H < 0.22 ? 10 : -8 }}
         >
-          <div className="bg-indigo-500 text-white text-[11px] font-semibold px-2 py-1 rounded-md whitespace-nowrap shadow-sm">
-            {fmt(values[active])} {metric === 'lessons' ? 'lessons' : ''}
+          <div className="bg-indigo-500 text-white text-[12px] font-semibold px-2 py-1 rounded-md whitespace-nowrap shadow-sm">
+            {fmt(values[active])}{metric === 'lessons' ? (values[active] === 1 ? ' lesson' : ' lessons') : ''}
           </div>
         </div>
       </div>
