@@ -66,7 +66,7 @@ const FEATURES = [
 
 const PLANS = [
   { name: 'Free', price: '$0', per: '', tagline: 'Everything you need to start', features: ['Up to 10 students', 'Booking page', 'Built-in video classroom', 'Email & SMS reminders'], cta: 'Start free', href: '/register', highlight: false },
-  { name: 'Pro', price: '$12', per: '/mo', tagline: 'For serious independent tutors', features: ['Unlimited students', 'All 10 AI teaching tools', 'Payments (PayPal / card)', 'Full analytics & reports'], cta: 'Go Pro', href: '/register', highlight: true, badge: 'Most popular' },
+  { name: 'Pro', price: '$12', per: '/mo', tagline: 'For serious independent tutors', features: ['Unlimited students', 'All 7 AI teaching tools', 'Payments (PayPal / card)', 'Full analytics & reports'], cta: 'Go Pro', href: '/register', highlight: true, badge: 'Most popular' },
   { name: 'Academy', price: '$29', per: '/mo', tagline: 'For small teams & centers', features: ['Everything in Pro', 'Up to 5 tutors', 'Team payroll & split pay', 'Booking page per tutor'], cta: 'Start Academy', href: '/register', highlight: false },
 ]
 

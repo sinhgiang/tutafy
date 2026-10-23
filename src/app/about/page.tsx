@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Heart, Shield, Sparkles } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteLogo } from '@/components/SiteLogo'
+import { FAQ } from '@/lib/site-content'
 
 export const metadata = pageMetadata('about')
 
@@ -29,6 +30,8 @@ export default function AboutPage() {
         <h1 className="text-[38px] font-extrabold text-gray-900 tracking-tight leading-tight">
           Tutoring should pay the tutor — not the middleman.
         </h1>
+
+        <p className="mt-5 text-[17px] text-gray-900 leading-relaxed font-medium">{FAQ[0].a}</p>
 
         <div className="mt-8 space-y-5 text-[15px] text-gray-700 leading-relaxed">
           <p>

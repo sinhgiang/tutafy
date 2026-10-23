@@ -145,7 +145,7 @@ test('the FAQPage is exactly the question and answer pairs the page shows, nothi
     mainEntity: { '@type': string; name: string; acceptedAnswer: { '@type': string; text: string } }[]
   }
   assert.equal(faq.mainEntity.length, FAQ.length)
-  assert.equal(FAQ.length, 6)
+  assert.equal(FAQ.length, 9)
   faq.mainEntity.forEach((item, i) => {
     assert.equal(item['@type'], 'Question')
     assert.equal(item.name, FAQ[i].q)

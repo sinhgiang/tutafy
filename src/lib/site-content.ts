@@ -25,12 +25,27 @@ export const FEATURES: { id: FeatureId; title: string; desc: string }[] = [
 ]
 
 export const FAQ: { q: string; a: string }[] = [
+  { q: 'What is Tutafy?', a: 'Tutafy is software for independent online tutors and small tutoring centers. It puts a booking page, a built-in video classroom, payments, AI lesson tools and portals for students and parents in one place, and it takes 0% commission on your lessons.' },
+  { q: 'Who is Tutafy for?', a: 'Independent online tutors, such as language tutors, and small tutoring centers. The Free plan covers up to 10 students; the Academy plan adds up to 5 tutors. Your students and their parents get their own portal.' },
+  { q: 'How is Tutafy different from Preply or iTalki?', a: 'Preply and iTalki are marketplaces: they find students for you and take a commission on each lesson. Tutafy is the software you run your own tutoring business with, not a marketplace. You keep the student relationship, Tutafy takes none of the lesson price, and you pay a flat monthly fee only if you choose a paid plan.' },
   { q: 'Is it really free?', a: 'Yes. The Free plan covers up to 10 students with bookings, video and reminders — forever, no card required. Upgrade only when you outgrow it.' },
   { q: 'Do you take a commission on my earnings?', a: 'Never. Unlike marketplaces, Tutafy takes 0% of what your students pay you — on every plan. You only pay your normal payment-processor fee.' },
   { q: 'Do my students need to download anything?', a: 'No. Students book, join the video classroom and see their homework right in the browser — nothing to install.' },
   { q: 'Can I move over from Preply, iTalki or a spreadsheet?', a: 'Yes. Import your students from a CSV in a couple of clicks and pick up right where you left off.' },
   { q: 'What if I have a small team?', a: 'The Academy plan adds up to 5 tutors with team scheduling and built-in payroll — pay each tutor per lesson, per hour or on a revenue share.' },
   { q: 'Can I cancel anytime?', a: 'Anytime, in one click. No lock-in, no contracts, no hidden fees.' },
+]
+
+/**
+ * Questions a student asks on the tutor directory (/tutors), answered only with what that page already says (T-0850): the 14-day rule is
+ * in src/lib/directory.ts, "name and email" and "free to start, no commission" are printed on the page. The page draws exactly these
+ * and its FAQPage data is built from the same list (tests/seo-brand.test.ts).
+ */
+export const TUTORS_FAQ: { q: string; a: string }[] = [
+  { q: 'How do I book a lesson with a tutor?', a: 'Open a tutor, choose one of their free times and book with just your name and email. You do not need an account.' },
+  { q: 'Which tutors are listed here?', a: 'Only tutors who have free times in the next 14 days, so every tutor you see can be booked today.' },
+  { q: 'Who sets the price of a lesson?', a: 'Each tutor sets their own price, in their own currency, and some offer a cheaper first lesson. Use the trial lesson filter to see them.' },
+  { q: 'How do I list myself as a tutor?', a: 'Create your free page and set your free hours, and students can book you here. It is free to start and Tutafy takes no commission on your lessons.' },
 ]
 
 interface PlanSource {
@@ -52,7 +67,7 @@ const PLAN_SOURCES: PlanSource[] = [
   },
   {
     name: 'Pro', monthlyUsd: 12, tagline: 'For serious independent tutors',
-    features: ['Unlimited students', 'All 10 AI teaching tools', 'Payments (PayPal / card)', 'Full analytics & reports', 'Public API & Zapier'],
+    features: ['Unlimited students', 'All 7 AI teaching tools', 'Payments (PayPal / card)', 'Full analytics & reports', 'Public API & Zapier'],
     cta: 'Go Pro', href: '/upgrade', highlight: true, badge: 'Most popular',
   },
   {

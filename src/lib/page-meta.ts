@@ -21,7 +21,8 @@ export const TITLE_MIN = 20
 export const DESCRIPTION_MAX = 155
 export const DESCRIPTION_MIN = 70
 
-const SOCIAL_IMAGE = { url: '/icon-512.png', width: 512, height: 512, alt: 'Tutafy' }
+// The share picture drawn by src/app/og/route.tsx: 1200 x 630 with the name Tutafy (T-0850). It was the 512 px app icon.
+const SOCIAL_IMAGE = { url: '/og', width: 1200, height: 630, alt: 'Tutafy: software for online tutors' }
 
 export interface PageSeo {
   /** Path on the site; '/' is the home page. */
@@ -41,47 +42,47 @@ export const PAGE_SEO = {
   },
   tutors: {
     path: '/tutors',
-    title: 'Find an Online Language Tutor | Tutafy Tutors',
+    title: 'Find an Online Language Tutor | Tutafy',
     description: 'Browse language tutors on Tutafy and book 1-on-1 online lessons. Compare languages, ratings and prices, then pick a time that suits you.',
   },
   blog: {
     path: '/blog',
-    title: 'Tutafy Blog: Tips & Guides for Online Tutors',
+    title: 'Tips & Guides for Online Tutors | Tutafy Blog',
     description: 'Practical advice on getting students, pricing lessons, running your tutoring business and keeping 100% of what you earn.',
   },
   updates: {
     path: '/updates',
-    title: "Tutafy Updates: What's New for Online Tutors",
+    title: "What's New for Online Tutors | Tutafy Updates",
     description: "See what's new in Tutafy: every change tutors can see or use, from lesson settings and payments to phone support, newest first.",
   },
   about: {
     path: '/about',
-    title: 'About Tutafy: Software Built for Independent Tutors',
+    title: 'About Us: Built for Independent Tutors | Tutafy',
     description: 'Why we built Tutafy: an all-in-one home for independent tutors that charges a flat fee and never takes a cut of your income.',
   },
   customers: {
     path: '/customers',
-    title: 'Tutafy Customer Stories for Online Tutors',
+    title: 'Customer Stories for Online Tutors | Tutafy',
     description: 'See how independent tutors and small tutoring centers run and grow their business with Tutafy.',
   },
   contact: {
     path: '/contact',
-    title: 'Contact Tutafy: Support, Questions and Feedback',
+    title: 'Contact Us: Support, Questions, Feedback | Tutafy',
     description: 'Get in touch with the Tutafy team for support, product questions, billing help or feedback about the tutoring platform.',
   },
   privacy: {
     path: '/privacy',
-    title: 'Privacy Policy: How Tutafy Handles Your Data',
+    title: 'Privacy Policy: How We Handle Your Data | Tutafy',
     description: 'How Tutafy collects, uses and protects personal data, which cookies and analytics it uses, and how to contact us about your privacy.',
   },
   terms: {
     path: '/terms',
-    title: 'Terms of Service for Using Tutafy',
+    title: 'Terms of Service: Your Account and Data | Tutafy',
     description: 'The terms for using Tutafy: your account, acceptable use, your data and content, payments, service availability and termination.',
   },
   register: {
     path: '/register',
-    title: 'Create a Free Tutor Account | Tutafy Sign Up',
+    title: 'Create a Free Tutor Account | Tutafy',
     description: 'Sign up free to manage students, bookings, lessons and payments in one place. No card needed, and 0% commission on what you earn.',
     noindex: true,
   },
@@ -93,7 +94,7 @@ export const PAGE_SEO = {
   },
   studentLogin: {
     path: '/student/login',
-    title: 'Student Log In | View Your Lessons on Tutafy',
+    title: 'Student Log In | Tutafy',
     description: 'Students: get a sign-in link by email to see your lessons, homework and progress with your tutor on Tutafy.',
     noindex: true,
   },
@@ -102,7 +103,7 @@ export const PAGE_SEO = {
 export type PageKey = keyof typeof PAGE_SEO
 
 /** Titles and descriptions for the search results of each blog post. The post's own `title` stays as the visible headline. */
-export const BLOG_SEO: Record<string, { title: string; description: string }> = {
+const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
   'get-your-first-tutoring-clients': {
     title: 'How to Get Your First 10 Tutoring Clients',
     description: 'A practical playbook for landing your first paying tutoring students without a marketplace, and keeping 100% of what you earn.',
@@ -128,7 +129,7 @@ export const BLOG_SEO: Record<string, { title: string; description: string }> = 
     description: 'A step-by-step guide to teaching English online: qualifications, tools, finding students, pricing and getting paid without a marketplace cut.',
   },
   'stop-tutoring-no-shows': {
-    title: 'How to Stop Tutoring No-Shows and Late Cancellations',
+    title: 'How to Stop Tutoring No-Shows and Cancellations',
     description: 'A practical system to cut missed lessons: reminders, timezones, cancellation policies and prepaid packages that stop empty slots costing you income.',
   },
   'how-to-start-an-online-tutoring-business': {
@@ -152,7 +153,7 @@ export const BLOG_SEO: Record<string, { title: string; description: string }> = 
     description: 'An honest look at free tutor management software: what a free plan should include, options worth trying and how to run a tutoring business at $0.',
   },
   'how-to-write-a-tutoring-business-plan': {
-    title: 'How to Write a Tutoring Business Plan (Free Template)',
+    title: 'How to Write a Tutoring Business Plan (Template)',
     description: 'A one-page tutoring business plan that gets used: positioning, pricing, financial projections and the numbers to nail down before you start.',
   },
   'how-to-choose-a-tutoring-niche': {
@@ -176,11 +177,11 @@ export const BLOG_SEO: Record<string, { title: string; description: string }> = 
     description: 'Why tutoring students quietly stop rebooking, and the fixes for scheduling, engagement and communication that keep your roster full.',
   },
   'ai-tools-for-tutors': {
-    title: 'Best AI Tools for Tutors and Where They Need a Human',
+    title: 'Best AI Tools for Tutors (and Their Limits)',
     description: 'Where AI saves tutors real time, from lesson planning to grading and admin, and the failure modes to check before content reaches a student.',
   },
   'best-video-call-tool-for-tutors': {
-    title: 'Best Video Call Tool for Tutors: Zoom vs Meet vs More',
+    title: 'Best Video Call Tool for Tutors: Zoom vs Meet',
     description: 'Zoom, Google Meet, Skype, Jitsi or a built-in classroom? An honest comparison on install friction, reliability, recording and cost.',
   },
   'parent-communication-and-parent-portal': {
@@ -205,6 +206,14 @@ export const BLOG_SEO: Record<string, { title: string; description: string }> = 
   },
 }
 
+/**
+ * The same list with the brand on every title (T-0850): a title that does not name Tutafy ends with " | Tutafy", so the
+ * name is in every search result, and tests/seo-brand.test.ts keeps the whole title within 60 characters.
+ */
+export const BLOG_SEO: Record<string, { title: string; description: string }> = Object.fromEntries(
+  Object.entries(BLOG_SEO_BASE).map(([slug, s]) => [slug, { ...s, title: /Tutafy/.test(s.title) ? s.title : `${s.title} | Tutafy` }]),
+)
+
 function build(path: string, title: string, description: string, opts: { noindex?: boolean; article?: boolean; image?: { url: string; width?: number; height?: number; alt?: string } } = {}): Metadata {
   const url = absoluteUrl(path)
   const image = opts.image ?? SOCIAL_IMAGE
@@ -222,7 +231,7 @@ function build(path: string, title: string, description: string, opts: { noindex
       images: [image],
     },
     twitter: {
-      card: opts.image ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title,
       description,
       images: [image.url],
