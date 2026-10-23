@@ -1,5 +1,4 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { PageColumn } from '@/components/layout/PageFrame'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
@@ -15,7 +14,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
 
   const [{ data: student }, { data: messages }] = await Promise.all([
     supabase.from('students')
-      .select('id, name, level, email, portal_token')
+      .select('id, name, level, email, portal_token, country, goals, status')
       .eq('id', studentId)
       .eq('tutor_id', user.id)
       .single(),
@@ -41,11 +40,12 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
   const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/portal/${student.portal_token}`
 
   return (
-    <PageColumn size="form" className="flex flex-col h-[calc(100dvh-176px)] md:h-[calc(100dvh-136px)]">
+    <div className="msg-thread-grid" data-testid="thread-grid">
+    <section className="msg-thread" aria-label={`Conversation with ${student.name}`}>
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 flex-shrink-0">
-        <Link href="/messages"
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/messages" aria-label="Back to conversations"
+          className="msg-back w-8 h-8 items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
@@ -76,6 +76,23 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
         studentName={student.name}
         initialMessages={messages ?? []}
       />
-    </PageColumn>
+    </section>
+    <aside className="dash-card dash-card-b msg-card" aria-label="Student" data-testid="student-card">
+      <div className="dash-who" style={{ marginBottom: 16 }}>
+        <span className="dash-avatar" aria-hidden="true">{initials}</span>
+        <div style={{ minWidth: 0 }}><b>{student.name}</b><span>{student.level ?? 'No level set'}</span></div>
+      </div>
+      <dl>
+        <div><dt>Email</dt><dd>{student.email ?? '-'}</dd></div>
+        <div><dt>Country</dt><dd>{student.country ?? '-'}</dd></div>
+        <div><dt>Goals</dt><dd>{student.goals ?? '-'}</dd></div>
+        <div><dt>Status</dt><dd style={{ textTransform: 'capitalize' }}>{student.status}</dd></div>
+      </dl>
+      <div style={{ display: 'grid', gap: 8, marginTop: 16 }}>
+        <Link href={`/lessons/new?student=${student.id}`} className="dash-btn is-primary">Schedule a lesson</Link>
+        <Link href={`/students/${student.id}`} className="dash-btn">Open profile</Link>
+      </div>
+    </aside>
+  </div>
   )
 }

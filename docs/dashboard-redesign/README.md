@@ -15,7 +15,7 @@ There is **no page frame**. The layout puts the page straight into `<main>` and 
 | Reports `reports/page.tsx` (before T-0821), Students `students/page.tsx:21` | 1100 | about 35% |
 | Settings `settings/page.tsx:224` | 920 | about 45% |
 | Developers `DevelopersClient.tsx:52` | 820 | about 52% |
-| Messages `messages/page.tsx:65`, Chat `messages/[studentId]/page.tsx:43` | 760 / 680 | about 55% |
+| Messages `messages/page.tsx` (before T-0823), Chat `messages/[studentId]/page.tsx` (before T-0823) | 760 / 680 | about 55% |
 | Availability `availability/page.tsx:104`, Lesson detail `lessons/[id]/page.tsx:82` | 700 | about 59% |
 | New lesson `lessons/new/page.tsx:123`, Edit lesson `lessons/[id]/edit/page.tsx:119` | 660 | about 61% |
 | Coupons `CouponsClient.tsx:68`, Packages `packages/page.tsx:24`, Waitlist `waitlist/page.tsx:24` | 640 | about 62% |

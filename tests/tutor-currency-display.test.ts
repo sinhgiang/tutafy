@@ -136,7 +136,7 @@ test('no page reads lessons.currency or invoices.currency (nothing writes them),
   }
   assert.ok(read('app/(dashboard)/dashboard/page.tsx').includes('symbolOf(tutor?.currency)'))
   assert.ok(read('app/(dashboard)/earnings/page.tsx').includes('loadTutorCurrency(supabase, user.id)'))
-  assert.ok(read('app/(dashboard)/calendar/page.tsx').includes('loadTutorCurrency(supabase, user!.id)'))
+  assert.ok(read('app/(dashboard)/calendar/page.tsx').includes('loadTutorCurrency(supabase, user.id)'))
   assert.ok(read('app/(admin)/admin/revenue/page.tsx').includes('loadAdminRevenue('))
 })
 

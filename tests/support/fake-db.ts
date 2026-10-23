@@ -40,6 +40,7 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
     let max = Infinity
     let offset = 0
     let head = false
+    let wantCount = false
     let maybe = false
     let single = false
     let returning = false
@@ -88,12 +89,13 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
       // like the real service, a select hands back copies: a later update must not change a row already read
       out = out.slice(offset, offset + Math.min(max, SERVER_ROW_CAP)).map(r => ({ ...r }))
       if (head) return { data: null, error: null, count: matching.length }
+      const count = wantCount ? matching.length : null
       if (single) return out.length === 1 ? { data: out[0], error: null, count: null } : { data: null, error: { message: 'JSON object requested, multiple (or no) rows returned' }, count: null }
-      return maybe ? { data: out[0] ?? null, error: null, count: null } : { data: out, error: null, count: null }
+      return maybe ? { data: out[0] ?? null, error: null, count: null } : { data: out, error: null, count }
     }
 
     const q = {
-      select(_cols?: string, opts?: { head?: boolean }) { head = !!opts?.head; returning = true; return q },
+      select(_cols?: string, opts?: { head?: boolean; count?: string }) { head = !!opts?.head; wantCount = !!opts?.count; returning = true; return q },
       insert(p: Row | Row[]) { op = 'insert'; payload = p; return q },
       upsert(p: Row, o?: { onConflict?: string; ignoreDuplicates?: boolean }) { op = 'upsert'; payload = p; upsertOpts = o ?? {}; return q },
       update(p: Row) { op = 'update'; payload = p; return q },
@@ -102,6 +104,8 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
       neq(col: string, v: unknown) { filters.push(r => r[col] !== v); return q },
       // ilike as Postgres reads it: case-insensitive, % any text, _ any one character, a backslash makes the next one literal
       ilike(col: string, pattern: string) { const re = likeToRegExp(pattern); filters.push(r => typeof r[col] === 'string' && re.test(r[col] as string)); return q },
+      // .or('name.ilike.%x%,email.ilike.%x%'): the only form the list pages use (ilike terms joined by commas)
+      or(expr: string) { const terms = expr.split(',').map(t => { const m = /^([a-z_]+).ilike.(.*)$/.exec(t); if (!m) throw new Error(`fake db: unsupported or() term ${t}`); return { col: m[1], re: likeToRegExp(m[2]) } }); filters.push(r => terms.some(t => typeof r[t.col] === 'string' && t.re.test(r[t.col] as string))); return q },
       in(col: string, vs: unknown[]) { filters.push(r => vs.includes(r[col])); return q },
       is(col: string, v: unknown) { filters.push(r => (r[col] ?? null) === v); return q },
       // .not(col, 'is', null) and .not(col, 'eq', v), the two forms the admin pages use
