@@ -66,6 +66,7 @@ export function HomeworkSubmissionsPanel({
             <div>
               <p className="text-[11px] font-medium text-gray-500 mb-1.5">Your feedback</p>
               <textarea
+                aria-label="Feedback for the student"
                 value={feedbacks[sub.id] ?? ''}
                 onChange={e => {
                   setFeedbacks(p => ({ ...p, [sub.id]: e.target.value }))

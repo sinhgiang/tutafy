@@ -4,14 +4,14 @@
 // 768px a day-by-day list. Moving a lesson asks POST /api/lessons/reschedule; if the new time overlaps another lesson the
 // server answers 409 and this view shows which, and moves it only when the tutor says "Move anyway". Dragging needs a mouse,
 // so every lesson also has a "Move to" form (keyboard, phone). Dates are read in the browser's own time zone, as before.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { formatMoney } from '@/lib/currency'
 import {
-  GRID_FROM_HOUR, GRID_TO_HOUR, HOUR_PX, VIEWS, addDays, blockOf, dayKey, dropTarget, minutesAtOffset, onDay, parseDay, rangeFor, shift, weekDays, type CalView,
+  GRID_FROM_HOUR, GRID_TO_HOUR, HOUR_PX, VIEWS, addDays, blockOf, dayKey, dropTarget, minutesAtOffset, onDay, openingMinute, parseDay, rangeFor, shift, weekDays, type CalView,
 } from '@/lib/calendar'
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -36,6 +36,17 @@ export default function CalendarView({ view, anchor, lessons, currency = 'USD' }
   const [busy, setBusy] = useState(false)
   const [dragId, setDragId] = useState<string | null>(null)
   const selected = lessons.find(l => l.id === selectedId) ?? null
+
+  // Open the week grid at the first lesson (or now) instead of 6 AM; only when the grid is on screen (a phone shows a day list).
+  const gridRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const grid = gridRef.current
+    const body = grid?.querySelector<HTMLElement>('.cal-week-body')
+    if (view !== 'week' || !grid || !body || grid.offsetParent === null) return
+    body.scrollTop = (openingMinute(lessons, weekDays(parseDay(anchor, new Date())), new Date()) / 60) * HOUR_PX
+    // Only when the week or view changes: a lesson moved on this page must not scroll the grid away.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, anchor])
 
   const href = (v: CalView, d: Date) => `/calendar?view=${v}&date=${dayKey(d)}`
   const title = view === 'week'
@@ -117,7 +128,7 @@ export default function CalendarView({ view, anchor, lessons, currency = 'USD' }
 
       {view === 'week' ? (
         <>
-          <div className="cal-week dash-card" data-testid="week-grid" role="grid" aria-label="Week">
+          <div ref={gridRef} className="cal-week dash-card" data-testid="week-grid" role="grid" aria-label="Week">
             <div className="cal-week-head" role="row">
               <div />
               {days.map(d => (

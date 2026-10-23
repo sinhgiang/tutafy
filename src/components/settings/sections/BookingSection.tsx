@@ -110,8 +110,8 @@ export default function BookingSection({ ctx }: { ctx: SettingsCtx }) {
               </div>
             )}
             <div>
-              <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Cancellation notice (hours)</label>
-              <input type="number" min={0} max={168} value={form.cancellation_hours}
+              <label htmlFor="settings-cancel-hours" className="block text-[12px] font-medium text-gray-600 mb-1.5">Cancellation notice (hours)</label>
+              <input id="settings-cancel-hours" type="number" min={0} max={168} value={form.cancellation_hours}
                 onChange={e => setForm(f => ({ ...f, cancellation_hours: parseInt(e.target.value) }))}
                 className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
               <p className="text-[11px] text-gray-400 mt-1">Students can cancel for free up to this many hours before a lesson</p>

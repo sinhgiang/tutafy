@@ -247,6 +247,7 @@ export function ChatPanel({
       {/* Input */}
       <div className="border-t border-gray-100 p-3 flex items-end gap-2 flex-shrink-0">
         <textarea
+          aria-label="Message"
           ref={textareaRef}
           value={input}
           onChange={e => setInput(e.target.value)}

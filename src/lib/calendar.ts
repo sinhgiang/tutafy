@@ -97,3 +97,20 @@ export function onDay<T extends { starts_at: string }>(lessons: T[], day: Date):
 
 /** Lessons that are cancelled do not take the tutor's time, so they never conflict. */
 export const takesTime = (status: string) => status !== 'cancelled'
+
+/**
+ * How far down the week grid to scroll when it opens, in minutes from the first grid hour (T-0842). The grid starts at 6 AM, so
+ * without this the first screen of a week is mostly empty hours. It shows one hour before the first lesson of the week that
+ * takes time; with no lesson, one hour before now when the week holds today, otherwise 8 AM. Never past the last 8 hours of the
+ * grid, so the bottom of the grid is not scrolled away from.
+ */
+export function openingMinute(lessons: { starts_at: string; status: string }[], days: Date[], now: Date): number {
+  const keys = new Set(days.map(dayKey))
+  const starts = lessons
+    .filter(l => takesTime(l.status))
+    .map(l => new Date(l.starts_at))
+    .filter(d => keys.has(dayKey(d)))
+    .map(d => d.getHours() * 60 + d.getMinutes())
+  const target = starts.length ? Math.min(...starts) - 60 : keys.has(dayKey(now)) ? now.getHours() * 60 - 60 : 8 * 60
+  return Math.min(Math.max(target - GRID_FROM_HOUR * 60, 0), (GRID_TO_HOUR - GRID_FROM_HOUR - 8) * 60)
+}

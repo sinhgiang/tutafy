@@ -26,7 +26,7 @@ export default function PlanSection({ ctx }: { ctx: SettingsCtx }) {
                   </div>
                   <div>
                     <p className="text-[13px] font-semibold text-white">{planLabel} Plan — Active</p>
-                    <p className="text-[11px] text-indigo-200">
+                    <p className="text-[11px] text-indigo-100">
                       {subscriptionStatus === 'academy' ? 'Team, payroll & all Pro features' : 'Unlimited students, AI tools, all features'}
                     </p>
                   </div>
