@@ -1,40 +1,20 @@
-import { PageColumn } from '@/components/layout/PageFrame'
-import { createClient } from '@/lib/supabase/server'
+// Packages (T-0825): the tutor's lesson bundles as a list with a row of figures. A Pro feature: the lock is a quiet "Pro" tag
+// and an upgrade sheet (LockedFeature); the routes check the plan again.
 import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { requireFeature } from '@/lib/guard'
-import Link from 'next/link'
-import { ArrowLeft, Package, Plus } from 'lucide-react'
-import { PackageManager } from './PackageManager'
+import { loadTutorCurrency } from '@/lib/tutor-currency'
+import { PackageManager, type Pkg } from './PackageManager'
 
 export default async function PackagesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const locked = await requireFeature('pro', 'Lesson Packages')
+  const locked = await requireFeature('pro', 'Lesson packages')
   if (locked) return locked
 
-  const { data: packages } = await supabase
-    .from('packages')
-    .select('*')
-    .eq('tutor_id', user.id)
-    .eq('active', true)
-    .order('created_at', { ascending: false })
-
-  return (
-    <PageColumn size="form" className="space-y-5">
-      <div className="flex items-center gap-3">
-        <Link href="/earnings?tab=payments"
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
-          <ArrowLeft className="h-4 w-4 text-gray-500" />
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Lesson Packages</h1>
-          <p className="text-[12px] text-gray-400 mt-0.5">Sell bundles of lessons at a discount</p>
-        </div>
-      </div>
-
-      <PackageManager initialPackages={packages ?? []} />
-    </PageColumn>
-  )
+  const { data, error } = await supabase.from('packages').select('*').eq('tutor_id', user.id).eq('active', true).order('created_at', { ascending: false })
+  const currency = await loadTutorCurrency(supabase, user.id)
+  return <PackageManager initialPackages={(data ?? []) as Pkg[]} currency={currency} loadFailed={!!error} />
 }

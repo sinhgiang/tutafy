@@ -1,48 +1,36 @@
+// Lesson packages of the signed-in tutor (T-0825). A Pro feature: the plan is re-read from the database on every call (the page's lock
+// only hides the screen), the tutor id is the session's, and what a new package may be is checked by validatePackage.
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiPlan } from '@/lib/api-guard'
+import { isUuid } from '@/lib/list-params'
+import { validatePackage } from '@/lib/business-lists'
 
 export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data: packages } = await supabase
-    .from('packages')
-    .select('*')
-    .eq('tutor_id', user.id)
-    .eq('active', true)
-    .order('created_at', { ascending: false })
-
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const { data: packages } = await gate.supabase.from('packages').select('*').eq('tutor_id', gate.userId).eq('active', true).order('created_at', { ascending: false })
   return NextResponse.json({ packages: packages ?? [] })
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const body = await req.json().catch(() => null)
+  const check = validatePackage(body)
+  if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 })
 
-  const { name, description, lessons_count, price } = await req.json()
-  if (!name || !lessons_count || !price) {
-    return NextResponse.json({ error: 'name, lessons_count, price required' }, { status: 400 })
-  }
-
-  const { data, error } = await supabase
-    .from('packages')
-    .insert({ tutor_id: user.id, name, description, lessons_count: Number(lessons_count), price: Number(price) })
-    .select().single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  const { data, error } = await gate.supabase.from('packages').insert({ tutor_id: gate.userId, ...check.value }).select().single()
+  if (error) return NextResponse.json({ error: 'Could not save the package' }, { status: 500 })
   return NextResponse.json({ package: data })
 }
 
 export async function DELETE(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
   const id = req.nextUrl.searchParams.get('id')
-  if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+  if (!isUuid(id)) return NextResponse.json({ error: 'id required' }, { status: 400 })
 
-  await supabase.from('packages').update({ active: false }).eq('id', id).eq('tutor_id', user.id)
+  const { data } = await gate.supabase.from('packages').update({ active: false }).eq('id', id).eq('tutor_id', gate.userId).select('id')
+  if (!data || data.length === 0) return NextResponse.json({ error: 'Package not found' }, { status: 404 })
   return NextResponse.json({ ok: true })
 }

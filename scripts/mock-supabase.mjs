@@ -75,7 +75,7 @@ const packages = [
   { id: id(1, '1'), tutor_id: TUTOR_ID, name: '10 lesson pack', description: 'Ten one-hour lessons, use within six months.', lessons_count: 10, price: 360, currency: 'USD', active: true, created_at: iso(-20) },
   { id: id(2, '1'), tutor_id: TUTOR_ID, name: '5 lesson pack', description: 'Five lessons to get started.', lessons_count: 5, price: 190, currency: 'USD', active: true, created_at: iso(-20) },
 ]
-const coupons = [{ id: id(1, '2'), tutor_id: TUTOR_ID, code: 'WELCOME20', discount_type: 'percent', discount_value: 20, max_uses: 50, uses: 3, active: true, expires_at: null, created_at: iso(-10) }]
+const coupons = [{ id: id(1, '2'), tutor_id: TUTOR_ID, code: 'WELCOME20', discount_type: 'percent', discount_value: 20, max_uses: 50, uses_count: 3, active: true, expires_at: null, created_at: iso(-10) }]
 const reviews = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '3'), tutor_id: TUTOR_ID, student_id: s.id, rating: 5 - (i % 2), comment: 'Patient, clear and always well prepared.', is_public: true, created_at: iso(-5 - i), students: undefined }))
 const invoices = students.slice(0, 4).map((s, i) => ({ id: id(i + 1, '4'), tutor_id: TUTOR_ID, student_id: s.id, lesson_id: lessons[i].id, amount: 40 + i * 5, currency: 'USD', status: ['paid', 'sent', 'overdue', 'draft'][i], due_date: iso(i - 2).slice(0, 10), created_at: iso(-10) }))
 const homework_submissions = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '5'), lesson_id: lessons[i].id, student_id: s.id, content: 'I have worked here for three years. She has lived in Spain since 2019.', ai_feedback: null, tutor_feedback: null, feedback_at: null, submitted_at: iso(-i - 1) }))
@@ -85,10 +85,10 @@ const team_members = [
 const visitors = Array.from({ length: 12 }, (_, i) => ({ id: id(i + 1, '7'), visitor_id: `v${i}`, first_seen: iso(-i), first_source: ['Direct', 'Google Search', 'Facebook'][i % 3], country: ['US', 'GB', 'VN'][i % 3], created_at: iso(-i) }))
 const visitor_events = visitors.slice(0, 8).map((v, i) => ({ id: id(i + 1, '8'), visitor_id: v.id, path: ['/', '/blog', '/register', '/upgrade'][i % 4], event: 'page_view', created_at: iso(-i) }))
 const subscription_plans = [
-  { id: id(1, '9'), tutor_id: TUTOR_ID, name: 'Monthly 4 lessons', amount: 140, currency: 'USD', interval: 'monthly', lessons_per_period: 4, active: true, created_at: iso(-20) },
+  { id: id(1, '9'), tutor_id: TUTOR_ID, name: 'Monthly 4 lessons', price: 140, currency: 'usd', period: 'month', duration_minutes: 60, lessons_per_period: 4, is_active: true, created_at: iso(-20) },
 ]
 const student_subscriptions = [{ id: id(1, '9'), student_id: students[0].id, plan_id: subscription_plans[0].id, status: 'active', created_at: iso(-10) }]
-const waitlist = [{ id: id(1, 'a'), tutor_id: TUTOR_ID, name: 'Wait Lister', email: 'wait@example.com', note: 'Weekday evenings please', created_at: iso(-2) }]
+const waitlist = [{ id: id(1, 'a'), tutor_id: TUTOR_ID, name: 'Wait Lister', email: 'wait@example.com', message: 'Weekday evenings please', created_at: iso(-2) }]
 const referrals = []
 const api_keys = [{ id: id(1, 'b'), tutor_id: TUTOR_ID, name: 'Zapier', key_prefix: 'tfy_ab12', created_at: iso(-4), last_used_at: null }]
 const webhook_subscriptions = []

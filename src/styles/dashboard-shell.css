@@ -73,7 +73,7 @@
 }
 @media (min-width: 1280px) { .dash-link { justify-content: flex-start; padding: 0 6px 0 8px; gap: 8px; } }
 .dash-link:hover { background: var(--d-surface-2); }
-.dash-link[aria-current="page"] { background: var(--d-brand-soft); color: var(--d-brand); font-weight: 650; }
+.dash-link[aria-current="page"] { background: var(--d-brand-soft); color: var(--d-brand); font-weight: 600; }
 .dash-link svg { width: 18px; height: 18px; color: var(--d-ink-3); }
 .dash-link[aria-current="page"] svg { color: var(--d-brand); }
 .dash-link-label { display: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -415,3 +415,13 @@
 .dash-chip { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 650; background: var(--d-surface-2); color: var(--d-ink-2); }
 .dash-chip.is-ok { background: var(--d-ok-soft); color: var(--d-ok); } .dash-chip.is-warn { background: var(--d-warn-soft); color: var(--d-warn); } .dash-chip.is-err { background: var(--d-err-soft); color: var(--d-err); }
 .dash-state-ico.is-brand { background: var(--d-brand-soft); color: var(--d-brand); }
+
+/* ---------- upgrade sheet (T-0825): the quiet replacement of the blurred, padlocked page ---------- */
+.dash-upgrade { max-width: 560px; }
+.dash-upgrade-body { padding: 24px; }
+@media (max-width: 767px) {
+  .dash-table.is-cards.no-sel tr { grid-template-columns: minmax(0, 1fr) auto; }
+  .dash-table.is-cards.no-sel td.c-main { grid-column: 1; }
+  .dash-table.is-cards.no-sel td.c-end { grid-column: 2; }
+  .dash-table.is-cards.no-sel td.c-sub { grid-column: 1 / 3; }
+}

@@ -68,12 +68,18 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
       if (op === 'update') {
         log.push({ table, op, payload })
         matching.forEach(r => Object.assign(r, payload))
-        return returning ? { data: matching.map(r => ({ ...r })), error: null, count: null } : { data: null, error: null, count: null }
+        if (!returning) return { data: null, error: null, count: null }
+        const changed = matching.map(r => ({ ...r }))
+        // like PostgREST: .single() wants exactly one row, .maybeSingle() at most one
+        if (single) return changed.length === 1 ? { data: changed[0], error: null, count: null } : { data: null, error: { message: 'JSON object requested, multiple (or no) rows returned' }, count: null }
+        if (maybe) return { data: changed[0] ?? null, error: null, count: null }
+        return { data: changed, error: null, count: null }
       }
       if (op === 'delete') {
         log.push({ table, op })
         tables[table] = rows.filter(r => !matching.includes(r))
-        return { data: null, error: null, count: null }
+        // with .select() a delete answers the rows it removed (PostgREST "return=representation")
+        return { data: returning ? matching.map(r => ({ ...r })) : null, error: null, count: null }
       }
       let out = [...matching]
       if (orderBy.length > 0) {
