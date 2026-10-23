@@ -1,22 +1,17 @@
 'use client'
 
+// Import (T-0824): three steps, Upload, Preview, Done. The preview is a TABLE of the first rows with what would happen to each
+// student (lessons, first and last date, a note), and nothing is saved until the tutor presses Import.
+import { useRef, useState } from 'react'
+import { CheckCircle, CircleAlert, FileText, Loader2, Upload } from 'lucide-react'
 import { PageColumn } from '@/components/layout/PageFrame'
-import { useState, useRef } from 'react'
-import { Upload, CheckCircle, AlertCircle, Loader2, FileText, Users, BookOpen, ArrowRight } from 'lucide-react'
+import type { PreviewRow } from '@/lib/csv-import'
 
-type Preview = {
-  platform: string
-  totalStudents: number
-  totalLessons: number
-  preview: { name: string; email: string; lessons: { date: string }[] }[]
-}
+type Preview = { platform: string; totalStudents: number; totalLessons: number; rowsInFile: number; shown: number; rows: PreviewRow[] }
+type Result = { platform: string; importedStudents: number; importedLessons: number; errors: string[] }
 
-type Result = {
-  platform: string
-  importedStudents: number
-  importedLessons: number
-  errors: string[]
-}
+const PLATFORM_LABEL: Record<string, string> = { preply: 'Preply', italki: 'iTalki', generic: 'Generic CSV' }
+const day = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-')
 
 export function ImportTool() {
   const [csvText, setCsvText] = useState('')
@@ -24,186 +19,102 @@ export function ImportTool() {
   const [preview, setPreview] = useState<Preview | null>(null)
   const [result, setResult] = useState<Result | null>(null)
   const [loading, setLoading] = useState(false)
+  const [problem, setProblem] = useState('')
   const [step, setStep] = useState<'upload' | 'preview' | 'done'>('upload')
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function handleFile(file: File) {
+    setProblem('')
     const text = await file.text()
-    setCsvText(text)
-    setFileName(file.name)
     setLoading(true)
-
-    const res = await fetch('/api/import', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ csvText: text, dryRun: true }),
-    })
-    const data = await res.json()
-    setLoading(false)
-
-    if (!res.ok) {
-      alert(data.error || 'Failed to parse CSV')
-      return
-    }
-
-    setPreview(data)
-    setStep('preview')
+    try {
+      const res = await fetch('/api/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ csvText: text, dryRun: true }) })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setProblem(data.error || 'We could not read that file. Check that it is a CSV with a header row.'); return }
+      setCsvText(text); setFileName(file.name); setPreview(data); setStep('preview')
+    } finally { setLoading(false) }
   }
 
   async function runImport() {
     if (!csvText) return
     setLoading(true)
-    const res = await fetch('/api/import', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ csvText, dryRun: false }),
-    })
-    const data = await res.json()
-    setLoading(false)
-    setResult(data)
-    setStep('done')
+    try {
+      const res = await fetch('/api/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ csvText, dryRun: false }) })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) { setProblem(data.error || 'The import failed. Nothing was saved twice: you can try again.'); return }
+      setResult(data); setStep('done')
+    } finally { setLoading(false) }
   }
 
-  const PLATFORMS: Record<string, { color: string; label: string }> = {
-    preply: { color: 'bg-blue-100 text-blue-700', label: 'Preply' },
-    italki: { color: 'bg-orange-100 text-orange-700', label: 'iTalki' },
-    generic: { color: 'bg-gray-100 text-gray-600', label: 'Generic CSV' },
-  }
+  function reset() { setStep('upload'); setPreview(null); setResult(null); setCsvText(''); setProblem('') }
 
   return (
     <PageColumn size="form" className="space-y-5">
-      {/* Step indicator */}
-      <div className="flex items-center gap-2 text-[12px]">
-        {['Upload', 'Preview', 'Done'].map((s, i) => (
-          <div key={s} className="flex items-center gap-2">
-            {i > 0 && <div className="w-6 h-px bg-gray-200" />}
-            <span className={`px-2.5 py-1 rounded-full font-semibold ${
-              (i === 0 && step === 'upload') || (i === 1 && step === 'preview') || (i === 2 && step === 'done')
-                ? 'bg-indigo-500 text-white'
-                : 'bg-gray-100 text-gray-400'
-            }`}>{s}</span>
-          </div>
-        ))}
-      </div>
+      <ol className="flex items-center gap-2" aria-label="Steps" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        {['Upload', 'Preview', 'Done'].map((s, i) => {
+          const on = (i === 0 && step === 'upload') || (i === 1 && step === 'preview') || (i === 2 && step === 'done')
+          return <li key={s} aria-current={on ? 'step' : undefined} className={`dash-chip ${on ? 'is-brand-chip' : ''}`}>{i + 1}. {s}</li>
+        })}
+      </ol>
+
+      {problem && <div className="dash-card dash-card-b" role="alert" data-testid="import-problem" style={{ color: 'var(--d-err)', background: 'var(--d-err-soft)' }}>{problem}</div>}
 
       {step === 'upload' && (
         <>
-          {/* Format guide */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Supported Formats</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { name: 'Preply', hint: 'Export from Sessions > Download', color: 'bg-blue-50 border-blue-100' },
-                { name: 'iTalki', hint: 'Export from Lesson History', color: 'bg-orange-50 border-orange-100' },
-                { name: 'Generic CSV', hint: 'Any CSV with student names + lesson dates', color: 'bg-gray-50 border-gray-100' },
-              ].map(p => (
-                <div key={p.name} className={`rounded-lg border p-3 ${p.color}`}>
-                  <p className="text-[12px] font-semibold text-gray-900">{p.name}</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">{p.hint}</p>
-                </div>
-              ))}
-            </div>
+          <div className="dash-card dash-card-b">
+            <b style={{ color: 'var(--d-ink)' }}>Files we can read</b>
+            <ul style={{ margin: '8px 0 0', paddingLeft: 18, color: 'var(--d-ink-3)' }}>
+              <li><b>Preply:</b> export from Sessions, then Download.</li>
+              <li><b>iTalki:</b> export from Lesson History.</li>
+              <li><b>Any CSV</b> with student names and lesson dates, and a header row.</li>
+            </ul>
           </div>
-
-          {/* Upload zone */}
-          <div
-            onClick={() => fileRef.current?.click()}
-            onDragOver={e => e.preventDefault()}
-            onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f) }}
-            className="bg-white rounded-xl border-2 border-dashed border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all p-12 text-center cursor-pointer"
-          >
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
-            />
-            {loading ? (
-              <div className="flex flex-col items-center gap-3">
-                <Loader2 className="h-8 w-8 text-indigo-400 animate-spin" />
-                <p className="text-[13px] text-gray-500">Parsing CSV...</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-                  <Upload className="h-6 w-6 text-indigo-400" />
-                </div>
-                <div>
-                  <p className="text-[14px] font-semibold text-gray-900">Drop CSV file here</p>
-                  <p className="text-[12px] text-gray-400 mt-0.5">or click to browse</p>
-                </div>
-              </div>
-            )}
-          </div>
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={loading}
+            onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) void handleFile(f) }}
+            className="dash-card" style={{ width: '100%', padding: 48, border: '2px dashed var(--d-line-strong)', background: 'var(--d-surface)', cursor: 'pointer', textAlign: 'center', color: 'var(--d-ink)', whiteSpace: 'normal' }}>
+            <input ref={fileRef} type="file" accept=".csv,text/csv" className="sr-only" aria-label="Choose a CSV file" onChange={e => { const f = e.target.files?.[0]; if (f) void handleFile(f) }} />
+            {loading ? <Loader2 className="h-8 w-8 animate-spin" style={{ margin: '0 auto', color: 'var(--d-brand)' }} aria-label="Reading the file" />
+              : <><Upload className="h-7 w-7" aria-hidden="true" style={{ margin: '0 auto 8px', color: 'var(--d-brand)' }} /><b style={{ display: 'block' }}>Drop a CSV file here</b><span style={{ color: 'var(--d-ink-3)' }}>or press to choose one. Nothing is saved yet.</span></>}
+          </button>
         </>
       )}
 
       {step === 'preview' && preview && (
         <>
-          <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-gray-400" />
-                <p className="text-[13px] font-semibold text-gray-900">{fileName}</p>
-              </div>
-              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${PLATFORMS[preview.platform]?.color}`}>
-                {PLATFORMS[preview.platform]?.label}
-              </span>
+          <div className="dash-card dash-card-b" data-testid="import-preview">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <FileText className="h-4 w-4" aria-hidden="true" style={{ color: 'var(--d-ink-3)' }} />
+              <b style={{ color: 'var(--d-ink)' }}>{fileName}</b>
+              <span className="dash-chip is-brand-chip">{PLATFORM_LABEL[preview.platform] ?? 'Generic CSV'}</span>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-indigo-50 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <Users className="h-3.5 w-3.5 text-indigo-500" />
-                  <p className="text-[11px] font-semibold text-indigo-600 uppercase">Students</p>
-                </div>
-                <p className="text-[24px] font-bold text-indigo-700">{preview.totalStudents}</p>
-              </div>
-              <div className="bg-purple-50 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <BookOpen className="h-3.5 w-3.5 text-purple-500" />
-                  <p className="text-[11px] font-semibold text-purple-600 uppercase">Lessons</p>
-                </div>
-                <p className="text-[24px] font-bold text-purple-700">{preview.totalLessons}</p>
-              </div>
-            </div>
-
-            {preview.preview.length > 0 && (
-              <div>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Preview (first 5 students)</p>
-                <div className="space-y-2">
-                  {preview.preview.map((s, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2.5">
-                      <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-[11px] font-bold text-indigo-600">{s.name[0]?.toUpperCase()}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-gray-900 truncate">{s.name}</p>
-                        {s.email && <p className="text-[11px] text-gray-400 truncate">{s.email}</p>}
-                      </div>
-                      <span className="text-[11px] text-gray-400 flex-shrink-0">{s.lessons.length} lessons</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <p style={{ margin: '8px 0 0', color: 'var(--d-ink-2)' }}>
+              This file holds <b>{preview.totalStudents}</b> student{preview.totalStudents === 1 ? '' : 's'} and <b>{preview.totalLessons}</b> lesson{preview.totalLessons === 1 ? '' : 's'} (from {preview.rowsInFile} rows). Nothing is saved until you press Import.
+            </p>
           </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => { setStep('upload'); setPreview(null); setCsvText('') }}
-              className="flex-1 text-[13px] font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 py-2.5 rounded-lg transition-colors"
-            >
-              Back
-            </button>
-            <button
-              onClick={runImport}
-              disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 py-2.5 rounded-lg transition-colors"
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              {loading ? 'Importing...' : `Import ${preview.totalStudents} students`}
+          <div className="dash-card">
+            <div className="dash-table-wrap overflow-x-auto">
+              <table className="dash-table" aria-label="What will be imported">
+                <thead><tr><th>Student</th><th className="is-num">Lessons</th><th>First</th><th>Last</th><th>Note</th></tr></thead>
+                <tbody>
+                  {preview.rows.map((r, i) => (
+                    <tr key={i}>
+                      <td><b style={{ fontWeight: 650 }}>{r.name}</b><div style={{ color: 'var(--d-ink-3)', fontSize: 13 }}>{r.email || 'no email'}</div></td>
+                      <td className="is-num">{r.lessons}</td>
+                      <td>{day(r.firstLesson)}</td>
+                      <td>{day(r.lastLesson)}</td>
+                      <td style={{ color: r.notes.length ? 'var(--d-warn)' : 'var(--d-ink-3)', fontSize: 13 }}>{r.notes.length ? r.notes.join('. ') : 'New student'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {preview.totalStudents > preview.shown && <p className="dash-card-b" style={{ color: 'var(--d-ink-3)', paddingTop: 12 }}>Showing the first {preview.shown} of {preview.totalStudents} students. All of them are imported.</p>}
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="dash-btn" style={{ flex: 1 }} onClick={reset}>Back</button>
+            <button type="button" className="dash-btn is-primary" style={{ flex: 1 }} onClick={runImport} disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+              {loading ? 'Importing' : `Import ${preview.totalStudents} student${preview.totalStudents === 1 ? '' : 's'}`}
             </button>
           </div>
         </>
@@ -211,52 +122,20 @@ export function ImportTool() {
 
       {step === 'done' && result && (
         <div className="space-y-4">
-          <div className={`rounded-xl border p-5 ${result.errors.length === 0 ? 'bg-green-50 border-green-100' : 'bg-amber-50 border-amber-100'}`}>
-            <div className="flex items-center gap-3 mb-3">
-              {result.errors.length === 0
-                ? <CheckCircle className="h-5 w-5 text-green-500" />
-                : <AlertCircle className="h-5 w-5 text-amber-500" />
-              }
-              <p className="text-[14px] font-bold text-gray-900">
-                {result.errors.length === 0 ? 'Import Complete!' : 'Import finished with warnings'}
-              </p>
+          <div className="dash-card dash-card-b" data-testid="import-done" style={{ background: result.errors.length === 0 ? 'var(--d-ok-soft)' : 'var(--d-warn-soft)' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              {result.errors.length === 0 ? <CheckCircle className="h-5 w-5" aria-hidden="true" style={{ color: 'var(--d-ok)' }} /> : <CircleAlert className="h-5 w-5" aria-hidden="true" style={{ color: 'var(--d-warn)' }} />}
+              <b style={{ color: 'var(--d-ink)' }}>{result.errors.length === 0 ? 'Import complete' : 'Import finished with warnings'}</b>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <p className="text-[11px] text-gray-500">Students created</p>
-                <p className="text-[20px] font-bold text-gray-900">{result.importedStudents}</p>
-              </div>
-              <div>
-                <p className="text-[11px] text-gray-500">Lessons imported</p>
-                <p className="text-[20px] font-bold text-gray-900">{result.importedLessons}</p>
-              </div>
-            </div>
+            <p style={{ margin: '8px 0 0', color: 'var(--d-ink-2)' }}>{result.importedStudents} student{result.importedStudents === 1 ? '' : 's'} created, {result.importedLessons} lesson{result.importedLessons === 1 ? '' : 's'} imported.</p>
           </div>
-
           {result.errors.length > 0 && (
-            <div className="bg-white rounded-xl border border-red-100 p-4">
-              <p className="text-[12px] font-semibold text-red-600 mb-2">Errors ({result.errors.length})</p>
-              <ul className="space-y-1">
-                {result.errors.map((e, i) => (
-                  <li key={i} className="text-[11px] text-red-500">{e}</li>
-                ))}
-              </ul>
-            </div>
+            <div className="dash-card dash-card-b"><b style={{ color: 'var(--d-err)' }}>Problems ({result.errors.length})</b>
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18, color: 'var(--d-ink-2)' }}>{result.errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>
           )}
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => { setStep('upload'); setPreview(null); setResult(null); setCsvText('') }}
-              className="flex-1 text-[13px] font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 py-2.5 rounded-lg transition-colors"
-            >
-              Import Another File
-            </button>
-            <a
-              href="/students"
-              className="flex-1 text-center text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 py-2.5 rounded-lg transition-colors"
-            >
-              View Students →
-            </a>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button type="button" className="dash-btn" style={{ flex: 1 }} onClick={reset}>Import another file</button>
+            <a href="/students" className="dash-btn is-primary" style={{ flex: 1 }}>View students</a>
           </div>
         </div>
       )}

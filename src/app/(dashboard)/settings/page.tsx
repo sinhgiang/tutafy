@@ -1,6 +1,5 @@
 'use client'
 
-import { PageColumn } from '@/components/layout/PageFrame'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -18,6 +17,7 @@ import { hasPlan } from '@/lib/plans'
 import { saveTutorSettings } from '@/lib/settings-save'
 import { IntroEditor } from '@/components/IntroEditor'
 import { AvatarUploader } from '@/components/settings/AvatarUploader'
+import { BookingPreview } from '@/components/settings/BookingPreview'
 import { unfilledParts } from '@/lib/intro-templates'
 import { ALL_DURATIONS, MAX_DURATIONS, MIN_DURATION, MAX_DURATION, DURATION_STEP, resolveDurationConfig, toggleDuration, addCustomDuration, chooseDefault, checkDurations } from '@/lib/lesson-durations'
 
@@ -211,6 +211,13 @@ export default function SettingsPage() {
   function discardChanges() {
     if (savedSnapshot) setForm(JSON.parse(savedSnapshot))
   }
+  // Closing the tab or reloading with unsaved changes asks first (the browser shows its own words).
+  useEffect(() => {
+    if (!hasChanges) return
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [hasChanges])
 
   if (loading) return (
     <div className="flex items-center justify-center h-48">
@@ -222,34 +229,23 @@ export default function SettingsPage() {
   const planLabel = subscriptionStatus.charAt(0).toUpperCase() + subscriptionStatus.slice(1)
 
   return (
-    <PageColumn size="list">
-      <div className="mb-5">
-        <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Settings</h1>
-        <p className="text-[13px] text-gray-400 mt-0.5">Manage your profile and preferences</p>
+    <div>
+      <div className="dash-head">
+        <div>
+          <h1>Settings</h1>
+          <p>Your profile, booking page and payments. The picture on the right shows how students see you.</p>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-5 items-start">
-        {/* Sub-nav */}
-        <nav className="w-full md:w-[190px] flex-shrink-0 md:sticky md:top-4">
-          <div className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
-            {SECTIONS.map(({ id, label, icon: Icon }) => {
-              const active = tab === id
-              return (
-                <button
-                  key={id}
-                  onClick={() => setTab(id)}
-                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium whitespace-nowrap transition-colors flex-shrink-0 md:w-full ${
-                    active
-                      ? 'bg-indigo-50 text-indigo-600'
-                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className={`h-4 w-4 flex-shrink-0 ${active ? 'text-indigo-500' : 'text-gray-400'}`} />
-                  {label}
-                </button>
-              )
-            })}
-          </div>
+      <div className="set-shell">
+        {/* Section list */}
+        <nav className="set-nav" aria-label="Settings sections">
+          {SECTIONS.map(({ id, label, icon: Icon }) => (
+            <button key={id} type="button" onClick={() => setTab(id)} aria-current={tab === id ? 'page' : undefined}>
+              <Icon aria-hidden="true" />
+              {label}
+            </button>
+          ))}
         </nav>
 
         {/* Content */}
@@ -795,28 +791,18 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Sticky save bar — appears only when there are unsaved changes, so you can
-              save from anywhere without scrolling (Stripe/Vercel style). */}
+          {/* The unsaved-changes bar: appears only when something changed, stays in view, and is the one place to save or discard. */}
           {hasChanges && (
-            <div className="sticky bottom-4 z-30">
-              <div className="flex items-center gap-3 bg-white/95 backdrop-blur border border-gray-200 shadow-lg shadow-gray-300/40 rounded-xl px-4 py-3">
-                <span className="flex items-center gap-2 text-[12px] font-medium text-gray-600 flex-1 min-w-0">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-                  You have unsaved changes
-                </span>
-                <button onClick={discardChanges} disabled={saving}
-                  className="text-[12px] font-medium text-gray-500 hover:text-gray-800 disabled:opacity-50 px-3 py-2 transition-colors">
-                  Discard
-                </button>
-                <button onClick={handleSave} disabled={saving}
-                  className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-5 py-2 rounded-lg transition-colors flex-shrink-0">
-                  {saving ? 'Saving...' : 'Save changes'}
-                </button>
-              </div>
+            <div className="dash-unsaved" role="region" aria-label="Unsaved changes" data-testid="unsaved-bar">
+              <p><i aria-hidden="true" /> You have unsaved changes</p>
+              <button type="button" className="dash-btn is-ghost" onClick={discardChanges} disabled={saving}>Discard</button>
+              <button type="button" className="dash-btn is-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving' : 'Save changes'}</button>
             </div>
           )}
         </div>
+
+        <BookingPreview form={form} slug={slug} avatarUrl={avatarUrl} />
       </div>
-    </PageColumn>
+    </div>
   )
 }
