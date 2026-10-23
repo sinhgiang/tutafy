@@ -1,4 +1,5 @@
 import { pageMetadata } from '@/lib/page-meta'
+import '@/styles/directory-dark.css'
 
 // The tutors page is a client component, which cannot export metadata; this layout does.
 // It sits in the (directory) route group so that it covers /tutors only: a tutor's own

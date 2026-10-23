@@ -15,6 +15,7 @@ import { type AvailabilityRow, type LessonWindow } from '@/lib/booking-slots'
 import { resolveDurationConfig } from '@/lib/lesson-durations'
 import { normalizeCurrency } from '@/lib/currency'
 import { cleanText, httpsImage } from '@/lib/tutor-seo'
+import { LEVEL_OPTIONS, cleanLevels, type LevelId } from '@/lib/tutor-levels'
 
 // ---- the rule ------------------------------------------------------------------------------------------------------------------------
 
@@ -108,10 +109,13 @@ export function listingSlots(i: SlotInput): FreeSlot[] {
   }).filter(s => Date.parse(s.at) <= until)
 }
 
+// The levels a tutor says they teach live in src/lib/tutor-levels.ts (Settings uses them too); re-exported here for the directory.
+export { LEVEL_OPTIONS, cleanLevels, type LevelId } from '@/lib/tutor-levels'
+
 // ---- the card ------------------------------------------------------------------------------------------------------------------------
 
 /** What one card carries to the browser. A test fixes this list of keys: nothing else of a tutor row (never an email, phone or payment field) is sent. */
-export const CARD_KEYS = ['slug', 'name', 'photo', 'languages', 'headline', 'rating', 'reviews', 'price', 'currency', 'trialPrice', 'tz', 'complete', 'slots'] as const
+export const CARD_KEYS = ['slug', 'name', 'photo', 'languages', 'headline', 'rating', 'reviews', 'price', 'currency', 'trialPrice', 'tz', 'levels', 'complete', 'slots'] as const
 
 export type DirectoryCard = {
   slug: string
@@ -127,6 +131,8 @@ export type DirectoryCard = {
   currency: string
   trialPrice: number | null
   tz: string
+  /** The student levels the tutor says they teach; empty when the tutor has not said (T-0863). */
+  levels: LevelId[]
   /** 0 to 4: photo, an introduction of 200+ characters, a price, a trial lesson. Only used to rank. */
   complete: number
   /** Free times as minutes since 1970 (UTC), soonest first, at most MAX_CARD_SLOTS. */
@@ -136,6 +142,8 @@ export type DirectoryCard = {
 export type CardSource = {
   slug: unknown; name: unknown; bio: unknown; avatar_url: unknown; languages: unknown; timezone: unknown
   average_rating: unknown; review_count: unknown; default_lesson_price: unknown; currency: unknown; trial_enabled: unknown; trial_price: unknown
+  /** tutors.levels_taught (migration 026); absent on a database that does not have it yet. */
+  levels_taught?: unknown
 }
 
 /** "Fr" "french " " ENGLISH" become "French" / "English": the stored values are free text, so display and matching use one cleaned form. */
@@ -200,6 +208,7 @@ export function buildCard(t: CardSource, slots: FreeSlot[]): DirectoryCard | nul
     currency: normalizeCurrency(t.currency),
     trialPrice,
     tz: realZone(t.timezone) ?? 'UTC',
+    levels: cleanLevels(t.levels_taught),
     complete: (photo ? 1 : 0) + (chars(t.bio) >= 200 ? 1 : 0) + (price ? 1 : 0) + (trialPrice ? 1 : 0),
     slots: thin,
   }
@@ -262,12 +271,37 @@ export type WhenId = (typeof WHEN_OPTIONS)[number]['id']
 export type TodId = (typeof TOD_OPTIONS)[number]['id']
 export type SortId = (typeof SORT_OPTIONS)[number]['id']
 
-export type Filters = { q: string; lang: string | null; price: PriceBucketId | null; when: WhenId | null; tod: TodId | null; trial: boolean; sort: SortId }
-export const NO_FILTERS: Filters = { q: '', lang: null, price: null, when: null, tod: null, trial: false, sort: 'recommended' }
+/** "Near me" means a tutor whose clock is at most this many hours away from the visitor's. */
+export const NEAR_HOURS = 3
+
+/** Zones the visitor can pick when the browser's own is not the one they want (travelling, a VPN, a shared computer). Any real zone is accepted in an address. */
+export const ZONE_CHOICES = [
+  'Pacific/Honolulu', 'America/Anchorage', 'America/Los_Angeles', 'America/Denver', 'America/Chicago', 'America/New_York', 'America/Sao_Paulo',
+  'Europe/London', 'Europe/Paris', 'Europe/Athens', 'Africa/Lagos', 'Asia/Dubai', 'Asia/Kolkata', 'Asia/Bangkok', 'Asia/Ho_Chi_Minh', 'Asia/Singapore',
+  'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Auckland',
+] as const
+
+/**
+ * q, lang, price, when, tod, trial, level and near narrow the list. tz is NOT a filter: it is the zone the visitor reads times in
+ * (null means "the browser's own"), kept in the address so a shared link shows the same days and hours. sort orders the list.
+ */
+export type Filters = {
+  q: string; lang: string | null; price: PriceBucketId | null; when: WhenId | null; tod: TodId | null; trial: boolean
+  level: LevelId | null; near: boolean; tz: string | null; sort: SortId
+}
+export const NO_FILTERS: Filters = { q: '', lang: null, price: null, when: null, tod: null, trial: false, level: null, near: false, tz: null, sort: 'recommended' }
+/** "Clear all": every filter off, the time zone and the sort the visitor chose kept. */
+export const clearedFilters = (f: Filters): Filters => ({ ...NO_FILTERS, tz: f.tz, sort: f.sort })
 
 type Params = Record<string, string | string[] | undefined>
 const one = (p: Params, k: string): string => { const v = p[k]; return (Array.isArray(v) ? v[0] : v) ?? '' }
 const pick = <T extends string>(v: string, options: readonly { id: T }[]): T | null => options.find(o => o.id === v)?.id ?? null
+
+/** A time zone typed in an address: a real IANA name ("America/New_York") or null. The shape is checked first so a made-up string never reaches Intl. */
+export function parseZone(raw: string): string | null {
+  const v = raw.trim()
+  return v.length <= 40 && /^[A-Za-z]+(?:[_-][A-Za-z]+)*(?:\/[A-Za-z0-9_+-]+){1,2}$|^UTC$/.test(v) ? realZone(v) : null
+}
 
 /** The filters in an address. Every value is checked against a fixed list (or cut to a short length), so an address typed by hand only ever gives a valid state. */
 export function parseFilters(p: Params): Filters {
@@ -278,6 +312,9 @@ export function parseFilters(p: Params): Filters {
     when: pick(one(p, 'when'), WHEN_OPTIONS),
     tod: pick(one(p, 'tod'), TOD_OPTIONS),
     trial: one(p, 'trial') === '1',
+    level: pick(one(p, 'level'), LEVEL_OPTIONS),
+    near: one(p, 'near') === '1',
+    tz: parseZone(one(p, 'tz')),
     sort: pick(one(p, 'sort'), SORT_OPTIONS) ?? 'recommended',
   }
 }
@@ -291,17 +328,20 @@ export function filtersToQuery(f: Filters): string {
   if (f.when) q.set('when', f.when)
   if (f.tod) q.set('tod', f.tod)
   if (f.trial) q.set('trial', '1')
+  if (f.level) q.set('level', f.level)
+  if (f.near) q.set('near', '1')
+  if (f.tz) q.set('tz', f.tz)
   if (f.sort !== 'recommended') q.set('sort', f.sort)
   const s = q.toString()
   return s ? `?${s}` : ''
 }
 
-export type FilterKey = 'q' | 'lang' | 'price' | 'when' | 'tod' | 'trial'
+export type FilterKey = 'q' | 'lang' | 'price' | 'when' | 'tod' | 'trial' | 'level' | 'near'
 export function activeFilters(f: Filters): FilterKey[] {
-  return (['lang', 'price', 'when', 'tod', 'trial', 'q'] as const).filter(k => (k === 'trial' ? f.trial : Boolean(f[k])))
+  return (['lang', 'level', 'price', 'when', 'tod', 'near', 'trial', 'q'] as const).filter(k => (k === 'trial' || k === 'near' ? f[k] : Boolean(f[k])))
 }
 export function withoutFilter(f: Filters, key: FilterKey): Filters {
-  return { ...f, [key]: key === 'trial' ? false : key === 'q' ? '' : null }
+  return { ...f, [key]: key === 'trial' || key === 'near' ? false : key === 'q' ? '' : null }
 }
 export function filterLabel(f: Filters, key: FilterKey): string {
   switch (key) {
@@ -309,6 +349,8 @@ export function filterLabel(f: Filters, key: FilterKey): string {
     case 'price': return PRICE_BUCKETS.find(b => b.id === f.price)?.label ?? ''
     case 'when': return WHEN_OPTIONS.find(o => o.id === f.when)?.label ?? ''
     case 'tod': return TOD_OPTIONS.find(o => o.id === f.tod)?.label ?? ''
+    case 'level': return LEVEL_OPTIONS.find(o => o.id === f.level)?.label ?? ''
+    case 'near': return `Within ${NEAR_HOURS} hours of you`
     case 'trial': return 'Trial lesson'
     case 'q': return `“${f.q}”`
   }
@@ -329,6 +371,27 @@ function viewerClock(tz: string): ViewerClock {
     clocks.set(tz, c)
   }
   return c
+}
+
+const offsetFormats = new Map<string, Intl.DateTimeFormat>()
+/** Minutes a zone is ahead of UTC at an instant (daylight saving included). */
+export function zoneOffsetMinutes(tz: string, ms: number): number {
+  let f = offsetFormats.get(tz)
+  if (!f) {
+    f = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' })
+    offsetFormats.set(tz, f)
+  }
+  const parts = f.formatToParts(new Date(ms))
+  const get = (t: string) => Number(parts.find(x => x.type === t)?.value ?? 0)
+  const asUtc = Date.UTC(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'))
+  return Math.round((asUtc - Math.floor(ms / 60000) * 60000) / 60000)
+}
+
+/** True when the tutor's clock is within NEAR_HOURS of the visitor's right now. */
+export function isNear(tutorZone: string, viewerZone: string, now: Date): boolean {
+  const a = realZone(tutorZone), b = realZone(viewerZone)
+  if (!a || !b) return false
+  return Math.abs(zoneOffsetMinutes(a, now.getTime()) - zoneOffsetMinutes(b, now.getTime())) <= NEAR_HOURS * 60
 }
 
 const dayNumber = (day: string) => Date.parse(`${day}T00:00:00Z`) / 86400000
@@ -375,6 +438,8 @@ export function applyFilters(cards: DirectoryCard[], f: Filters, ctx: ViewContex
       if (usd === null || !bucket.test(usd)) return false
     }
     if (f.trial && c.trialPrice === null) return false
+    if (f.level && !c.levels.includes(f.level)) return false
+    if (f.near && ctx.zone && !isNear(c.tz, ctx.zone, ctx.now)) return false
     if ((f.when || f.tod) && ctx.zone) {
       if (!c.slots.some(m => slotFits(m, f, ctx.zone!, ctx.now))) return false
     }
@@ -430,6 +495,11 @@ export function languageCounts(cards: DirectoryCard[]): { language: string; coun
   const counts = new Map<string, number>()
   for (const c of cards) for (const l of c.languages) counts.set(l, (counts.get(l) ?? 0) + 1)
   return [...counts].map(([language, count]) => ({ language, count })).sort((a, b) => b.count - a.count || a.language.localeCompare(b.language))
+}
+
+/** The levels tutors say they teach, with how many listed tutors say each (only levels somebody chose). */
+export function levelCounts(cards: DirectoryCard[]): { level: LevelId; label: string; hint: string; count: number }[] {
+  return LEVEL_OPTIONS.map(o => ({ level: o.id, label: o.label, hint: o.hint, count: cards.filter(c => c.levels.includes(o.id)).length })).filter(l => l.count > 0)
 }
 
 export type DirectoryState = 'many' | 'few' | 'empty'

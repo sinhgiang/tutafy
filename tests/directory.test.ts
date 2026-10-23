@@ -179,7 +179,7 @@ test('free times that have passed are dropped when the page is drawn, and a card
 
 function card(o: Partial<DirectoryCard> & { slug: string }): DirectoryCard {
   return {
-    name: o.slug, photo: null, languages: ['English'], headline: 'A tutor.', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: null, tz: 'UTC', complete: 0,
+    name: o.slug, photo: null, languages: ['English'], headline: 'A tutor.', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: null, tz: 'UTC', levels: [], complete: 0,
     slots: [min('2026-10-22T20:00:00Z')], ...o,
   }
 }
@@ -188,7 +188,7 @@ const slugs = (cs: DirectoryCard[]) => cs.map(c => c.slug)
 
 test('filters in the address: only fixed values are accepted, everything else is dropped or cut', () => {
   const f = parseFilters({ lang: 'french', price: '15-30', when: '3days', tod: 'evening', trial: '1', sort: 'soonest', q: 'maya' })
-  assert.deepEqual(f, { q: 'maya', lang: 'French', price: '15-30', when: '3days', tod: 'evening', trial: true, sort: 'soonest' })
+  assert.deepEqual(f, { q: 'maya', lang: 'French', price: '15-30', when: '3days', tod: 'evening', trial: true, level: null, near: false, tz: null, sort: 'soonest' })
   assert.deepEqual(parseFilters({ price: '999', when: 'tomorrow', tod: 'night', trial: 'yes', sort: 'random' }), NO_FILTERS)
   assert.deepEqual(parseFilters({ lang: ['german', 'french'], q: ['a', 'b'] }), { ...NO_FILTERS, lang: 'German', q: 'a' }, 'the first value of a repeated key')
   const evil = parseFilters({ q: `<script>alert(1)</script>${'x'.repeat(200)}`, lang: '<img src=x onerror=alert(1)>' })
@@ -196,7 +196,7 @@ test('filters in the address: only fixed values are accepted, everything else is
 })
 
 test('the address and the filters are one thing: filtersToQuery then parseFilters gives the same filters back', () => {
-  const f: Filters = { q: 'maya', lang: 'Spanish', price: '30-50', when: 'weekend', tod: 'morning', trial: true, sort: 'price-low' }
+  const f: Filters = { q: 'maya', lang: 'Spanish', price: '30-50', when: 'weekend', tod: 'morning', trial: true, level: null, near: false, tz: null, sort: 'price-low' }
   const query = filtersToQuery(f)
   assert.deepEqual(parseFilters(Object.fromEntries(new URLSearchParams(query))), f)
   assert.equal(filtersToQuery(NO_FILTERS), '')
