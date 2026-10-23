@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { Zap } from 'lucide-react'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DirectoryView } from '@/components/directory/DirectoryView'
 import { getDirectory } from '@/lib/directory-cache'
 import { parseFilters, refreshCards } from '@/lib/directory'
+import { SiteLogo } from '@/components/SiteLogo'
 
 // The tutor directory (T-0769): only tutors a student can book today. The list comes from the server (src/lib/directory-cache.ts, kept a few
 // minutes), is drawn into the page itself so search engines see real tutors, and DirectoryView does the filters in the browser. The filters
@@ -18,12 +18,7 @@ export default async function TutorsPage({ searchParams }: { searchParams: Promi
     <div className="min-h-screen bg-[#F7F8FA]">
       <header className="bg-white border-b border-gray-100 px-6 py-3.5">
         <div className="max-w-[1120px] mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center">
-              <Zap className="h-4 w-4 text-white" fill="white" />
-            </div>
-            <span className="text-[15px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo size="md" />
           <div className="flex items-center gap-4">
             <Link href="/register" className="hidden sm:inline text-[13px] font-medium text-gray-600 hover:text-gray-900 transition-colors">For tutors</Link>
             <Link href="/student/login" className="text-[13px] font-medium text-gray-600 hover:text-gray-900 transition-colors">Student login →</Link>

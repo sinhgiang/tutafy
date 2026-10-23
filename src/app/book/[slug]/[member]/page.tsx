@@ -7,7 +7,8 @@ import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
 import { MadeWithTutafy } from '@/components/MadeWithTutafy'
-import { GraduationCap, Globe, Clock } from 'lucide-react'
+import { Globe, Clock } from 'lucide-react'
+import { SiteLogo } from '@/components/SiteLogo'
 
 // Booking page for a single Academy team member — same flow as /book/[slug],
 // but availability + the bookable identity belong to the team member, while
@@ -83,11 +84,8 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
       <header className="bg-white border-b border-gray-100 px-6 py-3.5">
-        <div className="max-w-5xl mx-auto flex items-center gap-2">
-          <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center">
-            <GraduationCap className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-[15px] font-bold text-gray-900">Tutafy</span>
+        <div className="max-w-5xl mx-auto flex items-center">
+          <SiteLogo size="md" />
         </div>
       </header>
 

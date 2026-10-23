@@ -79,10 +79,10 @@ export function Sidebar({ plan = 'free', unreadMessages = 0 }: { plan?: string; 
     <aside className="hidden md:flex flex-col w-[220px] min-h-screen bg-[#0A0A0F] border-r border-white/[0.06] flex-shrink-0">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 h-[60px] border-b border-white/[0.06]">
-        <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center flex-shrink-0">
-          <Zap className="h-4 w-4 text-white" fill="white" />
-        </div>
-        <span className="text-[15px] font-semibold text-white tracking-tight">Tutafy</span>
+        <Link href="/dashboard" aria-label="Tutafy dashboard" className="flex items-center gap-2.5 min-h-11 rounded-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">
+          <span className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center flex-shrink-0" aria-hidden="true"><Zap className="h-4 w-4 text-white" fill="white" /></span>
+          <span className="text-[15px] font-semibold text-white tracking-tight">Tutafy</span>
+          </Link>
         <span className={`ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
           plan === 'academy' ? 'bg-amber-500/20 text-amber-300' :
           plan === 'pro' ? 'bg-indigo-500/30 text-indigo-300' :

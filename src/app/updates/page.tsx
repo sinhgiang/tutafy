@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { GraduationCap } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
 import { loadUpdates } from '@/lib/updates'
 import { SiteFooter } from '@/components/SiteFooter'
 import { UpdatesBrowser } from '@/components/updates/UpdatesBrowser'
+import { SiteLogo } from '@/components/SiteLogo'
 
 export const metadata = pageMetadata('updates')
 
@@ -17,12 +17,7 @@ export default function UpdatesPage() {
     <div className="min-h-screen bg-white">
       <nav className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
-            </div>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo />
           <div className="flex items-center gap-2">
             <Link href="/blog" className="hidden sm:block text-[13px] font-medium text-gray-600 hover:text-gray-900 px-3 py-2">Blog</Link>
             <Link href="/tutors" className="hidden sm:block text-[13px] font-medium text-gray-600 hover:text-gray-900 px-3 py-2">Find tutors</Link>

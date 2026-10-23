@@ -85,7 +85,7 @@ function RegisterForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <p className="text-3xl font-bold text-gray-900">Tutafy</p>
+          <p className="text-3xl font-bold text-gray-900"><Link href="/" aria-label="Tutafy home" className="inline-block rounded-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">Tutafy</Link></p>
           <p className="text-gray-500 mt-1">{refCode ? `You were invited to join Tutafy! 🎉` : 'Start your free account today'}</p>
         </div>
 

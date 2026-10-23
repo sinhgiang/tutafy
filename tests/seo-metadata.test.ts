@@ -243,8 +243,8 @@ test('/register has one h1 in the HTML the server sends, and the form no longer 
   assert.match(layout, /<h1 className="sr-only">Create your free Tutafy account<\/h1>/)
   assert.match(layout, /\{children\}/)
   assert.equal((read('src/app/(auth)/register/page.tsx').match(/<h1 className/g) ?? []).length, 0)
-  // The visible "Tutafy" heading keeps its look: same classes, now a paragraph.
-  assert.match(read('src/app/(auth)/register/page.tsx'), /<p className="text-3xl font-bold text-gray-900">Tutafy<\/p>/)
+  // The visible "Tutafy" heading keeps its look: same classes, now a paragraph holding the link to the home page (T-0818).
+  assert.match(read('src/app/(auth)/register/page.tsx'), /<p className="text-3xl font-bold text-gray-900"><Link href="\/"[^>]*>Tutafy<\/Link><\/p>/)
 })
 
 // ---- the pages really use the shared metadata --------------------------------

@@ -17,7 +17,8 @@ import { MadeWithTutafy } from '@/components/MadeWithTutafy'
 import { NextTimes, FreeTimesSection, StickyBookBar } from '@/components/profile/FreeTimes'
 import Link from 'next/link'
 import { SiteFooter } from '@/components/SiteFooter'
-import { GraduationCap, Globe, Star, Sparkles, Languages, BookOpen, Check, Video, RefreshCw, Zap, Clock, ArrowRight } from 'lucide-react'
+import { Globe, Star, Sparkles, Languages, BookOpen, Check, Video, RefreshCw, Zap, Clock, ArrowRight } from 'lucide-react'
+import { SiteLogo } from '@/components/SiteLogo'
 
 function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
   const cls = size === 'md' ? 'h-4 w-4' : 'h-3.5 w-3.5'
@@ -128,12 +129,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
       {/* Nav */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center">
-              <GraduationCap className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-[15px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo size="md" />
           <div className="flex items-center gap-3">
             <Link href="/tutors" className="text-[13px] text-gray-500 hover:text-gray-800 transition-colors">All tutors</Link>
             {bookable && (

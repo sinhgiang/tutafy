@@ -10,6 +10,7 @@ import { OAuthCatcher } from '@/components/OAuthCatcher'
 import { FEATURES, FAQ, PLANS, type FeatureId } from '@/lib/site-content'
 import { homeJsonLd, jsonLdScript } from '@/lib/seo'
 import { pageMetadata } from '@/lib/page-meta'
+import { SiteLogo } from '@/components/SiteLogo'
 
 export const metadata = pageMetadata('home')
 
@@ -71,12 +72,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       {/* Nav */}
       <nav className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
-            </div>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </div>
+          <SiteLogo />
           <div className="flex items-center gap-2">
             <Link href="/blog" className="hidden sm:block text-[13px] font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2">Blog</Link>
             <Link href="/tutors" className="hidden md:block text-[13px] font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2">Find tutors</Link>
@@ -432,10 +428,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       {/* Footer */}
       <footer className="border-t border-gray-100 py-8 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-indigo-500 rounded-lg flex items-center justify-center"><GraduationCap className="h-3.5 w-3.5 text-white" /></div>
-            <span className="text-[14px] font-bold text-gray-900">Tutafy</span>
-          </div>
+          <SiteLogo size="sm" />
           <p className="text-[12px] text-gray-500">© 2026 Tutafy. Built for tutors, by people who get it.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             <Link href="/about" className="text-[12px] text-gray-500 hover:text-gray-600">About</Link>
