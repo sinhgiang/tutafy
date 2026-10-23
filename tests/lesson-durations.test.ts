@@ -12,6 +12,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src')
 
@@ -255,7 +256,7 @@ test('the pages still open when the database has no such columns (the tutor quer
 // ---- Settings (a client page the test runner cannot run, so this part reads its text; the clicks are checked in a real browser) ----
 
 
-const settings = readFileSync(path.join(SRC, 'app/(dashboard)/settings/page.tsx'), 'utf8').split('\r\n').join('\n')
+const settings = settingsSource()
 
 test('Settings source: the lengths stay out of the main update (their columns may not exist yet) and go through the clean-up and the changed-only rule', () => {
   // the writes moved to src/lib/settings-save.ts (T-0717 follow-up)

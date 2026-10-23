@@ -1,15 +1,16 @@
 'use client'
 
-// Availability (T-0824): your week as a grid (seven day columns, hours down the side) with the slot form and a "copy a day" tool
-// beside it, and the blocked dates under it. Every write is the signed-in tutor's own (tutor_id from the session; row level security
-// is the second lock, tested in tests/settings-forms.test.ts).
+// Availability (T-0824, T-0844): your week as a grid (seven day columns, hours down the side) you press and drag on to add, change and
+// remove free hours, with the slot form and a "copy a day" tool beside it, and the blocked dates under it. Every write is the signed-in
+// tutor's own (tutor_id from the session, and in the same statement for a change or a removal; row level security is the second lock,
+// tested in tests/settings-forms.test.ts and tests/availability-grid.test.ts).
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Ban, CalendarClock, Copy, Plus, Trash2 } from 'lucide-react'
-import {
-  DAYS, GRID_HOUR_PX, checkNewSlot, copyPlan, gridRange, slotBlock, weeklyHours, type Slot,
-} from '@/lib/availability-grid'
+import { DAYS, checkEditedSlot, checkNewSlot, copyPlan, weeklyHours, type NewSlot, type Slot } from '@/lib/availability-grid'
+import { WeekGrid, type GridOpen } from '@/components/availability/WeekGrid'
+import { SlotDialog } from '@/components/availability/SlotDialog'
 
 const TIMES = Array.from({ length: 48 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`)
 interface Exception { id: string; date: string; reason: string | null }
@@ -29,6 +30,8 @@ export default function AvailabilityPage() {
   const [newExDate, setNewExDate] = useState('')
   const [newExReason, setNewExReason] = useState('')
   const [savingEx, setSavingEx] = useState(false)
+  // the slot form over the page (a new slot proposed by a press, or a slot to change)
+  const [dialog, setDialog] = useState<GridOpen | null>(null)
 
   useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/exhaustive-deps -- load once
 
@@ -47,18 +50,45 @@ export default function AvailabilityPage() {
 
   const sorted = (list: Slot[]) => [...list].sort((a, b) => a.day_of_week - b.day_of_week || a.start_time.localeCompare(b.start_time))
 
-  async function addSlot() {
-    const add = { day_of_week: parseInt(newDay), start_time: newStart, end_time: newEnd }
+  /** Adds one slot for the signed-in tutor; true when it was saved. The overlap rule is checked here for every way in (form, grid, dialog). */
+  async function createSlot(add: NewSlot): Promise<boolean> {
     const problem = checkNewSlot(slots, add)
-    if (problem) { toast.error(problem); return }
+    if (problem) { toast.error(problem); return false }
     setSaving(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setSaving(false); return }
-    const { data, error } = await supabase.from('availability').insert({ tutor_id: user.id, ...add }).select().single()
-    if (error) { toast.error(error.message); setSaving(false); return }
-    setSlots(prev => sorted([...prev, data as Slot]))
-    toast.success('Slot added')
-    setSaving(false)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return false
+      const { data, error } = await supabase.from('availability').insert({ tutor_id: user.id, ...add }).select().single()
+      if (error) { toast.error(error.message); return false }
+      setSlots(prev => sorted([...prev, data as Slot]))
+      toast.success('Slot added')
+      return true
+    } finally { setSaving(false) }
+  }
+
+  async function addSlot() {
+    await createSlot({ day_of_week: parseInt(newDay), start_time: newStart, end_time: newEnd })
+  }
+
+  /** Changes a slot's day or times. The tutor id is in the same statement, so a slot that is not this tutor's matches nothing. */
+  async function updateSlot(id: string, next: NewSlot): Promise<boolean> {
+    const problem = checkEditedSlot(slots, id, next)
+    if (problem) { toast.error(problem); return false }
+    setSaving(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return false
+      const { data, error } = await supabase.from('availability').update(next).eq('id', id).eq('tutor_id', user.id).select()
+      if (error || !data || data.length === 0) { toast.error('We could not change that slot. Reload the page and try again.'); return false }
+      setSlots(prev => sorted(prev.map(s => (s.id === id ? { ...s, ...(data[0] as Slot) } : s))))
+      toast.success('Slot changed')
+      return true
+    } finally { setSaving(false) }
+  }
+
+  async function saveFromDialog(next: NewSlot, id: string | null) {
+    const ok = id ? await updateSlot(id, next) : await createSlot(next)
+    if (ok) setDialog(null)
   }
 
   async function copyDay() {
@@ -75,9 +105,12 @@ export default function AvailabilityPage() {
   }
 
   async function deleteSlot(id: string) {
-    const { error } = await supabase.from('availability').delete().eq('id', id)
-    if (error) { toast.error(error.message); return }
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    const { data, error } = await supabase.from('availability').delete().eq('id', id).eq('tutor_id', user.id).select('id')
+    if (error || !data || data.length === 0) { toast.error('We could not remove that slot. Reload the page and try again.'); return }
     setSlots(prev => prev.filter(s => s.id !== id))
+    setDialog(null)
     toast.success('Removed')
   }
 
@@ -102,8 +135,6 @@ export default function AvailabilityPage() {
   }
 
   const today = new Date().toISOString().split('T')[0]
-  const range = gridRange(slots)
-  const hours = Array.from({ length: range.to - range.from }, (_, i) => range.from + i)
   const total = weeklyHours(slots)
 
   if (loading) return <div role="status" className="dash-sk" style={{ height: 320 }}><span className="sr-only">Loading your availability</span></div>
@@ -116,37 +147,36 @@ export default function AvailabilityPage() {
           <p>{slots.length === 0 ? 'Set the hours students can book you.' : `${total % 1 === 0 ? total : total.toFixed(1)} hours a week. Block single dates for holidays.`}</p>
         </div>
       </div>
+      {dialog && (
+        <SlotDialog
+          key={dialog.mode === 'edit' ? dialog.slot.id : `new-${dialog.slot.day_of_week}-${dialog.slot.start_time}`}
+          form={dialog}
+          slots={slots}
+          busy={saving}
+          onSave={(next, id) => { void saveFromDialog(next, id) }}
+          onRemove={id => { void deleteSlot(id) }}
+          onClose={() => setDialog(null)}
+        />
+      )}
       {failed && <div className="dash-card dash-card-b" role="alert" data-testid="availability-error" style={{ marginBottom: 16, color: 'var(--d-err)', background: 'var(--d-err-soft)' }}>We could not load all of your availability. What you see may be incomplete: reload the page before changing anything.</div>}
 
       <div className="set-two">
         <section className="dash-card" aria-label="Your week" data-testid="week-availability">
-          {slots.length === 0 ? (
-            <div className="dash-state">
-              <div className="dash-state-ico is-brand"><CalendarClock className="h-6 w-6" aria-hidden="true" /></div>
-              <h2>No hours yet</h2>
-              <p>Add your first slot on the right. Students can only book inside the hours you set.</p>
-            </div>
-          ) : (
-            <div className="av-week">
-              <div className="av-head"><div aria-hidden="true" />{DAYS.map(d => <div key={d}>{d.slice(0, 3)}</div>)}</div>
-              <div className="av-body">
-                <div className="av-gutter" aria-hidden="true">{hours.map(h => <div key={h} style={{ height: GRID_HOUR_PX }}>{new Date(2000, 0, 1, h).toLocaleTimeString('en-US', { hour: 'numeric' })}</div>)}</div>
-                {DAYS.map((d, i) => (
-                  <div key={d} className="av-col" style={{ height: hours.length * GRID_HOUR_PX, backgroundSize: `100% ${GRID_HOUR_PX}px` }}>
-                    {slots.filter(s => s.day_of_week === i).map(s => {
-                      const b = slotBlock(s, range.from)
-                      return (
-                        <div key={s.id} className="av-slot" style={{ top: b.top, height: b.height }}>
-                          <span>{s.start_time.slice(0, 5)} to {s.end_time.slice(0, 5)}</span>
-                          <button type="button" onClick={() => deleteSlot(s.id)} aria-label={`Remove ${d} ${s.start_time.slice(0, 5)} to ${s.end_time.slice(0, 5)}`}><Trash2 className="h-3.5 w-3.5" aria-hidden="true" /></button>
-                        </div>
-                      )
-                    })}
-                  </div>
-                ))}
-              </div>
+          {slots.length === 0 && (
+            <div className="av-empty" data-testid="availability-empty">
+              <CalendarClock className="h-5 w-5" aria-hidden="true" />
+              <div><b>No hours yet.</b> Drag on a day below to draw your first free hours, press a day name, or use the form on the right. Students can only book inside the hours you set.</div>
             </div>
           )}
+          <WeekGrid
+            slots={slots}
+            busy={saving}
+            onDraw={add => { void createSlot(add) }}
+            onOpen={setDialog}
+            onResize={(id, next) => { void updateSlot(id, next) }}
+            onRemove={id => { void deleteSlot(id) }}
+            onProblem={message => toast.error(message)}
+          />
         </section>
 
         <div style={{ display: 'grid', gap: 16, alignContent: 'start' }}>

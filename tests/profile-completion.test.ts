@@ -10,6 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -302,7 +303,7 @@ test('unfilledParts finds the [bracketed parts] left, templateIdOf tells an unto
 })
 
 test('Settings: the introduction box offers the templates, and a CHANGED bio that still has a [bracketed part] is not saved; an untouched old bio is never judged', () => {
-  const settings = read('app/(dashboard)/settings/page.tsx')
+  const settings = settingsSource()
   assert.match(settings, /<IntroEditor value=\{form\.bio\} onChange=\{bio => setForm\(f => \(\{ \.\.\.f, bio \}\)\)\} \/>/)
   assert.match(settings, /form\.bio !== savedBio && unfilledParts\(form\.bio\)\.length > 0/)
   assert.ok(settings.indexOf('form.bio !== savedBio') < settings.indexOf('saveTutorSettings(supabase'), 'the check is before anything is written (the writes live in src/lib/settings-save.ts since T-0717)')

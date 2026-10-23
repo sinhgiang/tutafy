@@ -427,8 +427,10 @@ http.createServer(async (req, res) => {
     return /return=representation/.test(prefer) ? send(res, 200, wantsOne ? out[0] : out) : send(res, 204)
   }
   if (req.method === 'DELETE') {
-    for (let i = table.length - 1; i >= 0; i--) if (matchRow(table[i], params)) table.splice(i, 1)
-    return send(res, 204)
+    const removed = []
+    for (let i = table.length - 1; i >= 0; i--) if (matchRow(table[i], params)) removed.push(...table.splice(i, 1))
+    // like PostgREST: with Prefer return=representation (a .select() after .delete()) the removed rows come back
+    return /return=representation/.test(prefer) ? send(res, 200, removed.map(r => project(t, r, select))) : send(res, 204)
   }
   send(res, 405, { message: 'method not allowed' })
 }).listen(PORT, '127.0.0.1', () => console.log(`mock supabase (FAKE data) on http://localhost:${PORT} (this machine only)`))

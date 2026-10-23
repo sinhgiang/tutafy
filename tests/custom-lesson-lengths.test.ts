@@ -13,6 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -328,7 +329,7 @@ test('the first-student card counts a custom-only list as "lengths chosen"', () 
 
 // ---- Settings (a client page: its real helpers run above; this part reads its text) --------------------------------------
 
-const settings = read('src/app/(dashboard)/settings/page.tsx')
+const settings = settingsSource()
 
 test('Settings source: the Custom box, the chips with an x, the rule shown, the check before saving', () => {
   assert.match(settings, /label htmlFor="custom-length"[^>]*>Custom length \(minutes\)</)

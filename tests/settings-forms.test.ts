@@ -15,6 +15,7 @@ import { applyMigrationsBefore, newDb } from './support/local-db.ts'
 import { DAYS, checkNewSlot, copyPlan, gridRange, overlapsExisting, slotBlock, toMinutes, weeklyHours, type Slot } from '@/lib/availability-grid'
 import { MAX_CSV_CHARS, PREVIEW_ROWS, detectPlatform, parseCSV, parsePreply, previewRow } from '@/lib/csv-import'
 import { BookingPreview, type PreviewForm } from '@/components/settings/BookingPreview'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -195,7 +196,7 @@ test('text a tutor types into the form is drawn as text in the preview (never as
 // ---- the pages -------------------------------------------------------------------------------------------------------------
 
 test('settings: the booking preview sits beside the form from 1440px, the form column is 720px, and unsaved changes have one bar and a leave-page warning', () => {
-  const src = read('src/app/(dashboard)/settings/page.tsx')
+  const src = settingsSource()
   assert.match(src, /<BookingPreview form=\{form\} slug=\{slug\} avatarUrl=\{avatarUrl\} \/>/)
   assert.match(src, /data-testid="unsaved-bar"/)
   assert.match(src, /\{hasChanges && \(\s*<div className="dash-unsaved"/)
