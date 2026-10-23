@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -58,7 +59,7 @@ export function StudentForm() {
   )
 
   return (
-    <div className="max-w-[620px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
         <Link href="/students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
@@ -129,6 +130,6 @@ export function StudentForm() {
           </button>
         </div>
       </form>
-    </div>
+    </PageColumn>
   )
 }

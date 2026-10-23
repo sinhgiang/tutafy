@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -221,7 +222,7 @@ export default function SettingsPage() {
   const planLabel = subscriptionStatus.charAt(0).toUpperCase() + subscriptionStatus.slice(1)
 
   return (
-    <div className="max-w-[920px]">
+    <PageColumn size="list">
       <div className="mb-5">
         <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Settings</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">Manage your profile and preferences</p>
@@ -816,6 +817,6 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageColumn>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState, useEffect } from 'react'
 import { Plus, Trash2, Copy, Check, ExternalLink, AlertCircle, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
@@ -94,7 +95,7 @@ export function SubscriptionsClient() {
   const inp = 'w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400'
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
+    <PageColumn size="form" className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[20px] font-bold text-gray-900">Subscription Plans</h1>
@@ -212,6 +213,6 @@ export function SubscriptionsClient() {
           )}
         </div>
       ))}
-    </div>
+    </PageColumn>
   )
 }

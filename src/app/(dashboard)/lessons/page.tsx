@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Plus, BookOpen } from 'lucide-react'
@@ -15,7 +16,7 @@ export default async function LessonsPage() {
   const past = lessons?.filter(l => new Date(l.starts_at) < now || l.status !== 'scheduled') ?? []
 
   return (
-    <div className="space-y-6 max-w-[900px]">
+    <PageColumn size="list" className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Lessons</h1>
@@ -42,6 +43,6 @@ export default async function LessonsPage() {
       ) : (
         <LessonsClient upcoming={upcoming as any} past={past as any} />
       )}
-    </div>
+    </PageColumn>
   )
 }

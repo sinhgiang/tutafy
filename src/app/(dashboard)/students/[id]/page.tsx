@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -36,7 +37,7 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
   const totalRevenue = lessons?.filter(l => l.payment_status === 'paid').reduce((s, l) => s + (l.price ?? 0), 0) ?? 0
 
   return (
-    <div className="max-w-[900px] space-y-5">
+    <PageColumn size="list" className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
         <Link href="/students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
@@ -186,6 +187,6 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </div>
-    </div>
+    </PageColumn>
   )
 }

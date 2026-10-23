@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -62,7 +63,7 @@ export default async function MessagesPage() {
   }
 
   return (
-    <div className="max-w-[760px] space-y-5">
+    <PageColumn size="list" className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[20px] font-bold text-gray-900 tracking-tight flex items-center gap-2">
@@ -155,6 +156,6 @@ export default async function MessagesPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageColumn>
   )
 }

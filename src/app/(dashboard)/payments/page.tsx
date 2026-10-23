@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageColumn } from '@/components/layout/PageFrame'
 import { TrendingUp, Clock, CheckCircle, DollarSign, Users, XCircle, FileText, Download } from 'lucide-react'
 import Link from 'next/link'
 import { formatMoney } from '@/lib/currency'
@@ -73,7 +74,7 @@ export default async function PaymentsPage() {
   const paymentHistory = allLessons.filter(l => l.price != null).slice(0, 30)
 
   return (
-    <div className="space-y-6 max-w-[900px]">
+    <PageColumn size="list" className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Payments & Analytics</h1>
@@ -231,6 +232,6 @@ export default async function PaymentsPage() {
           Go to Settings →
         </Link>
       </div>
-    </div>
+    </PageColumn>
   )
 }

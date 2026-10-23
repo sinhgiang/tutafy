@@ -8,24 +8,13 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Bell, LogOut, Settings, ChevronRight, Calendar, MessageCircle, Star, X, UserPlus, Clock, Volume2, VolumeX, Users } from 'lucide-react'
+import { Bell, LogOut, Settings, ChevronRight, Calendar, MessageCircle, Star, X, UserPlus, Clock, Volume2, VolumeX, Users, Search, Moon, Sun } from 'lucide-react'
 import Link from 'next/link'
 import { FeedbackButton } from '@/components/FeedbackButton'
 import type { Tutor } from '@/types'
-
-const PAGE_LABELS: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/students': 'Students',
-  '/lessons': 'Lessons',
-  '/calendar': 'Calendar',
-  '/payments': 'Payments',
-  '/reports': 'Reports',
-  '/team': 'Team & Payroll',
-  '/developers': 'API & Webhooks',
-  '/availability': 'Availability',
-  '/ai': 'AI Tools',
-  '/settings': 'Settings',
-}
+import { pageTitleOf } from '@/lib/page-titles'
+import { OPEN_COMMAND_EVENT } from './CommandPalette'
+import { THEME_EVENT, toggleTheme } from './theme-client'
 
 interface Notification {
   id: string
@@ -62,8 +51,8 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
   const [notifs, setNotifs] = useState<Notification[]>([])
   const [unread, setUnread] = useState(0)
   const [soundOn, setSoundOn] = useState(true)
-  const [permState, setPermState] = useState<'default' | 'granted' | 'denied' | 'unsupported'>('default')
-  const [bannerClosed, setBannerClosed] = useState(true) // start hidden until we read the real state client-side
+  const [dark, setDark] = useState(false)
+  const [mac, setMac] = useState(false)
   const lastSeenRef = useRef<string>('')
   const prevUnreadRef = useRef<number | null>(null)
   const soundOnRef = useRef(true) // read inside the poll closure without stale state
@@ -71,8 +60,8 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
   const panelRef = useRef<HTMLDivElement>(null)
 
   const initials = tutor.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-  const segment = '/' + pathname.split('/')[1]
-  const pageLabel = PAGE_LABELS[segment] ?? 'Tutafy'
+  // The name comes from the menu list (src/lib/page-titles.ts), so a page added to the menu is named here too.
+  const pageLabel = pageTitleOf(pathname) ?? 'Tutafy'
 
   // Count how many notifications arrived after the tutor last opened the bell
   function countUnseen(items: Notification[], lastSeen: string): number {
@@ -124,7 +113,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
 
   // Show a real desktop/system notification (works even when this tab is in the
   // background or another app is focused). Requires the user to have granted
-  // permission via the banner below.
+  // permission through the notice bar (components/layout/NoticeBar.tsx).
   function notifyDesktop(item: Notification) {
     try {
       if (typeof window === 'undefined' || !('Notification' in window)) return
@@ -140,34 +129,6 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
         n.close()
       }
     } catch { /* Notification constructor can throw on some platforms */ }
-  }
-
-  // First-visit prompt: ask the browser for notification permission. Runs inside
-  // the click gesture, which also unlocks audio, so sound starts working too.
-  async function enableNotifications() {
-    getAudioCtx() // unlock audio within this user gesture
-    try {
-      if (!('Notification' in window)) { setPermState('unsupported'); return }
-      const p = await window.Notification.requestPermission()
-      setPermState(p)
-      if (p === 'granted') {
-        setBannerClosed(true)
-        playDing() // confirm sound works
-        new window.Notification('Tutafy notifications are on 🔔', {
-          body: 'You will get an alert for new messages, bookings and students.',
-          icon: '/favicon.ico',
-        })
-      }
-      // If the user picked "Block" (denied), keep the banner open — it now shows
-      // manual unblock instructions instead of the request button.
-    } catch { /* ignore */ }
-  }
-
-  // "Later" hides the prompt only for this browser session, so it reappears on
-  // the next visit and keeps nudging until notifications are actually enabled.
-  function dismissBanner() {
-    setBannerClosed(true)
-    try { sessionStorage.setItem('tutafy_notif_banner', 'closed') } catch { /* ignore */ }
   }
 
   // Unlock audio on the first user interaction anywhere on the page, so that
@@ -196,20 +157,6 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
     const on = savedSound !== 'off' // default on
     soundOnRef.current = on
     setSoundOn(on)
-
-    // Decide whether to show the "enable notifications" banner.
-    // Show it for ANY user who hasn't granted permission yet (default OR denied),
-    // not just brand-new visitors — unless they hid it earlier this session.
-    if (!('Notification' in window)) {
-      setPermState('unsupported')
-      setBannerClosed(true)
-    } else {
-      const perm = window.Notification.permission
-      setPermState(perm)
-      let dismissed = false
-      try { dismissed = sessionStorage.getItem('tutafy_notif_banner') === 'closed' } catch { /* ignore */ }
-      setBannerClosed(perm === 'granted' || dismissed)
-    }
 
     let active = true
     async function poll() {
@@ -255,6 +202,15 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
     return () => document.removeEventListener('mousedown', handleClick)
   }, [notifOpen])
 
+  // Which theme is drawn (for the button's label and icon) and which shortcut word to show: Cmd on a Mac, Ctrl elsewhere.
+  useEffect(() => {
+    const read = () => setDark(document.querySelector('.dash')?.getAttribute('data-theme') === 'dark')
+    read()
+    setMac(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) // eslint-disable-line react-hooks/set-state-in-effect -- the platform can only be read in the browser, after the page is drawn
+    window.addEventListener(THEME_EVENT, read)
+    return () => window.removeEventListener(THEME_EVENT, read)
+  }, [])
+
   async function handleSignOut() {
     await supabase.auth.signOut()
     router.push('/login')
@@ -284,16 +240,24 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
 
   return (
     <>
-    <header className="h-[60px] bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-6 flex-shrink-0 relative z-30">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 text-[13px]">
-        <span className="text-gray-400 hidden sm:block">Tutafy</span>
-        <ChevronRight className="h-3.5 w-3.5 text-gray-300 hidden sm:block" />
-        <span className="font-semibold text-gray-900">{pageLabel}</span>
+    <header className="dash-top" data-dash-topbar>
+      {/* Breadcrumb: the page name comes from the menu list */}
+      <div className="dash-crumb">
+        <span className="dash-crumb-root">Tutafy</span>
+        <ChevronRight className="dash-crumb-root h-3.5 w-3.5" aria-hidden="true" />
+        <strong data-testid="page-title">{pageLabel}</strong>
       </div>
 
+      {/* Command bar button: the same box opens with Ctrl or Cmd K */}
+      <button type="button" className="dash-search" data-testid="open-command" aria-label="Search pages and actions"
+        onClick={() => window.dispatchEvent(new Event(OPEN_COMMAND_EVENT))}>
+        <Search className="h-4 w-4" aria-hidden="true" />
+        <span>Search or jump to</span>
+        <kbd>{mac ? 'Cmd K' : 'Ctrl K'}</kbd>
+      </button>
+
       {/* Right */}
-      <div className="flex items-center gap-2">
+      <div className="dash-top-actions">
         {/* A tutor who is also a student of another tutor (T-0676); a plain link, the server decides where it goes */}
         {canViewAsStudent && (
           <a href="/api/student/view-as" data-testid="view-as-student"
@@ -303,21 +267,23 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
         )}
         {/* Feedback box (T-0723): a small button, icon only on a phone */}
         <FeedbackButton iconOnlyOnPhone />
+        {/* Theme: light or dark, kept in this browser */}
+        <button type="button" onClick={toggleTheme} className="dash-icon-btn" data-testid="theme-toggle"
+          aria-label={dark ? 'Switch to the light theme' : 'Switch to the dark theme'} title={dark ? 'Light theme' : 'Dark theme'}>
+          {dark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
+        </button>
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>
-          <button onClick={openNotif}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors relative">
-            <Bell className="h-4 w-4" />
+          <button onClick={openNotif} aria-label={unread > 0 ? `Notifications, ${unread} new` : 'Notifications'} className="dash-icon-btn">
+            <Bell className="h-4 w-4" aria-hidden="true" />
             {unread > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center">
-                {unread > 9 ? '9+' : unread}
-              </span>
+              <span className="dash-dot">{unread > 9 ? '9+' : unread}</span>
             )}
           </button>
 
           {/* Notification panel */}
           {notifOpen && (
-            <div className="fixed left-2 right-2 top-[64px] md:absolute md:left-auto md:right-0 md:top-10 md:w-[340px] bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-100 overflow-hidden">
+            <div className="dash-panel fixed left-2 right-2 top-[64px] md:absolute md:left-auto md:right-0 md:top-10 md:w-[340px]">
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
                 <p className="text-[13px] font-semibold text-gray-900">Notifications</p>
                 <div className="flex items-center gap-1">
@@ -359,7 +325,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
           )}
         </div>
 
-        <div className="w-px h-5 bg-gray-200 mx-1" />
+        <div className="w-px h-5 bg-gray-200 mx-1" aria-hidden="true" />
 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2.5 pl-1 pr-2 py-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border-0 bg-transparent">
@@ -369,15 +335,15 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div className="hidden sm:block text-left">
-              <p className="text-[12px] font-semibold text-gray-800 leading-none">{tutor.name}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5 leading-none truncate max-w-[120px]">{tutor.email}</p>
+            <div className="hidden xl:block text-left">
+              <p className="text-[13px] font-semibold text-gray-800 leading-none">{tutor.name}</p>
+              <p className="text-[13px] text-gray-500 mt-1 leading-none truncate max-w-[140px]">{tutor.email}</p>
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
-            <div className="px-3 py-2 border-b border-gray-100">
-              <p className="text-[12px] font-semibold text-gray-900">{tutor.name}</p>
-              <p className="text-[11px] text-gray-400 truncate">{tutor.email}</p>
+            <div className="px-3 py-2 border-b border-border">
+              <p className="text-[13px] font-semibold text-foreground">{tutor.name}</p>
+              <p className="text-[13px] text-muted-foreground truncate">{tutor.email}</p>
             </div>
             {canViewAsStudent && (
               <DropdownMenuItem onClick={() => window.location.assign('/api/student/view-as')} className="gap-2 text-[13px] mt-1 sm:hidden">
@@ -390,7 +356,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="gap-2 text-[13px] text-red-600 focus:text-red-600">
+            <DropdownMenuItem onClick={handleSignOut} className="gap-2 text-[13px] text-red-600 dark:text-red-400 focus:text-red-600">
               <LogOut className="h-3.5 w-3.5" />
               Sign out
             </DropdownMenuItem>
@@ -399,61 +365,6 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
       </div>
     </header>
 
-    {/* Prompt to enable browser notifications — shown to anyone not yet granted */}
-    {!bannerClosed && (permState === 'default' || permState === 'denied') && (
-      <div className="fixed bottom-24 md:bottom-4 right-4 z-50 w-[340px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/60 p-4">
-        <div className="flex items-start gap-3">
-          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${permState === 'denied' ? 'bg-amber-50' : 'bg-indigo-50'}`}>
-            <Bell className={`h-4 w-4 ${permState === 'denied' ? 'text-amber-500' : 'text-indigo-500'}`} />
-          </div>
-          <div className="flex-1 min-w-0">
-            {permState === 'default' ? (
-              <>
-                <p className="text-[13px] font-semibold text-gray-900">Enable notifications</p>
-                <p className="text-[12px] text-gray-500 mt-0.5 leading-snug">
-                  Get an instant bell + sound for new messages, bookings or students — even when you're on another tab.
-                </p>
-                <div className="flex items-center gap-2 mt-3">
-                  <button onClick={enableNotifications}
-                    className="flex-1 text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors rounded-lg py-2">
-                    Enable notifications
-                  </button>
-                  <button onClick={dismissBanner}
-                    className="text-[12px] font-medium text-gray-400 hover:text-gray-600 transition-colors px-3 py-2">
-                    Later
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-[13px] font-semibold text-gray-900">Notifications are blocked</p>
-                <p className="text-[12px] text-gray-500 mt-0.5 leading-snug">
-                  Your browser is blocking notifications for this site. To turn them back on:
-                </p>
-                <ol className="text-[12px] text-gray-500 mt-1.5 space-y-0.5 list-decimal list-inside leading-snug">
-                  <li>Click the <span className="font-semibold">🔒 lock icon</span> next to the web address</li>
-                  <li>Find <span className="font-semibold">Notifications</span> → choose <span className="font-semibold">Allow</span></li>
-                  <li>Click the button below to reload</li>
-                </ol>
-                <div className="flex items-center gap-2 mt-3">
-                  <button onClick={() => window.location.reload()}
-                    className="flex-1 text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors rounded-lg py-2">
-                    Reload page
-                  </button>
-                  <button onClick={dismissBanner}
-                    className="text-[12px] font-medium text-gray-400 hover:text-gray-600 transition-colors px-3 py-2">
-                    Later
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-          <button onClick={dismissBanner} className="text-gray-300 hover:text-gray-500 transition-colors flex-shrink-0">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    )}
     </>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState, useEffect } from 'react'
 import { Copy, Check, Users, Gift, Zap, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -44,7 +45,7 @@ export default function ReferralPage() {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
+    <PageColumn size="form" className="space-y-6">
       <div>
         <h1 className="text-[20px] font-bold text-gray-900">Referral Program</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">Invite other tutors and earn free months of Pro</p>
@@ -119,6 +120,6 @@ export default function ReferralPage() {
           <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
-    </div>
+    </PageColumn>
   )
 }

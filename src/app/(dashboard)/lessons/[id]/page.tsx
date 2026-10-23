@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -79,7 +80,7 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
   }
 
   return (
-    <div className="max-w-[700px] space-y-4">
+    <PageColumn size="form" className="space-y-4">
       <div className="flex items-center gap-3">
         <Link href="/lessons" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
@@ -265,6 +266,6 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
         isScheduled={lesson.status === 'scheduled'}
         lessonStatus={lesson.status}
       />
-    </div>
+    </PageColumn>
   )
 }

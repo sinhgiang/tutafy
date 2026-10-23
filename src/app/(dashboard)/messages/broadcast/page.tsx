@@ -1,4 +1,5 @@
 'use client'
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -42,7 +43,7 @@ export default function BroadcastPage() {
   }
 
   return (
-    <div className="max-w-[600px] space-y-4">
+    <PageColumn size="form" className="space-y-4">
       <div className="flex items-center gap-3">
         <Link href="/messages" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
@@ -84,6 +85,6 @@ export default function BroadcastPage() {
           {loading ? 'Sending...' : `Send to ${studentCount} students`}
         </button>
       </form>
-    </div>
+    </PageColumn>
   )
 }

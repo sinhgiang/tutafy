@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "contrast": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/register.mjs tests/support/contrast-cli.ts",
     "counts": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/register.mjs tests/support/counts-cli.ts",
     "test": "node --experimental-test-module-mocks --disable-warning=ExperimentalWarning --import ./tests/register.mjs --test \"tests/*.test.ts\"",
     "line-refs": "node --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/register.mjs tests/support/line-refs-cli.ts",
