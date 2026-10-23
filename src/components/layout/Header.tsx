@@ -8,13 +8,14 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Bell, LogOut, Settings, ChevronRight, Calendar, MessageCircle, Star, X, UserPlus, Clock, Volume2, VolumeX, Users, Search, Moon, Sun } from 'lucide-react'
+import { Bell, LogOut, Settings, ChevronRight, Calendar, MessageCircle, Star, X, UserPlus, Clock, Volume2, VolumeX, Users, Search, Moon, Sun, Monitor, Check, MessageSquarePlus } from 'lucide-react'
 import Link from 'next/link'
 import { FeedbackButton } from '@/components/FeedbackButton'
 import type { Tutor } from '@/types'
 import { pageTitleOf } from '@/lib/page-titles'
 import { OPEN_COMMAND_EVENT } from './CommandPalette'
-import { THEME_EVENT, toggleTheme } from './theme-client'
+import { THEME_EVENT, chooseTheme, savedPref } from './theme-client'
+import type { ThemePref } from '@/lib/dashboard-theme'
 
 interface Notification {
   id: string
@@ -51,7 +52,8 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
   const [notifs, setNotifs] = useState<Notification[]>([])
   const [unread, setUnread] = useState(0)
   const [soundOn, setSoundOn] = useState(true)
-  const [dark, setDark] = useState(false)
+  const [pref, setPref] = useState<ThemePref>('system')
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [mac, setMac] = useState(false)
   const lastSeenRef = useRef<string>('')
   const prevUnreadRef = useRef<number | null>(null)
@@ -204,7 +206,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
 
   // Which theme is drawn (for the button's label and icon) and which shortcut word to show: Cmd on a Mac, Ctrl elsewhere.
   useEffect(() => {
-    const read = () => setDark(document.querySelector('.dash')?.getAttribute('data-theme') === 'dark')
+    const read = () => setPref(savedPref())
     read()
     setMac(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)) // eslint-disable-line react-hooks/set-state-in-effect -- the platform can only be read in the browser, after the page is drawn
     window.addEventListener(THEME_EVENT, read)
@@ -258,20 +260,6 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
 
       {/* Right */}
       <div className="dash-top-actions">
-        {/* A tutor who is also a student of another tutor (T-0676); a plain link, the server decides where it goes */}
-        {canViewAsStudent && (
-          <a href="/api/student/view-as" data-testid="view-as-student"
-            className="hidden sm:inline-flex items-center text-[12px] font-semibold text-indigo-600 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 transition-colors rounded-lg px-3 py-1.5">
-            View as student
-          </a>
-        )}
-        {/* Feedback box (T-0723): a small button, icon only on a phone */}
-        <FeedbackButton iconOnlyOnPhone />
-        {/* Theme: light or dark, kept in this browser */}
-        <button type="button" onClick={toggleTheme} className="dash-icon-btn" data-testid="theme-toggle"
-          aria-label={dark ? 'Switch to the light theme' : 'Switch to the dark theme'} title={dark ? 'Light theme' : 'Dark theme'}>
-          {dark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
-        </button>
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>
           <button onClick={openNotif} aria-label={unread > 0 ? `Notifications, ${unread} new` : 'Notifications'} className="dash-icon-btn">
@@ -340,21 +328,34 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
               <p className="text-[13px] text-gray-500 mt-1 leading-none truncate max-w-[140px]">{tutor.email}</p>
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuContent align="end" className="w-60">
             <div className="px-3 py-2 border-b border-border">
               <p className="text-[13px] font-semibold text-foreground">{tutor.name}</p>
               <p className="text-[13px] text-muted-foreground truncate">{tutor.email}</p>
             </div>
             {canViewAsStudent && (
-              <DropdownMenuItem onClick={() => window.location.assign('/api/student/view-as')} className="gap-2 text-[13px] mt-1 sm:hidden">
+              <DropdownMenuItem onClick={() => window.location.assign('/api/student/view-as')} className="gap-2 text-[13px] mt-1" data-testid="view-as-student">
                 <Users className="h-3.5 w-3.5" />
                 View as student
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => router.push('/settings')} className="gap-2 text-[13px] mt-1">
+            <DropdownMenuItem onClick={() => setFeedbackOpen(true)} className="gap-2 text-[13px] mt-1" data-testid="feedback-menu-item">
+              <MessageSquarePlus className="h-3.5 w-3.5" />
+              Send feedback
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('/settings')} className="gap-2 text-[13px]">
               <Settings className="h-3.5 w-3.5" />
               Settings
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <p className="px-3 pt-1 pb-0.5 text-[12px] font-semibold text-muted-foreground" id="theme-label">Appearance</p>
+            {([['light', 'Light', Sun], ['dark', 'Dark', Moon], ['system', 'Use system setting', Monitor]] as const).map(([value, label, Icon]) => (
+              <DropdownMenuItem key={value} onClick={() => chooseTheme(value)} className="gap-2 text-[13px]" data-testid={`theme-${value}`} aria-checked={pref === value} role="menuitemradio">
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+                {pref === value && <Check className="h-3.5 w-3.5 ml-auto" aria-hidden="true" />}
+              </DropdownMenuItem>
+            ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="gap-2 text-[13px] text-red-600 dark:text-red-400 focus:text-red-600">
               <LogOut className="h-3.5 w-3.5" />
@@ -364,6 +365,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
         </DropdownMenu>
       </div>
     </header>
+    <FeedbackButton hideTrigger open={feedbackOpen} onOpenChange={setFeedbackOpen} />
 
     </>
   )

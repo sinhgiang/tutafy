@@ -311,7 +311,10 @@ test('the inline script that runs before the first paint agrees with resolveThem
 })
 
 test('the theme button, the html class and the cleanup when the tutor leaves the app', () => {
-  assert.match(read('src/components/layout/Header.tsx'), /data-testid="theme-toggle"/)
+  const header = read('src/components/layout/Header.tsx')
+  assert.ok(header.includes('data-testid={`theme-${value}`}'), 'each theme choice has a test id')
+  assert.match(header, /\['light', 'Light', Sun\], \['dark', 'Dark', Moon\], \['system', 'Use system setting', Monitor\]/)
+  assert.match(header, /onClick=\{\(\) => chooseTheme\(value\)\}/)
   const client = read('src/components/layout/theme-client.ts')
   assert.match(client, /classList\.toggle\('dark', theme === 'dark'\)/)
   assert.match(client, /classList\.remove\('dark'\)/)
