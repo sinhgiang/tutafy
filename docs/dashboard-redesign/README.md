@@ -10,9 +10,9 @@ There is **no page frame**. The layout puts the page straight into `<main>` and 
 
 | Page (file:line) | Cap | Share of a 1920 screen left empty |
 |---|---|---|
-| Payments `payments/page.tsx:76` (the owner's picture) | 900 | about 47% of the content area |
+| Payments `payments/page.tsx` (before T-0821) (the owner's picture) | 900 | about 47% of the content area |
 | Lessons `lessons/page.tsx:18`, AI tools `AiToolsClient.tsx:117`, Team `TeamClient.tsx:214`, Student detail `students/[id]/page.tsx:39` | 900 | about 47% |
-| Reports `reports/page.tsx:103`, Students `students/page.tsx:21` | 1100 | about 35% |
+| Reports `reports/page.tsx` (before T-0821), Students `students/page.tsx:21` | 1100 | about 35% |
 | Settings `settings/page.tsx:224` | 920 | about 45% |
 | Developers `DevelopersClient.tsx:52` | 820 | about 52% |
 | Messages `messages/page.tsx:65`, Chat `messages/[studentId]/page.tsx:43` | 760 / 680 | about 55% |

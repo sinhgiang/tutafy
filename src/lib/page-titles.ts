@@ -7,6 +7,9 @@ import { NAV } from '@/components/layout/nav-items'
 /** Tutor pages that are reached from a button or a link and are not in the menu. */
 export const EXTRA_TITLES: Record<string, string> = {
   '/upgrade': 'Upgrade',
+  // Payments and Reports became one page (T-0821); the old addresses redirect to it.
+  '/payments': 'Earnings',
+  '/reports': 'Earnings',
 }
 
 const ENTRIES: [string, string][] = [

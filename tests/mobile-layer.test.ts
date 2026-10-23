@@ -136,12 +136,14 @@ test('no fixed width over 360px without a breakpoint, no unprefixed fixed-pixel 
   assert.deepEqual(problems, [])
 })
 
-test('the payments page stacks its stat cards and its two columns on a phone (it used to cut them off)', () => {
-  const src = read('src/app/(dashboard)/payments/page.tsx')
-  assert.match(src, /grid grid-cols-2 lg:grid-cols-4 gap-4/)
-  // the bar chart is as tall as its bars on a phone; a fixed height with the bigger phone text made the bars cover the title
-  assert.match(src, /flex items-end gap-2 lg:h-28/)
-  assert.match(src, /grid grid-cols-1 lg:grid-cols-\[minmax\(0,1fr\)_300px\] gap-5/)
+test('the earnings page stacks its stat cards (two across) and its chart and ranking (one column) on a phone and a tablet (T-0821)', () => {
+  const src = read('src/app/(dashboard)/earnings/page.tsx')
+  assert.match(src, /dash-card dash-kpi dash-c3/)
+  assert.match(src, /dash-card dash-c8/)
+  assert.match(src, /dash-card dash-c4/)
+  const css = read('src/styles/dashboard-shell.css')
+  assert.ok(css.includes('@media (max-width: 1279px) { .dash-c3 { grid-column: span 6; } .dash-c4, .dash-c8 { grid-column: span 12; } }'))
+  assert.ok(css.includes('.dash-table-wrap { position: relative; overflow-x: auto; }'), 'the table scrolls inside its own frame')
   const student = read('src/app/(dashboard)/students/[id]/page.tsx')
   assert.match(student, /grid grid-cols-1 md:grid-cols-3 gap-4/)
   assert.match(student, /md:col-span-1/)
@@ -166,7 +168,7 @@ test('phone menu of the tutor app: a More sheet lists every page of the desktop 
   // the sheet renders the shared list, so every page of the sidebar is in it
   assert.match(nav, /NAV\.map\(\(\{ group, items \}\)/)
   const hrefs = NAV.flatMap(g => g.items.map(i => i.href))
-  for (const h of ['/dashboard', '/students', '/lessons', '/calendar', '/messages', '/payments', '/settings', '/referral']) assert.ok(hrefs.includes(h), h)
+  for (const h of ['/dashboard', '/students', '/lessons', '/calendar', '/messages', '/earnings', '/settings', '/referral']) assert.ok(hrefs.includes(h), h)
   // opens and closes: button with aria-expanded, close button, backdrop, Escape, closes on a link and on a page change
   assert.match(nav, /aria-expanded=\{open\}/)
   assert.match(nav, /aria-label="Close menu"/)
