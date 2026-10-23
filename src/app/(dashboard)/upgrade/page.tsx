@@ -66,12 +66,12 @@ const PLANS = [
     price: 12,
     per: '/month',
     desc: 'For professional tutors',
-    color: 'bg-indigo-500 border-indigo-500',
-    headerColor: 'text-indigo-200',
+    color: 'bg-indigo-600 border-indigo-600',
+    headerColor: 'text-indigo-100',
     priceColor: 'text-white',
     icon: Zap,
     badge: 'Most popular',
-    badgeColor: 'bg-white/20 text-white',
+    badgeColor: 'bg-indigo-800 text-white',
     cta: 'Upgrade to Pro',
     ctaStyle: 'bg-white text-indigo-600 hover:bg-indigo-50',
     checkoutUrl: PRO_URL,
@@ -173,7 +173,7 @@ export default async function UpgradePage() {
               <div className="p-6">
                 {/* Plan name */}
                 <div className="flex items-center gap-2 mb-1">
-                  {Icon && <Icon className={`h-4 w-4 ${plan.id === 'pro' ? 'text-indigo-200' : 'text-gray-500'}`} />}
+                  {Icon && <Icon className={`h-4 w-4 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-500'}`} />}
                   <p className={`text-[12px] font-bold uppercase tracking-widest ${plan.headerColor}`}>
                     {plan.name}
                   </p>
@@ -185,19 +185,19 @@ export default async function UpgradePage() {
                     {plan.price === 0 ? '$0' : `$${plan.price}`}
                   </span>
                   {plan.per && (
-                    <span className={`text-[13px] pb-1 ${plan.id === 'pro' ? 'text-indigo-200' : 'text-gray-400'}`}>
+                    <span className={`text-[13px] pb-1 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400'}`}>
                       {plan.per}
                     </span>
                   )}
                 </div>
-                <p className={`text-[12px] mb-6 ${plan.id === 'pro' ? 'text-indigo-200' : 'text-gray-400'}`}>
+                <p className={`text-[12px] mb-6 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400'}`}>
                   {plan.desc}
                 </p>
 
                 {/* CTA button — labelled relative to the tutor's current plan */}
                 {isActive ? (
                   <div className={`w-full py-2.5 rounded-xl text-[13px] font-bold text-center ${
-                    onPro ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
+                    onPro ? 'bg-indigo-800 text-white' : 'bg-emerald-100 text-emerald-700'
                   }`}>
                     ✓ Your current plan
                   </div>
@@ -238,7 +238,7 @@ export default async function UpgradePage() {
                     <span className={`text-[12px] ${
                       f.ok
                         ? (plan.id === 'pro' ? 'text-white' : 'text-gray-700')
-                        : (plan.id === 'pro' ? 'text-indigo-300' : 'text-gray-300')
+                        : (plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400')
                     }`}>
                       {f.text}
                     </span>

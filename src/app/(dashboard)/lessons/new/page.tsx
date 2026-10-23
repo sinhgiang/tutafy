@@ -123,7 +123,7 @@ export default function NewLessonPage() {
   return (
     <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
-        <Link href="/lessons" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/lessons" aria-label="Back to lessons" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div>
@@ -172,7 +172,7 @@ export default function NewLessonPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Date & Time *</label>
-              <input type="datetime-local" required value={form.starts_at}
+              <input type="datetime-local" aria-label="Date and time" required value={form.starts_at}
                 onChange={e => setForm(f => ({ ...f, starts_at: e.target.value }))} className={inp} />
             </div>
             <div>
@@ -254,7 +254,7 @@ export default function NewLessonPage() {
             <input value={newMaterial} onChange={e => setNewMaterial(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addMaterial() } }}
               placeholder="URL or description" className={`flex-1 ${inp}`} />
-            <button type="button" onClick={addMaterial}
+            <button type="button" onClick={addMaterial} aria-label="Add material"
               className="px-3 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
               <Plus className="h-4 w-4" />
             </button>
@@ -274,7 +274,7 @@ export default function NewLessonPage() {
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
             <input value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Word / phrase" className={inp} />
             <input value={newDef} onChange={e => setNewDef(e.target.value)} placeholder="Definition / translation" className={inp} />
-            <button type="button" onClick={addVocab}
+            <button type="button" onClick={addVocab} aria-label="Add word"
               className="px-3 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
               <Plus className="h-4 w-4" />
             </button>

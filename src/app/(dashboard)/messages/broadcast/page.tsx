@@ -45,7 +45,7 @@ export default function BroadcastPage() {
   return (
     <PageColumn size="form" className="space-y-4">
       <div className="flex items-center gap-3">
-        <Link href="/messages" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/messages" aria-label="Back to messages" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div>
