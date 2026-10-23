@@ -8,8 +8,8 @@
 //   date: 2026-10-21
 //   title: A short headline
 //   summary: One sentence under the headline      (optional)
-//   image: /updates/first-student-card.webp      (optional, a .webp or .png file under public/updates/)
-//   imageAlt: What the picture shows              (needed when there is an image)
+//   image: /updates/first-student-card.webp      (a .webp or .png file under public/updates/; loadUpdates refuses an entry without one)
+//   imageAlt: What the picture shows              (needed with the image)
 //   ---
 //   - One plain sentence a tutor understands.
 //   - Another one.
@@ -171,7 +171,9 @@ export function loadUpdates(dir: string = updatesDir(), pictures: string | null 
   const names = readdirSync(/*turbopackIgnore: true*/ dir).filter(n => n.toLowerCase().endsWith('.md')).sort()
   const entries = names.map(n => parseUpdate(readFileSync(path.join(/*turbopackIgnore: true*/ dir, n), 'utf8'), n))
   for (const e of entries) {
-    if (!e.image || pictures === null) continue
+    if (pictures === null) continue
+    // Every entry carries a picture (the owner's rule, T-0834): a half-done entry never reaches the page.
+    if (!e.image) throw new Error(`content/updates/${e.version}.md: the entry has no picture, add image and imageAlt (a .webp or .png under public/updates/)`)
     const file = path.join(/*turbopackIgnore: true*/ pictures, e.image.src)
     if (!existsSync(/*turbopackIgnore: true*/ file)) throw new Error(`content/updates/${e.version}.md: the image ${e.image.src} is not in public/`)
     const size = imageSize(readFileSync(/*turbopackIgnore: true*/ file))

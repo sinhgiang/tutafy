@@ -197,7 +197,7 @@ test('with 150 versions the page is still two columns: the list is a box with it
 // ---- the brand: the layout is the owner's pick, the look is Tutafy's -------------------------------------
 
 test("the Updates page looks like the rest of Tutafy: Tutafy's own colours, type, corners and header, no black page", () => {
-  const files = ['src/app/updates/page.tsx', 'src/components/updates/UpdatesBrowser.tsx']
+  const files = ['src/app/updates/page.tsx', 'src/components/updates/UpdatesBrowser.tsx', 'src/components/updates/ImageLightbox.tsx']
   for (const f of files) {
     const src = read(f).replace(/^\s*\/\/.*$/gm, '')
     assert.doesNotMatch(src, /#[0-9a-fA-F]{3,8}\b/, `${f} writes a colour of its own (a hex value); use the site's palette`)
@@ -219,7 +219,7 @@ test("the Updates page looks like the rest of Tutafy: Tutafy's own colours, type
     assert.ok(blog.includes(piece), `the blog index no longer has (so this check is out of date): ${piece}`)
   }
   // the cards and pictures use the site's corners, borders and indigo accent
-  const browser = read('src/components/updates/UpdatesBrowser.tsx')
+  const browser = read('src/components/updates/UpdatesBrowser.tsx') + read('src/components/updates/ImageLightbox.tsx') // the picture frame moved into the lightbox (T-0834)
   for (const piece of ['rounded-2xl border border-gray-100', 'bg-indigo-50', 'text-indigo-600', 'border-indigo-500', 'text-gray-900', 'text-gray-500']) assert.ok(browser.includes(piece), piece)
 })
 
@@ -241,7 +241,7 @@ test('MUTATION: a new file in content/updates shows up on the real page with no 
     const { default: UpdatesPage } = await import('@/app/updates/page.tsx')
     const before = renderToStaticMarkup(UpdatesPage())
     assert.ok(!before.includes('v9.9.9'))
-    writeFileSync(path.join(root, 'content', 'updates', '9.9.9.md'), GOOD.replace('2.0.0', '9.9.9').replace('2026-11-02', '2026-12-31').replace('A new thing for tutors', 'Brand new headline'))
+    writeFileSync(path.join(root, 'content', 'updates', '9.9.9.md'), GOOD.replace('2.0.0', '9.9.9').replace('2026-11-02', '2026-12-31').replace('A new thing for tutors', 'Brand new headline\nimage: /updates/lesson-lengths.webp\nimageAlt: A picture for the new entry'))
     const after = renderToStaticMarkup(UpdatesPage())
     assert.ok(after.includes('>v9.9.9<') && after.includes('Brand new headline') && after.includes('December 31, 2026'))
     assert.ok(after.indexOf('href="#v9.9.9"') < after.indexOf('href="#v1.5.0"'), 'the new version is on top of the list')
