@@ -1,7 +1,7 @@
 // T-0769: the tutor directory page /tutors, its public list /api/tutors/public, and the "Your listing" card on the dashboard. The REAL code runs here:
 //   - the real route and the real page rendered to HTML over an in-memory database that holds made-up tutors, some with an email, a phone number and
 //     a payment link in their row, to show a visitor who is not signed in receives ONLY the public card keys;
-//   - the states: many, few (under 6), empty, no match, a failed read (an error, never an empty list), and the filters read from the address;
+//   - the states: many, empty (under 6 listed), no match, a failed read (an error, never an empty list), and the filters read from the address;
 //   - the dashboard card for the signed-in tutor (and that a second tutor never sees the first one's rows).
 // Nothing here reaches a service. All names, prices and times are made up.
 import { test, mock, beforeEach } from 'node:test'
@@ -152,16 +152,48 @@ test('every card says when the tutor is next free, and the page never draws a ca
   for (const c of cards) assert.match(c, /Next available<\/b> · <span data-testid="card-next-time">(Today|Tomorrow|[A-Z][a-z]{2}) \d{1,2}:\d{2} (AM|PM)<\/span>/)
 })
 
-test('the "few tutors" state: fewer than 6 shows the honest note and the invitation card, not the band', async () => {
-  seed([tutor(), tutor(), tutor()])
-  const h = await html()
-  assert.equal(cardsIn(h).length, 3)
-  assert.match(h, /We are just getting started/)
-  assert.match(h, /there are 3 today/)
-  assert.ok(h.includes('data-testid="directory-invite"'))
-  assert.ok(!h.includes('data-testid="directory-band"'))
-  seed([tutor()])
-  assert.match(await html(), /there is 1 today/)
+test('the directory opens at the named threshold: 0 and one under it show the empty state with the invitation and no card, exactly it shows every card (T-0803)', async () => {
+  const N = dir.DIRECTORY_OPENS_AT
+  assert.equal(N, 6, 'the owner chose 6 (W-2547)')
+  for (const count of [0, N - 1]) {
+    seed(Array.from({ length: count }, (_, i) => tutor({ name: `Closed Number${i}` })))
+    const h = await html()
+    assert.deepEqual(cardsIn(h), [], `${count} listed: no card`)
+    assert.match(h, /data-testid="directory-empty"/)
+    assert.match(h, /The tutor directory opens soon/)
+    assert.match(h, new RegExp(`once at least ${N} tutors are ready`))
+    assert.match(h, /href="\/dashboard"[^>]*>Complete your profile</)
+    assert.match(h, /href="\/register"[^>]*>Create your free page</)
+    assert.ok(!h.includes('Closed Number') && !h.includes('tutor-card') && !h.includes('data-testid="directory-few"') && !h.includes('data-testid="directory-band"'), `${count} listed: nothing of a tutor is on the page`)
+  }
+  seed(Array.from({ length: N }, (_, i) => tutor({ name: `Open Number${i}` })))
+  const open = await html()
+  assert.equal(cardsIn(open).length, N, 'exactly the threshold: every tutor has a card')
+  assert.ok(!open.includes('data-testid="directory-empty"') && !open.includes('data-testid="directory-few"'))
+  assert.ok(open.includes('data-testid="directory-band"'))
+})
+
+test('5 eligible tutors: the page is the empty state with the invitation; the 6th makes all 6 cards appear (the directory opens by itself)', async () => {
+  const five = Array.from({ length: 5 }, (_, i) => tutor({ name: `Early Number${i}` }))
+  seed(five)
+  const closed = await html()
+  assert.deepEqual(cardsIn(closed), [])
+  assert.match(closed, /data-testid="directory-empty"/)
+  assert.match(closed, /Complete your profile/)
+  seed([...five, tutor({ name: 'Early Number5' })])
+  assert.equal(cardsIn(await html()).length, 6)
+})
+
+test('while the directory is closed the public list carries no tutor at all: tutors is empty, open is false, listed still says how many (nothing to leak)', async () => {
+  seed(Array.from({ length: dir.DIRECTORY_OPENS_AT - 1 }, () => tutor()))
+  const body = await (await route.GET()).json() as { tutors: unknown[]; listed: number; open: boolean; truncated: boolean }
+  assert.deepEqual(body.tutors, [])
+  assert.equal(body.open, false)
+  assert.equal(body.listed, dir.DIRECTORY_OPENS_AT - 1)
+  seed(Array.from({ length: dir.DIRECTORY_OPENS_AT }, () => tutor()))
+  const open = await (await route.GET()).json() as typeof body
+  assert.equal(open.open, true)
+  assert.equal(open.tutors.length, dir.DIRECTORY_OPENS_AT)
 })
 
 test('the empty state: nobody can be booked, so no cards, a plain sentence and a way for tutors to join', async () => {
@@ -169,7 +201,7 @@ test('the empty state: nobody can be booked, so no cards, a plain sentence and a
   const h = await html()
   assert.deepEqual(cardsIn(h), [])
   assert.match(h, /data-testid="directory-empty"/)
-  assert.match(h, /No tutors have open times right now/)
+  assert.match(h, /The tutor directory opens soon/)
   assert.match(h, /href="\/register"/)
   assert.ok(!h.includes('data-testid="directory-error"'))
 })
@@ -181,7 +213,7 @@ test('a failed read draws the error state with "Try again" and the filters kept,
   assert.match(h, /data-testid="directory-error"/)
   assert.match(h, /We could not load the tutors/)
   assert.match(h, /href="\/tutors\?lang=french"[^>]*>Try again/)
-  assert.ok(!h.includes('data-testid="directory-empty"') && !h.includes('No tutors have open times'))
+  assert.ok(!h.includes('data-testid="directory-empty"') && !h.includes('The tutor directory opens soon'))
   assert.deepEqual(cardsIn(h), [])
   assert.match(h, /<meta name="robots" content="noindex"\/>/, 'an error page is not indexed')
   seed([tutor()])
@@ -346,4 +378,33 @@ test('the dashboard source asks for the card with the signed-in tutor\'s id and 
   assert.match(src, /loadListingCard\(supabase as unknown as ListingClient, user!\.id\)/)
   assert.match(src, /^\s+listing,$/m)
   assert.match(read('components/dashboard/DashboardHome.tsx'), /\{data\.listing && <ListingCard card=\{data\.listing\} \/>\}/)
+})
+
+test('a listed tutor is "Ready", not "Listed", while the directory is closed; only a known open directory keeps "Students can find and book you" (T-0803)', async () => {
+  const a = mine()
+  seed([a, ...Array.from({ length: 2 }, () => tutor())]) // 3 listed: under the threshold
+  currentUser = { id: a.row.id as string, email: 'carlos@example.com' }
+  const closed = (await DashboardPage()).props.data.listing!
+  assert.equal(closed.listed, true, 'the rule still lists the tutor')
+  assert.equal(closed.waitingForDirectory, true)
+  assert.match(closed.text, new RegExp(`when ${dir.DIRECTORY_OPENS_AT} tutors are ready`))
+  assert.ok(!/Students can find and book you\./.test(closed.text))
+  const view = renderToStaticMarkup(createElement(ListingCardView, { card: closed, zone: null, now: new Date() }))
+  assert.match(view, /data-listed="yes" data-waiting="yes"/)
+  assert.match(view, />Ready</)
+  assert.ok(!view.includes('>Listed<') && !view.includes('View in the directory'))
+  assert.match(view, /The directory is not open to students yet/)
+  // the directory could not be read: not claimed as open either
+  adminFails = true
+  assert.equal((await DashboardPage()).props.data.listing!.waitingForDirectory, true)
+  adminFails = false
+  // open: the old words
+  seed([a, ...Array.from({ length: dir.DIRECTORY_OPENS_AT - 1 }, () => tutor())])
+  const open = (await DashboardPage()).props.data.listing!
+  assert.equal(open.waitingForDirectory, undefined)
+  assert.match(open.text, /Students can find and book you\./)
+  // a tutor who is not listed is returned as it was
+  const raw = { listed: false, title: 't', text: 'x', rows: [], nextFree: null, tz: 'UTC', bookingAddress: null }
+  assert.equal(listing.withDirectoryStatus(raw, false), raw)
+  assert.equal(listing.withDirectoryStatus({ ...raw, listed: true }, true).waitingForDirectory, undefined)
 })

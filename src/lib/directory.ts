@@ -26,6 +26,12 @@ export const LEAD_MINUTES = 60
 export const HORIZON_DAYS = 14
 /** Fewer listed tutors than this is the "few tutors" state (an honest note and an invitation to tutors). */
 export const FEW_TUTORS_BELOW = 6
+/**
+ * The directory shows cards only when at least this many tutors are listed (T-0803, the owner's choice W-2547). Below it /tutors shows the
+ * empty state with an invitation to tutors, and the list the page and /api/tutors/public carry holds no card. The rule that lists a tutor
+ * is unchanged. Equal to FEW_TUTORS_BELOW today, so the "few tutors" state cannot be reached until the two are set apart.
+ */
+export const DIRECTORY_OPENS_AT = 6
 /** The most cards one answer carries; a longer list is cut here and says so (a cursor page is the next step). */
 export const MAX_LISTED = 120
 /** Cards drawn at first, and added by each "Show more". */
@@ -427,7 +433,9 @@ export function languageCounts(cards: DirectoryCard[]): { language: string; coun
 }
 
 export type DirectoryState = 'many' | 'few' | 'empty'
-export const stateOf = (listed: number): DirectoryState => (listed === 0 ? 'empty' : listed < FEW_TUTORS_BELOW ? 'few' : 'many')
+export const stateOf = (listed: number): DirectoryState => (listed < DIRECTORY_OPENS_AT ? 'empty' : listed < FEW_TUTORS_BELOW ? 'few' : 'many')
+/** Whether the directory shows cards for this many listed tutors. */
+export const directoryIsOpen = (listed: number): boolean => listed >= DIRECTORY_OPENS_AT
 
 // ---- the line "Next available" -------------------------------------------------------------------------------------------------------
 

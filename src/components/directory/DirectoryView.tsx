@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { safeZone, zoneCity } from '@/lib/tutor-profile'
 import {
-  APPROX_RATES_NOTE, FEW_TUTORS_BELOW, NO_FILTERS, PAGE_SIZE, PRICE_BUCKETS, SORT_OPTIONS, TOD_OPTIONS, WHEN_OPTIONS,
+  APPROX_RATES_NOTE, DIRECTORY_OPENS_AT, FEW_TUTORS_BELOW, NO_FILTERS, PAGE_SIZE, PRICE_BUCKETS, SORT_OPTIONS, TOD_OPTIONS, WHEN_OPTIONS,
   activeFilters, applyFilters, filterLabel, filtersToQuery, languageCounts, relaxations, sortCards, stateOf, withoutFilter,
   type DirectoryCard, type Filters, type SortId,
 } from '@/lib/directory'
@@ -176,9 +176,13 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
       {!error && state === 'empty' && (
         <div className="text-center px-4 py-14 max-w-[520px] mx-auto grid gap-2.5 justify-items-center" data-testid="directory-empty">
           <span className="w-[72px] h-[72px] rounded-[22px] bg-indigo-50 text-indigo-600 grid place-items-center"><CalendarX className="h-8 w-8" aria-hidden="true" /></span>
-          <h2 className="text-[22px] font-extrabold text-gray-900">No tutors have open times right now</h2>
-          <p className="text-[15px] text-gray-600">We only list tutors you can book. Check back soon, or if you teach, add your free hours and your page appears here.</p>
-          <div className="flex gap-2.5 flex-wrap justify-center mt-1.5"><Link href="/register" className={PRIMARY}>Create your free page</Link></div>
+          <h2 className="text-[22px] font-extrabold text-gray-900">The tutor directory opens soon</h2>
+          <p className="text-[15px] text-gray-600">We only list tutors you can book today, and we open the directory once at least {DIRECTORY_OPENS_AT} tutors are ready. Tutors are finishing their profiles now, so check back soon.</p>
+          <p className="text-[15px] text-gray-600">If you teach, add your free hours and write a short introduction, and your card appears here as soon as the directory opens.</p>
+          <div className="flex gap-2.5 flex-wrap justify-center mt-1.5">
+            <Link href="/dashboard" className={PRIMARY}>Complete your profile</Link>
+            <Link href="/register" className={SECONDARY}>Create your free page</Link>
+          </div>
         </div>
       )}
 

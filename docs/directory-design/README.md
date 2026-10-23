@@ -17,6 +17,7 @@ Open `index.html`. It links to every page. The pages share colours, type and but
 | `eligible-tutors-count.sql` | READ-ONLY: one row of counts (how many tutors the rule would list, and where the others drop out) |
 | `eligible-tutors-by-language.sql` | READ-ONLY: eligible tutors per language |
 | `proposed-code-changes.md` | How the code would change. A proposal; nothing was changed |
+| `day-one-numbers.md` | The real count the owner ran on 2026-10-22 (1 tutor passes), where tutors drop out, what a missing price does, and three ways to launch |
 | `directory.css`, `build.mjs` | Styles and the generator |
 
 `tests/directory-gate-sql.test.ts` runs both queries on a throwaway in-memory Postgres (PGlite) built from every migration, with made-up tutors that each pass or fail one condition, and checks that the two queries share one rule and are read-only.

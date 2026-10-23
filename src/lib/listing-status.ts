@@ -6,7 +6,7 @@
 // named in every query); nothing is written, nothing is sent. A failed read gives null (no card), never a "not listed" that might be wrong.
 import { clashWindowStart, type AvailabilityRow, type LessonWindow } from '@/lib/booking-slots'
 import { loadChosenDurations } from '@/lib/lesson-durations'
-import { HORIZON_DAYS, MIN_INTRO_CHARS, checkListing, listingSlots, realZone } from '@/lib/directory'
+import { DIRECTORY_OPENS_AT, HORIZON_DAYS, MIN_INTRO_CHARS, checkListing, listingSlots, realZone } from '@/lib/directory'
 import { PHOTO_UPLOAD_READY } from '@/lib/profile-completion'
 import { SITE_URL } from '@/lib/site-url'
 
@@ -31,6 +31,22 @@ export type ListingCardData = {
   tz: string
   /** The tutor's public booking page, shown as a plain address. */
   bookingAddress: string | null
+  /** Set by withDirectoryStatus: the tutor meets every condition but the directory shows no card yet (T-0803). */
+  waitingForDirectory?: boolean
+}
+
+/**
+ * The directory shows cards only once DIRECTORY_OPENS_AT tutors are listed (T-0803), so a tutor who meets every condition is "Ready", not "Listed",
+ * until it opens. `open` is true when the directory shows cards, false when it does not, null when that could not be read: only a known "open"
+ * keeps the words "Students can find and book you". Pure; a tutor who is not listed yet is returned unchanged.
+ */
+export function withDirectoryStatus(card: ListingCardData, open: boolean | null): ListingCardData {
+  if (!card.listed || open === true) return card
+  return {
+    ...card,
+    waitingForDirectory: true,
+    text: `You meet every condition. Your card appears in the directory once it opens, which happens when ${DIRECTORY_OPENS_AT} tutors are ready. Students can book you through your booking link now.`,
+  }
 }
 
 export type ListingTutor = {
