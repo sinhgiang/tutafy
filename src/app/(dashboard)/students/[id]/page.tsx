@@ -151,9 +151,12 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
           <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
               <p className="text-[13px] font-semibold text-gray-900">Lesson History</p>
-              <Link href={`/lessons/new?student=${id}`} className="text-[12px] text-indigo-500 hover:underline font-medium">
-                + Add Lesson
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link href={`/lessons?student=${id}`} className="text-[13px] text-indigo-500 hover:underline font-medium">See all lessons</Link>
+                <Link href={`/lessons/new?student=${id}`} className="text-[13px] text-indigo-500 hover:underline font-medium">
+                  + Add Lesson
+                </Link>
+              </div>
             </div>
             {!lessons || lessons.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10">
