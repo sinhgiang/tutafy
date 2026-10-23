@@ -1,5 +1,5 @@
 // A scan of the source for every place that reads the `tutors` table or the blocked days (`availability_exceptions`) (T-0774), and for WHICH
-// client it reads with. A visitor's key is no longer allowed to read either table (docs/tutors-rls/025_tutors_not_public_proposal.sql), so a
+// client it reads with. A visitor's key is no longer allowed to read either table (supabase/migrations/025_tutors_not_public.sql), so a
 // page or an API that is open to a visitor must read them only with the server's admin client. The scan finds the read, finds the name the
 // client goes by, and follows that name back to the line that made it:
 //   - 'admin':   made by createAdminClient(), by admin(), or by a client built with the service-role key;

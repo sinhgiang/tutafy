@@ -1,4 +1,4 @@
--- T-0774: the two read-only checks for 025_tutors_not_public_proposal.sql. They change nothing (two select statements). Run each one on its own
+-- T-0774: the two read-only checks for supabase/migrations/025_tutors_not_public.sql. They change nothing (two select statements). Run each one on its own
 -- in the SQL Editor of the Supabase project; the editor shows the result of the last statement it runs.
 --
 -- CHECK 1 - which policies are on the two tables. After 025 the list must NOT contain "Anyone can view tutor for booking" or "Public read exceptions",

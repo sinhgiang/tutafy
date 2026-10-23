@@ -31,7 +31,7 @@ If the first shows "Anyone can view tutor for booking" with `(booking_url_active
 
 ## Where things stand (T-0774)
 
-**The code is changed; the SQL is ready and has NOT been run.** Nothing was run on the real Supabase and no key was used.
+**The code is changed and the SQL has been run on the real database by the owner (W-2548); it is now the migration `supabase/migrations/025_tutors_not_public.sql`.** The checks after it showed both public policies gone and no select left for the visitor.
 
 | Page or API | Before | Now |
 |---|---|---|
@@ -51,10 +51,10 @@ What keeps it that way: `tests/public-tutor-reads.test.ts` renders the real page
 1. **Merge the pull request of T-0774 and wait for the site to deploy.** Before that, 025 would break the booking pages.
 2. **Open a booking page** (`/tutors`, pick a tutor, press Book) and check it shows the tutor and the free times.
 3. **Run `025_checks_read_only.sql` first** (two select statements; shows "open").
-4. **Run `025_tutors_not_public_proposal.sql`** in the SQL Editor of the Supabase project.
+4. **Run `supabase/migrations/025_tutors_not_public.sql`** in the SQL Editor of the Supabase project (done).
 5. **Run the two checks again.** Check 1 must no longer list "Anyone can view tutor for booking" or "Public read exceptions"; check 2 must show no row.
 6. **Open the booking page, the embed and a tutor's profile again,** and sign in as a tutor: the dashboard must open. If a page shows "not found" or the dashboard sends you to the student sign-in, run `025_tutors_not_public_rollback.sql` (it puts both policies and the visitor's right to select back, exactly as before; it re-opens the exposure, so it is a stop-gap) and tell the Chief.
-7. **Then** move `025_tutors_not_public_proposal.sql` into `supabase/migrations` (keep the marker `T-0767-FIX`): `tests/tutors-read-exposure.test.ts` then expects no exposure and becomes the guard that keeps it closed.
+7. **Then** the file was moved into `supabase/migrations` (done, with the marker `T-0767-FIX`): `tests/tutors-read-exposure.test.ts` expects no exposure and is the guard that keeps it closed.
 8. **Decide about Google Calendar** (not done by anyone): the refresh tokens of the tutors who connected Google Calendar were readable by anyone with the public key. Nothing says anyone read them; nothing says nobody did. The owner decides whether to ask every tutor to disconnect and connect Google Calendar again (Settings, Google Calendar).
 
 `tests/tutors-025-ready.test.ts` proves, on a copy built from every migration: the two checks only select; before the fix they show the two public policies and the visitor's right to select, after it neither; the fix can be run twice; fix then rollback gives back exactly the same policies and grants as the migration files made.

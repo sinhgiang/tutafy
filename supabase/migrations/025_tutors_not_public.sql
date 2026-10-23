@@ -1,12 +1,13 @@
 -- T-0767 / T-0774: stop letting a visitor read other tutors' private columns.
 --
--- READY, NOT RUN. Run it ONLY AFTER the code of T-0774 is merged and live: the public pages now read the tutor on the server, with the admin
--- client, and the proxy asks "is this a tutor?" with the signed-in account's own session. Before that code is live, this file would make the booking
--- pages show "not found". The owner runs it in the SQL Editor of the Supabase project (nothing else runs it). Steps, the two read-only checks and
--- the way back are in docs/tutors-rls/README.md ("Running it"); the way back is docs/tutors-rls/025_tutors_not_public_rollback.sql.
--- Tested on a local copy only (tests/tutors-read-exposure.test.ts and tests/tutors-025-ready.test.ts, PGlite): nothing here ran on a real database.
--- It stays outside supabase/migrations on purpose. Once the owner has run it, move it into supabase/migrations WITH the marker below: the test that
--- documents today's exposure then expects the fix and becomes the guard that keeps it closed.
+-- ALREADY RUN on the real Supabase project (the owner, in the SQL Editor, W-2548, after the code of T-0774 was live; the checks afterwards showed both
+-- public policies gone and no select left for anon). This file is the same statements, kept as a migration so a database built from the files (a new
+-- environment, a branch, the tests) is born closed. It is safe to run again. Do NOT run it before the code of T-0774 is live: the public pages read the
+-- tutor on the server with the admin client, and the proxy asks "is this a tutor?" with the signed-in account's own session; without that code the booking
+-- pages would show "not found". The two read-only checks and the way back are in docs/tutors-rls (025_checks_read_only.sql, 025_tutors_not_public_rollback.sql,
+-- README.md); the way back re-opens the exposure and is a stop-gap only.
+-- Tested on a local copy (tests/tutors-read-exposure.test.ts and tests/tutors-025-ready.test.ts, PGlite). The marker below is what those tests look for:
+-- with it in supabase/migrations the test that documented the exposure now expects NONE and keeps it closed.
 --
 -- T-0767-FIX
 --
