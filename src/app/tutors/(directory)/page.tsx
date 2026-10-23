@@ -7,6 +7,7 @@ import { parseFilters, refreshCards } from '@/lib/directory'
 import { SiteLogo } from '@/components/SiteLogo'
 import { PAGE_SEO } from '@/lib/page-meta'
 import { jsonLdScript, pageJsonLd } from '@/lib/seo'
+import { languagePagePath, pickLanguagePages } from '@/lib/language-pages'
 
 // The tutor directory (T-0769): only tutors a student can book today. The list comes from the server (src/lib/directory-cache.ts, kept a few
 // minutes), is drawn into the page itself so search engines see real tutors, and DirectoryView does the filters in the browser. The filters
@@ -16,6 +17,7 @@ export default async function TutorsPage({ searchParams }: { searchParams: Promi
   const directory = await getDirectory()
   const now = new Date()
   const cards = directory ? refreshCards(directory.cards, now) : []
+  const languagePages = pickLanguagePages(cards)
 
   return (
     <div className="dir-page min-h-screen bg-[#F7F8FA]">
@@ -35,6 +37,14 @@ export default async function TutorsPage({ searchParams }: { searchParams: Promi
       <main>
         <DirectoryView cards={cards} listed={directory?.listed ?? 0} truncated={directory?.truncated ?? false}
         initial={parseFilters(params)} nowIso={now.toISOString()} error={directory === null} />
+        {languagePages.length > 0 && (
+          <nav aria-label="Tutors by language" className="max-w-[1120px] mx-auto px-4 pb-10" data-testid="language-links">
+            <h2 className="text-[18px] font-extrabold text-gray-900">Browse tutors by language</h2>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {languagePages.map(p => <li key={p.guide.slug}><Link href={languagePagePath(p.guide.slug)} className="inline-flex items-center min-h-11 px-4 rounded-full border border-gray-300 bg-white text-[14px] font-semibold text-gray-800 hover:border-indigo-300">{p.guide.name} tutors <span className="ml-1.5 text-[12.5px] text-gray-600">{p.count}</span></Link></li>)}
+            </ul>
+          </nav>
+        )}
         {cards.length > 0 && <TutorsFaq />}
       </main>
 

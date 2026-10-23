@@ -79,7 +79,8 @@ test('/llms.txt links the six key pages and every blog post, and each link is a 
     if (route.startsWith('/blog/')) {
       assert.ok(slugs.has(route.slice('/blog/'.length)), `no such post: ${route}`)
     } else {
-      assert.ok(hasPage(route), `no page file for ${route}`)
+      // a page file, or a route handler such as /llms-languages.txt (T-0875)
+      assert.ok(hasPage(route) || existsSync(path.join(ROOT, 'src/app', route, 'route.ts')), `no page file for ${route}`)
     }
   }
 })
