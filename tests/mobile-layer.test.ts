@@ -240,7 +240,9 @@ test('the on-screen keyboard cannot hide the send button: the page resizes, the 
   assert.match(layoutCss(), /body:has\(input:focus, textarea:focus, select:focus\) \[data-mobile-nav\] \{\s*display: none;/)
   assert.match(read('src/components/layout/MobileNav.tsx'), /<nav aria-label="Main" data-mobile-nav /)
   // the chat is as tall as the visible screen minus the top bar, the frame padding and (on a phone) the bottom bar (dvh follows the browser bar)
-  assert.match(read('src/app/(dashboard)/messages/[studentId]/page.tsx'), /flex flex-col h-\[calc\(100dvh-176px\)\] md:h-\[calc\(100dvh-136px\)\]/)
+  const shellCss = read('src/styles/dashboard-shell.css')
+  assert.ok(shellCss.includes('.msg-shell { height: calc(100dvh - 176px);'))
+  assert.ok(shellCss.includes('@media (min-width: 768px) { .msg-shell { height: calc(100dvh - 136px); } }'))
   assert.match(read('src/app/portal/[token]/messages/page.tsx'), /h-\[calc\(100dvh-100px\)\] md:h-\[calc\(100vh-100px\)\]/)
   // fields are 16px on a phone (the browser does not zoom in on focus); the 14px rule leaves them alone so it cannot win
   const block = layerBlock()
