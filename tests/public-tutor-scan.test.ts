@@ -38,6 +38,7 @@ const OWN_SESSION: Record<string, { reads: number; unscoped?: number; reason: st
   'src/app/api/messages/broadcast/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own name' },
   'src/app/api/referral/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own referral code' },
   'src/app/api/stripe/connect/onboard/route.ts': { reads: 2, reason: 'a signed-in tutor reads their own Stripe account id' },
+  'src/app/api/subscriptions/plans/route.ts': { reads: 1, reason: 'T-0841: a Pro tutor (requireApiPlan) reads the slug of their own row (.eq id, the session) to build the Copy link of a plan; the route answers 401 without a session' },
   'src/app/api/subscriptions/upgrade/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own plan' },
   'src/app/onboarding/page.tsx': { reads: 2, reason: 'browser: the signed-in tutor reads and saves their own first profile' },
   'src/app/settings/stripe/return/page.tsx': { reads: 1, reason: 'a signed-in tutor comes back from Stripe and reads their own account id' },

@@ -99,6 +99,21 @@ export function validatePlan(body: unknown): { ok: true; value: PlanInput } | { 
   return { ok: true, value: { name, description, price: Math.round(price * 100) / 100, currency, lessons_per_period: lessons, period: b.period as 'month' | 'week', duration_minutes: duration } }
 }
 
+/**
+ * The link a tutor sends a student for one plan (T-0841): the tutor's OWN booking page address (their slug, read from their row on the
+ * server, never the referral code), the plan id in the address, and #subscribe so the page scrolls to the plans. The booking page
+ * looks the id up among that tutor's active plans (`planToHighlight`); an id that is not one of them is ignored.
+ */
+export function planCheckoutLink(origin: string, slug: string, planId: string): string {
+  return `${origin.replace(/\/+$/, '')}/book/${encodeURIComponent(slug)}?plan=${encodeURIComponent(planId)}#subscribe`
+}
+
+/** The plan the address asks to highlight: only an id that is one of the tutor's active plans on the page; anything else is nothing. */
+export function planToHighlight(raw: string | string[] | undefined, plans: { id: string }[]): string | null {
+  const id = Array.isArray(raw) ? raw[0] : raw
+  return typeof id === 'string' && plans.some(p => p.id === id) ? id : null
+}
+
 /** The only fields a tutor may change on a plan after it exists (the old route wrote whatever it was sent, including tutor_id). */
 export function pickPlanUpdates(body: unknown): { ok: true; value: Record<string, unknown> } | { ok: false; error: string } {
   const b = (body ?? {}) as Record<string, unknown>

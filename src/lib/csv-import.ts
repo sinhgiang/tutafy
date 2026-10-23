@@ -1,10 +1,14 @@
 // The CSV import's reading side (T-0824): detect the platform, split the file, group lessons by student, and describe what would
 // be imported (the preview the tutor sees BEFORE anything is saved). Pure; the route in src/app/api/import/route.ts does the saving.
+import { csvCell } from '@/lib/csv'
+
 export type ParsedStudent = {
   name: string
   email: string
   notes: string
   language: string
+  /** The row of the file where this student first appears (see ImportProblem.row). */
+  firstRow?: number
   lessons: ParsedLesson[]
 }
 
@@ -41,7 +45,25 @@ export function parseCSV(text: string): { headers: string[]; rows: string[][] } 
   return { headers, rows }
 }
 
+/** One thing in the file that could not be imported (T-0841), for the page and for the problems file the tutor downloads. */
+export type ImportProblem = {
+  /** 1 is the first row under the header, counting only rows that are not empty. */
+  row: number
+  student: string
+  email: string
+  problem: string
+  /** What Tutafy did about it, in a few words: "Row skipped", "Lesson skipped, student added", "Student not saved". */
+  result: string
+}
+
+export const MAX_PROBLEMS = 1000
+
 export function parsePreply(headers: string[], rows: string[][]): ParsedStudent[] {
+  return parsePreplyWithProblems(headers, rows).students
+}
+
+/** The same reading as parsePreply, and a list of every row or lesson it had to leave out, with the reason. */
+export function parsePreplyWithProblems(headers: string[], rows: string[][]): { students: ParsedStudent[]; problems: ImportProblem[] } {
   const idx = (name: string) => headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()))
   const iName = idx('student') !== -1 ? idx('student') : idx('name')
   const iEmail = idx('email')
@@ -52,28 +74,33 @@ export function parsePreply(headers: string[], rows: string[][]): ParsedStudent[
   const iNotes = idx('notes') !== -1 ? idx('notes') : idx('comment')
 
   const students = new Map<string, ParsedStudent>()
+  const problems: ImportProblem[] = []
 
-  for (const row of rows) {
-    if (row.length < 2) continue
+  for (const [index, row] of rows.entries()) {
+    const rowNo = index + 1
+    if (row.length < 2) { problems.push({ row: rowNo, student: '', email: '', problem: 'The row has fewer than two columns', result: 'Row skipped' }); continue }
     const name = (row[iName] ?? '').trim()
     const email = (row[iEmail] ?? '').trim()
     const key = email || name
-    if (!key) continue
+    if (!key) { problems.push({ row: rowNo, student: '', email: '', problem: 'No student name and no email', result: 'Row skipped' }); continue }
 
     if (!students.has(key)) {
       students.set(key, {
         name: name || 'Unknown',
         email: email || '',
         notes: '',
+        firstRow: rowNo,
         language: iLang >= 0 ? (row[iLang] ?? '').trim() : '',
         lessons: [],
       })
     }
 
     const dateStr = iDate >= 0 ? (row[iDate] ?? '').trim() : ''
+    if (iDate >= 0 && !dateStr) problems.push({ row: rowNo, student: name, email, problem: 'No lesson date', result: 'Lesson skipped, student added' })
     if (dateStr) {
       const d = new Date(dateStr)
-      if (!isNaN(d.getTime())) {
+      if (isNaN(d.getTime())) problems.push({ row: rowNo, student: name, email, problem: `The date "${dateStr.slice(0, 40)}" is not one we can read`, result: 'Lesson skipped, student added' })
+      else {
         const durRaw = iDur >= 0 ? row[iDur] ?? '' : ''
         const dur = parseInt(durRaw.replace(/[^0-9]/g, '')) || 60
         const priceRaw = iAmt >= 0 ? row[iAmt] ?? '' : ''
@@ -87,7 +114,15 @@ export function parsePreply(headers: string[], rows: string[][]): ParsedStudent[
       }
     }
   }
-  return Array.from(students.values())
+  return { students: Array.from(students.values()), problems }
+}
+
+const PROBLEM_HEADER = ['Row', 'Student', 'Email', 'Problem', 'What happened']
+
+/** The problems file: one line a problem, safe to open in a spreadsheet (a cell that starts with = + - or @ gets an apostrophe). */
+export function problemsCsv(problems: ImportProblem[]): string {
+  const lines = [PROBLEM_HEADER.map(csvCell).join(','), ...problems.map(p => [p.row, p.student, p.email, p.problem, p.result].map(csvCell).join(','))]
+  return lines.join('\r\n') + '\r\n'
 }
 
 
