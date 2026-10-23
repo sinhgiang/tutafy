@@ -6,12 +6,12 @@ export default async function ImportPage() {
   if (locked) return locked
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Import Students</h1>
-        <p className="text-[13px] text-gray-400 mt-0.5">
-          Migrate your students and lesson history from Preply, iTalki, or any CSV file
-        </p>
+    <div>
+      <div className="dash-head">
+        <div>
+          <h1>Import students</h1>
+          <p>Bring your students and lesson history from Preply, iTalki or any CSV file. You see exactly what will be added before anything is saved.</p>
+        </div>
       </div>
       <ImportTool />
     </div>

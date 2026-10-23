@@ -18,7 +18,7 @@ There is **no page frame**. The layout puts the page straight into `<main>` and 
 | Messages `messages/page.tsx` (before T-0823), Chat `messages/[studentId]/page.tsx` (before T-0823) | 760 / 680 | about 55% |
 | Availability `availability/page.tsx:104`, Lesson detail `lessons/[id]/page.tsx:82` | 700 | about 59% |
 | New lesson `lessons/new/page.tsx:123`, Edit lesson `lessons/[id]/edit/page.tsx:119` | 660 | about 61% |
-| Coupons `CouponsClient.tsx:68`, Packages `packages/page.tsx:24`, Waitlist `waitlist/page.tsx:24` | 640 | about 62% |
+| Coupons `CouponsClient.tsx:68`, Packages `packages/page.tsx` (before T-0825), Waitlist `waitlist/page.tsx:24` | 640 | about 62% |
 | Student form `StudentForm.tsx:61`, Edit student `students/[id]/edit/page.tsx:79` | 620 | about 63% |
 | Import `ImportTool.tsx:73`, Broadcast `messages/broadcast/page.tsx:45` | 600 | about 65% |
 | Only these centre themselves: Dashboard `DashboardHome.tsx:439` (1200), Referral `referral/page.tsx:47` and Subscriptions `SubscriptionsClient.tsx:97` (672, `mx-auto`), Upgrade `upgrade/page.tsx:134` | | |

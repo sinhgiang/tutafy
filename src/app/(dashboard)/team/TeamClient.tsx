@@ -1,6 +1,6 @@
 'use client'
 
-import { PageColumn } from '@/components/layout/PageFrame'
+import { StatRow } from '@/components/lists/StatRow'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -212,23 +212,30 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
   }
 
   return (
-    <PageColumn size="list" className="space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-5">
+      <div className="dash-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Team & Payroll</h1>
-          <p className="text-[13px] text-gray-400 mt-0.5">Add your tutors, assign lessons, and track what each one earns.</p>
+          <h1>Team &amp; Payroll <span className="dash-chip is-brand-chip" style={{ verticalAlign: 'middle', marginLeft: 6 }}>Academy</span></h1>
+          <p>Add your tutors, assign lessons, and see what each one earns.</p>
         </div>
-        <div className="flex bg-gray-100 rounded-lg p-1 text-[12px] font-semibold">
-          <a href="/team?period=all" className={`px-3 py-1.5 rounded-md transition-colors ${scope === 'all' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>All time</a>
-          <a href="/team?period=month" className={`px-3 py-1.5 rounded-md transition-colors ${scope === 'month' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>This month</a>
-        </div>
+        <nav className="dash-seg" aria-label="Period">
+          <a href="/team?period=all" aria-current={scope === 'all' ? 'true' : undefined}>All time</a>
+          <a href="/team?period=month" aria-current={scope === 'month' ? 'true' : undefined}>This month</a>
+        </nav>
       </div>
 
       {plan !== 'academy' && (
-        <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-[12px] text-amber-700">
-          Team & payroll is an <strong>Academy</strong> feature. You can set it up now — upgrade to Academy to run a full team of tutors.
+        <div className="dash-card dash-card-b" role="note" style={{ background: 'var(--d-warn-soft)', color: 'var(--d-ink-2)' }}>
+          Team and payroll is part of the <b>Academy</b> plan. You can set it up now and upgrade when you run a full team.
         </div>
       )}
+
+      <StatRow stats={[
+        { id: 'members', label: 'Team members', value: String(members.length), foot: 'up to 5' },
+        { id: 'lessons', label: scope === 'month' ? 'Lessons this month' : 'Lessons assigned', value: String(payroll.totals.lessons), foot: `${payroll.totals.hours} hours` },
+        { id: 'earn', label: 'Your tutors earn', value: money(payroll.totals.earnings) },
+        { id: 'keep', label: 'Academy keeps', value: money(payroll.totals.companyShare) },
+      ]} />
 
       {/* Payroll summary */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
@@ -389,6 +396,6 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
           )}
         </div>
       )}
-    </PageColumn>
+    </div>
   )
 }

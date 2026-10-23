@@ -73,7 +73,7 @@ test('the width scan sees the faults it exists for (mutation: the old roots of t
 })
 
 test('the width scan goes red on a real page when its root gets a width back (mutation on the real source)', () => {
-  const rel = 'src/app/(dashboard)/availability/page.tsx'
+  const rel = 'src/app/(dashboard)/lessons/new/page.tsx'
   const real = read(rel)
   assert.deepEqual(ownWidthRoots(real), [])
   const broken = real.replace(/<PageColumn size="form" className="([^"]*)">/, '<div className="$1 max-w-[900px]">')

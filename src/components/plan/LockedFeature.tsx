@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { Lock, Sparkles, Users, Check, ArrowRight, Loader2, Zap } from 'lucide-react'
+import { Sparkles, Users, Check, ArrowRight, Loader2, Zap } from 'lucide-react'
 import { polarCheckoutUrl, PLAN_LABEL, PLAN_PRICE, type Plan } from '@/lib/plans'
 import { trackCheckoutClick } from '@/lib/track-client'
 
@@ -83,102 +83,57 @@ export function LockedFeature({
   }
 
   return (
-    <div className="relative min-h-[72vh] w-full overflow-hidden rounded-2xl">
-      {/* Blurred faux preview behind the glass */}
-      <div aria-hidden className="absolute inset-0 select-none pointer-events-none blur-[6px] opacity-60 p-6">
-        <div className="h-7 w-52 bg-gray-200 rounded-lg mb-6" />
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 p-5">
-              <div className="w-9 h-9 rounded-lg bg-gray-100 mb-4" />
-              <div className="h-4 w-24 bg-gray-200 rounded mb-2" />
-              <div className="h-3 w-32 bg-gray-100 rounded" />
-            </div>
-          ))}
-        </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-3">
-          <div className="h-4 w-40 bg-gray-200 rounded" />
-          <div className="h-3 w-full bg-gray-100 rounded" />
-          <div className="h-3 w-5/6 bg-gray-100 rounded" />
-          <div className="h-3 w-2/3 bg-gray-100 rounded" />
+    <div>
+      {/* T-0825: a plan feature is shown as a quiet "Pro" tag and an upgrade sheet, not a blurred page with a padlock. */}
+      <div className="dash-head">
+        <div>
+          <h1>{feature} <span className="dash-chip is-brand-chip" data-testid="plan-tag" style={{ verticalAlign: 'middle', marginLeft: 6 }}>{PLAN_LABEL[required]}</span></h1>
+          <p>This is part of the {PLAN_LABEL[required]} plan. You are on {PLAN_LABEL[plan]}.</p>
         </div>
       </div>
-
-      {/* Frosted scrim */}
-      <div className="absolute inset-0 bg-white/55 backdrop-blur-[2px]" />
-
-      {/* Upgrade card */}
-      <div className="relative z-10 flex items-center justify-center min-h-[72vh] px-4 py-10">
-        <div className="w-full max-w-[440px] bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden">
-          <div className={`px-8 pt-8 pb-7 text-center ${isAcademy ? 'bg-amber-500' : 'bg-indigo-500'}`}>
-            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 relative">
-              <Icon className="h-7 w-7 text-white" />
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow">
-                <Lock className={`h-3 w-3 ${isAcademy ? 'text-amber-500' : 'text-indigo-500'}`} />
-              </div>
-            </div>
-            <p className={`text-[11px] font-bold uppercase tracking-widest ${isAcademy ? 'text-amber-100' : 'text-indigo-200'}`}>
-              {PLAN_LABEL[required]} feature
-            </p>
-            <h2 className="text-[21px] font-bold text-white mt-1">{feature}</h2>
-            <p className={`text-[13px] mt-1.5 ${isAcademy ? 'text-amber-100' : 'text-indigo-100'}`}>
-              This is part of the <strong className="text-white">{PLAN_LABEL[required]}</strong> plan.
-              You're currently on <strong className="text-white capitalize">{PLAN_LABEL[plan]}</strong>.
-            </p>
+      <section className="dash-card dash-upgrade" aria-label={`Upgrade to ${PLAN_LABEL[required]}`} data-testid="upgrade-sheet">
+        <div className="dash-upgrade-body">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <span className="dash-state-ico is-brand" style={{ margin: 0, width: 40, height: 40 }}><Icon className="h-5 w-5" aria-hidden="true" /></span>
+            <b style={{ color: 'var(--d-ink)', fontSize: 16 }}>What you get with {PLAN_LABEL[required]}</b>
           </div>
+          <ul style={{ listStyle: 'none', margin: '0 0 20px', padding: 0, display: 'grid', gap: 8 }}>
+            {BENEFITS[required].map(b => (
+              <li key={b} style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--d-ink-2)' }}>
+                <Check className="h-4 w-4" aria-hidden="true" style={{ color: 'var(--d-ok)', flexShrink: 0 }} />{b}
+              </li>
+            ))}
+          </ul>
 
-          <div className="p-8">
-            <div className="space-y-2.5 mb-6">
-              {BENEFITS[required].map(b => (
-                <div key={b} className="flex items-center gap-2.5">
-                  <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${isAcademy ? 'bg-amber-50' : 'bg-indigo-50'}`}>
-                    <Check className={`h-2.5 w-2.5 ${isAcademy ? 'text-amber-600' : 'text-indigo-600'}`} />
-                  </div>
-                  <span className="text-[13px] text-gray-700">{b}</span>
-                </div>
-              ))}
-            </div>
-
-            {canInstantUpgrade ? (
-              // Card already on file → ask for confirmation, then charge instantly
-              // (no checkout page).
-              <button
-                onClick={() => setConfirming(true)}
-                className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl text-[14px] font-bold text-white transition-colors ${
-                  isAcademy ? 'bg-amber-500 hover:bg-amber-600' : 'bg-indigo-500 hover:bg-indigo-600'
-                }`}
-              >
-                <Zap className="h-4 w-4" fill="currentColor" /> Upgrade to {PLAN_LABEL[required]} — {PLAN_PRICE[required]}
-              </button>
-            ) : (
-              // No card yet (first paid upgrade) → prefilled hosted checkout.
-              <a
-                href={checkoutHref}
-                onClick={() => { if (required !== 'free') trackCheckoutClick(required) }}
-                className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl text-[14px] font-bold text-white transition-colors ${
-                  isAcademy ? 'bg-amber-500 hover:bg-amber-600' : 'bg-indigo-500 hover:bg-indigo-600'
-                }`}
-              >
-                Upgrade to {PLAN_LABEL[required]} — {PLAN_PRICE[required]}
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            )}
-
-            <Link
-              href="/upgrade"
-              className="block text-center mt-3 text-[12.5px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
+          {canInstantUpgrade ? (
+            // Card already on file → ask for confirmation, then charge instantly
+            // (no checkout page).
+            <button type="button" onClick={() => setConfirming(true)} className="dash-btn is-primary" style={{ width: '100%', height: 44 }}>
+              <Zap className="h-4 w-4" fill="currentColor" aria-hidden="true" /> Upgrade to {PLAN_LABEL[required]} — {PLAN_PRICE[required]}
+            </button>
+          ) : (
+            // No card yet (first paid upgrade) → prefilled hosted checkout.
+            <a
+              href={checkoutHref}
+              onClick={() => { if (required !== 'free') trackCheckoutClick(required) }}
+              className="dash-btn is-primary" style={{ width: '100%', height: 44 }}
             >
-              Compare all plans
-            </Link>
+              Upgrade to {PLAN_LABEL[required]} — {PLAN_PRICE[required]}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          )}
 
-            <p className="text-[11px] text-gray-400 text-center mt-5 leading-relaxed">
-              {canInstantUpgrade
-                ? 'One click charges your saved card and unlocks instantly · Cancel anytime'
-                : 'Instant access after payment · Cancel anytime · We never take a cut of your income'}
-            </p>
-          </div>
+          <Link href="/upgrade" style={{ display: 'block', textAlign: 'center', marginTop: 12, color: 'var(--d-brand)' }}>
+            Compare all plans
+          </Link>
+
+          <p style={{ margin: '16px 0 0', textAlign: 'center', color: 'var(--d-ink-3)', fontSize: 13 }}>
+            {canInstantUpgrade
+              ? 'One click charges your saved card and unlocks instantly · Cancel anytime'
+              : 'Instant access after payment · Cancel anytime · We never take a cut of your income'}
+          </p>
         </div>
-      </div>
+      </section>
 
       {/* Confirmation dialog before charging the saved card */}
       {confirming && (
