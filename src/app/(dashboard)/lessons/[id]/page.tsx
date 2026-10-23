@@ -82,7 +82,7 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
   return (
     <PageColumn size="form" className="space-y-4">
       <div className="flex items-center gap-3">
-        <Link href="/lessons" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/lessons" aria-label="Back to lessons" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div className="flex-1">

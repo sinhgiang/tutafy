@@ -39,7 +39,7 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
   return (
     <PageColumn size="list" className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/students" aria-label="Back to students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Student Profile</h1>

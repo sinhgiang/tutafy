@@ -119,7 +119,7 @@ export default function EditLessonPage() {
   return (
     <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
-        <Link href={`/lessons/${id}`} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href={`/lessons/${id}`} aria-label="Back to lesson" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div>
@@ -134,7 +134,7 @@ export default function EditLessonPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Date & Time</label>
-              <input type="datetime-local" value={form.starts_at}
+              <input type="datetime-local" aria-label="Date and time" value={form.starts_at}
                 onChange={e => setForm(f => ({ ...f, starts_at: e.target.value }))} className={inp} />
             </div>
             <div>
@@ -209,7 +209,7 @@ export default function EditLessonPage() {
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
             <input value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Word / phrase" className={inp} />
             <input value={newDef} onChange={e => setNewDef(e.target.value)} placeholder="Definition / translation" className={inp} />
-            <button type="button" onClick={addVocab}
+            <button type="button" onClick={addVocab} aria-label="Add word"
               className="px-3 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
               <Plus className="h-4 w-4" />
             </button>

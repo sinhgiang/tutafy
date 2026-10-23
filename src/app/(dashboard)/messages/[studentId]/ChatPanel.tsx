@@ -257,7 +257,7 @@ export function ChatPanel({
           style={{ lineHeight: '1.5' }}
         />
         <button
-          onClick={send}
+          onClick={send} aria-label="Send message"
           disabled={!input.trim() || sending}
           className="w-9 h-9 flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-colors flex-shrink-0"
         >
