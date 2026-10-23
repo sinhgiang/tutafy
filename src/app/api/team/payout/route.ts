@@ -27,6 +27,6 @@ export async function POST(request: Request) {
     })
     .select('id, amount, period_start, period_end, paid_at')
     .single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Could not record the payout' }, { status: 500 })
   return NextResponse.json({ payout: data }, { status: 201 })
 }

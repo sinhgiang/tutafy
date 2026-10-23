@@ -35,12 +35,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .eq('id', id)
     .eq('owner_id', user.id)
     .select('id, name, email, pay_type, pay_rate, active, slug, bio, avatar_url, timezone, booking_url_active, created_at')
-    .single()
+    .maybeSingle() // no row of this owner with this id is a 404 below, not a database error (T-0841)
   if (error) {
     if (error.message.includes('team_members_owner_slug_idx') || error.code === '23505') {
       return NextResponse.json({ error: 'That booking link is already taken' }, { status: 409 })
     }
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Could not save the team member' }, { status: 500 })
   }
   if (!data) return NextResponse.json({ error: 'not found' }, { status: 404 })
   return NextResponse.json({ member: data })
@@ -52,7 +52,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
-  const { error } = await supabase.from('team_members').delete().eq('id', id).eq('owner_id', user.id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  const { data, error } = await supabase.from('team_members').delete().eq('id', id).eq('owner_id', user.id).select('id')
+  if (error) return NextResponse.json({ error: 'Could not remove the team member' }, { status: 500 })
+  if (!data || data.length === 0) return NextResponse.json({ error: 'not found' }, { status: 404 })
   return NextResponse.json({ ok: true })
 }

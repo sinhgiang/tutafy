@@ -17,6 +17,7 @@ import { loadFreeTimes, loadReviewLessonCounts, type ReadClient } from '@/lib/pr
 import { hasTrial, joinedLabel, priceLabel, safeZone, usableReviews } from '@/lib/tutor-profile'
 import { About, Faq, Hero, MobileBookBar, Packages, Policy, Reviews, type PackageItem } from '@/components/booking/BookingSections'
 import { SiteLogo } from '@/components/SiteLogo'
+import { planToHighlight } from '@/lib/business-lists'
 
 // One read of the tutor per request, shared by the page and its metadata. Read on the server with the admin client, only the public
 // columns (T-0774): a visitor's own key cannot read the tutors table. The other tables below (hours, plans, reviews, packages) stay public reads.
@@ -30,8 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return tutor && tutor.booking_url_active ? bookingMetadata(slug, tutor) : tutorNotFoundMetadata()
 }
 
-export default async function BookingPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BookingPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams?: Promise<{ plan?: string | string[] }> }) {
   const { slug } = await params
+  const { plan: planParam } = (await searchParams) ?? {} // a tutor's "Copy link" for one plan (T-0841)
   const supabase = await createClient()
   const admin = createAdminClient()
 
@@ -158,6 +160,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
               cardCheckoutEnabled={isStripeEnabled()}
               availability={availability ?? []}
               subscriptionPlans={subscriptionPlans}
+              highlightPlanId={planToHighlight(planParam, subscriptionPlans)}
               contractTemplate={(tutor as any).contract_template ?? null}
               blockedDates={blockedDates}
               packages={[]}

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { CircleAlert, Copy, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { formatMoney } from '@/lib/currency'
-import { PLAN_PERIODS, planStats, validatePlan } from '@/lib/business-lists'
+import { PLAN_PERIODS, planCheckoutLink, planStats, validatePlan } from '@/lib/business-lists'
 import { StatRow } from '@/components/lists/StatRow'
 
 type Plan = { id: string; name: string; description: string | null; price: number; currency: string; lessons_per_period: number; period: string; duration_minutes: number; is_active: boolean }
@@ -27,7 +27,6 @@ export function SubscriptionsClient() {
 
   useEffect(() => {
     void load()
-    fetch('/api/referral').then(r => r.json()).then(d => { if (d.referral_code) setSlug(d.referral_code) }).catch(() => {})
   }, [])
 
   async function load() {
@@ -37,6 +36,7 @@ export function SubscriptionsClient() {
       if (!res.ok) { setFailed(true); return }
       if (d.migrationRequired) { setMigrationRequired(true); return }
       setPlans(d.plans ?? [])
+      if (typeof d.slug === 'string') setSlug(d.slug)
     } catch { setFailed(true) } finally { setLoading(false) }
   }
 
@@ -65,7 +65,7 @@ export function SubscriptionsClient() {
   }
 
   function copyLink(plan: Plan) {
-    void navigator.clipboard.writeText(`${window.location.origin}/book/${slug}?plan=${plan.id}`).then(() => toast.success('Link copied')).catch(() => toast.error('Could not copy the link'))
+    void navigator.clipboard.writeText(planCheckoutLink(window.location.origin, slug, plan.id)).then(() => toast.success('Link copied')).catch(() => toast.error('Could not copy the link'))
   }
 
   if (loading) return <div role="status" className="dash-sk" style={{ height: 240 }}><span className="sr-only">Loading your plans</span></div>
@@ -130,7 +130,7 @@ export function SubscriptionsClient() {
                       <td className="c-sub"><span className={`dash-chip ${p.is_active ? 'is-ok' : ''}`}>{p.is_active ? 'On sale' : 'Off'}</span> <span className="dash-m-only">{PERIOD_LABEL[p.period] ?? p.period}, {p.lessons_per_period} lessons of {p.duration_minutes} min</span></td>
                       <td className="is-num c-sub" style={{ whiteSpace: 'nowrap' }}>
                         <button type="button" className="dash-btn is-ghost" onClick={() => toggleActive(p)}>{p.is_active ? 'Switch off' : 'Switch on'}</button>
-                        {slug && <button type="button" className="dash-icon-btn" style={{ display: 'inline-grid' }} onClick={() => copyLink(p)} aria-label={`Copy the checkout link of ${p.name}`}><Copy className="h-4 w-4" aria-hidden="true" /></button>}
+                        {slug && p.is_active && <button type="button" className="dash-icon-btn" style={{ display: 'inline-grid' }} onClick={() => copyLink(p)} aria-label={`Copy the checkout link of ${p.name}`}><Copy className="h-4 w-4" aria-hidden="true" /></button>}
                         <button type="button" className="dash-icon-btn" style={{ display: 'inline-grid' }} onClick={() => deletePlan(p)} aria-label={`Delete ${p.name}`}><Trash2 className="h-4 w-4" aria-hidden="true" /></button>
                       </td>
                     </tr>
