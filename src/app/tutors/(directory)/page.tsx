@@ -5,6 +5,8 @@ import { getDirectory } from '@/lib/directory-cache'
 import { TutorsFaq } from '@/components/directory/TutorsFaq'
 import { parseFilters, refreshCards } from '@/lib/directory'
 import { SiteLogo } from '@/components/SiteLogo'
+import { PAGE_SEO } from '@/lib/page-meta'
+import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 
 // The tutor directory (T-0769): only tutors a student can book today. The list comes from the server (src/lib/directory-cache.ts, kept a few
 // minutes), is drawn into the page itself so search engines see real tutors, and DirectoryView does the filters in the browser. The filters
@@ -17,6 +19,7 @@ export default async function TutorsPage({ searchParams }: { searchParams: Promi
 
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
+      {directory !== null && pageJsonLd(PAGE_SEO.tutors, 'Find tutors', 'CollectionPage', cards.slice(0, 24).map(c => ({ name: c.name, path: `/tutors/${c.slug}` }))).map((d, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(d) }} />)}
       <header className="bg-white border-b border-gray-100 px-6 py-3.5">
         <div className="max-w-[1120px] mx-auto flex items-center justify-between">
           <SiteLogo size="md" />

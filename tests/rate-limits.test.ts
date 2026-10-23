@@ -31,6 +31,7 @@ const track = await import('@/app/api/track/route.ts')
 const register = await import('@/app/api/auth/register/route.ts')
 const feedback = await import('@/app/api/feedback/route.ts')
 const avatar = await import('@/app/api/tutors/avatar/route.ts')
+const waitlist = await import('@/app/api/waitlist/route.ts')
 const { signStudentToken } = await import('@/lib/student-auth.ts')
 const { createLimiter } = await import('@/lib/rate-limit-memory.ts')
 const { NextRequest } = await import('next/server.js')
@@ -174,6 +175,53 @@ test('/api/feedback: at most 120 calls a minute overall, whatever kind, text or 
     })),
   })
   assert.equal(r.limit, 120)
+})
+
+// ---- /api/waitlist (T-0841) --------------------------------------------------------------------------------
+
+const WAITLIST_TUTOR = '22222222-2222-4222-8222-222222222222'
+const waitlistFixed = [] as const
+
+const waitlistRequest = (v: Parameters<Parameters<typeof assertRateLimitHolds>[0]['call']>[0], tutor: unknown, headers: Record<string, unknown>) => v.request({
+  url: `${ORIGIN}/api/waitlist`,
+  headers: headers as never,
+  body: { tutor_id: tutor as string, name: v.text() as unknown as string, email: v.email() as unknown as string, message: v.text() as unknown as string },
+})
+
+test('/api/waitlist: at most 5 sign-ups in 10 minutes for one address, whatever tutor, name, email or message the body carries', async () => {
+  db = createFakeDb({ waitlist: [] })
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/waitlist/route.ts',
+    limiter: 'perAddress',
+    fixed: [
+      ...waitlistFixed,
+      { kind: 'header', name: 'x-real-ip', reason: 'the address this limit counts: Vercel sets it itself and replaces what a caller sent (src/lib/client-ip.ts); the cap per tutor below holds without it' },
+    ],
+    call: v => waitlist.POST(waitlistRequest(v, v.uuid(), { 'x-real-ip': '203.0.113.77' })),
+  })
+  assert.equal(r.limit, 5)
+})
+
+test('/api/waitlist: at most 30 sign-ups an hour for one tutor, whatever address, name, email or message a caller makes up', async () => {
+  db = createFakeDb({ waitlist: [] })
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/waitlist/route.ts',
+    limiter: 'perTutor',
+    fixed: [...waitlistFixed, { kind: 'body', name: 'tutor_id', reason: 'the tutor this limit counts; another tutor has their own cap' }],
+    call: v => waitlist.POST(waitlistRequest(v, WAITLIST_TUTOR, { 'x-real-ip': v.ip(), 'x-forwarded-for': v.ip() })),
+  })
+  assert.equal(r.limit, 30)
+})
+
+test('/api/waitlist: at most 300 calls a minute overall, whatever address, tutor, name, email or message a caller makes up', async () => {
+  db = createFakeDb({ waitlist: [] })
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/waitlist/route.ts',
+    limiter: 'overall',
+    fixed: [...waitlistFixed],
+    call: v => waitlist.POST(waitlistRequest(v, v.uuid(), { 'x-real-ip': v.ip(), 'x-forwarded-for': v.ip() })),
+  })
+  assert.equal(r.limit, 300)
 })
 
 // ---- the check itself must fail on the mistakes it exists to catch ------------------------------------------------

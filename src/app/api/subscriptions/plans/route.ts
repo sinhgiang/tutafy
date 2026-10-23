@@ -14,7 +14,9 @@ export async function GET() {
     if (error.message.includes('does not exist')) return NextResponse.json({ plans: [], migrationRequired: true })
     return NextResponse.json({ error: 'Could not load your plans' }, { status: 500 })
   }
-  return NextResponse.json({ plans: data ?? [] })
+  // the tutor's own booking page address for the "Copy link" button of each plan (T-0841): the slug of the session's own row
+  const { data: me } = await gate.supabase.from('tutors').select('slug').eq('id', gate.userId).maybeSingle()
+  return NextResponse.json({ plans: data ?? [], slug: (me as { slug?: string | null } | null)?.slug ?? null })
 }
 
 export async function POST(req: NextRequest) {

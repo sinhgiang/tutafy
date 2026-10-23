@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     if (error.message === 'team_requires_academy') {
       return NextResponse.json({ error: 'upgrade_required' }, { status: 403 })
     }
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Could not add the team member' }, { status: 500 })
   }
   return NextResponse.json({ member: data }, { status: 201 })
 }

@@ -211,8 +211,8 @@ test("the Updates page looks like the rest of Tutafy: Tutafy's own colours, type
   for (const piece of [
     'className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40"',
     '<SiteLogo />', // the shared logo (T-0818): same block and word as before, now one link to the home page
-    'className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">Start free</Link>',
-    '<p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">',
+    'className="text-[13px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-4 py-2 rounded-lg">Start free</Link>',
+    '<p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">',
     'text-[17px] text-gray-500',
   ]) {
     assert.ok(page.includes(piece), `the Updates page does not have: ${piece}`)
