@@ -10,6 +10,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -199,7 +200,7 @@ test('no text in the page-facing files is in another language, and no address is
 // ---- Settings ----------------------------------------------------------------------------------------------------------------------
 
 test('Settings: a switch in the Booking page tab, switchable only on a paid plan, written apart and only when changed, with a plain message if the column is missing', () => {
-  const src = read('src/app/(dashboard)/settings/page.tsx')
+  const src = settingsSource()
   assert.match(src, /Show &quot;Made with Tutafy&quot; on my booking page/)
   assert.match(src, /const paid = hasPlan\(subscriptionStatus, 'pro'\)/)
   assert.match(src, /disabled=\{!paid\}/, 'a Free tutor sees the switch on and cannot change it')

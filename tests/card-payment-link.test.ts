@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { settingsSource } from './support/settings-source.ts'
 
 const { safeHttpsUrl, checkCardPaymentLink, cardLinkForSave, CARD_LINK_ERROR, CARD_LINK_MAX_LENGTH } =
   await import('@/lib/payment-link.ts')
@@ -135,7 +136,7 @@ test('booking page: every payment button opens in a new tab with noopener norefe
 })
 
 test('settings: new label and placeholder, same stored column, https check on save', () => {
-  const src = read('app/(dashboard)/settings/page.tsx')
+  const src = settingsSource()
   assert.match(src, /Card payment link \(Stripe Payment Link\)/)
   assert.match(src, /placeholder="https:\/\/buy\.stripe\.com\/\.\.\."/)
   assert.ok(!src.includes('Paddle checkout link'))
@@ -155,7 +156,7 @@ test('every page that draws the booking form tells it whether platform Stripe is
 })
 
 test('settings: warns when the saved card link is not usable (not https), using the same check as the booking page', () => {
-  const src = read('app/(dashboard)/settings/page.tsx')
+  const src = settingsSource()
   assert.ok(src.includes("savedCardLinkUnusable = savedCardLink.trim() !== '' && safeHttpsUrl(savedCardLink) === null"))
   assert.match(src, /data-testid="card-link-saved-warning"/)
 })

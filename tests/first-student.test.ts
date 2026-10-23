@@ -8,6 +8,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -118,7 +119,7 @@ test('every button opens a page that exists, and the settings links name a real 
     '/settings': 'app/(dashboard)/settings/page.tsx',
     '/book/sarah-test': 'app/book/[slug]/page.tsx',
   }
-  const settings = read('app/(dashboard)/settings/page.tsx')
+  const settings = settingsSource()
   for (const href of Object.values(hrefs)) {
     const url = new URL(href, 'https://example.test')
     assert.ok(existsSync(path.join(SRC, pageFile[url.pathname] ?? 'missing')), `no page for ${href}`)

@@ -11,6 +11,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { AvatarUploader } from '@/components/settings/AvatarUploader.tsx'
 import { MAX_PICKED_BYTES, PICKABLE, pickProblem } from '@/lib/avatar-client.ts'
 import { AVATAR_TYPES } from '@/lib/avatar-image.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src')
 const read = (rel: string) => readFileSync(path.join(SRC, rel), 'utf8').replace(/\r\n/g, '\n')
@@ -54,11 +55,11 @@ test('before anything is sent the browser refuses a wrong type or a huge file wi
 })
 
 test('Settings shows the box on the Profile tab and keeps the photo out of the form that Save writes', () => {
-  const settings = read('app/(dashboard)/settings/page.tsx')
+  const settings = settingsSource()
   assert.match(settings, /<AvatarUploader name=\{form\.name\} url=\{avatarUrl\} onChange=\{setAvatarUrl\} \/>/)
   const form = /const \[form, setForm\] = useState\(\{[\s\S]*?\n  \}\)/.exec(settings)?.[0] ?? ''
   assert.ok(form.length > 100 && !/avatar/i.test(form), 'the form state holds no photo')
-  assert.ok(!/avatar_url/.test(code('app/(dashboard)/settings/page.tsx').replace(/setAvatarUrl\(typeof data\.avatar_url[^\n]*/, '')), 'Save never writes avatar_url')
+  assert.ok(!/avatar_url/.test(settingsSource().replace(/^\s*\/\/.*$/gm, '').replace(/setAvatarUrl\(typeof data\.avatar_url[^\n]*/, '')), 'Save never writes avatar_url')
 })
 
 test('the browser side sends the photo as JSON to the one route, as the tutor, with no tutor id in it', () => {

@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url'
 import { NAV } from '@/components/layout/nav-items'
 import { ADMIN_NAV } from '@/components/admin/admin-nav'
 import { nonSquareButtons, smallTextClasses, fixedWidthProblems, tablesWithoutFrame } from './support/mobile-scans.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
@@ -106,7 +107,7 @@ test('every button drawn at a fixed non-square size is a switch with aria-checke
   assert.ok(shapes.length >= 3, `expected the three settings switches, found ${shapes.length}`)
   assert.deepEqual(shapes.filter(s => !s.isSwitch).map(s => `${s.file}: ${s.shape}`), [], 'a button with a fixed non-square shape that is not a role="switch" would be stretched into a circle or a blob')
   assert.deepEqual(shapes.filter(s => !s.checked).map(s => s.file), [], 'a switch must say whether it is on (aria-checked)')
-  const settings = read('src/app/(dashboard)/settings/page.tsx')
+  const settings = settingsSource()
   assert.equal([...settings.matchAll(/role="switch"/g)].length, 3)
   for (const key of ['booking_url_active', 'trial_enabled']) assert.match(settings, new RegExp(`role="switch" aria-checked=\\{form\\.${key}\\}`))
   assert.match(settings, /role="switch" aria-checked=\{shown\}/, 'the "Made with Tutafy" switch (T-0717) says whether it is on')
