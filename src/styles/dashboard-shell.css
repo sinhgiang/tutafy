@@ -179,6 +179,44 @@
 .dash-state-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
 .dash-state code { font-size: 13px; color: var(--d-ink-3); }
 
+/* ---------- list pages (T-0822): toolbar, bulk bar, pager, rows that become cards under 768px ---------- */
+.dash-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--d-line); }
+.dash-toolbar form { display: contents; }
+.dash-input, .dash-select { height: 36px; padding: 0 10px; border: 1px solid var(--d-line-strong); border-radius: 8px; background: var(--d-surface); color: var(--d-ink); font-size: 14px; min-width: 0; }
+.dash-input { flex: 1 1 220px; max-width: 360px; }
+.dash-toolbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.dash-bulk { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 10px 16px; background: var(--d-brand-soft); border-bottom: 1px solid var(--d-brand-line); color: var(--d-brand); font-weight: 650; }
+.dash-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--d-line); color: var(--d-ink-3); font-size: 13px; }
+.dash-pager nav { display: flex; gap: 8px; }
+.dash-btn[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+.dash-table tbody tr[tabindex] { cursor: pointer; }
+.dash-table tbody tr[tabindex]:hover { background: color-mix(in srgb, var(--d-brand-soft) 45%, transparent); }
+.dash-table tbody tr[data-selected="true"] { background: var(--d-brand-soft); }
+.dash-check { width: 18px; height: 18px; accent-color: var(--d-brand); cursor: pointer; }
+.dash-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.dash-who b { display: block; font-weight: 650; color: var(--d-ink); }
+.dash-who span { display: block; color: var(--d-ink-3); font-size: 13px; }
+.dash-who a { color: inherit; text-decoration: none; }
+.dash-who span.dash-avatar { display: grid; color: var(--d-brand); font-size: 13px; }
+.dash-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--d-brand-soft); color: var(--d-brand); display: grid; place-items: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+.dash-goal { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--d-ink-3); }
+@media (max-width: 767px) {
+  .dash-table.is-cards thead { display: none; }
+  .dash-table.is-cards, .dash-table.is-cards tbody, .dash-table.is-cards tr, .dash-table.is-cards td { display: block; width: 100%; }
+  .dash-table.is-cards tr { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 16px; border-bottom: 1px solid var(--d-line); }
+  .dash-table.is-cards td { padding: 0; border: 0; min-width: 0; }
+  .dash-table.is-cards td.c-sel { grid-column: 1; grid-row: 1 / span 2; padding-top: 4px; }
+  .dash-table.is-cards td.c-main { grid-column: 2; }
+  .dash-table.is-cards td.c-end { grid-column: 3; grid-row: 1; text-align: right; }
+  .dash-table.is-cards td.c-sub { grid-column: 2 / 4; color: var(--d-ink-3); font-size: 13px; }
+  .dash-table.is-cards td.c-hide { display: none; }
+  .dash-toolbar-right { margin-left: 0; width: 100%; }
+  .dash-input { max-width: none; flex-basis: 100%; }
+}
+.dash-chip.is-brand-chip { background: var(--d-brand-soft); color: var(--d-brand); }
+.dash-m-only { display: none; }
+@media (max-width: 767px) { .dash-m-only { display: inline; } }
+
 /* ---------- legacy colours in the dark theme ----------
    Pages still written with Tailwind greys and tints. They sit outside every @layer, so they beat the utilities. */
 .dash[data-theme="dark"] .bg-white,
