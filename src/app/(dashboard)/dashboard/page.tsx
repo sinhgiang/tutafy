@@ -125,7 +125,7 @@ export default async function DashboardPage() {
       title: `Payment from ${st?.name ?? 'student'} — ${currencySymbol}${Number(inv.amount ?? 0).toLocaleString('en-US')}`,
       when: overdue ? 'Overdue' : (inv.due_date ? `Due ${new Date(inv.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Awaiting payment'),
       tag: overdue ? 'Overdue' : 'Payment',
-      href: '/payments',
+      href: '/earnings?tab=payments',
     }
   })
   const reminders = [...paymentReminders.filter(r => r.tag === 'Overdue'), ...lessonReminders, ...paymentReminders.filter(r => r.tag !== 'Overdue')].slice(0, 6)

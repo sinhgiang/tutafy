@@ -28,8 +28,8 @@ const NAV_ITEMS = NAV.flatMap(g => g.items)
 
 // ---- one frame, and no page sets its own width -------------------------------------------------------------------
 
-test('the menu has 18 pages (the done-when list is about all of them)', () => {
-  assert.equal(NAV_ITEMS.length, 18)
+test('the menu has 17 pages (the done-when list is about all of them)', () => {
+  assert.equal(NAV_ITEMS.length, 17)
 })
 
 test('the layout puts every page in the one PageFrame inside the one <main>', () => {
@@ -49,14 +49,14 @@ test('the layout puts every page in the one PageFrame inside the one <main>', ()
 test('no page of the tutor app sets its own width on its root (it uses the frame or a PageColumn)', () => {
   const files = dashboardPageFiles(ROOT)
   assert.ok(files.length > 40, `only ${files.length} files were scanned: the import walk is broken`)
-  for (const must of ['src/app/(dashboard)/payments/page.tsx', 'src/app/(dashboard)/settings/page.tsx', 'src/components/dashboard/DashboardHome.tsx', 'src/app/(dashboard)/coupons/CouponsClient.tsx', 'src/app/(dashboard)/students/new/StudentForm.tsx']) {
+  for (const must of ['src/app/(dashboard)/earnings/page.tsx', 'src/app/(dashboard)/settings/page.tsx', 'src/components/dashboard/DashboardHome.tsx', 'src/app/(dashboard)/coupons/CouponsClient.tsx', 'src/app/(dashboard)/students/new/StudentForm.tsx']) {
     assert.ok(files.includes(must), `${must} is not scanned`)
   }
   const offenders = files.flatMap(f => ownWidthRoots(read(f)).map(o => `${f}: ${o}`))
   assert.deepEqual(offenders, [], 'a page sets max-w on its root: drop it, or wrap the page in <PageColumn>')
 })
 
-test('the width scan sees the faults it exists for (mutation: the old roots of the 18 pages)', () => {
+test('the width scan sees the faults it exists for (mutation: the old roots of the pages)', () => {
   const OLD_ROOTS = [
     `return (\n    <div className="space-y-6 max-w-[900px]">\n      <p>x</p>\n    </div>\n  )`,
     `return <div className="max-w-[700px] space-y-5">x</div>`,
@@ -73,10 +73,10 @@ test('the width scan sees the faults it exists for (mutation: the old roots of t
 })
 
 test('the width scan goes red on a real page when its root gets a width back (mutation on the real source)', () => {
-  const rel = 'src/app/(dashboard)/payments/page.tsx'
+  const rel = 'src/app/(dashboard)/availability/page.tsx'
   const real = read(rel)
   assert.deepEqual(ownWidthRoots(real), [])
-  const broken = real.replace(/<PageColumn size="list" className="([^"]*)">/, '<div className="$1 max-w-[900px]">')
+  const broken = real.replace(/<PageColumn size="form" className="([^"]*)">/, '<div className="$1 max-w-[900px]">')
   assert.notEqual(broken, real, 'the mutation did not change the page')
   assert.equal(ownWidthRoots(broken).length, 1)
 })
@@ -128,12 +128,12 @@ test('the top bar is sticky', () => {
 
 // ---- the top bar names every page -------------------------------------------------------------------------------
 
-test('the top bar title is right for all 18 pages of the menu, not "Tutafy"', () => {
+test('the top bar title is right for all 17 pages of the menu, not "Tutafy"', () => {
   for (const item of NAV_ITEMS) {
     assert.equal(pageTitleOf(item.href), item.label, item.href)
     assert.equal(pageTitleOf(`${item.href}/anything/else`), item.label, `${item.href}/...`)
   }
-  assert.equal(new Set(NAV_ITEMS.map(i => pageTitleOf(i.href))).size, 18)
+  assert.equal(new Set(NAV_ITEMS.map(i => pageTitleOf(i.href))).size, 17)
 })
 
 test('the eight pages that used to read "Tutafy" (Messages, Packages, Coupons, Subscriptions, Waitlist, Import, Refer & Earn, Upgrade) have a name', () => {
@@ -168,7 +168,7 @@ test('the command bar reaches every page of the menu by its name, and three acti
     const hit = filterCommands(items, item.label).find(i => i.kind === 'page' && i.href === item.href)
     assert.ok(hit, `typing "${item.label}" does not reach ${item.href}`)
   }
-  assert.equal(items.filter(i => i.kind === 'page').length, 18)
+  assert.equal(items.filter(i => i.kind === 'page').length, 17)
   const actions = items.filter(i => i.kind === 'action')
   assert.ok(actions.length >= 3)
   assert.deepEqual(filterCommands(items, 'schedule').map(i => i.href), ['/lessons/new'])
@@ -189,7 +189,7 @@ test('filtering: every word must match, the label comes before the extra words, 
   assert.equal(filterCommands(items, 'zzzz nothing').length, 0)
   assert.equal(filterCommands(items, 'LESSONS')[0].label.toLowerCase().includes('lesson'), true)
   assert.ok(filterCommands(items, 'stu').every(i => /stu/.test(`${i.label} ${i.words}`.toLowerCase())))
-  assert.equal(filterCommands(items, 'pay')[0].href, '/payments', 'a label that starts with the word comes first')
+  assert.equal(filterCommands(items, 'earn')[0].href, '/earnings', 'a label that starts with the word comes first')
 })
 
 test('Ctrl K and Cmd K open the bar; K alone, Ctrl+Shift+K and Alt+K do not', () => {
@@ -349,7 +349,7 @@ test('the shell uses only tokens that exist in both themes, and the dark block i
 
 test('the layout imports the shell stylesheet and the legacy dark mapping stays inside the dark scope', () => {
   assert.match(read('src/app/(dashboard)/layout.tsx'), /import '@\/styles\/dashboard-shell\.css'/)
-  const legacy = css.slice(css.indexOf('/* ---------- legacy colours in the dark theme'))
+  const legacy = css.slice(css.indexOf('/* ---------- legacy colours in the dark theme'), css.indexOf('/* ---------- overview pages'))
   const selectors = legacy.split('\n').filter(l => /^\.dash/.test(l)).flatMap(l => l.split('{')[0].split(',')).map(s => s.trim()).filter(Boolean)
   assert.ok(selectors.length > 60)
   assert.ok(selectors.every(s => s.trim().startsWith('.dash[data-theme="dark"]')), 'a legacy rule outside the dark scope would change the light theme')
