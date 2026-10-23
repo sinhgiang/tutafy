@@ -316,10 +316,11 @@ test('the admin menu has Feedback, and Sign out is still in the sidebar and in t
 
 test('the tutor header carries a small Feedback button (icon only on a phone), and the student page carries it with the student link', async () => {
   const tutor = { id: TUTOR_ID, name: 'Tutor Tina', email: 'tina@example.com', avatar_url: null } as never
-  const header = renderToStaticMarkup(createElement(Header, { tutor }))
-  assert.match(header, /data-testid="feedback-button"/)
-  assert.match(header, /aria-label="Send feedback"/)
-  assert.match(header, /<span class="hidden sm:inline">Feedback<\/span>/, 'the word shows from tablet width up; a phone shows the icon')
+  // T-0826: the tutor's Feedback lives in the account menu (drawn when opened), so the header holds the menu item and the box, not a button
+  const headerSource = read('src/components/layout/Header.tsx')
+  assert.match(headerSource, /data-testid="feedback-menu-item"/)
+  assert.match(headerSource, /<FeedbackButton hideTrigger open=\{feedbackOpen\} onOpenChange=\{setFeedbackOpen\} \/>/)
+  assert.doesNotMatch(renderToStaticMarkup(createElement(Header, { tutor })), /data-testid="feedback-button"/, 'no separate button in the top bar')
   const page = renderToStaticMarkup(await studentPage({ searchParams: Promise.resolve({ token: signStudentToken('sam@example.com') }) }))
   assert.match(page, /data-testid="feedback-button"/)
   const gone = renderToStaticMarkup(await studentPage({ searchParams: Promise.resolve({ token: 'garbage' }) }))

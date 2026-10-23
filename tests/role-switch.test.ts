@@ -7,6 +7,7 @@
 import { test, mock, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -217,13 +218,11 @@ test('the student page matches the exact email: an address with _ does not pull 
 
 const tutorView = { id: SARAH, email: 'sarah@example.com', name: 'Sarah Both', slug: 'sarah', avatar_url: undefined, languages: [], timezone: 'UTC', stripe_onboarding_complete: false, booking_url_active: true, cancellation_hours: 24, created_at: '', updated_at: '' }
 
-test('the tutor header shows "View as student" when it is told to, and not otherwise', () => {
-  const on = renderToStaticMarkup(createElement(Header, { tutor: tutorView, canViewAsStudent: true }))
-  assert.match(on, /data-testid="view-as-student"/)
-  assert.match(on, /href="\/api\/student\/view-as"/)
-  assert.match(on, /View as student/)
-  assert.doesNotMatch(renderToStaticMarkup(createElement(Header, { tutor: tutorView })), /View as student/)
-  assert.doesNotMatch(renderToStaticMarkup(createElement(Header, { tutor: tutorView, canViewAsStudent: false })), /View as student/)
+test('the account menu of the tutor header holds "View as student" only when it is told to (T-0826: the menu is drawn when opened, so the source is read)', () => {
+  const src = readFileSync(path.join(SRC, 'components/layout/Header.tsx'), 'utf8').replace(/\r\n/g, '\n')
+  assert.match(src, /\{canViewAsStudent && \(\s*<DropdownMenuItem onClick=\{\(\) => window\.location\.assign\('\/api\/student\/view-as'\)\}[^>]*data-testid="view-as-student">\s*<Users[^>]*\/>\s*View as student/)
+  // closed, the header draws no such words and no link
+  assert.doesNotMatch(renderToStaticMarkup(createElement(Header, { tutor: tutorView, canViewAsStudent: true })), /View as student/)
 })
 
 test('the tutor login page has the line that points a student to /student/login', () => {
@@ -265,13 +264,28 @@ test('auth callback: a tutor who is also a student can pick either side from the
 const DashboardLayout = (await import('@/app/(dashboard)/layout.tsx')).default
 const renderLayout = async () => renderToStaticMarkup(await DashboardLayout({ children: createElement('p', null, 'page') }))
 
+/** The props the layout hands to the Header (the account menu draws "View as student" from them). */
+async function headerProp(): Promise<unknown> {
+  const tree = await DashboardLayout({ children: createElement('p', null, 'page') })
+  let found: unknown = 'not found'
+  const walk = (n: unknown): void => {
+    if (!n || typeof n !== 'object') return
+    const el = n as { type?: unknown; props?: { canViewAsStudent?: unknown; children?: unknown } }
+    if (el.type === Header) found = el.props?.canViewAsStudent
+    const kids = el.props?.children
+    if (Array.isArray(kids)) kids.forEach(walk); else walk(kids)
+  }
+  walk(tree)
+  return found
+}
+
 test('the tutor dashboard layout offers "View as student" to a tutor who is a student elsewhere, and to nobody else', async () => {
   session = sarah
-  assert.match(await renderLayout(), /data-testid="view-as-student"/)
+  assert.equal(await headerProp(), true)
   session = { id: PLAIN, email: 'plain@example.com', ...confirmed }
-  assert.doesNotMatch(await renderLayout(), /View as student/)
+  assert.equal(await headerProp(), false)
   session = { id: SARAH, email: 'sarah@example.com', email_confirmed_at: 'now', confirmation_sent_at: null }
-  assert.doesNotMatch(await renderLayout(), /View as student/, 'an address nobody checked')
+  assert.equal(await headerProp(), false, 'an address nobody checked')
 })
 
 test('verifiedEmail: a Google identity without a confirmed email is not enough', () => {

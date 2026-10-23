@@ -132,19 +132,15 @@ export default async function UpgradePage() {
   const tutorName = tutor?.name?.split(' ')[0] ?? 'there'
 
   return (
-    <PageColumn size="list" className="py-10 px-4">
+    <PageColumn size="list">
 
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 text-[12px] font-bold px-4 py-1.5 rounded-full mb-4">
-          <Zap className="h-3.5 w-3.5" fill="currentColor" />
-          Choose your plan
+      {/* Header: the same page head as every tutor page (T-0826) */}
+      <div className="dash-head">
+        <div>
+          <h1>Upgrade Tutafy</h1>
+          <p>You are on the <b style={{ textTransform: 'capitalize', color: 'var(--d-ink)' }}>{currentPlan}</b> plan{currentPlan !== 'free' ? '. Thank you.' : '. Pick a plan when you are ready.'}</p>
         </div>
-        <h1 className="text-[32px] font-bold text-gray-900">Upgrade Tutafy</h1>
-        <p className="text-[14px] text-gray-500 mt-2">
-          You're currently on the <span className="font-semibold capitalize text-gray-700">{currentPlan}</span> plan
-          {currentPlan !== 'free' && <span className="text-emerald-600"> ✓</span>}
-        </p>
+        <div className="dash-head-actions"><Link href="/settings" className="dash-btn">Back to Settings</Link></div>
       </div>
 
       {/* Plan cards */}

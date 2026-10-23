@@ -333,6 +333,9 @@
 .dash-unsaved p i { width: 10px; height: 10px; border-radius: 50%; background: var(--d-warn); flex-shrink: 0; }
 @media (max-width: 767px) { .dash-unsaved { bottom: 72px; flex-wrap: wrap; } }
 
+/* ---------- account pages (T-0826) ---------- */
+.dev-code { margin: 0; padding: 12px; border-radius: 8px; background: #111827; color: #E5E7EB; font-size: 12.5px; line-height: 1.5; overflow-x: auto; white-space: pre; }
+
 /* ---------- legacy colours in the dark theme ----------
    Pages still written with Tailwind greys and tints. They sit outside every @layer, so they beat the utilities. */
 .dash[data-theme="dark"] .bg-white,
