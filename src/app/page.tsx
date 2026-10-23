@@ -179,7 +179,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-[13px] text-gray-500">
           <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> 0% commission</span>
           <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> HD video included</span>
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> 10 AI tools</span>
+          <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> 7 AI tools</span>
           <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> Unlimited students on Pro</span>
         </div>
       </section>
@@ -249,7 +249,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           </div>
           <div className="order-1 md:order-2">
             <div className="inline-flex items-center gap-2 bg-amber-50 rounded-full px-3 py-1 mb-5">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" /><span className="text-[12px] font-semibold text-amber-700">10 AI teaching tools</span>
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" /><span className="text-[12px] font-semibold text-amber-700">7 AI teaching tools</span>
             </div>
             <h2 className="text-[30px] font-extrabold text-gray-900 tracking-tight leading-tight">Get your evenings back</h2>
             <p className="text-[15px] text-gray-500 mt-4 leading-relaxed">
@@ -431,6 +431,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <SiteLogo size="sm" />
           <p className="text-[12px] text-gray-500">© 2026 Tutafy. Built for tutors, by people who get it.</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+            <Link href="/tutors" className="text-[12px] text-gray-500 hover:text-gray-600">Find tutors</Link>
             <Link href="/about" className="text-[12px] text-gray-500 hover:text-gray-600">About</Link>
             <Link href="/updates" className="text-[12px] text-gray-500 hover:text-gray-600">Updates</Link>
             <Link href="/blog" className="text-[12px] text-gray-500 hover:text-gray-600">Blog</Link>
