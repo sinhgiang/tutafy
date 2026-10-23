@@ -164,7 +164,7 @@ test('turning it off moves nothing: the page is identical except for the link it
 test('the line cannot cover the booking button: it comes after the booking form, in the normal flow, never fixed, floating or sticky', async () => {
   for (const [page, params] of [[bookPage, { slug: 'tutor-free' }], [embedPage, { slug: 'tutor-free' }]] as const) {
     const html = await render(page, params)
-    const form = html.indexOf('Session length')
+    const form = html.indexOf('aria-label="Lesson length"')
     const strip = html.indexOf('data-testid="made-with-strip"')
     assert.ok(form >= 0 && strip > form, 'the booking form comes first')
     // nothing after the form can reach back over it: the strip is a plain block with a fixed height

@@ -37,7 +37,7 @@ const list = (cols: readonly string[]) => cols.join(', ')
 /** /book/<slug> */
 export const BOOKING_PAGE_COLUMNS = list([
   'id', 'name', 'bio', 'avatar_url', 'timezone', 'languages', 'cancellation_hours', 'booking_url_active', 'buffer_minutes',
-  'default_lesson_price', 'average_rating', 'review_count', 'trial_enabled', 'trial_price', 'currency', ...PAYMENT_COLUMNS,
+  'default_lesson_price', 'average_rating', 'review_count', 'trial_enabled', 'trial_price', 'currency', 'created_at', ...PAYMENT_COLUMNS,
 ])
 
 /** /book/<slug>/<member>: the bookable identity is the team member's, so no bio or photo of the tutor is read. */

@@ -14,6 +14,7 @@
 import type { Metadata } from 'next'
 import { absoluteUrl } from '@/lib/site-url'
 import { tutorSeoText, type TutorSeoInput } from '@/lib/tutor-seo'
+import { bookingSeoText, type BookingTutor } from '@/lib/booking-page'
 
 export const TITLE_MAX = 60
 export const TITLE_MIN = 20
@@ -253,6 +254,17 @@ export function blogPostMetadata(slug: string, hero?: { webp: string; alt: strin
 export function tutorMetadata(t: TutorSeoInput): Metadata {
   const seo = tutorSeoText(t)
   return build(`/tutors/${t.slug}`, seo.title, seo.description, { noindex: t.booking_url_active !== true })
+}
+
+/**
+ * The metadata of /book/<slug> (T-0810): its own title and description (src/lib/booking-page.ts), so a shared booking link reads
+ * well, and the canonical is the tutor's PROFILE, /tutors/<slug>. The profile is the page search engines should list for a tutor:
+ * it has the structured data (ProfilePage, Person, reviews), the sitemap entry and the links from the directory, while the booking
+ * page is the page the tutor shares to get a booking. Two pages with the same facts must not compete, so this one points to that.
+ */
+export function bookingMetadata(slug: string, t: BookingTutor): Metadata {
+  const seo = bookingSeoText(t)
+  return { ...build(`/tutors/${slug}`, seo.title, seo.description) }
 }
 
 /** For a profile that does not exist (or is not visible): never indexed. */

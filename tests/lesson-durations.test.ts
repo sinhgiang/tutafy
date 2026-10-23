@@ -190,20 +190,20 @@ test('POST /api/bookings: the check applies to a team member’s booking too, an
 
 /** The length buttons a student sees: [{ minutes, selected }] in page order. */
 function lengthButtons(html: string) {
-  const start = html.indexOf('Session length')
-  assert.ok(start >= 0, 'the page has the "Session length" block')
-  const block = html.slice(start, html.indexOf('</div></div>', start))
-  return [...block.matchAll(/<button type="button" class="([^"]*)">(\d+) min<\/button>/g)]
-    .map(m => ({ minutes: Number(m[2]), selected: m[1].includes('bg-indigo-500') }))
+  const start = html.indexOf('aria-label="Lesson length"')
+  assert.ok(start >= 0, 'the page has the "Lesson length" group')
+  const block = html.slice(start, html.indexOf('</div>', start))
+  return [...block.matchAll(/<button type="button" aria-pressed="(true|false)" class="[^"]*">(\d+) min<\/button>/g)]
+    .map(m => ({ minutes: Number(m[2]), selected: m[1] === 'true' }))
 }
 type Page = (props: { params: Promise<Record<string, string>> }) => Promise<React.ReactElement>
 const render = async (page: unknown, params: Record<string, string>) =>
   renderToStaticMarkup(await (page as Page)({ params: Promise.resolve(params) }))
 
 test('the button reader itself: it finds buttons, tells the selected one, and is not fooled by an empty block', () => {
-  const html = '<p>Session length</p><div><button type="button" class="a bg-indigo-500 text-white">30 min</button><button type="button" class="a bg-gray-100">60 min</button></div></div>'
+  const html = '<div role="group" aria-label="Lesson length"><button type="button" aria-pressed="true" class="a">30 min</button><button type="button" aria-pressed="false" class="a">60 min</button></div>'
   assert.deepEqual(lengthButtons(html), [{ minutes: 30, selected: true }, { minutes: 60, selected: false }])
-  assert.deepEqual(lengthButtons('<p>Session length</p><div></div></div>'), [])
+  assert.deepEqual(lengthButtons('<div role="group" aria-label="Lesson length"></div>'), [])
 })
 
 test('/book/<slug>: a tutor who ticked 30 and 60 shows exactly those two, 30 selected first, and says so beside the page', async () => {
