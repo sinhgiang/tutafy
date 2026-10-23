@@ -56,6 +56,8 @@ Language (only languages with a listed tutor, with counts), Price per lesson (Up
 
 ## What to expect on day one
 
+The owner ran the count on the real database (2026-10-22): **1 tutor** passes all four conditions, of 724 (22 have an introduction of 80+ characters, 6 have a free time, only 1 has both; see `day-one-numbers.md` for the table, the options and what the missing price of that one tutor does). The text below was written before the number was known.
+
 If the rule were applied to today's real data, the first number is small: the one-row query will say. The funnel columns (`page_on`, `page_on_named`, `page_on_intro_ok`, `page_on_free_time_14d`, `eligible`) show where tutors drop out, which tells the Chief what to nudge first (most likely the free hours, which the dashboard banner of T-0739 already asks for). The milestone in the marketplace report is 30 listed tutors.
 
 ## Decisions for the owner
