@@ -1,6 +1,7 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
+import { ImageLightbox } from '@/components/updates/ImageLightbox'
 import { formatUpdateDate, formatUpdateDateShort, pickVersion, type UpdateEntry } from '@/lib/updates-format'
 
 // The two columns of the Updates page: the list of versions on the left, the chosen version on the right.
@@ -78,10 +79,7 @@ export function UpdatesView({ entries, selected }: { entries: UpdateEntry[]; sel
 
             {e.image && (
               <figure className="mt-8">
-                <a href={e.image.src} target="_blank" rel="noopener" className="block overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- a small static picture, like the blog images */}
-                  <img src={e.image.src} alt={e.image.alt} width={e.image.width} height={e.image.height} decoding="async" className="block h-auto w-full" />
-                </a>
+                <ImageLightbox src={e.image.src} alt={e.image.alt} width={e.image.width} height={e.image.height} />
                 <figcaption className="mt-2.5 text-[14px] text-gray-500">{e.image.alt} · Tutafy v{e.version}, sample data</figcaption>
               </figure>
             )}
