@@ -89,6 +89,7 @@ const PUBLIC_PAGES = [
   'src/app/updates/page.tsx',
   'src/app/tutors/(directory)/page.tsx',
   'src/app/tutors/[slug]/page.tsx',
+  'src/app/learn/[language]/page.tsx',
   'src/app/(auth)/login/page.tsx',
   'src/app/(auth)/register/page.tsx',
   'src/app/student/login/page.tsx',

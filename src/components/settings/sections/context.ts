@@ -20,6 +20,8 @@ export type SettingsForm = {
   lesson_durations: number[]
   default_lesson_duration: number
   hide_branding: boolean
+  /** the student levels the tutor teaches (ids of LEVEL_OPTIONS); migration 026 */
+  levels_taught: string[]
 }
 
 export type SettingsCtx = {

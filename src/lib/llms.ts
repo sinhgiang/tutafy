@@ -47,6 +47,7 @@ function features(withDescriptions: boolean): string[] {
 function pages(): string[] {
   const lines = ['## Key pages', '']
   for (const p of KEY_PAGES) lines.push(`- [${p.title}](${SITE_URL}${p.path === '/' ? '' : p.path}): ${p.description}`)
+  lines.push(`- [Language guides](${SITE_URL}/llms-languages.txt): One guide for each language that has enough tutors who can be booked today, with the tutors and the questions people ask.`)
   lines.push(`- [Sign up](${SITE_URL}/register): Create a free tutor account.`)
   lines.push('')
   return lines

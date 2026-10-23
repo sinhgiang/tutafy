@@ -274,7 +274,7 @@ if (process.env.MOCK_DIRECTORY === 'many') {
   SAMPLES.forEach(([name, languages, timezone, price, currency, trial, rating, reviewCount, bio, hours], i) => {
     const tid = id(300 + i, 'b')
     tutors.push({ id: tid, email: `directory${i}@example.com`, name, slug: name.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, ''), subscription_status: 'free', languages, timezone,
-      created_at: iso(-20 - i), booking_url_active: true, default_lesson_price: price, currency, trial_enabled: trial > 0, trial_price: trial || null, average_rating: rating, review_count: reviewCount, bio, avatar_url: null, buffer_minutes: 0 })
+      created_at: iso(-20 - i), booking_url_active: true, default_lesson_price: price, currency, trial_enabled: trial > 0, trial_price: trial || null, average_rating: rating, review_count: reviewCount, bio, avatar_url: null, buffer_minutes: 0, levels_taught: [['beginner', 'intermediate'], ['advanced'], [], ['beginner'], ['intermediate', 'advanced']][i % 5] })
     hours.forEach((h, k) => availability.push({ id: id(3000 + i * 10 + k, 'f'), tutor_id: tid, day_of_week: h.d, start_time: `${h.from}:00`, end_time: `${h.to}:00`, created_at: iso(-20) }))
   })
   const unlisted = [

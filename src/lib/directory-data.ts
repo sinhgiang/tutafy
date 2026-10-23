@@ -6,7 +6,7 @@
 //
 // Narrowing, so the cost stays small: (a) every free-hours row (a small table; only tutors with hours can be listed); (b) the tutors with the
 // page on among those, 25 at a time; (c) for each group, their blocked days and their saved lessons from yesterday to 16 days ahead;
-// (d) the free times are counted in code by the same function the dashboard card uses. A read that fails THROWS: the directory then shows
+// (d) the levels a tutor teaches are read on their own (optional column), the free times are counted in code by the same function the dashboard card uses. A read that fails THROWS: the directory then shows
 // its error state, never an empty list that looks like "no tutors".
 import { clashWindowStart, type AvailabilityRow, type LessonWindow } from '@/lib/booking-slots'
 import { chunks, ROWS_PER_REQUEST, MAX_PAGES } from '@/lib/paged-read'
@@ -92,6 +92,10 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
     const chosen = new Map<string, Row>()
     for (const r of await all(() => db.from('tutors').select('id, lesson_durations, default_lesson_duration').in('id', ids).order('id'), 'tutors', true)) chosen.set(String(r.id), r)
 
+    // levels the tutor says they teach (migration 026, T-0863): a database without the column means "said nothing", never a failure
+    const levelsOf = new Map<string, unknown>()
+    for (const r of await all(() => db.from('tutors').select('id, levels_taught').in('id', ids).order('id'), 'tutors', true)) levelsOf.set(String(r.id), r.levels_taught)
+
     const blockedRows = await all(() => db.from('availability_exceptions').select('tutor_id, date').in('tutor_id', ids).gte('date', yesterdayDate).order('tutor_id').order('date'), 'availability_exceptions', true)
     // the tutor's own calendar (assigned_to is null), lessons that are not cancelled: the same read the booking route and the public profile do
     const lessonRows = await all(() => db.from('lessons').select('tutor_id, starts_at, ends_at, duration_minutes').in('tutor_id', ids)
@@ -111,7 +115,7 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
       })
       if (!checkListing(t as { booking_url_active: unknown; name: unknown; bio: unknown; timezone: unknown }, slots.length).listed) continue
       listed += 1
-      const card = buildCard(t as Parameters<typeof buildCard>[0], slots)
+      const card = buildCard({ ...t, levels_taught: levelsOf.get(id) } as Parameters<typeof buildCard>[0], slots)
       if (card) cards.push(card)
     }
   }
