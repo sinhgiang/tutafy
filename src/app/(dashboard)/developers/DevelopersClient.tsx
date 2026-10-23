@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Key, Plus, Trash2, Copy, Check, Loader2, Webhook, Code2, AlertTriangle } from 'lucide-react'
@@ -49,7 +50,7 @@ export function DevelopersClient({ apiBase }: { apiBase: string }) {
   }
 
   return (
-    <div className="max-w-[820px] space-y-5">
+    <PageColumn size="list" className="space-y-5">
       <div>
         <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Developers · API & Webhooks</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">Connect Tutafy to Zapier and your own tools with a REST API and webhooks.</p>
@@ -169,6 +170,6 @@ export function DevelopersClient({ apiBase }: { apiBase: string }) {
   -H "Content-Type: application/json" \\
   -d '{"event":"student.created","target_url":"https://hooks.zapier.com/..."}'`}</pre>
       </div>
-    </div>
+    </PageColumn>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -101,7 +102,7 @@ export default function AvailabilityPage() {
   )
 
   return (
-    <div className="max-w-[700px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div>
         <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Availability</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">Set your weekly schedule and block specific dates</p>
@@ -218,6 +219,6 @@ export default function AvailabilityPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageColumn>
   )
 }

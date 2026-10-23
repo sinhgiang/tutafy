@@ -1,0 +1,219 @@
+/* Tutor app shell (T-0820, from the design the owner approved at W-2589: docs/dashboard-redesign/).
+   One frame for every page, a sticky sidebar (a 64px icon rail from 768 to 1279px, a bottom bar under 768px),
+   a sticky top bar, a notice bar, the command bar, the loading and error states, and a light and a dark theme.
+
+   Tokens are the --d-* variables below, the same values as docs/dashboard-redesign/dash.css and, for the light
+   theme, as the approved public booking page. tests/dashboard-shell.test.ts reads this file and checks that every
+   text and background pair reaches 4.5:1 in both themes (npm run contrast prints the numbers).
+
+   The pages themselves still use Tailwind colours such as text-gray-900. Until each group of pages is rebuilt
+   (tickets G2 to G7) the block "legacy colours in the dark theme" near the end maps those colours to the tokens,
+   so a page is readable in the dark theme before its own redesign. Delete a line of it when no page uses the class. */
+
+.dash {
+  --d-bg: #F6F7FB; --d-surface: #FFFFFF; --d-surface-2: #F3F4F8; --d-line: #E5E7EF; --d-line-strong: #D0D4E0;
+  --d-ink: #111827; --d-ink-2: #374151; --d-ink-3: #5B6475;
+  --d-brand: #4F46E5; --d-brand-hover: #4338CA; --d-brand-ink: #FFFFFF; --d-brand-soft: #EEF0FF; --d-brand-line: #C7CCFA;
+  --d-ok: #047857; --d-ok-soft: #E8F7F0; --d-warn: #92400E; --d-warn-soft: #FEF3C7; --d-err: #B42318; --d-err-soft: #FDECEA;
+  --d-focus: 0 0 0 3px rgba(79, 70, 229, .28);
+  --d-shadow-1: 0 1px 2px rgba(17, 24, 39, .05), 0 1px 1px rgba(17, 24, 39, .03);
+  --d-shadow-3: 0 24px 64px rgba(17, 24, 39, .22);
+  --d-side: 64px; --d-top: 56px;
+  color-scheme: light;
+}
+.dash[data-theme="dark"] {
+  --d-bg: #0E1117; --d-surface: #171B24; --d-surface-2: #1F2430; --d-line: #2A3040; --d-line-strong: #3A4256;
+  --d-ink: #F3F4F8; --d-ink-2: #D1D5E0; --d-ink-3: #A3ABBD;
+  --d-brand: #818CF8; --d-brand-hover: #A5B4FC; --d-brand-ink: #0E1117; --d-brand-soft: #232A52; --d-brand-line: #3B4586;
+  --d-ok: #34D399; --d-ok-soft: #12261F; --d-warn: #FBBF24; --d-warn-soft: #2B2208; --d-err: #F87171; --d-err-soft: #2E1514;
+  --d-focus: 0 0 0 3px rgba(129, 140, 248, .4);
+  --d-shadow-1: none;
+  --d-shadow-3: 0 24px 64px rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+@media (min-width: 1280px) { .dash { --d-side: 232px; } }
+
+/* ---------- the shell ---------- */
+.dash { display: flex; min-height: 100vh; background: var(--d-bg); color: var(--d-ink); }
+.dash :focus-visible { outline: none; box-shadow: var(--d-focus); }
+.dash-main { flex: 1 1 0%; min-width: 0; display: flex; flex-direction: column; }
+.dash-content { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 767px) { .dash-content { padding-bottom: 72px; } }
+
+/* THE page frame: centred, never pinned left. 1440px at most; padding 32 / 24 / 16 by screen. */
+.dash-frame { width: 100%; max-width: 1440px; margin: 0 auto; padding: 24px 32px 48px; }
+@media (max-width: 1279px) { .dash-frame { padding: 20px 24px 40px; } }
+@media (max-width: 767px) { .dash-frame { padding: 16px 16px 24px; } }
+.dash-column { width: 100%; margin-left: auto; margin-right: auto; }
+.dash-column-form { max-width: 720px; }
+.dash-column-list { max-width: 960px; }
+
+/* ---------- sidebar: sticky, light, an icon rail below 1280px ---------- */
+.dash-side {
+  display: none; position: sticky; top: 0; align-self: flex-start; flex: 0 0 var(--d-side); width: var(--d-side);
+  height: 100vh; height: 100dvh; flex-direction: column; padding: 12px 8px; overflow-y: auto; overflow-x: hidden;
+  background: var(--d-surface); border-right: 1px solid var(--d-line);
+}
+@media (min-width: 768px) { .dash-side { display: flex; } }
+@media (min-width: 1280px) { .dash-side { padding: 12px 10px; } }
+.dash-brand { display: flex; align-items: center; gap: 8px; padding: 6px 0 14px; justify-content: center; }
+@media (min-width: 1280px) { .dash-brand { justify-content: flex-start; padding: 6px 8px 14px; } }
+.dash-brand a { display: flex; align-items: center; gap: 8px; min-height: 36px; border-radius: 8px; color: var(--d-ink); font-weight: 700; font-size: 16px; text-decoration: none; }
+.dash-logo { width: 28px; height: 28px; border-radius: 8px; background: var(--d-brand); color: var(--d-brand-ink); display: grid; place-items: center; flex-shrink: 0; }
+.dash-brand-name, .dash-plan-tag { display: none; }
+@media (min-width: 1280px) { .dash-brand-name { display: inline; } .dash-plan-tag { display: inline; } }
+.dash-plan-tag { margin-left: auto; font-size: 12px; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; background: var(--d-brand-soft); color: var(--d-brand); }
+.dash-group-title { display: none; font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--d-ink-3); padding: 14px 10px 6px; margin: 0; }
+@media (min-width: 1280px) { .dash-group-title { display: block; } }
+.dash-group + .dash-group { border-top: 1px solid var(--d-line); margin-top: 6px; padding-top: 6px; }
+@media (min-width: 1280px) { .dash-group + .dash-group { border-top: 0; margin-top: 0; padding-top: 0; } }
+.dash-link {
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; height: 36px; padding: 0;
+  border-radius: 8px; color: var(--d-ink-2); font-weight: 520; font-size: 14px; text-decoration: none; margin-bottom: 2px;
+}
+@media (min-width: 1280px) { .dash-link { justify-content: flex-start; padding: 0 6px 0 8px; gap: 8px; } }
+.dash-link:hover { background: var(--d-surface-2); }
+.dash-link[aria-current="page"] { background: var(--d-brand-soft); color: var(--d-brand); font-weight: 650; }
+.dash-link svg { width: 18px; height: 18px; color: var(--d-ink-3); }
+.dash-link[aria-current="page"] svg { color: var(--d-brand); }
+.dash-link-label { display: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+@media (min-width: 1280px) { .dash-link-label { display: inline; } }
+.dash-link-lock { display: none; flex-shrink: 0; margin-left: auto; font-size: 12px; font-weight: 650; color: var(--d-ink-3); border: 1px solid var(--d-line-strong); border-radius: 6px; padding: 0 4px; }
+@media (min-width: 1280px) { .dash-link-lock { display: inline; } }
+.dash-count { position: absolute; top: 1px; right: 6px; min-width: 16px; padding: 0 4px; border-radius: 999px; background: var(--d-brand); color: var(--d-brand-ink); font-size: 12px; font-weight: 650; line-height: 16px; text-align: center; }
+@media (min-width: 1280px) { .dash-count { position: static; margin-left: auto; min-width: 20px; padding: 0 7px; line-height: 20px; } }
+.dash-count.is-new { background: var(--d-ok); }
+.dash-side-foot { margin-top: auto; padding-top: 12px; display: none; }
+@media (min-width: 1280px) { .dash-side-foot { display: block; } }
+.dash-plan-card { border: 1px solid var(--d-line); border-radius: 12px; padding: 12px; background: var(--d-surface-2); font-size: 13px; }
+.dash-plan-card b { display: block; font-size: 13px; color: var(--d-ink); }
+.dash-plan-card span { display: block; color: var(--d-ink-3); font-size: 13px; margin-bottom: 8px; }
+.dash-plan-card a { display: flex; align-items: center; justify-content: center; height: 32px; border-radius: 8px; font-weight: 650; font-size: 13px; text-decoration: none; background: var(--d-brand); color: var(--d-brand-ink); }
+.dash-plan-card a.is-quiet { background: transparent; color: var(--d-brand); border: 1px solid var(--d-line-strong); }
+
+/* ---------- top bar: sticky ---------- */
+.dash-top {
+  position: sticky; top: 0; z-index: 30; height: var(--d-top); flex: 0 0 var(--d-top); display: flex; align-items: center; gap: 12px; padding: 0 32px;
+  background: color-mix(in srgb, var(--d-surface) 90%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--d-line);
+}
+@media (max-width: 1279px) { .dash-top { padding: 0 24px; } }
+@media (max-width: 767px) { .dash-top { padding: 0 16px; gap: 8px; } }
+.dash-crumb { display: flex; align-items: center; gap: 6px; font-size: 14px; min-width: 0; color: var(--d-ink-3); }
+.dash-crumb strong { color: var(--d-ink); font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-crumb .dash-crumb-root { display: none; }
+@media (min-width: 640px) { .dash-crumb .dash-crumb-root { display: inline; } }
+.dash-search {
+  display: flex; align-items: center; gap: 8px; height: 36px; width: min(380px, 100%); margin-left: auto; padding: 0 10px; cursor: pointer;
+  background: var(--d-surface-2); border: 1px solid var(--d-line); border-radius: 8px; color: var(--d-ink-3); font-size: 14px; text-align: left;
+}
+.dash-search:hover { border-color: var(--d-line-strong); }
+.dash-search span { flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-search kbd { font: 600 12px/1 inherit; font-family: inherit; border: 1px solid var(--d-line-strong); border-bottom-width: 2px; border-radius: 5px; padding: 3px 6px; background: var(--d-surface); color: var(--d-ink-2); }
+@media (max-width: 767px) { .dash-search { width: 36px; margin-left: auto; padding: 0; justify-content: center; } .dash-search span, .dash-search kbd { display: none; } }
+.dash-top-actions { display: flex; align-items: center; gap: 4px; }
+@media (max-width: 767px) { .dash-search { margin-left: auto; } }
+.dash-icon-btn { position: relative; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--d-ink-2); cursor: pointer; }
+.dash-icon-btn:hover { background: var(--d-surface-2); }
+.dash-icon-btn .dash-dot { position: absolute; top: 0; right: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--d-err); color: #fff; font-size: 12px; font-weight: 700; line-height: 16px; text-align: center; }
+.dash-panel { background: var(--d-surface); border: 1px solid var(--d-line); box-shadow: var(--d-shadow-3); border-radius: 16px; overflow: hidden; color: var(--d-ink); }
+
+/* ---------- notice bar: ONE bar, in the page flow, so it never covers content ---------- */
+.dash-notice {
+  display: flex; align-items: center; gap: 12px; padding: 10px 32px; background: var(--d-brand-soft); border-bottom: 1px solid var(--d-brand-line);
+  color: var(--d-ink-2); font-size: 14px;
+}
+.dash-notice > svg { width: 18px; height: 18px; color: var(--d-brand); flex-shrink: 0; }
+.dash-notice p { margin: 0; flex: 1 1 auto; min-width: 0; line-height: 1.4; }
+.dash-notice p b { color: var(--d-ink); font-weight: 650; }
+.dash-notice a { color: var(--d-brand); text-decoration: underline; }
+.dash-notice-actions { display: flex; gap: 8px; flex-shrink: 0; }
+@media (max-width: 1279px) { .dash-notice { padding: 10px 24px; } }
+@media (max-width: 767px) { .dash-notice { padding: 10px 16px; flex-wrap: wrap; gap: 8px; } .dash-notice > svg { display: none; } .dash-notice-actions { width: 100%; } .dash-notice-actions .dash-btn { flex: 1 1 0%; } }
+
+/* ---------- buttons shared by the shell ---------- */
+.dash-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--d-line-strong); background: var(--d-surface); color: var(--d-ink); font-weight: 600; font-size: 14px; white-space: nowrap; cursor: pointer; text-decoration: none; }
+.dash-btn:hover { background: var(--d-surface-2); }
+.dash-btn.is-primary { background: var(--d-brand); border-color: var(--d-brand); color: var(--d-brand-ink); }
+.dash-btn.is-primary:hover { background: var(--d-brand-hover); border-color: var(--d-brand-hover); }
+.dash-btn.is-ghost { border-color: transparent; background: transparent; color: var(--d-ink-2); }
+
+/* ---------- phone bottom bar ---------- */
+.dash-tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--d-surface); border-top: 1px solid var(--d-line); padding-bottom: env(safe-area-inset-bottom); }
+@media (min-width: 768px) { .dash-tabbar { display: none; } }
+.dash-tab { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 8px 0 6px; font-size: 12px; font-weight: 600; color: var(--d-ink-3); background: transparent; border: 0; text-decoration: none; cursor: pointer; }
+.dash-tab svg { width: 22px; height: 22px; }
+.dash-tab[aria-current="page"], .dash-tab.is-open { color: var(--d-brand); }
+.dash-tab .dash-dot-unread { position: absolute; top: 8px; left: calc(50% + 8px); width: 9px; height: 9px; border-radius: 50%; background: var(--d-err); border: 2px solid var(--d-surface); }
+.dash-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 85dvh; overflow-y: auto; overscroll-behavior: contain; background: var(--d-surface); color: var(--d-ink); border-radius: 16px 16px 0 0; border-top: 1px solid var(--d-line); padding-bottom: env(safe-area-inset-bottom); }
+.dash-sheet-head { position: sticky; top: 0; background: var(--d-surface); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; border-bottom: 1px solid var(--d-line); font-size: 16px; font-weight: 650; }
+.dash-sheet-group { font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--d-ink-3); padding: 0 8px; margin: 0 0 4px; }
+.dash-sheet-link { display: flex; align-items: center; gap: 12px; padding: 0 12px; min-height: 48px; border-radius: 8px; font-size: 15px; font-weight: 520; color: var(--d-ink-2); text-decoration: none; }
+.dash-sheet-link svg { width: 20px; height: 20px; color: var(--d-ink-3); flex-shrink: 0; }
+.dash-sheet-link[aria-current="page"] { background: var(--d-brand-soft); color: var(--d-brand); }
+.dash-sheet-link[aria-current="page"] svg { color: var(--d-brand); }
+.dash-sheet-link .dash-link-lock { display: inline; }
+
+/* ---------- command bar ---------- */
+.dash-scrim { position: fixed; inset: 0; z-index: 80; background: rgba(15, 18, 28, .5); display: flex; justify-content: center; align-items: flex-start; padding: 12vh 16px 16px; }
+.dash-cmd { width: min(620px, 100%); max-height: 70vh; display: flex; flex-direction: column; background: var(--d-surface); color: var(--d-ink); border: 1px solid var(--d-line); border-radius: 16px; box-shadow: var(--d-shadow-3); overflow: hidden; }
+.dash-cmd-in { display: flex; align-items: center; gap: 10px; padding: 0 16px; border-bottom: 1px solid var(--d-line); }
+.dash-cmd-in svg { width: 18px; height: 18px; color: var(--d-ink-3); }
+.dash-cmd-in input { flex: 1 1 auto; height: 52px; border: 0; outline: none; background: transparent; color: var(--d-ink); font-size: 16px; }
+.dash-cmd-list { list-style: none; margin: 0; padding: 6px 0; overflow-y: auto; }
+.dash-cmd-head { padding: 10px 16px 4px; font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--d-ink-3); }
+.dash-cmd-item { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 40px; color: var(--d-ink-2); cursor: pointer; font-size: 14px; }
+.dash-cmd-item[aria-selected="true"] { background: var(--d-brand-soft); color: var(--d-brand); }
+.dash-cmd-item small { margin-left: auto; font-size: 12px; color: var(--d-ink-3); }
+.dash-cmd-empty { padding: 28px 16px; text-align: center; color: var(--d-ink-3); }
+.dash-cmd-foot { display: flex; gap: 16px; padding: 10px 16px; border-top: 1px solid var(--d-line); background: var(--d-surface-2); color: var(--d-ink-3); font-size: 12px; }
+
+/* ---------- loading and error states (docs/dashboard-redesign/states.html) ---------- */
+.dash-sk { background: linear-gradient(90deg, var(--d-surface-2), color-mix(in srgb, var(--d-surface-2) 55%, var(--d-surface)), var(--d-surface-2)); background-size: 200% 100%; animation: dash-shimmer 1.4s linear infinite; border-radius: 6px; }
+@keyframes dash-shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .dash-sk { animation: none; } }
+.dash-card { background: var(--d-surface); border: 1px solid var(--d-line); border-radius: 16px; box-shadow: var(--d-shadow-1); }
+.dash-state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 56px 24px; }
+.dash-state-ico { width: 48px; height: 48px; border-radius: 50%; background: var(--d-err-soft); color: var(--d-err); display: grid; place-items: center; margin-bottom: 6px; }
+.dash-state h2 { margin: 0; font-size: 18px; font-weight: 650; color: var(--d-ink); }
+.dash-state p { margin: 0; max-width: 46ch; color: var(--d-ink-3); }
+.dash-state-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+.dash-state code { font-size: 13px; color: var(--d-ink-3); }
+
+/* ---------- legacy colours in the dark theme ----------
+   Pages still written with Tailwind greys and tints. They sit outside every @layer, so they beat the utilities. */
+.dash[data-theme="dark"] .bg-white,
+.dash[data-theme="dark"] .hover\:bg-white:hover { background-color: var(--d-surface); }
+.dash[data-theme="dark"] .bg-gray-50, .dash[data-theme="dark"] .bg-gray-50\/60, .dash[data-theme="dark"] .bg-gray-100, .dash[data-theme="dark"] .bg-slate-100,
+.dash[data-theme="dark"] .hover\:bg-gray-50:hover, .dash[data-theme="dark"] .hover\:bg-gray-50\/60:hover, .dash[data-theme="dark"] .hover\:bg-gray-100:hover,
+.dash[data-theme="dark"] .bg-white\/20 { background-color: var(--d-surface-2); }
+.dash[data-theme="dark"] .bg-gray-200, .dash[data-theme="dark"] .bg-gray-300 { background-color: var(--d-line-strong); }
+.dash[data-theme="dark"] .text-gray-900, .dash[data-theme="dark"] .text-gray-800 { color: var(--d-ink); }
+.dash[data-theme="dark"] .text-gray-700, .dash[data-theme="dark"] .text-gray-600, .dash[data-theme="dark"] .hover\:text-gray-700:hover, .dash[data-theme="dark"] .hover\:text-gray-600:hover { color: var(--d-ink-2); }
+.dash[data-theme="dark"] .text-gray-500, .dash[data-theme="dark"] .text-gray-400, .dash[data-theme="dark"] .text-gray-300, .dash[data-theme="dark"] .text-gray-200, .dash[data-theme="dark"] .text-slate-500,
+.dash[data-theme="dark"] .hover\:text-gray-500:hover { color: var(--d-ink-3); }
+.dash[data-theme="dark"] .border-gray-50, .dash[data-theme="dark"] .border-gray-100 { border-color: var(--d-line); }
+.dash[data-theme="dark"] .border-gray-200, .dash[data-theme="dark"] .border-gray-300 { border-color: var(--d-line-strong); }
+.dash[data-theme="dark"] .divide-gray-50 > :not(:last-child), .dash[data-theme="dark"] .divide-gray-100 > :not(:last-child) { border-color: var(--d-line); }
+.dash[data-theme="dark"] .bg-indigo-50, .dash[data-theme="dark"] .bg-indigo-100, .dash[data-theme="dark"] .bg-blue-50, .dash[data-theme="dark"] .bg-purple-50,
+.dash[data-theme="dark"] .bg-violet-50, .dash[data-theme="dark"] .bg-cyan-50 { background-color: var(--d-brand-soft); }
+.dash[data-theme="dark"] .bg-emerald-50, .dash[data-theme="dark"] .bg-green-50 { background-color: var(--d-ok-soft); }
+.dash[data-theme="dark"] .bg-amber-50, .dash[data-theme="dark"] .bg-orange-50 { background-color: var(--d-warn-soft); }
+.dash[data-theme="dark"] .bg-red-50 { background-color: var(--d-err-soft); }
+.dash[data-theme="dark"] .text-indigo-500, .dash[data-theme="dark"] .text-indigo-600, .dash[data-theme="dark"] .text-indigo-700, .dash[data-theme="dark"] .text-indigo-800, .dash[data-theme="dark"] .text-indigo-900,
+.dash[data-theme="dark"] .text-blue-500, .dash[data-theme="dark"] .text-blue-600, .dash[data-theme="dark"] .text-purple-500, .dash[data-theme="dark"] .text-purple-600, .dash[data-theme="dark"] .text-purple-700,
+.dash[data-theme="dark"] .text-violet-500, .dash[data-theme="dark"] .text-cyan-700 { color: var(--d-brand); }
+.dash[data-theme="dark"] .text-emerald-500, .dash[data-theme="dark"] .text-emerald-600, .dash[data-theme="dark"] .text-emerald-700, .dash[data-theme="dark"] .text-emerald-800,
+.dash[data-theme="dark"] .text-green-500, .dash[data-theme="dark"] .text-green-600, .dash[data-theme="dark"] .text-green-700 { color: var(--d-ok); }
+.dash[data-theme="dark"] .text-amber-500, .dash[data-theme="dark"] .text-amber-600, .dash[data-theme="dark"] .text-amber-700, .dash[data-theme="dark"] .text-amber-900, .dash[data-theme="dark"] .text-orange-700 { color: var(--d-warn); }
+.dash[data-theme="dark"] .text-red-400, .dash[data-theme="dark"] .text-red-500, .dash[data-theme="dark"] .text-red-600, .dash[data-theme="dark"] .text-red-700 { color: var(--d-err); }
+.dash[data-theme="dark"] .border-indigo-100, .dash[data-theme="dark"] .border-indigo-200 { border-color: var(--d-brand-line); }
+.dash[data-theme="dark"] .border-emerald-100, .dash[data-theme="dark"] .border-amber-100, .dash[data-theme="dark"] .border-amber-200, .dash[data-theme="dark"] .border-red-100, .dash[data-theme="dark"] .border-blue-100 { border-color: var(--d-line); }
+.dash[data-theme="dark"] input, .dash[data-theme="dark"] textarea, .dash[data-theme="dark"] select { color: var(--d-ink); }
+.dash[data-theme="dark"] ::placeholder { color: var(--d-ink-3); opacity: 1; }
+.dash[data-theme="dark"] .bg-indigo-50\/70, .dash[data-theme="dark"] .hover\:bg-indigo-50\/30:hover { background-color: var(--d-brand-soft); }
+.dash[data-theme="dark"] .bg-gray-50\/80, .dash[data-theme="dark"] .bg-gray-50\/40, .dash[data-theme="dark"] .hover\:bg-gray-50\/70:hover, .dash[data-theme="dark"] .hover\:bg-gray-50\/40:hover, .dash[data-theme="dark"] .bg-white\/95 { background-color: var(--d-surface-2); }
+.dash[data-theme="dark"] .bg-emerald-100, .dash[data-theme="dark"] .bg-green-100 { background-color: var(--d-ok-soft); }
+.dash[data-theme="dark"] .bg-amber-100, .dash[data-theme="dark"] .bg-orange-100 { background-color: var(--d-warn-soft); }
+.dash[data-theme="dark"] .bg-red-100 { background-color: var(--d-err-soft); }
+.dash[data-theme="dark"] .bg-blue-100, .dash[data-theme="dark"] .bg-purple-100, .dash[data-theme="dark"] .bg-violet-100 { background-color: var(--d-brand-soft); }
+.dash[data-theme="dark"] .text-violet-600, .dash[data-theme="dark"] .text-violet-700, .dash[data-theme="dark"] .text-violet-800, .dash[data-theme="dark"] .text-blue-700 { color: var(--d-brand); }

@@ -436,7 +436,7 @@ export function DashboardHome({ data }: { data: DashboardData }) {
   const startExternal = startHref.startsWith('http')
 
   return (
-    <div className="max-w-[1200px] mx-auto">
+    <div>
       {data.noHours && <NoHoursBanner banner={data.noHours} />}
 
       {/* Top bar */}

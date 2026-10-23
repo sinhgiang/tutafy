@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -211,7 +212,7 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
   }
 
   return (
-    <div className="max-w-[900px] space-y-5">
+    <PageColumn size="list" className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Team & Payroll</h1>
@@ -388,6 +389,6 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
           )}
         </div>
       )}
-    </div>
+    </PageColumn>
   )
 }

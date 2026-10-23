@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { StudentForm } from './StudentForm'
@@ -22,7 +23,7 @@ export default async function NewStudentPage() {
 
   if (isLimited) {
     return (
-      <div className="max-w-[520px] mx-auto py-16">
+      <PageColumn size="form" className="py-16">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="bg-indigo-500 px-8 py-10 text-center">
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -61,7 +62,7 @@ export default async function NewStudentPage() {
             </Link>
           </div>
         </div>
-      </div>
+      </PageColumn>
     )
   }
 

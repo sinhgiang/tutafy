@@ -1,4 +1,5 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { PageColumn } from '@/components/layout/PageFrame'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
@@ -40,7 +41,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
   const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com'}/portal/${student.portal_token}`
 
   return (
-    <div className="max-w-[680px] flex flex-col h-[calc(100dvh-216px)] sm:h-[calc(100dvh-164px)] md:h-[calc(100vh-120px)]">
+    <PageColumn size="form" className="flex flex-col h-[calc(100dvh-176px)] md:h-[calc(100dvh-136px)]">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4 flex-shrink-0">
         <Link href="/messages"
@@ -75,6 +76,6 @@ export default async function ConversationPage({ params }: { params: Promise<{ s
         studentName={student.name}
         initialMessages={messages ?? []}
       />
-    </div>
+    </PageColumn>
   )
 }

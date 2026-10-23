@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { isDashboardPath } from '@/lib/page-titles'
 
 const KEY = 'tutafy_cookie_consent'
 export const CONSENT_EVENT = 'tutafy-consent'
@@ -12,23 +14,30 @@ export function getConsent(): 'accepted' | 'declined' | null {
   return v === 'accepted' || v === 'declined' ? v : null
 }
 
+/** Saves the visitor's choice and tells the tracking scripts (Analytics.tsx, VisitorTracker.tsx). */
+export function saveConsent(choice: 'accepted' | 'declined') {
+  localStorage.setItem(KEY, choice)
+  window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: choice }))
+}
+
 // GDPR/CCPA-style consent banner. Marketing/analytics scripts (Meta Pixel,
 // Google tag) only load AFTER the visitor accepts — see Analytics.tsx. This is
 // what keeps ad accounts compliant when running a Pixel or conversion tag.
 export function CookieConsent() {
   const [show, setShow] = useState(false)
+  // The tutor app has its own single notice bar (components/layout/NoticeBar.tsx), so this card stays away from it.
+  const inTutorApp = isDashboardPath(usePathname())
 
   useEffect(() => {
     if (!getConsent()) setShow(true)
   }, [])
 
   function choose(choice: 'accepted' | 'declined') {
-    localStorage.setItem(KEY, choice)
-    window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: choice }))
+    saveConsent(choice)
     setShow(false)
   }
 
-  if (!show) return null
+  if (!show || inTutorApp) return null
 
   return (
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-[60] bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-300/40 p-5">

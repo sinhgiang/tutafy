@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Tag, Plus, Trash2, Copy, Check } from 'lucide-react'
@@ -65,7 +66,7 @@ export function CouponsClient() {
   )
 
   return (
-    <div className="max-w-[640px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div>
         <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Coupon Codes</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">Create discount codes to share with students</p>
@@ -170,6 +171,6 @@ export function CouponsClient() {
         <p className="text-[12px] font-semibold text-indigo-900">How coupons work</p>
         <p className="text-[12px] text-indigo-600 mt-1">Share the code with students. They enter it on your booking page before confirming their lesson. The discount is shown before they book.</p>
       </div>
-    </div>
+    </PageColumn>
   )
 }

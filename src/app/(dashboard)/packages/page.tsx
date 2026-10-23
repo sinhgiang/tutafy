@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { requireFeature } from '@/lib/guard'
@@ -21,7 +22,7 @@ export default async function PackagesPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="max-w-[640px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
         <Link href="/payments"
           className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
@@ -34,6 +35,6 @@ export default async function PackagesPage() {
       </div>
 
       <PackageManager initialPackages={packages ?? []} />
-    </div>
+    </PageColumn>
   )
 }

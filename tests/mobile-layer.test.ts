@@ -199,10 +199,11 @@ test('phone menu of the admin area: a top bar and drawer on phones, the sidebar 
   assert.ok(ADMIN_NAV.length >= 8 && ADMIN_NAV.every(i => i.href.startsWith('/admin') || i.href === '/super-admin'))
 })
 
-test('the notification box does not sit over the phone menu, and its list fits a phone', () => {
+test('the notification prompt no longer floats over the phone menu (T-0820: one notice bar in the page flow), and the bell list fits a phone', () => {
   const header = read('src/components/layout/Header.tsx')
-  assert.match(header, /fixed bottom-24 md:bottom-4 right-4 z-50 w-\[340px\] max-w-\[calc\(100vw-2rem\)\]/)
-  assert.match(header, /fixed left-2 right-2 top-\[64px\] md:absolute md:left-auto md:right-0 md:top-10 md:w-\[340px\]/)
+  assert.doesNotMatch(header, /fixed bottom-24/, 'the floating prompt is gone from the header')
+  assert.doesNotMatch(read('src/components/layout/NoticeBar.tsx'), /\bfixed\b/)
+  assert.match(header, /dash-panel fixed left-2 right-2 top-\[64px\] md:absolute md:left-auto md:right-0 md:top-10 md:w-\[340px\]/)
 })
 
 test('rows that held buttons beside text now wrap on a phone instead of running off the page', () => {
@@ -236,8 +237,8 @@ test('the on-screen keyboard cannot hide the send button: the page resizes, the 
   assert.match(read('src/app/layout.tsx'), /interactiveWidget: 'resizes-content'/)
   assert.match(layoutCss(), /body:has\(input:focus, textarea:focus, select:focus\) \[data-mobile-nav\] \{\s*display: none;/)
   assert.match(read('src/components/layout/MobileNav.tsx'), /<nav aria-label="Main" data-mobile-nav /)
-  // the chat is as tall as the visible screen minus the header and the menu (dvh follows the browser bar), on a phone
-  assert.match(read('src/app/(dashboard)/messages/[studentId]/page.tsx'), /h-\[calc\(100dvh-216px\)\] sm:h-\[calc\(100dvh-164px\)\] md:h-\[calc\(100vh-120px\)\]/)
+  // the chat is as tall as the visible screen minus the top bar, the frame padding and (on a phone) the bottom bar (dvh follows the browser bar)
+  assert.match(read('src/app/(dashboard)/messages/[studentId]/page.tsx'), /flex flex-col h-\[calc\(100dvh-176px\)\] md:h-\[calc\(100dvh-136px\)\]/)
   assert.match(read('src/app/portal/[token]/messages/page.tsx'), /h-\[calc\(100dvh-100px\)\] md:h-\[calc\(100vh-100px\)\]/)
   // fields are 16px on a phone (the browser does not zoom in on focus); the 14px rule leaves them alone so it cannot win
   const block = layerBlock()

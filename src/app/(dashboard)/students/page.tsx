@@ -18,7 +18,7 @@ export default async function StudentsPage() {
   const active = students?.filter(s => s.status === 'active').length ?? 0
 
   return (
-    <div className="space-y-6 max-w-[1100px]">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Students</h1>

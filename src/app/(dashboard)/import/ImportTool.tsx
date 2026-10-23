@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState, useRef } from 'react'
 import { Upload, CheckCircle, AlertCircle, Loader2, FileText, Users, BookOpen, ArrowRight } from 'lucide-react'
 
@@ -70,7 +71,7 @@ export function ImportTool() {
   }
 
   return (
-    <div className="max-w-[600px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       {/* Step indicator */}
       <div className="flex items-center gap-2 text-[12px]">
         {['Upload', 'Preview', 'Done'].map((s, i) => (
@@ -259,6 +260,6 @@ export function ImportTool() {
           </div>
         </div>
       )}
-    </div>
+    </PageColumn>
   )
 }

@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Check, X, Zap, Crown, Users } from 'lucide-react'
@@ -131,7 +132,7 @@ export default async function UpgradePage() {
   const tutorName = tutor?.name?.split(' ')[0] ?? 'there'
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4">
+    <PageColumn size="list" className="py-10 px-4">
 
       {/* Header */}
       <div className="text-center mb-12">
@@ -285,6 +286,6 @@ export default async function UpgradePage() {
           ← Back to Settings
         </Link>
       </div>
-    </div>
+    </PageColumn>
   )
 }

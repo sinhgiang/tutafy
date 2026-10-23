@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { requireFeature } from '@/lib/guard'
 import { Users, Trash2, Mail } from 'lucide-react'
@@ -21,7 +22,7 @@ export default async function WaitlistPage() {
   } catch { /* table may not exist */ }
 
   return (
-    <div className="max-w-[640px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div>
         <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Waitlist</h1>
         <p className="text-[13px] text-gray-400 mt-0.5">Students who want to book but your schedule is full</p>
@@ -70,6 +71,6 @@ export default async function WaitlistPage() {
         <p className="text-[12px] font-semibold text-amber-900">Tip: Notify your waitlist</p>
         <p className="text-[12px] text-amber-700 mt-1">When you open new availability slots, email your waitlist to let them know. Click any email address above to open your mail client.</p>
       </div>
-    </div>
+    </PageColumn>
   )
 }
