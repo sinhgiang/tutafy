@@ -1,6 +1,6 @@
 // T-0774: the public pages read a tutor on the SERVER, with only the public columns, so the database can stop answering a visitor.
 //
-// The proof is built on a throwaway Postgres (PGlite) made from EVERY migration file, with the proposed fix (docs/tutors-rls/025_tutors_not_public_proposal.sql)
+// The proof is built on a throwaway Postgres (PGlite) made from EVERY migration file, with the proposed fix (supabase/migrations/025_tutors_not_public.sql)
 // ALREADY APPLIED: in that database a visitor's key (role "anon") cannot read the tutors table or the blocked days at all. The REAL pages are rendered
 // over it, with the visitor's client and the server's client each running as its own database role. If any page still read `tutors` or
 // `availability_exceptions` with the visitor's key, it would get "permission denied" here and the page would break; and whatever a page hands to the
@@ -18,7 +18,7 @@ import { pgliteClient } from './support/pglite-client.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
-const PROPOSAL = path.join(ROOT, 'docs', 'tutors-rls', '025_tutors_not_public_proposal.sql')
+const PROPOSAL = path.join(ROOT, 'supabase', 'migrations', '025_tutors_not_public.sql')
 
 // ---- the database: every migration, then the fix --------------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ before(async () => {
   await pg.query(`insert into public.packages (tutor_id, name, lessons_count, price) values ($1, 'Pack of five', 5, 120)`, [A])
   await pg.query(`insert into public.students (id, tutor_id, name, email, phone, notes, status) values ($1, $2, 'Student One', $3, '0900 000 000', $4, 'active')`, [STUDENT, A, STUDENT_EMAIL, PRIVATE_NOTE])
   await pg.query(`insert into public.lessons (tutor_id, student_id, starts_at, ends_at, status, meet_link) values ($1, $2, now() + interval '2 days', now() + interval '2 days 1 hour', 'scheduled', 'https://meet.example.com/x')`, [A, STUDENT])
-  // the fix is applied: this is the database after the owner has run docs/tutors-rls/025_tutors_not_public_proposal.sql
+  // the fix is applied: this is the database after the owner has run supabase/migrations/025_tutors_not_public.sql
   await pg.exec(readFileSync(PROPOSAL, 'utf8'))
 })
 

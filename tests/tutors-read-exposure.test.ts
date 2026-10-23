@@ -1,11 +1,11 @@
 // T-0767: can a visitor (the public key, the role "anon") read a tutor's private columns? Answered on a throwaway Postgres (PGlite) built from EVERY
 // migration file, with Supabase's own default privileges (the roles anon and authenticated may select on every table of the public schema, so
 // row level security is the only barrier), and made-up tutors whose private columns hold made-up values. Nothing here touches a real database or
-// uses a real key, and every address in it is example.com. The same file proves the proposed fix (docs/tutors-rls/025_tutors_not_public_proposal.sql).
+// uses a real key, and every address in it is example.com. The same file proves the proposed fix (supabase/migrations/025_tutors_not_public.sql).
 //
-// How the first group reads: it asks "what does the database do TODAY". While the fix is not in supabase/migrations it expects the exposure (that
-// is the evidence). The day the proposal is moved there (it carries the marker T-0767-FIX), the same tests expect NO exposure, so they turn into
-// the guard that keeps it closed.
+// How the first group reads: it asks "what does a database built from every migration do". The fix is a migration now (025, with the marker
+// T-0767-FIX; the owner also ran it on the real database, W-2548), so these tests expect NO exposure and are the guard that keeps it closed. The old
+// evidence (what a visitor could read before 025) is kept: the tests that need the open database build it from the migrations before 025 (freshDb(true)).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -13,7 +13,7 @@ import path from 'node:path'
 import type { PGlite } from '@electric-sql/pglite'
 import { applyMigrationsBefore, migrationFiles, newDb, readMigration } from './support/local-db.ts'
 
-const PROPOSAL = path.resolve(import.meta.dirname, '..', 'docs', 'tutors-rls', '025_tutors_not_public_proposal.sql')
+const PROPOSAL = path.resolve(import.meta.dirname, '..', 'supabase', 'migrations', '025_tutors_not_public.sql')
 const proposalSql = () => readFileSync(PROPOSAL, 'utf8').replace(/\r\n/g, '\n')
 const FIXED_IN_MIGRATIONS = migrationFiles().some(f => readMigration(f).includes('T-0767-FIX'))
 
@@ -42,9 +42,10 @@ const PRIVATE: Record<string, string> = {
   contract_template: 'Private contract text of tutor A',
 }
 
-async function freshDb(): Promise<PGlite> {
+/** A database built from the migration files; with `beforeFix` only those that come before 025, so the exposure is still there. */
+async function freshDb(beforeFix = false): Promise<PGlite> {
   const db = await newDb()
-  await applyMigrationsBefore(db, 'zzz_after_everything.sql')
+  await applyMigrationsBefore(db, beforeFix ? '025_tutors_not_public.sql' : 'zzz_after_everything.sql')
   // columns the real database has from the admin migrate route (src/app/api/admin/migrate/route.ts) and the migration files do not make
   await db.exec(`
     alter table public.tutors add column if not exists trial_enabled boolean default false;
@@ -187,7 +188,7 @@ test('the list of tables a visitor can read by policy is fixed: a new public rea
 // ---- the proposed fix ---------------------------------------------------------------------------------------------------------------------
 
 async function fixedDb(): Promise<PGlite> {
-  const db = await freshDb()
+  const db = await freshDb(true) // the database as it was before 025, then the file of 025 run on it
   await db.exec(proposalSql())
   return db
 }
@@ -246,9 +247,7 @@ test('FIX: the server\'s own key still reads everything (the pages that move to 
 })
 
 test('FIX: the proposal changes no row and no column, can be run twice, touches only these two tables, and keeps the other policies', async () => {
-  // once the file is a migration the database is already fixed when it is built, so "before" and "after" cannot be told apart here; the guards above hold the result
-  if (FIXED_IN_MIGRATIONS) return
-  const db = await freshDb()
+  const db = await freshDb(true) // before 025, so "before" and "after" can be told apart
   const before = {
     tutors: (await db.query(`select * from public.tutors order by id`)).rows,
     ex: (await db.query(`select * from public.availability_exceptions order by id`)).rows,
@@ -265,12 +264,20 @@ test('FIX: the proposal changes no row and no column, can be run twice, touches 
   const code = proposalSql().split('\n').filter(l => !l.trim().startsWith('--')).join('\n')
   assert.ok(!/\b(create|alter\s+table|insert|update|delete|truncate|grant)\b/i.test(code), 'the file only drops two policies and revokes two privileges')
   assert.deepEqual([...code.matchAll(/(?:on|from)\s+(public\.\w+)/gi)].map(m => m[1]).sort(), ['public.availability_exceptions', 'public.availability_exceptions', 'public.tutors', 'public.tutors'])
-  assert.match(proposalSql(), /READY, NOT RUN/) // T-0774: the code is changed; the owner has not run it yet (tests/tutors-025-ready.test.ts holds the rest of that claim)
   assert.match(proposalSql(), /T-0767-FIX/, 'the marker the tests look for once the file is in supabase/migrations')
 })
 
-test('the proposal is not in supabase/migrations yet: nothing can apply it by accident', () => {
-  if (FIXED_IN_MIGRATIONS) return // moved on purpose, with the owner\'s approval: the tests above now guard it
-  assert.ok(!migrationFiles().some(f => /tutors.*public|not_public/i.test(f)))
-  assert.ok(!migrationFiles().some(f => readMigration(f).includes('drop policy if exists "Anyone can view tutor for booking"')))
+test('the fix is in supabase/migrations (025, with its marker): the guards above expect NO exposure, never the old one', () => {
+  assert.equal(FIXED_IN_MIGRATIONS, true, 'if this fails the fix left supabase/migrations and the other tests of this file would pass for the wrong reason')
+  assert.ok(migrationFiles().includes('025_tutors_not_public.sql'))
+  assert.ok(readMigration('025_tutors_not_public.sql').includes('drop policy if exists "Anyone can view tutor for booking"'))
+})
+
+test('before 025 the exposure was real (history kept as evidence): the same database without the fix lets the public key read the email and the refresh token', async () => {
+  const db = await freshDb(true)
+  assert.equal(await as(db, 'anon', null, () => readColumn(db, 'email', 'tutor-a')), 'a.private@example.com')
+  assert.equal(await as(db, 'anon', null, () => readColumn(db, 'google_calendar_refresh_token', 'tutor-a')), 'refresh-token-example-0001')
+  const closed = await freshDb()
+  const got = await as(closed, 'anon', null, () => readColumn(closed, 'email', 'tutor-a'))
+  assert.ok(got === null || got === 'denied', 'built from every migration, the same read gets nothing')
 })

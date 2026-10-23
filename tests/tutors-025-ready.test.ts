@@ -1,11 +1,12 @@
-// T-0774: the fix file (docs/tutors-rls/025_tutors_not_public_proposal.sql) is READY for the owner, with two read-only checks and a way back.
+// T-0774, and 025 is closed: the fix is the migration supabase/migrations/025_tutors_not_public.sql (the owner ran it on the real database, W-2548),
+// with two read-only checks and a way back in docs/tutors-rls.
 // Everything runs on a throwaway Postgres (PGlite) made from every migration file; nothing here touches a real database or key.
 //   - the two checks (docs/tutors-rls/025_checks_read_only.sql) are select statements only, and say "open" before and "closed" after;
 //   - the fix can be run twice; the way back (025_tutors_not_public_rollback.sql) puts the policies and the grants back EXACTLY as the migration files made them;
-//   - the fix is still outside supabase/migrations and not applied there (the owner runs it; then the file is moved with its marker).
+//   - the fix is a migration now: numbered 025, with its marker, safe to run again. "Before" in these tests is a copy built from the migrations that come BEFORE 025.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { PGlite } from '@electric-sql/pglite'
@@ -14,16 +15,17 @@ import { applyMigrationsBefore, migrationFiles, newDb, readMigration } from './s
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const dir = path.join(ROOT, 'docs', 'tutors-rls')
 const sql = (f: string) => readFileSync(path.join(dir, f), 'utf8').split('\r\n').join('\n')
-const FIX = sql('025_tutors_not_public_proposal.sql')
+const FIX = readFileSync(path.join(ROOT, 'supabase', 'migrations', '025_tutors_not_public.sql'), 'utf8').split('\r\n').join('\n')
 const BACK = sql('025_tutors_not_public_rollback.sql')
 const CHECKS = sql('025_checks_read_only.sql')
 
 /** The statements of a SQL file with the comment lines taken out. */
 const statements = (text: string) => text.split('\n').filter(l => !l.trim().startsWith('--')).join('\n').split(';').map(s => s.trim()).filter(Boolean)
 
+/** The database as it was BEFORE 025: every migration file that comes before it, so the exposure is still there and the fix can be shown. */
 async function freshDb(): Promise<PGlite> {
   const db = await newDb()
-  await applyMigrationsBefore(db, 'zzz_after_everything.sql')
+  await applyMigrationsBefore(db, '025_tutors_not_public.sql')
   return db
 }
 type Row = Record<string, unknown>
@@ -115,9 +117,20 @@ test('the fix and the way back touch only the two tables, and change no row and 
   }
 })
 
-test('the fix is READY but NOT RUN: it is outside supabase/migrations, carries its marker, and says to run it only after the code is live', () => {
+test('the fix is a migration: exactly one file numbered 025 holds it, with its marker, and it says it was run and when it must not be', () => {
+  assert.deepEqual(migrationFiles().filter(f => f.startsWith('025')), ['025_tutors_not_public.sql'])
   assert.ok(FIX.includes('T-0767-FIX'))
-  assert.match(FIX, /Run it ONLY AFTER the code of T-0774 is merged and live/)
-  assert.ok(!migrationFiles().some(f => readMigration(f).includes('T-0767-FIX')), 'no migration file holds the fix: the owner runs it, then the file is moved')
-  assert.ok(!migrationFiles().some(f => f.startsWith('025')))
+  assert.equal(migrationFiles().filter(f => readMigration(f).includes('T-0767-FIX')).length, 1, 'the marker is in one migration only')
+  assert.match(FIX, /ALREADY RUN on the real Supabase project/)
+  assert.match(FIX, /Do NOT run it before the code of T-0774 is live/)
+  assert.doesNotMatch(FIX, /READY, NOT RUN/)
+  assert.ok(!existsSync(path.join(dir, '025_tutors_not_public_proposal.sql')), 'the file was moved, not copied: a second copy could drift')
+})
+
+test('a database built from EVERY migration is closed from its first day: no public policy and no select for the visitor on the two tables', async () => {
+  const db = await newDb()
+  await applyMigrationsBefore(db, 'zzz_after_everything.sql')
+  assert.deepEqual(await check(db, 2), [], 'check 2: no select for anon')
+  const open = (await check(db, 1)).filter(r => /Anyone can view tutor for booking|Public read exceptions/.test(String(r.policyname)))
+  assert.deepEqual(open, [], 'check 1: neither public policy')
 })

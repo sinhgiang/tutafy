@@ -1,7 +1,7 @@
 // T-0774: the proxy (src/proxy.ts) runs before every page and used to read the tutors table with the PUBLIC key in two places:
 //   - the custom domain of a tutor (white-label booking page): which slug belongs to this host;
 //   - "is this signed-in account a tutor?", before it opens the dashboard.
-// Once docs/tutors-rls/025_tutors_not_public_proposal.sql has run, the public key reads nothing from that table, so the first would stop serving
+// Once supabase/migrations/025_tutors_not_public.sql has run, the public key reads nothing from that table, so the first would stop serving
 // every custom domain and the second would answer "not a tutor" for EVERY tutor and send them all to the student sign-in. Both are proven here on a
 // throwaway Postgres (PGlite) made from every migration WITH the fix applied, with the proxy's own requests answered by that database as the role
 // its key stands for. Nothing here reaches a service; every address is example.com.
@@ -15,7 +15,7 @@ import { applyMigrationsBefore, newDb } from './support/local-db.ts'
 import { pgliteClient } from './support/pglite-client.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const PROPOSAL = path.join(ROOT, 'docs', 'tutors-rls', '025_tutors_not_public_proposal.sql')
+const PROPOSAL = path.join(ROOT, 'supabase', 'migrations', '025_tutors_not_public.sql')
 
 const ON = '11111111-1111-4111-8111-111111111111' // a tutor, booking page on, with a custom domain
 const OFF = '22222222-2222-4222-8222-222222222222' // a tutor, booking page OFF, with a custom domain

@@ -1,6 +1,6 @@
 // T-0774: the code may not read the `tutors` table or the blocked days (`availability_exceptions`) from a browser or with a visitor's key.
 //
-// docs/tutors-rls/025_tutors_not_public_proposal.sql takes the visitor's right to read those two tables away. Every page and API open to a
+// supabase/migrations/025_tutors_not_public.sql takes the visitor's right to read those two tables away. Every page and API open to a
 // visitor must therefore read them on the server, with the admin client. This test scans ALL of `src` (tests/support/tutor-read-scan.ts) and
 // is deny-by-default: a read is fine when it is made with the admin client; any other read must be listed below, with a reason, and with
 // the number of reads, so a new one - a new page that reads `tutors` with the visitor's key, a browser component that asks for it - turns the test
