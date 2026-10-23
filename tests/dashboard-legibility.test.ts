@@ -12,7 +12,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { MIN_RATIO, contrast, readTokens } from '@/lib/dashboard-contrast'
-import { dashboardPageFiles } from './support/page-frame-scan.ts'
+import { dashboardPageFiles, tsxFiles } from './support/page-frame-scan.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
@@ -126,4 +126,80 @@ test('the colours the floor maps to reach 4.5 to 1 on the surfaces legacy pages 
   const badge = /\.dash\[data-theme="dark"\] \.dash-icon-btn \.dash-dot \{ color: (#[0-9A-Fa-f]{6}); \}/.exec(css)![1]
   if (contrast(badge, dark['--d-err']) < MIN_RATIO) rows.push(`dark badge ${badge} on ${dark['--d-err']}`)
   assert.deepEqual(rows, [])
+})
+
+// ---- T-0842, second pass: the same audit with placeholders counted as the pale text they are, and with "has a name" meaning
+// a label or aria-label, not a placeholder. These keep the form fixes from coming back.
+
+/** The opening tag of every input, textarea and select in a source: from "<input" to the ">" that is not inside braces or quotes. */
+export function controlTags(src: string): { tag: string; before: string }[] {
+  const out: { tag: string; before: string }[] = []
+  for (const m of src.matchAll(/<(input|textarea|select)\b/g)) {
+    let i = m.index! + m[0].length
+    let depth = 0
+    let quote: string | null = null
+    const start = m.index!
+    for (; i < src.length; i++) {
+      const c = src[i]
+      if (quote) { if (c === quote) quote = null; continue }
+      if (depth > 0) { if (c === '{') depth++; else if (c === '}') depth--; else if (c === '"' || c === "'" || c === '`') quote = c; continue }
+      if (c === '{') { depth = 1; continue }
+      if (c === '"' || c === "'") { quote = c; continue }
+      if (c === '>') break
+    }
+    out.push({ tag: src.slice(start, i + 1), before: src.slice(Math.max(0, start - 400), start) })
+  }
+  return out
+}
+
+/** Controls a screen reader would read as "edit text, blank": no label, no aria-label, and not inside a label. A placeholder is not a name. */
+export function unnamedControls(src: string): string[] {
+  const hasFor = /htmlFor=/.test(src)
+  return controlTags(src)
+    .filter(({ tag, before }) => {
+      if (/type="hidden"/.test(tag) || /\{\.\.\./.test(tag)) return false
+      if (/className="hidden"/.test(tag) || /aria-hidden="true"/.test(tag)) return false // a file input a button opens; the button has the name
+      if (/aria-label(?:ledby)?=/.test(tag)) return false
+      if (/\bid=/.test(tag) && hasFor) return false
+      const open = before.lastIndexOf('<label')
+      if (open >= 0 && before.indexOf('</label>', open) < 0) return false // wrapped in a label
+      return true
+    })
+    .map(({ tag }) => tag.replace(/\s+/g, ' ').slice(0, 80))
+}
+
+const formFiles = [...new Set([...files, ...tsxFiles(ROOT, 'src/components/settings')])]
+
+test('every input, textarea and select of the tutor app has a name that is not its placeholder', () => {
+  assert.ok(formFiles.length > 40, `only ${formFiles.length} files scanned`)
+  const found = formFiles.flatMap(f => unnamedControls(read(f)).map(t => `${f}: ${t}`))
+  assert.deepEqual(found, [])
+  // the scan really reads: a field with only a placeholder is caught, a labelled or named one is not
+  assert.equal(unnamedControls('<input value={a} onChange={e => set(e.target.value)} placeholder="Name" className="x" />').length, 1)
+  assert.equal(unnamedControls('<textarea\n  value={a}\n  placeholder="Notes"\n/>').length, 1)
+  assert.equal(unnamedControls('<input aria-label="Name" value={a} />').length, 0)
+  assert.equal(unnamedControls('<label htmlFor="n">Name</label><input id="n" value={a} />').length, 0)
+  assert.equal(unnamedControls('<label className="x">Name <input value={a} /></label>').length, 0)
+  assert.equal(unnamedControls('<label>Name</label><input value={a} />').length, 1)
+  assert.equal(unnamedControls('<input id="n" value={a} />').length, 1) // an id with no label for it names nothing
+  assert.equal(unnamedControls('<input ref={r} type="file" className="hidden" onChange={f} />').length, 0)
+  assert.equal(unnamedControls('<input ref={r} type="file" className="sr-only" tabIndex={-1} aria-hidden="true" />').length, 0)
+  // and on a real page: taking the name off the price field is caught
+  const lessonForm = read('src/app/(dashboard)/lessons/new/page.tsx')
+  const unnamed = lessonForm.replace('aria-label="Price (USD)" ', '')
+  assert.notEqual(unnamed, lessonForm)
+  assert.equal(unnamedControls(unnamed).length, unnamedControls(lessonForm).length + 1)
+})
+
+test('a placeholder and the shadcn muted text read the shell\'s third ink, so neither is pale in either theme', () => {
+  assert.ok(declarationsFor(css, '.dash ::placeholder').some(d => /color:\s*var\(--d-ink-3\)/.test(d) && /opacity:\s*1/.test(d)), 'placeholder rule missing')
+  assert.ok(declarationsFor(css, '.dash').some(d => /--muted-foreground:\s*var\(--d-ink-3\)/.test(d)), '--muted-foreground is not the third ink')
+  for (const [from, to] of [['.dash ::placeholder {', '.dash ::placeholderx {'], ['--muted-foreground: var(--d-ink-3);', '']]) {
+    const mutated = css.replace(from, to)
+    assert.notEqual(mutated, css, from)
+    assert.ok(!declarationsFor(mutated, '.dash ::placeholder').length || !declarationsFor(mutated, '.dash').some(d => /--muted-foreground/.test(d)), `${from} -> ${to} was not caught`)
+  }
+  // no page puts a lighter placeholder back with a class the floor does not reach
+  const found = files.flatMap(f => [...read(f).matchAll(/placeholder:text-(?:gray|slate)-(?:100|200)/g)].map(m => `${f}: ${m[0]}`))
+  assert.deepEqual(found, [])
 })

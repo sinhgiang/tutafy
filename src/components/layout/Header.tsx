@@ -283,7 +283,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
                     }`}>
                     {soundOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
                   </button>
-                  <button onClick={() => setNotifOpen(false)} className="text-gray-300 hover:text-gray-500 transition-colors">
+                  <button type="button" aria-label="Close notifications" onClick={() => setNotifOpen(false)} className="text-gray-300 hover:text-gray-500 transition-colors">
                     <X className="h-4 w-4" />
                   </button>
                 </div>

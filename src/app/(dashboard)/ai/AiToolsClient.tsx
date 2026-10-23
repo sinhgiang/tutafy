@@ -155,6 +155,7 @@ export function AiToolsClient() {
           <div className="p-5 space-y-4">
             {tool.multiline ? (
               <textarea
+                aria-label={tool.title}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 placeholder={tool.placeholder}
@@ -163,6 +164,7 @@ export function AiToolsClient() {
               />
             ) : (
               <input
+                aria-label={tool.title}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 placeholder={tool.placeholder}

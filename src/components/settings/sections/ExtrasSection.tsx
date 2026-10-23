@@ -35,8 +35,8 @@ export default function ExtrasSection({ ctx }: { ctx: SettingsCtx }) {
             </div>
             {form.trial_enabled && (
               <div>
-                <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Trial lesson price (USD)</label>
-                <input type="number" min="0" step="0.01" placeholder="e.g. 10.00" value={form.trial_price}
+                <label htmlFor="settings-trial-price" className="block text-[12px] font-medium text-gray-600 mb-1.5">Trial lesson price (USD)</label>
+                <input id="settings-trial-price" type="number" min="0" step="0.01" placeholder="e.g. 10.00" value={form.trial_price}
                   onChange={e => setForm(f => ({ ...f, trial_price: e.target.value }))}
                   className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
                 <p className="text-[11px] text-gray-400 mt-1">Set lower than your regular price to encourage first bookings</p>
@@ -57,6 +57,7 @@ export default function ExtrasSection({ ctx }: { ctx: SettingsCtx }) {
               Students will be shown this contract and must agree before booking. Leave blank to skip.
             </p>
             <textarea
+              aria-label="Contract text"
               value={form.contract_template}
               onChange={e => setForm(f => ({ ...f, contract_template: e.target.value }))}
               rows={6}

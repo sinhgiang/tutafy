@@ -19,6 +19,7 @@
   --d-shadow-1: 0 1px 2px rgba(17, 24, 39, .05), 0 1px 1px rgba(17, 24, 39, .03);
   --d-shadow-3: 0 24px 64px rgba(17, 24, 39, .22);
   --d-side: 64px; --d-top: 56px;
+  --muted-foreground: var(--d-ink-3); /* shadcn "muted" text (select placeholder) follows the shell's third ink in both themes (T-0842) */
   color-scheme: light;
 }
 .dash[data-theme="dark"] {
@@ -32,6 +33,8 @@
   color-scheme: dark;
 }
 @media (min-width: 1280px) { .dash { --d-side: 232px; } }
+/* A placeholder is text too: the old pages say placeholder:text-gray-300 (1.5 to 1). Same third ink as other quiet text, 5.9 to 1 on white (T-0842). */
+.dash ::placeholder { color: var(--d-ink-3); opacity: 1; }
 
 /* ---------- the shell ---------- */
 .dash { display: flex; min-height: 100vh; background: var(--d-bg); color: var(--d-ink); }
@@ -221,6 +224,9 @@
 .cal-week { overflow-x: auto; }
 .cal-week-head, .cal-week-body { display: grid; grid-template-columns: 56px repeat(7, minmax(110px, 1fr)); min-width: 0; }
 .cal-week-head { border-bottom: 1px solid var(--d-line); background: var(--d-surface); border-radius: 16px 16px 0 0; }
+/* The hours scroll inside the grid and the day names stay above them (T-0842); both reserve the same scrollbar width so the columns line up. */
+.cal-week-head { overflow-y: hidden; scrollbar-gutter: stable; }
+.cal-week-body { overflow-y: auto; scrollbar-gutter: stable; max-height: max(420px, calc(100vh - 290px)); }
 .cal-week-head > div { padding: 8px 8px 6px; display: flex; gap: 6px; align-items: baseline; justify-content: center; color: var(--d-ink-3); font-size: 13px; font-weight: 600; }
 .cal-week-head b { font-size: 16px; color: var(--d-ink); min-width: 28px; height: 28px; display: inline-grid; place-items: center; border-radius: 999px; }
 .cal-week-head .is-today b { background: var(--d-brand); color: var(--d-brand-ink); }

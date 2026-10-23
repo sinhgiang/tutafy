@@ -58,6 +58,7 @@ export default function BroadcastPage() {
         <div>
           <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Subject</label>
           <input
+            aria-label="Subject"
             value={subject}
             onChange={e => setSubject(e.target.value)}
             placeholder="e.g. Holiday schedule update"
@@ -68,6 +69,7 @@ export default function BroadcastPage() {
         <div>
           <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Message</label>
           <textarea
+            aria-label="Message"
             value={message}
             onChange={e => setMessage(e.target.value)}
             placeholder="Write your message here..."

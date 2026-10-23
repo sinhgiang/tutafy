@@ -125,6 +125,7 @@ export function CustomDomainCard() {
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Your domain</label>
               <div className="flex gap-2">
                 <input
+                  aria-label="Your domain"
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   placeholder="booking.yourdomain.com"

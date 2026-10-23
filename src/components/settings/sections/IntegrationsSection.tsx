@@ -48,7 +48,7 @@ export default function IntegrationsSection({ ctx }: { ctx: SettingsCtx }) {
                 <p className="text-[12px] text-gray-500">Sign in with your Google account and every lesson you schedule is added to your Google Calendar automatically. One click — nothing to install.</p>
                 <a
                   href="/api/auth/google-calendar"
-                  className="flex items-center justify-center gap-2 w-full text-[13px] font-semibold text-white bg-[#4285f4] hover:bg-[#3367d6] transition-colors py-2.5 rounded-lg"
+                  className="flex items-center justify-center gap-2 w-full text-[13px] font-semibold text-white bg-[#1a73e8] hover:bg-[#1557b0] transition-colors py-2.5 rounded-lg"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 3H4v18h16V3zm-2 14H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2z"/>

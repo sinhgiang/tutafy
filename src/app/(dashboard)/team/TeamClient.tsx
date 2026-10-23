@@ -109,7 +109,7 @@ function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: 
       <div>
         <p className="text-[11px] text-gray-400 mb-1.5">Bio (shown on booking page)</p>
         <div className="flex gap-2">
-          <textarea value={bio} onChange={e => setBio(e.target.value)} rows={2} placeholder="A short intro for students"
+          <textarea aria-label="Short intro" value={bio} onChange={e => setBio(e.target.value)} rows={2} placeholder="A short intro for students"
             className="flex-1 text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none" />
           <button onClick={saveBio} disabled={savingBio} className="text-[12px] font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-50 px-2">
             {savingBio ? '…' : 'Save'}
@@ -120,13 +120,13 @@ function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: 
       <div>
         <p className="text-[11px] text-gray-400 mb-1.5">Weekly availability</p>
         <div className="flex flex-wrap gap-2 items-end mb-2">
-          <select value={newDay} onChange={e => setNewDay(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+          <select aria-label="Day" value={newDay} onChange={e => setNewDay(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
             {DAYS.map((d, i) => <option key={i} value={i}>{d}</option>)}
           </select>
-          <select value={newStart} onChange={e => setNewStart(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+          <select aria-label="From" value={newStart} onChange={e => setNewStart(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
             {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-          <select value={newEnd} onChange={e => setNewEnd(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+          <select aria-label="To" value={newEnd} onChange={e => setNewEnd(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
             {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
           <button onClick={addSlot} disabled={savingSlot} className="text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-3 py-1.5 rounded-lg">
@@ -306,24 +306,24 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
         <div className="px-5 py-4 border-b border-gray-50 flex flex-wrap gap-2 items-end">
           <div className="flex-1 min-w-[130px]">
             <p className="text-[11px] text-gray-400 mb-1">Name</p>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="Tutor name"
+            <input aria-label="Name" value={name} onChange={e => setName(e.target.value)} placeholder="Tutor name"
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <div className="flex-1 min-w-[130px]">
             <p className="text-[11px] text-gray-400 mb-1">Email (optional)</p>
-            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@email.com"
+            <input aria-label="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@email.com"
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <div>
             <p className="text-[11px] text-gray-400 mb-1">Pay type</p>
-            <select value={payType} onChange={e => setPayType(e.target.value)}
+            <select aria-label="Pay type" value={payType} onChange={e => setPayType(e.target.value)}
               className="text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
               {PAY_TYPES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
           </div>
           <div className="w-24">
             <p className="text-[11px] text-gray-400 mb-1">{payType === 'revenue_share' ? 'Percent' : 'Rate ($)'}</p>
-            <input value={payRate} onChange={e => setPayRate(e.target.value)} type="number" min="0" placeholder={payType === 'revenue_share' ? '70' : '20'}
+            <input aria-label={payType === 'revenue_share' ? 'Percent' : 'Rate ($)'} value={payRate} onChange={e => setPayRate(e.target.value)} type="number" min="0" placeholder={payType === 'revenue_share' ? '70' : '20'}
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <button onClick={addMember} disabled={busy === 'add'}
@@ -383,6 +383,7 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
                     </p>
                   </div>
                   <select
+                    aria-label="Assigned tutor"
                     value={l.assigned_to ?? ''}
                     onChange={e => assign(l.id, e.target.value)}
                     disabled={busy === l.id}

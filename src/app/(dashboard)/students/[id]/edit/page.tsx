@@ -65,8 +65,9 @@ export default function EditStudentPage() {
 
   const field = (label: string, key: keyof typeof form, opts?: { type?: string; placeholder?: string }) => (
     <div>
-      <label className="block text-[12px] font-medium text-gray-600 mb-1.5">{label}</label>
+      <label htmlFor={`student-${key}`} className="block text-[12px] font-medium text-gray-600 mb-1.5">{label}</label>
       <input
+        id={`student-${key}`}
         type={opts?.type ?? 'text'}
         value={form[key]}
         onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
@@ -124,7 +125,7 @@ export default function EditStudentPage() {
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Learning goals</label>
-            <textarea value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} rows={3}
+            <textarea aria-label="Learning goals" value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} rows={3}
               placeholder="Prepare for IELTS, improve business communication..."
               className="w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
           </div>
@@ -164,7 +165,7 @@ export default function EditStudentPage() {
 
         <div className="bg-white rounded-xl border border-gray-100 p-5">
           <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Private notes</label>
-          <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={4}
+          <textarea aria-label="Private notes" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={4}
             placeholder="Notes only you can see..."
             className="w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
         </div>

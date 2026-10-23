@@ -133,6 +133,7 @@ export function VideoPlatformPicker({
         <div className="space-y-2.5">
           <div className="flex gap-2">
             <input
+              aria-label="Meeting link"
               value={meetInput}
               onChange={e => setMeetInput(e.target.value)}
               placeholder="https://meet.google.com/abc-defg-hij"
