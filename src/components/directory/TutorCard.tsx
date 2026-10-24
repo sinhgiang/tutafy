@@ -1,7 +1,8 @@
 // One tutor card of the directory (T-0769, design: docs/directory-design/card.html). Plain markup with no browser state: the page passes
 // the zone to read the time in, so the server draw and the tests render the same thing.
 import Link from 'next/link'
-import { Star, Zap, Languages, Clock, Signal } from 'lucide-react'
+import { Star, Zap, Languages, Clock, Signal, Video } from 'lucide-react'
+import { EstablishedChip } from '@/components/profile/EstablishedBadge'
 import { priceLabel, initialsOf, zoneCity } from '@/lib/tutor-profile'
 import { nextAvailableText, LEVEL_OPTIONS, type DirectoryCard } from '@/lib/directory'
 
@@ -33,6 +34,11 @@ export function TutorCard({ card, zone, viewerZone, now }: { card: DirectoryCard
             {initialsOf(card.name)}
           </div>
         )}
+        {card.video && (
+          <span data-testid="card-video" className="absolute right-1.5 bottom-1.5 min-[721px]:right-2.5 min-[721px]:bottom-2.5 inline-flex items-center gap-1 rounded-full px-[7px] py-[3px] text-[11px] min-[721px]:text-[12px] font-bold vid-chip vid-chip-solid">
+            <Video className="h-3 w-3" aria-hidden="true" /> Video<span className="sr-only"> intro</span>
+          </span>
+        )}
         {trial && (
           <span className="absolute left-1.5 top-1.5 min-[721px]:left-2.5 min-[721px]:top-2.5 inline-flex items-center gap-1 bg-white/95 text-emerald-700 text-[11px] min-[721px]:text-[12px] font-bold px-[7px] py-[3px] min-[721px]:px-[9px] min-[721px]:py-1 rounded-full shadow-sm" data-testid="card-trial">
             <Zap className="h-3 w-3" aria-hidden="true" /> Trial {trial}
@@ -51,6 +57,7 @@ export function TutorCard({ card, zone, viewerZone, now }: { card: DirectoryCard
             <span className="self-start text-[12px] font-bold text-indigo-700 bg-indigo-50 rounded-full px-2 py-0.5 whitespace-nowrap" data-testid="card-new">New</span>
           )}
         </div>
+        {card.established && <p><EstablishedChip /></p>}
         <p className="text-[13.5px] min-[721px]:text-[14px] text-gray-700 leading-snug line-clamp-2 min-[721px]:min-h-10">{card.headline}</p>
         {card.languages.length > 0 && (
           <p className="text-[13px] text-gray-600 flex items-center gap-1.5"><Languages className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> <span className="min-w-0 break-words">{card.languages.join(' · ')}</span></p>

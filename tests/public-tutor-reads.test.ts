@@ -199,7 +199,7 @@ for (const p of everyPage) {
     const allowed = new Set<string>(columns.PUBLIC_TUTOR_COLUMNS)
     const lists = new Set([columns.BOOKING_PAGE_COLUMNS, columns.MEMBER_PAGE_COLUMNS, columns.EMBED_PAGE_COLUMNS, columns.PROFILE_PAGE_COLUMNS, columns.STUDENT_PAGE_COLUMNS])
     // the plan and the two choices of the booking line are read apart and turned into a yes/no or a list of lengths before they leave
-    const apart = new Set(['subscription_status', 'hide_branding', 'lesson_durations, default_lesson_duration'])
+    const apart = new Set(['subscription_status', 'hide_branding', 'lesson_durations, default_lesson_duration', 'id, intro_video_url'])
     for (const r of adminReads) {
       if (r.table === 'availability_exceptions') { assert.equal(r.cols, 'date', 'blocked days: the date only'); continue }
       assert.notEqual(r.cols, '*', 'tutors is never read with *')

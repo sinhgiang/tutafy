@@ -33,6 +33,9 @@ export type SettingsCtx = {
   slug: string
   avatarUrl: string | null
   setAvatarUrl: Dispatch<SetStateAction<string | null>>
+  /** The saved intro video link (T-0915), or null. Saved by its own route, not by the Save button of the form. */
+  introVideoUrl: string | null
+  setIntroVideoUrl: Dispatch<SetStateAction<string | null>>
   linkCopied: boolean
   setLinkCopied: Dispatch<SetStateAction<boolean>>
   cardLinkError: string
