@@ -50,9 +50,11 @@ test('no tracked file holds a real-looking email address (file and line only in 
 })
 
 test('self-check: the detector catches real-looking addresses and lets the placeholders through', () => {
-  const real = ['mail me at jane.doe@gmail.com please', 'support@acme-widgets.io', 'a+tag@sub.company.vn', 'x@y.co']
+  // the samples are joined from two parts, so this file holds no address of its own (it would fail the very test above)
+  const at = (local: string, domain: string) => `${local}@${domain}`
+  const real = [`mail me at ${at('jane.doe', 'mailhost.net')} please`, at('support', 'acme-widgets.io'), at('a+tag', 'sub.company.vn'), at('x', 'y.co')]
   for (const t of real) assert.deepEqual(addressLines(t), [1], t)
-  assert.deepEqual(addressLines('first\nsecond ten@mailhost.org\nthird'), [2], 'the line number is the line of the address')
+  assert.deepEqual(addressLines(`first\nsecond ${at('ten', 'mailhost.org')}\nthird`), [2], 'the line number is the line of the address')
   const fine = [
     'ten@example.com', 'a@b.example.org', 'noreply@acme.io', 'no-reply@acme.io', '1234+name@users.noreply.github.com',
     'git@github.com:owner/repo.git', 'logo@2x.png', 'lodash@4.17.21', '@/lib/admin', 'user:pass@localhost', 'a@host.test', '@types/node',
