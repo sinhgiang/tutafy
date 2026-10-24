@@ -260,6 +260,7 @@ test('each page file takes its metadata from page-meta and writes no title or ca
     ['src/app/blog/page.tsx', 'blog'],
     ['src/app/updates/page.tsx', 'updates'],
     ['src/app/tutors/(directory)/layout.tsx', 'tutors'],
+    ['src/app/find-a-tutor/layout.tsx', 'findTutor'],
     ['src/app/(auth)/login/layout.tsx', 'login'],
     ['src/app/(auth)/register/layout.tsx', 'register'],
     ['src/app/student/login/layout.tsx', 'studentLogin'],

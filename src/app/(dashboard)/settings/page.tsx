@@ -84,8 +84,8 @@ export default function SettingsPage() {
     }
     // Deep-link to a section, e.g. /settings?tab=payments
     const t = searchParams.get('tab') as TabId | null
-    if (t && SECTIONS.some(s => s.id === t)) setTab(t)
-  }, [])
+    if (t && SECTIONS.some(s => s.id === t)) setTab(t) // eslint-disable-line react-hooks/set-state-in-effect -- the tab named in the address is applied once, on arrival
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- runs once: the messages and the tab answer the address the page was opened with
 
   // Ask the server whether card payments are switched on, so the Stripe button is
   // replaced by a plain sentence instead of failing on click. Failure keeps the button.
@@ -108,7 +108,7 @@ export default function SettingsPage() {
         setAvatarUrl(typeof data.avatar_url === 'string' && data.avatar_url ? data.avatar_url : null)
         setStripeConnected(data.stripe_onboarding_complete ?? false)
         setSubscriptionStatus(data.subscription_status ?? 'free')
-        setGcalConnected(!!(data as any).google_calendar_refresh_token)
+        setGcalConnected(!!data.google_calendar_refresh_token)
         const loaded = {
           name: data.name ?? '',
           bio: data.bio ?? '',
@@ -119,12 +119,12 @@ export default function SettingsPage() {
           paypal_link: data.paypal_link ?? '',
           paddle_checkout_link: data.paddle_checkout_link ?? '',
           default_lesson_price: data.default_lesson_price ? String(data.default_lesson_price) : '',
-          contract_template: (data as any).contract_template ?? '',
-          trial_enabled: (data as any).trial_enabled ?? false,
-          trial_price: (data as any).trial_price ? String((data as any).trial_price) : '',
-          currency: (data as any).currency ?? 'USD',
-          hide_branding: (data as any).hide_branding === true,
-          levels_taught: cleanLevels((data as any).levels_taught),
+          contract_template: data.contract_template ?? '',
+          trial_enabled: data.trial_enabled ?? false,
+          trial_price: data.trial_price ? String(data.trial_price) : '',
+          currency: data.currency ?? 'USD',
+          hide_branding: data.hide_branding === true,
+          levels_taught: cleanLevels(data.levels_taught),
           ...(() => {
             const lengths = resolveDurationConfig(data.lesson_durations, data.default_lesson_duration)
             return { lesson_durations: lengths.durations, default_lesson_duration: lengths.defaultDuration }
@@ -136,7 +136,7 @@ export default function SettingsPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [supabase])
 
   async function handleSave() {
     // The card payment link must be https. A refused link sends nothing, so the saved one stays.

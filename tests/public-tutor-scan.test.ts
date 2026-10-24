@@ -63,6 +63,8 @@ const TAKES_A_CLIENT: Record<string, { reads: number; helpers: string[]; reason:
   'src/lib/listing-status.ts': { reads: 2, helpers: ['loadListingCard'], reason: 'the signed-in tutor\'s own dashboard card' },
   'src/lib/profile-completion.ts': { reads: 1, helpers: ['loadProfileCompletion'], reason: 'the signed-in tutor\'s own dashboard card' },
   'src/lib/settings-save.ts': { reads: 5, helpers: ['saveTutorSettings'], reason: 'writes the signed-in tutor own row (userId); called only by the Settings page with that tutor session client' },
+  'src/lib/review-invites.ts': { reads: 1, helpers: ['runReviewInvites'], reason: 'the daily invitation run; its only caller is the cron route, which hands in the admin client' },
+  'src/lib/reviews-data.ts': { reads: 2, helpers: ['loadProfileReviews', 'loadReviewPageState', 'countLessonsHeld'], reason: 'the reviews flow; the profile and the review page hand in the admin client, and the routes that write it check who asks first' },
   'src/lib/role-switch.ts': { reads: 1, helpers: ['canBackToTutor'], reason: 'asks whether the signed-in account is a tutor; the student page gives it the admin client' },
   'src/lib/tutor-currency.ts': { reads: 1, helpers: ['loadTutorCurrency'], reason: 'the currency of a tutor, for the tutor\'s own pages and the owner\'s admin pages' },
   'src/lib/tutor-sitemap.ts': { reads: 1, helpers: ['listPublicTutorSlugs'], reason: 'the sitemap gives it a client built with the server\'s key' },

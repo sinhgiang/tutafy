@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const caller = await authenticateApiKey(request)
   if (!caller) return NextResponse.json({ error: 'Invalid or missing API key' }, { status: 401 })
 
-  let body: any
+  let body: Record<string, unknown>
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 }) }
   const event = (body?.event ?? '').toString().trim()
   const targetUrl = (body?.target_url ?? body?.targetUrl ?? '').toString().trim()

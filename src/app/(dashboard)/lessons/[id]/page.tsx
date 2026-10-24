@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { ArrowLeft, Clock, DollarSign, FileText, User, BookOpen, Mic, Pencil, MonitorPlay } from 'lucide-react'
 import { LessonActions } from './LessonActions'
 import { GroupStudentsPanel } from './GroupStudentsPanel'
-import { HomeworkSubmissionsPanel } from './HomeworkSubmissionsPanel'
+import { HomeworkSubmissionsPanel, type Submission } from './HomeworkSubmissionsPanel'
+import { one } from '@/lib/relation'
 import { MaterialsPanel } from './MaterialsPanel'
 import { RecordingEmbed } from '@/components/RecordingEmbed'
 import { cleanUrl } from '@/lib/url'
@@ -52,20 +53,20 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
   const joinTarget = resolveJoinTarget({ externalUrl: externalVideoUrl, builtinRoomPath: `/lessons/${id}/room` })
 
   // Fetch homework submissions for this lesson
-  let homeworkSubmissions: any[] = []
+  let homeworkSubmissions: Submission[] = []
   try {
     const { data: subs } = await supabase
       .from('homework_submissions')
       .select('id, content, submitted_at, tutor_feedback, feedback_at, students(name)')
       .eq('lesson_id', id)
       .order('submitted_at', { ascending: true })
-    homeworkSubmissions = subs ?? []
+    homeworkSubmissions = (subs ?? []).map((s) => ({ ...s, students: one(s.students) }))
   } catch { /* table may not exist */ }
 
   const start = new Date(lesson.starts_at)
   const end = new Date(lesson.ends_at)
   const vocab: { word: string; def: string }[] = Array.isArray(lesson.vocabulary) ? lesson.vocabulary : []
-  const isGroup = !!(lesson as any).is_group
+  const isGroup = !!lesson.is_group
 
   // Fetch all students for group panel (needed for adding new students)
   let allStudents: { id: string; name: string; email?: string }[] = []
@@ -261,7 +262,7 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
       <LessonActions
         lessonId={id}
         hasPrice={!!lesson.price}
-        studentEmail={(lesson.students as any)?.email ?? null}
+        studentEmail={lesson.students?.email ?? null}
         isCompleted={lesson.status === 'completed'}
         lessonStatus={lesson.status}
         startsAt={lesson.starts_at}

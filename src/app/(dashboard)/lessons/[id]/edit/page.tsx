@@ -73,7 +73,7 @@ export default function EditLessonPage() {
       setLoading(false)
     }
     load()
-  }, [id])
+  }, [id, supabase])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()

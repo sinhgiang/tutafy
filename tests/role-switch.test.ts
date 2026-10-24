@@ -262,7 +262,6 @@ test('auth callback: a tutor who is also a student can pick either side from the
 // ---- the tutor pages really get the button -------------------------------------------------------
 
 const DashboardLayout = (await import('@/app/(dashboard)/layout.tsx')).default
-const renderLayout = async () => renderToStaticMarkup(await DashboardLayout({ children: createElement('p', null, 'page') }))
 
 /** The props the layout hands to the Header (the account menu draws "View as student" from them). */
 async function headerProp(): Promise<unknown> {

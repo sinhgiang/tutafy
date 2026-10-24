@@ -79,7 +79,7 @@ export function readingMinutes(post: Post): number {
   let words = 0
   for (const b of post.content) {
     if ('text' in b && b.text) words += b.text.split(/\s+/).length
-    if ('items' in b && Array.isArray((b as any).items)) words += (b as any).items.join(' ').split(/\s+/).length
+    if ('items' in b && Array.isArray(b.items)) words += b.items.join(' ').split(/\s+/).length
     if (b.type === 'faq') words += b.items.map(i => i.q + ' ' + i.a).join(' ').split(/\s+/).length
   }
   return Math.max(1, Math.round(words / 250))

@@ -7,8 +7,8 @@ import { ArrowLeft, Video } from 'lucide-react'
 
 type JitsiApi = {
   dispose(): void
-  addEventListener(event: string, listener: (...args: any[]) => void): void
-  executeCommand(command: string, ...args: any[]): void
+  addEventListener(event: string, listener: (...args: unknown[]) => void): void
+  executeCommand(command: string, ...args: unknown[]): void
 }
 
 declare global {
@@ -99,7 +99,7 @@ export function VideoRoom({
       apiRef.current?.dispose()
       if (document.head.contains(script)) document.head.removeChild(script)
     }
-  }, [initJitsi])
+  }, [initJitsi, useJaas, appId])
 
   return (
     <div className="fixed inset-0 z-[100] bg-gray-950 flex flex-col">

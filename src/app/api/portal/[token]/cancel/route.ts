@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { createMailer } from '@/lib/email'
 import { deleteCalendarEvent } from '@/lib/google-calendar'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
   if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
 
-  const tutor = lesson.tutors as any
+  const tutor = one(lesson.tutors)
   const startTime = new Date(lesson.starts_at)
   const cancellationHours = tutor?.cancellation_hours ?? 24
   const hoursUntil = (startTime.getTime() - Date.now()) / 3600000
@@ -47,9 +48,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
   await supabase.from('lessons').update({ status: 'cancelled' }).eq('id', lesson_id)
 
   // Delete from Google Calendar (fire-and-forget)
-  const gcalToken = (tutor as any)?.google_calendar_refresh_token
-  const gcalEventId = (lesson as any)?.google_event_id
-  const gcalId = (tutor as any)?.google_calendar_id ?? 'primary'
+  const gcalToken = tutor?.google_calendar_refresh_token
+  const gcalEventId = lesson?.google_event_id
+  const gcalId = tutor?.google_calendar_id ?? 'primary'
   if (gcalToken && gcalEventId) {
     deleteCalendarEvent(gcalToken, gcalId, gcalEventId).catch(() => {})
   }

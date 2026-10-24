@@ -11,7 +11,6 @@ import { fileURLToPath } from 'node:url'
 import { PROBES, absoluteClaimLines, blockedEndings, docLineProblems, filterProblems, findAddressFilters } from './support/address-claims.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const rel = (p: string) => path.relative(ROOT, p).split(path.sep).join('/')
 const read = (r: string) => readFileSync(path.join(ROOT, r), 'utf8')
 function filesUnder(dir: string, test: (f: string) => boolean): string[] {
   return readdirSync(path.join(ROOT, dir)).flatMap(n => {

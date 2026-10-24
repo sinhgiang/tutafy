@@ -12,7 +12,6 @@ export function VocabQuiz({ vocab, lessonLabel, backUrl }: {
   const [flipped, setFlipped] = useState(false)
   const [correct, setCorrect] = useState(0)
   const [incorrect, setIncorrect] = useState(0)
-  const [done, setDone] = useState(false)
   const [mode, setMode] = useState<'flashcard' | 'result'>('flashcard')
 
   const word = vocab[current]
@@ -21,12 +20,12 @@ export function VocabQuiz({ vocab, lessonLabel, backUrl }: {
 
   function answer(isCorrect: boolean) {
     if (isCorrect) setCorrect(c => c + 1); else setIncorrect(i => i + 1)
-    if (current + 1 >= total) { setMode('result'); setDone(true) }
+    if (current + 1 >= total) { setMode('result') }
     else { setCurrent(c => c + 1); setFlipped(false) }
   }
 
   function reset() {
-    setCurrent(0); setFlipped(false); setCorrect(0); setIncorrect(0); setDone(false); setMode('flashcard')
+    setCurrent(0); setFlipped(false); setCorrect(0); setIncorrect(0); setMode('flashcard')
   }
 
   return (

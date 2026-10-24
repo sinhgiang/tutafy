@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createMailer } from '@/lib/email'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +18,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   if (!lesson) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const student = lesson.students as any
+  const student = one(lesson.students)
   if (!student?.email) return NextResponse.json({ error: 'No student email' }, { status: 400 })
 
   if (!process.env.RESEND_API_KEY?.startsWith('re_')) {
@@ -25,7 +26,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   const resend = createMailer(process.env.RESEND_API_KEY)
-  const tutor = lesson.tutors as any
+  const tutor = one(lesson.tutors)
   const lessonDate = new Date(lesson.starts_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   const vocab = Array.isArray(lesson.vocabulary) ? lesson.vocabulary : []
   const portalUrl = student.portal_token ? `https://tutafy.com/portal/${student.portal_token}` : 'https://tutafy.com'
@@ -33,7 +34,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const vocabHtml = vocab.length > 0 ? `
     <div style="background:#f3f4f6;border-radius:12px;padding:16px 20px;margin:16px 0;">
       <p style="margin:0 0 8px;color:#6b7280;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Vocabulary (${vocab.length} words)</p>
-      ${vocab.map((v: any) => `<div style="display:flex;gap:12px;margin:4px 0;"><span style="font-size:13px;font-weight:600;color:#1f2937;min-width:120px;">${v.word}</span><span style="font-size:13px;color:#6b7280;">${v.definition ?? v.def ?? ''}</span></div>`).join('')}
+      ${vocab.map((v) => `<div style="display:flex;gap:12px;margin:4px 0;"><span style="font-size:13px;font-weight:600;color:#1f2937;min-width:120px;">${v.word}</span><span style="font-size:13px;color:#6b7280;">${v.definition ?? v.def ?? ''}</span></div>`).join('')}
     </div>` : ''
 
   await resend.emails.send({

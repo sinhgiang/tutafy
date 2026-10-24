@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { MessageSquare, CheckCircle, Loader2, Send } from 'lucide-react'
 
-interface Submission {
+export interface Submission {
   id: string
   content: string
   submitted_at: string

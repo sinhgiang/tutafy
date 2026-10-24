@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { loadPublicTutor, loadBlockedDates } from '@/lib/public-tutor'
 import { BOOKING_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
-import { BookingForm } from './BookingForm'
+import { BookingForm, type SubscriptionPlan, type LessonPackage } from './BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
@@ -59,7 +59,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
     .order('day_of_week')
 
   // Fetch active subscription plans (graceful if table doesn't exist)
-  let subscriptionPlans: any[] = []
+  let subscriptionPlans: SubscriptionPlan[] = []
   try {
     const { data: plans } = await supabase
       .from('subscription_plans')
@@ -87,7 +87,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
   const blockedDates = await loadBlockedDates(admin, tutor.id)
 
   // Fetch active packages (graceful if table doesn't exist)
-  let packages: any[] = []
+  let packages: LessonPackage[] = []
   try {
     const { data: pkgs } = await supabase
       .from('packages')
@@ -161,11 +161,11 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
               availability={availability ?? []}
               subscriptionPlans={subscriptionPlans}
               highlightPlanId={planToHighlight(planParam, subscriptionPlans)}
-              contractTemplate={(tutor as any).contract_template ?? null}
+              contractTemplate={tutor.contract_template ?? null}
               blockedDates={blockedDates}
               packages={[]}
-              trialEnabled={(tutor as any).trial_enabled ?? false}
-              trialPrice={(tutor as any).trial_price ?? null}
+              trialEnabled={tutor.trial_enabled ?? false}
+              trialPrice={tutor.trial_price ?? null}
               tutorSlug={slug}
               durations={lengths.durations}
               defaultDuration={lengths.defaultDuration}

@@ -14,6 +14,9 @@ import {
   bioParagraphs, firstNameOf, hasTrial, initialsOf, joinedLabel, priceLabel, profileNotes, reviewText, safeZone, usableReviews,
 } from '@/lib/tutor-profile'
 import { MadeWithTutafy } from '@/components/MadeWithTutafy'
+import { ReviewsSection } from '@/components/profile/ReviewsSection'
+import { reviewsFlowOn } from '@/lib/reviews-flow'
+import { countLessonsHeld, loadProfileReviews, type FlowClient } from '@/lib/reviews-data'
 import { NextTimes, FreeTimesSection, StickyBookBar } from '@/components/profile/FreeTimes'
 import Link from 'next/link'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -33,10 +36,11 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }
 
 // One read of the tutor per request, shared by the page and its metadata. Read on the server with the admin client, only the public
 // columns (T-0774); a tutor whose page is off is found only by that tutor themselves, signed in (their own preview), as the old policy did.
+const getViewerId = cache(async (): Promise<string | null> => {
+  try { return (await (await createClient()).auth.getUser()).data.user?.id ?? null } catch { return null }
+})
 const getTutor = cache(async (slug: string) => {
-  let viewerId: string | null = null
-  try { viewerId = (await (await createClient()).auth.getUser()).data.user?.id ?? null } catch {}
-  const data = await loadPublicTutor(createAdminClient(), slug, PROFILE_PAGE_COLUMNS, viewerId)
+  const data = await loadPublicTutor(createAdminClient(), slug, PROFILE_PAGE_COLUMNS, await getViewerId())
   return data
 })
 
@@ -65,45 +69,70 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
   const bookHref = `/book/${slug}`
   const bookable = !!tutor.booking_url_active
 
-  // The lesson lengths this tutor takes (T-0698): the same two columns as the booking page, read apart from the rest so a
-  // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths.
   const admin = createAdminClient()
-  const chosen = await loadChosenDurations(admin, tutor.id)
-  const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
-  // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
-  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
   // The admin client reads what a visitor's key cannot: the tutor (T-0774), the blocked days, the lessons. A failed read there means no times and no lesson counts.
   const getAdmin = () => admin as unknown as ReadClient
 
+  // Everything below needs only the tutor, so the four chains of reads run together (T-0896: about nine reads one after the other became
+  // a chain of four). Each chain keeps its own order and its own "a failed read is not a failure of the page" rule.
+
+  // The lesson lengths this tutor takes (T-0698): the same two columns as the booking page, read apart from the rest so a
+  // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths. The free times use the default length.
+  const readLengthsAndTimes = async () => {
+    const chosen = await loadChosenDurations(admin, tutor.id)
+    const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
+    const times = bookable
+      ? await loadFreeTimes(supabase as unknown as ReadClient, getAdmin, tutor, lengths.defaultDuration)
+      : { slots: [], state: 'unknown' as const }
+    return { lengths, times }
+  }
+
   // Public reviews: the newest 100 (the page shows six, the structured data ten), and only rows with a real 1-5 rating.
-  let reviews: { id: string; rating: number; comment: string | null; created_at: string; student_id: string | null }[] = []
-  try {
-    const { data } = await supabase
-      .from('reviews')
-      .select('id, rating, comment, created_at, student_id')
-      .eq('tutor_id', tutor.id)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false })
-      .limit(100)
-    reviews = usableReviews(data ?? [])
-  } catch {}
+  const readReviews = async () => {
+    let reviews: { id: string; rating: number; comment: string | null; created_at: string; student_id: string | null }[] = []
+    try {
+      const { data } = await supabase
+        .from('reviews')
+        .select('id, rating, comment, created_at, student_id')
+        .eq('tutor_id', tutor.id)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(100)
+      reviews = usableReviews(data ?? [])
+    } catch {}
+    const shown = reviews.slice(0, 6)
+    const lessonsBy = await loadReviewLessonCounts(getAdmin, tutor.id, shown.map(r => r.student_id ?? ''))
+    return { shown, lessonsBy }
+  }
 
-  let lessonCount = 0
-  try {
-    const { count } = await supabase
-      .from('lessons')
-      .select('id', { count: 'exact', head: true })
-      .eq('tutor_id', tutor.id)
-      .eq('status', 'completed')
-    lessonCount = count ?? 0
-  } catch {}
+  const readLessonCount = async () => {
+    try {
+      const { count } = await supabase
+        .from('lessons')
+        .select('id', { count: 'exact', head: true })
+        .eq('tutor_id', tutor.id)
+        .eq('status', 'completed')
+      return count ?? 0
+    } catch {
+      return 0
+    }
+  }
 
-  const shown = reviews.slice(0, 6)
-  const [times, lessonsBy] = await Promise.all([
-    bookable ? loadFreeTimes(supabase as unknown as ReadClient, getAdmin, tutor, lengths.defaultDuration) : Promise.resolve({ slots: [], state: 'unknown' as const }),
-    loadReviewLessonCounts(getAdmin, tutor.id, shown.map(r => r.student_id ?? '')),
+  const [{ lengths, times }, { shown, lessonsBy }, lessonCount, showMadeWith] = await Promise.all([
+    readLengthsAndTimes(),
+    readReviews(),
+    readLessonCount(),
+    // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
+    loadShowMadeWith(admin, tutor.id),
   ])
+
+  // The new review flow (T-0898), only while REVIEWS_FLOW is on: the reviews with names as "Maria K.", the summary card, the lessons that took place and
+  // (for the signed-in tutor of this page) the one-time answer box. Off, none of this is read and the page is what it was.
+  const flowOn = reviewsFlowOn()
+  const flowReviews = flowOn ? await loadProfileReviews(admin as unknown as FlowClient, tutor.id) : null
+  const lessonsTaught = flowOn ? await countLessonsHeld(admin as unknown as FlowClient, tutor.id, new Date()) : 0
+  const canReply = flowOn && (await getViewerId()) === tutor.id
 
   const photo = httpsImage(tutor.avatar_url)
   const reviewCount = Number(tutor.review_count ?? 0)
@@ -151,7 +180,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
             <section className={`${CARD} p-5 sm:p-6 flex flex-col sm:flex-row gap-5`} data-testid="profile-hero">
               {photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={photo} alt={`Photo of ${tutor.name}`} width={160} height={200} data-testid="profile-photo"
+                <img src={photo} alt={`Photo of ${tutor.name}`} width={160} height={200} fetchPriority="high" decoding="async" data-testid="profile-photo"
                   className="w-32 sm:w-40 aspect-[4/5] rounded-2xl object-cover shrink-0 bg-indigo-50" />
               ) : (
                 <div role="img" aria-label={`${tutor.name} has not added a photo yet`} data-testid="profile-monogram"
@@ -232,7 +261,9 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
             {/* Reviews */}
             <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="reviews-title" id="reviews" data-testid="profile-reviews">
               <h2 id="reviews-title" className={H2}>Reviews</h2>
-              {hasReviews ? (
+              {flowReviews && flowReviews.summary.count > 0 ? (
+                <ReviewsSection summary={flowReviews.summary} reviews={flowReviews.reviews} lessonsTaught={lessonsTaught} first={first} now={new Date()} canReply={canReply} />
+              ) : hasReviews ? (
                 <div className="mt-4">
                   <div className="flex items-center gap-4">
                     <p className="text-[40px] leading-none font-extrabold text-gray-900">{Number(tutor.average_rating ?? 0).toFixed(1)}</p>

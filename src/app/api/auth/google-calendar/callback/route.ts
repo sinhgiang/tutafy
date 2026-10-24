@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     .update({
       google_calendar_refresh_token: tokens.refresh_token,
       google_calendar_id: calendarId,
-    } as any)
+    })
     .eq('id', user.id)
 
   const done = NextResponse.redirect(new URL('/settings?gcal=connected', req.url))

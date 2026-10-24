@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createMailer } from '@/lib/email'
+import { one } from '@/lib/relation'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
 
-  const student = lesson.students as any
+  const student = one(lesson.students)
   if (!student?.email) return NextResponse.json({ error: 'Student has no email' }, { status: 400 })
   if (!lesson.price) return NextResponse.json({ error: 'Lesson has no price' }, { status: 400 })
 

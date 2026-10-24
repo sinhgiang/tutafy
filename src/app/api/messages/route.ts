@@ -68,12 +68,12 @@ export async function POST(req: NextRequest) {
     .select('name, portal_token, push_subscription')
     .eq('id', student_id)
     .single()
-  if ((studentFull as any)?.push_subscription) {
+  if (studentFull?.push_subscription) {
     const { data: tutorFull } = await admin.from('tutors').select('name').eq('user_id', user.id).single()
-    await sendPushNotification((studentFull as any).push_subscription, {
+    await sendPushNotification(studentFull.push_subscription, {
       title: `New message from ${tutorFull?.name ?? 'your tutor'}`,
       body: content.trim().slice(0, 100),
-      url: `/portal/${(studentFull as any)?.portal_token ?? ''}`,
+      url: `/portal/${studentFull?.portal_token ?? ''}`,
     })
   }
 

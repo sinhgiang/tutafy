@@ -53,7 +53,7 @@ export function createFakeDb(initial: Record<string, Row[]> = {}, defaults: Fake
         log.push({ table, op, payload })
         rows.push(...list)
         if (!returning) return { data: null, error: null, count: null }
-        return single ? { data: list[0], error: null, count: null } : { data: list, error: null, count: null }
+        return single || maybe ? { data: list[0], error: null, count: null } : { data: list, error: null, count: null }
       }
       if (op === 'upsert') {
         const key = upsertOpts.onConflict ?? 'id'

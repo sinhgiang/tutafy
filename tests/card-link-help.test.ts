@@ -4,7 +4,7 @@
 // so its source is read; the constants and the post data are the real ones.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -17,8 +17,6 @@ import sitemap from '@/app/sitemap'
 import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8')
-const SETTINGS = 'src/app/(dashboard)/settings/page.tsx'
 
 const post = POSTS.find(p => p.slug === STRIPE_GUIDE_SLUG)
 

@@ -34,15 +34,15 @@ export default function EditStudentPage() {
           country: data.country ?? '', native_language: data.native_language ?? '',
           level: data.level ?? 'A1', status: data.status ?? 'active',
           goals: data.goals ?? '', notes: data.notes ?? '',
-          parent_email: (data as any).parent_email ?? '',
+          parent_email: data.parent_email ?? '',
         })
         setTags(data.tags ?? [])
-        setParentToken((data as any).parent_token ?? null)
+        setParentToken(data.parent_token ?? null)
       }
       setLoading(false)
     }
     load()
-  }, [id])
+  }, [id, supabase])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()

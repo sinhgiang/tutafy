@@ -16,6 +16,7 @@ import { pageTitleOf } from '@/lib/page-titles'
 import { OPEN_COMMAND_EVENT } from './CommandPalette'
 import { THEME_EVENT, chooseTheme, savedPref } from './theme-client'
 import type { ThemePref } from '@/lib/dashboard-theme'
+import type { WindowWithWebkitAudio } from '@/types/audio'
 
 interface Notification {
   id: string
@@ -77,7 +78,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
   function getAudioCtx(): AudioContext | null {
     try {
       if (!audioCtxRef.current) {
-        const AC = window.AudioContext || (window as any).webkitAudioContext
+        const AC = window.AudioContext || (window as WindowWithWebkitAudio).webkitAudioContext
         if (!AC) return null
         audioCtxRef.current = new AC()
       }
@@ -158,7 +159,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
     const savedSound = localStorage.getItem('tutafy_notif_sound')
     const on = savedSound !== 'off' // default on
     soundOnRef.current = on
-    setSoundOn(on)
+    setSoundOn(on) // eslint-disable-line react-hooks/set-state-in-effect -- the saved choice is in localStorage, which the server cannot see
 
     let active = true
     async function poll() {
@@ -192,7 +193,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
       window.removeEventListener('focus', onFocus)
       document.removeEventListener('visibilitychange', onFocus)
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- playDing only touches refs, so the copy from the first render is always right; listing it would restart the poll on every render
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -333,12 +334,14 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
               <p className="text-[13px] font-semibold text-foreground">{tutor.name}</p>
               <p className="text-[13px] text-muted-foreground truncate">{tutor.email}</p>
             </div>
+            {/* eslint-disable @next/next/no-location-assign-relative-destination -- /api/student/view-as is a route handler that sets the cookie and redirects, not a page: it needs a full navigation */}
             {canViewAsStudent && (
               <DropdownMenuItem onClick={() => window.location.assign('/api/student/view-as')} className="gap-2 text-[13px] mt-1" data-testid="view-as-student">
                 <Users className="h-3.5 w-3.5" />
                 View as student
               </DropdownMenuItem>
             )}
+            {/* eslint-enable @next/next/no-location-assign-relative-destination */}
             <DropdownMenuItem onClick={() => setFeedbackOpen(true)} className="gap-2 text-[13px] mt-1" data-testid="feedback-menu-item">
               <MessageSquarePlus className="h-3.5 w-3.5" />
               Send feedback

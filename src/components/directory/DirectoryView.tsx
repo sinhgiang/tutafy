@@ -199,6 +199,7 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
       <div>
         <h1 className="text-[28px] min-[721px]:text-[34px] leading-[1.1] tracking-tight font-extrabold text-gray-900">Find a language tutor you can book today</h1>
         <p className="text-[15px] min-[721px]:text-[16px] text-gray-600 mt-2 max-w-[640px]">Every tutor here has open times in the next 14 days. Book with just your name and email.</p>
+        <p className="text-[14px] text-gray-700 mt-2" data-testid="find-link">Not sure who to pick? <Link href="/find-a-tutor" className="font-bold text-indigo-700 underline underline-offset-2">Find me a tutor</Link></p>
         <p className="inline-flex items-center gap-1.5 text-[13px] text-gray-600 mt-2.5" data-testid="tz-line"><Globe className="h-3.5 w-3.5" aria-hidden="true" /> {tzLine}
           <button type="button" onClick={() => setPanel(window.matchMedia('(min-width: 721px)').matches ? 'zone' : 'sheet')} className="min-h-11 -my-3 px-1.5 font-semibold text-indigo-700 underline underline-offset-2" data-testid="tz-change">Change</button></p>
       </div>
