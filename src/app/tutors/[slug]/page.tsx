@@ -65,44 +65,62 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
   const bookHref = `/book/${slug}`
   const bookable = !!tutor.booking_url_active
 
-  // The lesson lengths this tutor takes (T-0698): the same two columns as the booking page, read apart from the rest so a
-  // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths.
   const admin = createAdminClient()
-  const chosen = await loadChosenDurations(admin, tutor.id)
-  const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
-  // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
-  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
   // The admin client reads what a visitor's key cannot: the tutor (T-0774), the blocked days, the lessons. A failed read there means no times and no lesson counts.
   const getAdmin = () => admin as unknown as ReadClient
 
+  // Everything below needs only the tutor, so the four chains of reads run together (T-0896: about nine reads one after the other became
+  // a chain of four). Each chain keeps its own order and its own "a failed read is not a failure of the page" rule.
+
+  // The lesson lengths this tutor takes (T-0698): the same two columns as the booking page, read apart from the rest so a
+  // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths. The free times use the default length.
+  const readLengthsAndTimes = async () => {
+    const chosen = await loadChosenDurations(admin, tutor.id)
+    const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
+    const times = bookable
+      ? await loadFreeTimes(supabase as unknown as ReadClient, getAdmin, tutor, lengths.defaultDuration)
+      : { slots: [], state: 'unknown' as const }
+    return { lengths, times }
+  }
+
   // Public reviews: the newest 100 (the page shows six, the structured data ten), and only rows with a real 1-5 rating.
-  let reviews: { id: string; rating: number; comment: string | null; created_at: string; student_id: string | null }[] = []
-  try {
-    const { data } = await supabase
-      .from('reviews')
-      .select('id, rating, comment, created_at, student_id')
-      .eq('tutor_id', tutor.id)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false })
-      .limit(100)
-    reviews = usableReviews(data ?? [])
-  } catch {}
+  const readReviews = async () => {
+    let reviews: { id: string; rating: number; comment: string | null; created_at: string; student_id: string | null }[] = []
+    try {
+      const { data } = await supabase
+        .from('reviews')
+        .select('id, rating, comment, created_at, student_id')
+        .eq('tutor_id', tutor.id)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(100)
+      reviews = usableReviews(data ?? [])
+    } catch {}
+    const shown = reviews.slice(0, 6)
+    const lessonsBy = await loadReviewLessonCounts(getAdmin, tutor.id, shown.map(r => r.student_id ?? ''))
+    return { shown, lessonsBy }
+  }
 
-  let lessonCount = 0
-  try {
-    const { count } = await supabase
-      .from('lessons')
-      .select('id', { count: 'exact', head: true })
-      .eq('tutor_id', tutor.id)
-      .eq('status', 'completed')
-    lessonCount = count ?? 0
-  } catch {}
+  const readLessonCount = async () => {
+    try {
+      const { count } = await supabase
+        .from('lessons')
+        .select('id', { count: 'exact', head: true })
+        .eq('tutor_id', tutor.id)
+        .eq('status', 'completed')
+      return count ?? 0
+    } catch {
+      return 0
+    }
+  }
 
-  const shown = reviews.slice(0, 6)
-  const [times, lessonsBy] = await Promise.all([
-    bookable ? loadFreeTimes(supabase as unknown as ReadClient, getAdmin, tutor, lengths.defaultDuration) : Promise.resolve({ slots: [], state: 'unknown' as const }),
-    loadReviewLessonCounts(getAdmin, tutor.id, shown.map(r => r.student_id ?? '')),
+  const [{ lengths, times }, { shown, lessonsBy }, lessonCount, showMadeWith] = await Promise.all([
+    readLengthsAndTimes(),
+    readReviews(),
+    readLessonCount(),
+    // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
+    loadShowMadeWith(admin, tutor.id),
   ])
 
   const photo = httpsImage(tutor.avatar_url)
@@ -151,7 +169,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
             <section className={`${CARD} p-5 sm:p-6 flex flex-col sm:flex-row gap-5`} data-testid="profile-hero">
               {photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={photo} alt={`Photo of ${tutor.name}`} width={160} height={200} data-testid="profile-photo"
+                <img src={photo} alt={`Photo of ${tutor.name}`} width={160} height={200} fetchPriority="high" decoding="async" data-testid="profile-photo"
                   className="w-32 sm:w-40 aspect-[4/5] rounded-2xl object-cover shrink-0 bg-indigo-50" />
               ) : (
                 <div role="img" aria-label={`${tutor.name} has not added a photo yet`} data-testid="profile-monogram"
