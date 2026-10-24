@@ -311,7 +311,7 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
           </div>
           <div className="flex-1 min-w-[130px]">
             <p className="text-[11px] text-gray-400 mb-1">Email (optional)</p>
-            <input aria-label="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@email.com"
+            <input aria-label="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@example.com"
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <div>

@@ -56,8 +56,8 @@ function RegisterForm() {
 
     // If session exists = email confirmation disabled → go to onboarding
     if (data.session) {
-      const dest = email === 'tubxeebyajtube@gmail.com' ? '/admin' : '/onboarding?signup=1'
-      router.push(dest)
+      // The owner's account is never made here (it exists already), so no address is compared: the admin gate sits on the server.
+      router.push('/onboarding?signup=1')
       router.refresh()
     } else {
       setError('✅ Account created! Check your email to confirm, then sign in.')

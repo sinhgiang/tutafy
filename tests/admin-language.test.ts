@@ -30,7 +30,7 @@ mock.module('next/navigation', {
 })
 mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/client.ts')).href, { exports: { createClient: () => ({ auth: { signOut: async () => {} } }) } })
 
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 type Page = (props?: unknown) => Promise<React.ReactElement>
 const load = async (rel: string) => (await import(`@/app/${rel}`)).default as Page
 const Pages = {

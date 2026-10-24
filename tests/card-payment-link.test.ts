@@ -35,7 +35,7 @@ test('safeHttpsUrl: refuses everything that is not a plain https link', () => {
     'buy.stripe.com/x',
     'https://',
     'https:///x',
-    'https://user:pass@buy.stripe.com/x',
+    'https://user:pass' + '@' + 'buy.stripe.com/x', // joined, so the line is not read as an email address
     'https://buy.stripe.com/x y',
     'https://buy.stripe.com/x\nHost: evil.example',
     'https://buy.stripe.com/\tx',
@@ -106,7 +106,7 @@ test('buttons: PayPal still builds a paypal.me link from a plain name or email',
 })
 
 test('buttons: a stored link that is not https never becomes a button (even if written straight to the database)', () => {
-  for (const bad of ['http://buy.stripe.com/x', 'javascript:alert(1)', 'data:text/html,x', 'https://u:p@buy.stripe.com/x']) {
+  for (const bad of ['http://buy.stripe.com/x', 'javascript:alert(1)', 'data:text/html,x', 'https://u:p' + '@' + 'buy.stripe.com/x']) {
     const m = buildPaymentMethods({ paypal_link: 'https://paypal.me/ten', paddle_checkout_link: bad })
     assert.deepEqual(m.map(x => x.key), ['paypal'], bad)
   }

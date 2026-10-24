@@ -17,14 +17,13 @@
 // ilike / not / or filters, order, limit, range, single / maybeSingle, count (exact, head),
 // insert / update / upsert / delete, and rpc (answers empty).
 import http from 'node:http'
-import { readFileSync, writeFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 const PORT = Number(process.env.MOCK_PORT ?? 54399)
-const HERE = path.dirname(fileURLToPath(import.meta.url))
-// The admin account is the one src/lib/admin.ts names; read it from there, never type it here.
-const ADMIN_EMAIL = /ADMIN_EMAIL = '([^']+)'/.exec(readFileSync(path.join(HERE, '../src/lib/admin.ts'), 'utf8'))?.[1] ?? 'admin@example.com'
+// The admin account is the one the app is told about by its ADMIN_EMAIL variable (src/lib/admin.ts); run the app with the same
+// value as this tool (the default below is a made-up address), and never type a real address here.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim() || 'admin@example.com'
 
 const TUTOR_ID = '00000000-0000-4000-8000-000000000001'
 const ADMIN_ID = '00000000-0000-4000-8000-0000000000ad'
