@@ -1,4 +1,4 @@
-# Runs on every pull request (T-0684, T-0693, T-0703): the type check, the tests (they include the scan for comments that still
+# Runs on every pull request (T-0684, T-0693, T-0703, T-0895): the lint (a warning fails it too), the type check, the tests (they include the scan for comments that still
 # state a value rule that was replaced), the production build, the check that every line citation in the Markdown files of the
 # repository points inside its file, and the check that no Markdown file calls a merged pull request "waiting to merge". The
 # tests and the build need no secrets and send nothing anywhere (the build gets placeholder public values, never a key); the last
@@ -30,6 +30,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Type check
         run: npm run typecheck
       - name: Tests

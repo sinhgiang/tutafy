@@ -3,6 +3,7 @@
 // Import (T-0824): three steps, Upload, Preview, Done. The preview is a TABLE of the first rows with what would happen to each
 // student (lessons, first and last date, a note), and nothing is saved until the tutor presses Import.
 import { useRef, useState } from 'react'
+import Link from 'next/link'
 import { CheckCircle, CircleAlert, Download, FileText, Loader2, Upload } from 'lucide-react'
 import { PageColumn } from '@/components/layout/PageFrame'
 import { problemsCsv, type ImportProblem, type PreviewRow } from '@/lib/csv-import'
@@ -162,7 +163,7 @@ export function ImportTool() {
           <ProblemsCard problems={result.problems ?? []} total={result.problemsTotal ?? result.errors.length} title="Problems" />
           <div style={{ display: 'flex', gap: 12 }}>
             <button type="button" className="dash-btn" style={{ flex: 1 }} onClick={reset}>Import another file</button>
-            <a href="/students" className="dash-btn is-primary" style={{ flex: 1 }}>View students</a>
+            <Link href="/students" className="dash-btn is-primary" style={{ flex: 1 }}>View students</Link>
           </div>
         </div>
       )}

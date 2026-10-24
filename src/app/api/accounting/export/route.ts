@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireApiPlan } from '@/lib/api-guard'
 import { generateAccountingCsv, lessonToInvoiceRow, type AccountingProvider } from '@/lib/accounting'
+import { one } from '@/lib/relation'
 
 // GET /api/accounting/export?provider=xero|quickbooks&year=YYYY
 // Downloads an invoice CSV of completed, priced lessons ready to import into
@@ -24,10 +25,10 @@ export async function GET(request: Request) {
     .order('starts_at', { ascending: true })
 
   const rows = (lessons ?? [])
-    .filter((l: any) => (Number(l.price) || 0) > 0)
-    .map((l: any) => lessonToInvoiceRow({
+    .filter((l) => (Number(l.price) || 0) > 0)
+    .map((l) => lessonToInvoiceRow({
       id: l.id, starts_at: l.starts_at, duration_minutes: l.duration_minutes, price: l.price,
-      student_name: l.students?.name ?? null,
+      student_name: one(l.students)?.name ?? null,
     }))
 
   const csv = generateAccountingCsv(provider, rows)

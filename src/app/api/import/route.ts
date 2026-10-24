@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   for (const s of students) {
     try {
       // Upsert student
-      let { data: existing } = await admin
+      const { data: existing } = await admin
         .from('students')
         .select('id')
         .eq('tutor_id', user.id)

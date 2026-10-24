@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { createMailer } from '@/lib/email'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       .eq('id', lesson_id)
       .single()
 
-    const tutor = lesson?.tutors as any
+    const tutor = one(lesson?.tutors)
     if (tutor?.email && process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('your_')) {
       const resend = createMailer(process.env.RESEND_API_KEY)
       const dateLabel = lesson?.starts_at
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;">
             <h2 style="color:#111827;margin-bottom:8px;">Homework submitted 📝</h2>
             <p style="color:#374151;font-size:15px;">
-              <strong>${(student as any).name || 'A student'}</strong> submitted homework for the lesson on <strong>${dateLabel}</strong>.
+              <strong>${student.name || 'A student'}</strong> submitted homework for the lesson on <strong>${dateLabel}</strong>.
             </p>
             <div style="background:#f3f4f6;border-radius:12px;padding:16px;margin:20px 0;">
               <p style="margin:0;color:#374151;font-size:13px;white-space:pre-wrap;">${content.trim().slice(0, 500)}${content.trim().length > 500 ? '...' : ''}</p>

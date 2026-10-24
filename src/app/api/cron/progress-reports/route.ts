@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { cronGate } from '@/lib/secrets'
 import { createMailer } from '@/lib/email'
+import { one } from '@/lib/relation'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -38,7 +39,7 @@ export async function GET(request: Request) {
 
   for (const student of students) {
     try {
-      const tutor = student.tutors as any
+      const tutor = one(student.tutors)
 
       // Get last month's lessons for this student
       const { data: lessons } = await supabase

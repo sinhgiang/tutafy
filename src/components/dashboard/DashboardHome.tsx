@@ -12,7 +12,7 @@ import type { NoHoursBanner as NoHoursData } from '@/lib/no-hours-banner'
 import type { FirstStudentCard as FirstStudentData } from '@/lib/first-student'
 import {
   Search, Play, MoreVertical, Paperclip, FileText, Video, Users, User,
-  ChevronRight, AlertTriangle, Calendar, CreditCard, ListTodo, ArrowUpRight,
+  ChevronRight, AlertTriangle, Calendar, CreditCard, ListTodo,
 } from 'lucide-react'
 
 export type LessonRow = {

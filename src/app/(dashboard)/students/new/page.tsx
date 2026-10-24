@@ -29,7 +29,7 @@ export default async function NewStudentPage() {
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Zap className="h-8 w-8 text-white" fill="white" />
             </div>
-            <h2 className="text-[22px] font-bold text-white">You've hit the Free limit</h2>
+            <h2 className="text-[22px] font-bold text-white">You&apos;ve hit the Free limit</h2>
             <p className="text-[13px] text-indigo-200 mt-2">
               The Free plan allows up to {FREE_LIMIT} students.<br />
               You currently have <strong className="text-white">{studentCount} students</strong>.

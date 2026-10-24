@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,8 +19,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ les
 
   if (!lesson) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const tutor = lesson.tutors as any
-  const student = lesson.students as any
+  const tutor = one(lesson.tutors)
+  const student = one(lesson.students)
   const date = new Date(lesson.starts_at)
   const dateLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   const timeLabel = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })

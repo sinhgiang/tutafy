@@ -25,7 +25,7 @@ export function Sidebar({ plan = 'free', unreadMessages = 0 }: { plan?: string; 
   const lastSeenRef = useRef<string | null>(null)
 
   // Keep unread in sync with the server-rendered value on each navigation
-  useEffect(() => { setUnread(unreadMessages) }, [unreadMessages])
+  useEffect(() => { setUnread(unreadMessages) }, [unreadMessages]) // eslint-disable-line react-hooks/set-state-in-effect -- the server's count is the new starting point after each navigation; the poll below overwrites it
 
   // Poll for live badge counts: unread messages + new bookings.
   // Refreshes every 15s and whenever the tab regains focus, so numbers
@@ -70,7 +70,7 @@ export function Sidebar({ plan = 'free', unreadMessages = 0 }: { plan?: string; 
       const now = new Date().toISOString()
       localStorage.setItem(LESSONS_SEEN_KEY, now)
       lastSeenRef.current = now
-      setNewBookings(0)
+      setNewBookings(0) // eslint-disable-line react-hooks/set-state-in-effect -- opening Lessons clears the badge
     }
   }, [pathname])
 

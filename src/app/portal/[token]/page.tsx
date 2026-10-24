@@ -60,7 +60,7 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
   const tutor = tutorRow
   const initials = student.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
   const pendingHomework = (recentLessons ?? []).filter(l => l.homework && l.status === 'completed').length
-  const cancellationHours = (tutor as any)?.cancellation_hours ?? 24
+  const cancellationHours = tutor?.cancellation_hours ?? 24
 
   // Progress stats
   const { data: completedLessons } = await supabase
@@ -134,7 +134,7 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
 
       {/* Gamification — level, XP, streak & badges */}
       {totalLessons > 0 && (
-        <GamificationCard data={gamification} firstName={student.name.split(' ')[0]} />
+        <GamificationCard data={gamification} />
       )}
 
       {/* Progress Stats */}

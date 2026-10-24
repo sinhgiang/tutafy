@@ -29,8 +29,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       reviews: reviews ?? [],
-      average_rating: (stats as any)?.average_rating ?? 0,
-      review_count: (stats as any)?.review_count ?? 0,
+      average_rating: stats?.average_rating ?? 0,
+      review_count: stats?.review_count ?? 0,
     })
   } catch {
     return NextResponse.json({ reviews: [], average_rating: 0, review_count: 0 })

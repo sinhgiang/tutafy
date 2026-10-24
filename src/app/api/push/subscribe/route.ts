@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   if (portalToken) {
     await admin
       .from('students')
-      .update({ push_subscription: subscription } as any)
+      .update({ push_subscription: subscription })
       .eq('portal_token', portalToken)
     return NextResponse.json({ ok: true })
   }
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
   await admin
     .from('tutors')
-    .update({ push_subscription: subscription } as any)
+    .update({ push_subscription: subscription })
     .eq('user_id', user.id)
 
   return NextResponse.json({ ok: true })

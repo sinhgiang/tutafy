@@ -73,7 +73,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="International visitors (GDPR / CCPA)">
-            <p>If you're in the EU/UK, we process your data on the lawful bases of performing our contract with you and, for analytics/advertising cookies, your consent. If you're in California, we do not sell your personal information. In both cases you can access, correct, delete or export your data — just ask.</p>
+            <p>If you&apos;re in the EU/UK, we process your data on the lawful bases of performing our contract with you and, for analytics/advertising cookies, your consent. If you&apos;re in California, we do not sell your personal information. In both cases you can access, correct, delete or export your data — just ask.</p>
           </Section>
 
           <Section title="Contact">

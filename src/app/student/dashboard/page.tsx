@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { canBackToTutor, escapeLike } from '@/lib/role-switch'
@@ -217,7 +216,8 @@ export default async function StudentDashboardPage({ searchParams }: { searchPar
                 <div key={tutor.id} className="flex items-center gap-3 px-5 py-3">
                   <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                     {tutor.avatar_url ? (
-                      <img src={tutor.avatar_url} alt={tutor.name} className="w-9 h-9 rounded-full object-cover" />
+                      // eslint-disable-next-line @next/next/no-img-element -- a tutor's photo can be any web address the tutor pasted; next/image would need every host listed, and this is one 36px picture
+                        <img src={tutor.avatar_url} alt={tutor.name} className="w-9 h-9 rounded-full object-cover" />
                     ) : (
                       <span className="text-[12px] font-bold text-indigo-600">{initials}</span>
                     )}

@@ -3,8 +3,11 @@
 import { useEffect, useState } from 'react'
 import { Download, X } from 'lucide-react'
 
+// The event Chrome fires when the app can be installed; the DOM typings do not declare it.
+type InstallPromptEvent = Event & { prompt(): Promise<void>; userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }> }
+
 export function PWAInit() {
-  const [installPrompt, setInstallPrompt] = useState<any>(null)
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null)
   const [showBanner, setShowBanner] = useState(false)
 
   useEffect(() => {
@@ -16,7 +19,7 @@ export function PWAInit() {
     // Capture install prompt
     const handler = (e: Event) => {
       e.preventDefault()
-      setInstallPrompt(e)
+      setInstallPrompt(e as InstallPromptEvent)
       // Show banner after 30 seconds on first visit
       const dismissed = localStorage.getItem('pwa-banner-dismissed')
       if (!dismissed) {

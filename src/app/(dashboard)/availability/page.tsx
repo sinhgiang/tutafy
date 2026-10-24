@@ -33,8 +33,6 @@ export default function AvailabilityPage() {
   // the slot form over the page (a new slot proposed by a press, or a slot to change)
   const [dialog, setDialog] = useState<GridOpen | null>(null)
 
-  useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/exhaustive-deps -- load once
-
   async function load() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -47,6 +45,8 @@ export default function AvailabilityPage() {
     setExceptions((e.data ?? []) as Exception[])
     setLoading(false)
   }
+
+  useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect -- load once on arrival; the state is set when the answer comes back
 
   const sorted = (list: Slot[]) => [...list].sort((a, b) => a.day_of_week - b.day_of_week || a.start_time.localeCompare(b.start_time))
 

@@ -10,11 +10,10 @@ interface Submission {
 }
 
 export function HomeworkSubmit({
-  token, lessonId, homework,
+  token, lessonId,
 }: {
   token: string
   lessonId: string
-  homework: string
 }) {
   const [content, setContent] = useState('')
   const [submission, setSubmission] = useState<Submission | null>(null)

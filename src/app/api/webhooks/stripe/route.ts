@@ -4,6 +4,9 @@ import { createAdminClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 
+// The period fields this handler reads from the subscription object (not in the Stripe typings of this API version)
+type SubscriptionPeriod = { current_period_start: number; current_period_end: number }
+
 // Handles Stripe Connect webhooks for subscription events
 export async function POST(req: NextRequest) {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
@@ -25,7 +28,7 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
 
   if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
-    const sub = event.data.object as Stripe.Subscription
+    const sub = event.data.object as Stripe.Subscription & SubscriptionPeriod
     const meta = sub.metadata ?? {}
     const planId = meta.plan_id
     const tutorId = meta.tutor_id
@@ -61,8 +64,8 @@ export async function POST(req: NextRequest) {
       stripe_subscription_id: sub.id,
       stripe_customer_id: sub.customer as string,
       status: sub.status === 'active' ? 'active' : sub.status === 'past_due' ? 'past_due' : 'cancelled',
-      current_period_start: new Date((sub as any).current_period_start * 1000).toISOString(),
-      current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+      current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
+      current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
     }, { onConflict: 'stripe_subscription_id' })
   }
 

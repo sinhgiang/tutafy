@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import { PrintButton } from './PrintButton'
+import { one } from '@/lib/relation'
 
 export default async function CertificatePage({
   params,
@@ -27,7 +28,7 @@ export default async function CertificatePage({
 
   if (!lesson || lesson.status !== 'completed') notFound()
 
-  const tutor = lesson.tutors as any
+  const tutor = one(lesson.tutors)
   const date = new Date(lesson.starts_at)
   const dateLabel = date.toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',

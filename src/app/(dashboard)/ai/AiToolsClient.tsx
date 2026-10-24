@@ -2,7 +2,7 @@
 
 import { PageColumn } from '@/components/layout/PageFrame'
 import { useState } from 'react'
-import { Sparkles, BookOpen, FileText, MessageSquare, Wand2, Send, Loader2, TrendingUp, LayoutList, CheckSquare } from 'lucide-react'
+import { Sparkles, BookOpen, FileText, MessageSquare, Wand2, Loader2, TrendingUp, LayoutList, CheckSquare } from 'lucide-react'
 
 const TOOLS = [
   {

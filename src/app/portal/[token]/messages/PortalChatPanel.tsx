@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send } from 'lucide-react'
+import type { WindowWithWebkitAudio } from '@/types/audio'
 
 type Message = {
   id: string
@@ -14,12 +15,10 @@ type Message = {
 export function PortalChatPanel({
   token,
   tutorName,
-  studentName,
   initialMessages,
 }: {
   token: string
   tutorName: string
-  studentName: string
   initialMessages: Message[]
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
@@ -38,7 +37,7 @@ export function PortalChatPanel({
   function getAudioCtx(): AudioContext | null {
     try {
       if (!audioCtxRef.current) {
-        const AC = window.AudioContext || (window as any).webkitAudioContext
+        const AC = window.AudioContext || (window as WindowWithWebkitAudio).webkitAudioContext
         if (!AC) return null
         audioCtxRef.current = new AC()
       }
@@ -101,7 +100,7 @@ export function PortalChatPanel({
       }
     }, 4000)
     return () => clearInterval(interval)
-  }, [token])
+  }, [token]) // eslint-disable-line react-hooks/exhaustive-deps -- playDing only touches refs, so the copy from the first render is always right; listing it would restart the poll on every render
 
   async function send() {
     const text = input.trim()

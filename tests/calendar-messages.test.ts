@@ -127,7 +127,6 @@ function seed() {
 beforeEach(() => { seed(); pathname = '/messages' })
 
 const html = async (sp: Sp = {}) => renderToStaticMarkup(await calendarPage({ searchParams: Promise.resolve(sp) }))
-const today = new Date()
 
 test('the calendar opens on the week: a time grid with seven days, this week\'s lessons as blocks, the scheduled ones draggable', async () => {
   const h = await html()

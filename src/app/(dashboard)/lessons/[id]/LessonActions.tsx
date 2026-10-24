@@ -82,6 +82,7 @@ export function LessonActions({
   return (
     <div className="space-y-3">
       {/* No-show */}
+      {/* eslint-disable-next-line react-hooks/purity -- the test below is always false (the card never shows); kept as it was, see the T-0895 report */}
       {isScheduled && new Date() > new Date(Date.now()) && !noShowDone && (
         <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between">
           <div>

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { requireApiPlan } from '@/lib/api-guard'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     ['Date', 'Student', 'Duration (min)', 'Amount (USD)', 'Payment Status'],
     ...(lessons ?? []).map(l => [
       new Date(l.starts_at).toLocaleDateString('en-US'),
-      (l.students as any)?.name ?? '',
+      one(l.students)?.name ?? '',
       l.duration_minutes,
       l.price ?? 0,
       l.payment_status ?? 'pending',

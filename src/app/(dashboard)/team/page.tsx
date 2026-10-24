@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { computePayroll, type PayrollMember, type PayrollLesson } from '@/lib/payroll'
 import { requireFeature } from '@/lib/guard'
 import { TeamClient } from './TeamClient'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,10 +41,10 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
   const assignable = allLessons
     .filter(l => l.status === 'completed')
     .slice(0, 40)
-    .map((l: any) => ({
+    .map((l) => ({
       id: l.id,
       date: l.starts_at,
-      student: l.students?.name ?? '—',
+      student: one(l.students)?.name ?? '—',
       price: Number(l.price) || 0,
       duration: Number(l.duration_minutes) || 0,
       assigned_to: l.assigned_to ?? null,
@@ -55,8 +56,8 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
       payroll={payroll}
       assignable={assignable}
       scope={scope}
-      plan={(tutor as any)?.subscription_status ?? 'free'}
-      tutorSlug={(tutor as any)?.slug ?? ''}
+      plan={tutor?.subscription_status ?? 'free'}
+      tutorSlug={tutor?.slug ?? ''}
     />
   )
 }

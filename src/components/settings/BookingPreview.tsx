@@ -25,7 +25,10 @@ export function BookingPreview({ form, slug, avatarUrl }: { form: PreviewForm; s
           <span className={`dash-chip ${form.booking_url_active ? 'is-ok' : 'is-warn'}`}>{form.booking_url_active ? 'Page is on' : 'Page is off'}</span>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span className="set-preview-photo" aria-hidden="true">{avatarUrl ? <img src={avatarUrl} alt="" /> : initials}</span>
+          <span className="set-preview-photo" aria-hidden="true">{avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- the live preview draws whatever photo address is typed in the form, which can be any host
+            <img src={avatarUrl} alt="" />
+          ) : initials}</span>
           <div style={{ minWidth: 0 }}>
             <b style={{ display: 'block', color: 'var(--d-ink)' }} data-testid="preview-name">{name}</b>
             <span style={{ color: 'var(--d-ink-3)', fontSize: 13 }}>{form.timezone.replace('_', ' ')}</span>
