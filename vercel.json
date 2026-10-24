@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/welcome-series",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/review-invites",
+      "schedule": "0 10 * * *"
     }
   ]
 }
