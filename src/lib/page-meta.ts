@@ -46,6 +46,11 @@ export const PAGE_SEO = {
     title: 'Find an Online Language Tutor | Tutafy',
     description: 'Browse language tutors on Tutafy and book 1-on-1 online lessons. Compare languages, ratings and prices, then pick a time that suits you.',
   },
+  findTutor: {
+    path: '/find-a-tutor',
+    title: 'Find Me a Tutor: 3 Tutors You Can Book Today | Tutafy',
+    description: 'Tell us the language, level, price and time of day you want and get 3 online tutors with open times in the next 14 days. No account needed.',
+  },
   blog: {
     path: '/blog',
     title: 'Tips & Guides for Online Tutors | Tutafy Blog',
