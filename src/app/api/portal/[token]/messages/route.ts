@@ -60,8 +60,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     .eq('id', student.tutor_id)
     .single()
 
-  if ((tutor as any)?.push_subscription) {
-    await sendPushNotification((tutor as any).push_subscription, {
+  if (tutor?.push_subscription) {
+    await sendPushNotification(tutor.push_subscription, {
       title: `New message from ${student.name}`,
       body: content.trim().slice(0, 100),
       url: `/messages/${student.id}`,

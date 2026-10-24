@@ -80,7 +80,7 @@ export async function proxy(request: NextRequest) {
   // Helper: carry session cookies through redirects to prevent refresh-token loop
   function redirect(dest: string) {
     const res = NextResponse.redirect(new URL(dest, request.url))
-    supabaseResponse.cookies.getAll().forEach(c => res.cookies.set(c.name, c.value, c as any))
+    supabaseResponse.cookies.getAll().forEach(c => res.cookies.set(c.name, c.value, c))
     return res
   }
 

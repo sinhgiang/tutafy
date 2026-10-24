@@ -88,18 +88,21 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
     const tutors = await all(() => db.from('tutors').select(TUTOR_COLUMNS).in('id', ids).eq('booking_url_active', true).order('id'), 'tutors')
     if (tutors.length === 0) continue
 
-    // lesson lengths: a database without the two columns (migration 018) means "chose nothing", like the booking page
+    // The four reads below need nothing from each other, so they go out together (T-0896); any of them failing still throws.
+    const [chosenRows, levelRows, blockedRows, lessonRows] = await Promise.all([
+      // lesson lengths: a database without the two columns (migration 018) means "chose nothing", like the booking page
+      all(() => db.from('tutors').select('id, lesson_durations, default_lesson_duration').in('id', ids).order('id'), 'tutors', true),
+      // levels the tutor says they teach (migration 026, T-0863): a database without the column means "said nothing", never a failure
+      all(() => db.from('tutors').select('id, levels_taught').in('id', ids).order('id'), 'tutors', true),
+      all(() => db.from('availability_exceptions').select('tutor_id, date').in('tutor_id', ids).gte('date', yesterdayDate).order('tutor_id').order('date'), 'availability_exceptions', true),
+      // the tutor's own calendar (assigned_to is null), lessons that are not cancelled: the same read the booking route and the public profile do
+      all(() => db.from('lessons').select('tutor_id, starts_at, ends_at, duration_minutes').in('tutor_id', ids)
+        .is('assigned_to', null).neq('status', 'cancelled').gte('starts_at', clashWindowStart(yesterday)).lt('starts_at', until).order('starts_at').order('id'), 'lessons'),
+    ])
     const chosen = new Map<string, Row>()
-    for (const r of await all(() => db.from('tutors').select('id, lesson_durations, default_lesson_duration').in('id', ids).order('id'), 'tutors', true)) chosen.set(String(r.id), r)
-
-    // levels the tutor says they teach (migration 026, T-0863): a database without the column means "said nothing", never a failure
+    for (const r of chosenRows) chosen.set(String(r.id), r)
     const levelsOf = new Map<string, unknown>()
-    for (const r of await all(() => db.from('tutors').select('id, levels_taught').in('id', ids).order('id'), 'tutors', true)) levelsOf.set(String(r.id), r.levels_taught)
-
-    const blockedRows = await all(() => db.from('availability_exceptions').select('tutor_id, date').in('tutor_id', ids).gte('date', yesterdayDate).order('tutor_id').order('date'), 'availability_exceptions', true)
-    // the tutor's own calendar (assigned_to is null), lessons that are not cancelled: the same read the booking route and the public profile do
-    const lessonRows = await all(() => db.from('lessons').select('tutor_id, starts_at, ends_at, duration_minutes').in('tutor_id', ids)
-      .is('assigned_to', null).neq('status', 'cancelled').gte('starts_at', clashWindowStart(yesterday)).lt('starts_at', until).order('starts_at').order('id'), 'lessons')
+    for (const r of levelRows) levelsOf.set(String(r.id), r.levels_taught)
 
     for (const t of tutors) {
       const id = String(t.id)

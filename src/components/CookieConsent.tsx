@@ -29,7 +29,7 @@ export function CookieConsent() {
   const inTutorApp = isDashboardPath(usePathname())
 
   useEffect(() => {
-    if (!getConsent()) setShow(true)
+    if (!getConsent()) setShow(true) // eslint-disable-line react-hooks/set-state-in-effect -- the saved choice is in localStorage, which the server cannot see: reading it after mount avoids a hydration mismatch
   }, [])
 
   function choose(choice: 'accepted' | 'declined') {

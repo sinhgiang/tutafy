@@ -6,7 +6,16 @@ import { loadNoHoursBanner } from '@/lib/no-hours-banner'
 import { loadProfileCompletion } from '@/lib/profile-completion'
 import { loadListingCard, withDirectoryStatus, type ListingClient } from '@/lib/listing-status'
 
-function toLessonRow(l: any): LessonRow {
+type StudentCols = { name: string; level?: string | null; avatar_url?: string | null }
+
+// A lesson row as LESSON_COLS reads it (the to-one embed may come typed as an array)
+type RawLesson = {
+  id: string; starts_at: string; duration_minutes?: number | null; status: LessonRow['status']
+  is_group?: boolean | null; group_max_students?: number | null; vocabulary?: unknown; homework?: unknown
+  meet_link?: string | null; zoom_link?: string | null; students?: StudentCols | StudentCols[] | null
+}
+
+function toLessonRow(l: RawLesson): LessonRow {
   const s = Array.isArray(l.students) ? l.students[0] : l.students
   return {
     id: l.id,
@@ -93,12 +102,12 @@ export default async function DashboardPage() {
   const next21 = new Date(now.getTime() + 21 * 86400000).toISOString()
   const { data: bookedRows } = (activeStudentsFull && activeStudentsFull.length > 0)
     ? await supabase.from('lessons').select('student_id').eq('tutor_id', user!.id).eq('status', 'scheduled').gte('starts_at', nowIso).lte('starts_at', next21)
-    : { data: [] as any[] }
-  const bookedIds = new Set((bookedRows ?? []).map((r: any) => r.student_id))
+    : { data: [] as { student_id: string }[] }
+  const bookedIds = new Set((bookedRows ?? []).map((r) => r.student_id))
   const atRisk: AtRiskRow[] = (activeStudentsFull ?? [])
-    .filter((s: any) => !bookedIds.has(s.id))
+    .filter((s) => !bookedIds.has(s.id))
     .slice(0, 3)
-    .map((s: any) => ({
+    .map((s) => ({
       id: s.id,
       name: s.name,
       avatar_url: s.avatar_url ?? null,
@@ -116,7 +125,7 @@ export default async function DashboardPage() {
     tag: l.is_group ? 'Group' : (l.hasVideo ? 'Meeting' : 'Lesson'),
     href: '/lessons',
   }))
-  const paymentReminders: ReminderRow[] = (invoicesRaw ?? []).map((inv: any) => {
+  const paymentReminders: ReminderRow[] = (invoicesRaw ?? []).map((inv) => {
     const st = Array.isArray(inv.students) ? inv.students[0] : inv.students
     const overdue = inv.status === 'overdue' || (inv.due_date && new Date(inv.due_date) < now)
     return {

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import { VideoRoom } from '@/components/VideoRoom'
 import { mintJaasToken, getJaasAppId } from '@/lib/jaas'
+import { one } from '@/lib/relation'
 
 export default async function StudentVideoRoomPage({
   params,
@@ -29,7 +30,7 @@ export default async function StudentVideoRoomPage({
   if (!lesson) notFound()
 
   const start = new Date(lesson.starts_at)
-  const tutorName = (lesson.tutors as any)?.name ?? 'your tutor'
+  const tutorName = one(lesson.tutors)?.name ?? 'your tutor'
   const lessonLabel = `${tutorName} · ${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
 
   // Give the student moderator rights too, so a 1:1 lesson never gets stuck

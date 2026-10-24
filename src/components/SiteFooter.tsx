@@ -6,6 +6,7 @@ import { SiteLogo } from '@/components/SiteLogo'
 // public page file for one or the other).
 export const FOOTER_LINKS = [
   { href: '/tutors', label: 'Find tutors' },
+  { href: '/find-a-tutor', label: 'Find me a tutor' },
   { href: '/about', label: 'About' },
   { href: '/blog', label: 'Blog' },
   { href: '/updates', label: 'Updates' },

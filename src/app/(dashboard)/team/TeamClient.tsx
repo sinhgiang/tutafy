@@ -135,7 +135,7 @@ function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: 
         </div>
         <div className="flex flex-wrap gap-1.5">
           {(slots ?? []).length === 0 ? (
-            <p className="text-[11px] text-gray-400">No availability set — this tutor's booking page will show a waitlist form.</p>
+            <p className="text-[11px] text-gray-400">No availability set — this tutor&apos;s booking page will show a waitlist form.</p>
           ) : (slots ?? []).map(s => (
             <div key={s.id} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg text-[11px] font-medium">
               {DAYS[s.day_of_week]} {s.start_time.slice(0, 5)}–{s.end_time.slice(0, 5)}
@@ -311,7 +311,7 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
           </div>
           <div className="flex-1 min-w-[130px]">
             <p className="text-[11px] text-gray-400 mb-1">Email (optional)</p>
-            <input aria-label="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@email.com"
+            <input aria-label="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@example.com"
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <div>

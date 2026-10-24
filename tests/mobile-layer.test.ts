@@ -293,6 +293,6 @@ test('the new development tools hold no real address, key or secret (example.com
   assert.match(mock, /listen\(PORT, '127\.0\.0\.1'/)
   assert.match(mock, /process\.env\.MOCK_SAVE_DIR/)
   assert.ok(mock.includes('!/^[\\w.-]+$/.test(name)'), 'a saved file name must be a plain name')
-  // the admin account is read from src/lib/admin.ts, never typed into the tool
-  assert.ok(mock.includes("/ADMIN_EMAIL = '([^']+)'/.exec(readFileSync(path.join(HERE, '../src/lib/admin.ts')"))
+  // the admin account comes from the ADMIN_EMAIL variable the app reads (src/lib/admin.ts), with a made-up default; never a real address in the tool
+  assert.ok(mock.includes("process.env.ADMIN_EMAIL?.trim() || 'admin@example.com'"))
 })

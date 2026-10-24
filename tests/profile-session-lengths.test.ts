@@ -19,7 +19,8 @@ mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
     createClient: async () => ({ from: (t: string) => db.from(t), auth: { getUser: async () => ({ data: { user: viewer ? { id: viewer } : null } }) } }),
   },
 })
-mock.module('next/navigation', { namedExports: { notFound: () => { throw new Error('NEXT_NOT_FOUND') } } })
+// useRouter is for the one-time answer box of the reviews (a client component the profile page imports, T-0898)
+mock.module('next/navigation', { namedExports: { notFound: () => { throw new Error('NEXT_NOT_FOUND') }, useRouter: () => ({ push() {}, refresh() {} }) } })
 
 const profile = (await import('@/app/tutors/[slug]/page.tsx')).default
 type Page = (props: { params: Promise<{ slug: string }> }) => Promise<React.ReactElement>

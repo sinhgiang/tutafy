@@ -25,10 +25,6 @@ export function SubscriptionsClient() {
   const [form, setForm] = useState(BLANK)
   const stats = planStats(plans)
 
-  useEffect(() => {
-    void load()
-  }, [])
-
   async function load() {
     try {
       const res = await fetch('/api/subscriptions/plans')
@@ -39,6 +35,10 @@ export function SubscriptionsClient() {
       if (typeof d.slug === 'string') setSlug(d.slug)
     } catch { setFailed(true) } finally { setLoading(false) }
   }
+
+  useEffect(() => {
+    void load() // eslint-disable-line react-hooks/set-state-in-effect -- load once on arrival; the state is set when the answer comes back
+  }, [])
 
   async function createPlan() {
     const body = { ...form, price: Number(form.price), lessons_per_period: Number(form.lessons_per_period), duration_minutes: Number(form.duration_minutes) }

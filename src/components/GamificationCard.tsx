@@ -3,7 +3,7 @@ import { Flame } from 'lucide-react'
 
 // Presentational card for the student portal: level + XP progress, current
 // streak, and a badge grid (earned badges in colour, locked ones dimmed).
-export function GamificationCard({ data, firstName }: { data: GamificationResult; firstName: string }) {
+export function GamificationCard({ data }: { data: GamificationResult }) {
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
       {/* Level header */}

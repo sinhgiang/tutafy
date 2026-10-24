@@ -48,6 +48,17 @@ export const TUTORS_FAQ: { q: string; a: string }[] = [
   { q: 'How do I list myself as a tutor?', a: 'Create your free page and set your free hours, and students can book you here. It is free to start and Tutafy takes no commission on your lessons.' },
 ]
 
+/**
+ * Questions a student asks on the finder (/find-a-tutor), answered only with what the finder does (T-0897): the 14-day rule and the order are
+ * in src/lib/directory.ts, the answers asked are the form's own. The page draws exactly these and its FAQPage data is built from the same list.
+ */
+export const FIND_TUTOR_FAQ: { q: string; a: string }[] = [
+  { q: 'How does Tutafy pick the three tutors?', a: 'It takes every tutor with free times in the next 14 days, keeps the ones that fit your answers (language, level, price, time of day and trial lesson) and shows the three that come first in the tutor list. A tutor with a free time in the next two days, a complete profile and more reviews comes first.' },
+  { q: 'Do I need an account to book?', a: 'No. Open a tutor, choose one of their free times and book with just your name and email.' },
+  { q: 'What if no tutor fits my answers?', a: 'The page says so and shows what to change, for example how many more tutors fit if you drop one answer. The tutor list shows everyone you can book.' },
+  { q: 'Are the times shown in my time zone?', a: 'Yes, once your browser tells us your time zone. You can change the time zone on the form, and it is kept in the page address so a shared link shows the same times.' },
+]
+
 interface PlanSource {
   name: string
   monthlyUsd: number
@@ -90,6 +101,7 @@ export const KEY_PAGES: { path: string; title: string; description: string }[] =
   { path: '/', title: 'Home', description: PAGE_SEO.home.description },
   { path: '/blog', title: 'Blog', description: PAGE_SEO.blog.description },
   { path: '/tutors', title: 'Find tutors', description: PAGE_SEO.tutors.description },
+  { path: '/find-a-tutor', title: 'Find me a tutor', description: PAGE_SEO.findTutor.description },
   { path: '/about', title: 'About Tutafy', description: PAGE_SEO.about.description },
   { path: '/customers', title: 'Customer stories', description: PAGE_SEO.customers.description },
   { path: '/updates', title: 'Updates', description: PAGE_SEO.updates.description },

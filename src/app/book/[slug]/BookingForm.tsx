@@ -51,7 +51,7 @@ const durationLabel = (v: number) => `${v} min`
 interface Availability { day_of_week: number; start_time: string; end_time: string }
 
 interface Tutor {
-  id: string; name: string; timezone: string; cancellation_hours: number; buffer_minutes?: number
+  id: string; slug?: string; name: string; timezone: string; cancellation_hours: number; buffer_minutes?: number
   paypal_link?: string; paddle_checkout_link?: string; stripe_account_id?: string
   default_lesson_price?: number; currency?: string
 }
@@ -92,8 +92,8 @@ function fmt12(t: string) {
 // What the booking route saved the lesson at: the amount the card checkout charges, in the tutor's currency.
 type BookedPrice = { price: number | null; currency: string }
 
-function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentName, cardCheckoutEnabled }: {
-  tutor: Tutor; booked: BookedPrice; cardCheckoutEnabled: boolean; duration: number; lessonId?: string | null; portalToken?: string | null; studentName?: string
+function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, cardCheckoutEnabled }: {
+  tutor: Tutor; booked: BookedPrice; cardCheckoutEnabled: boolean; duration: number; lessonId?: string | null; portalToken?: string | null
 }) {
   const [payingCard, setPayingCard] = useState(false)
   // Not tutor.default_lesson_price: a trial lesson or a coupon changes the price the lesson is saved at.
@@ -162,8 +162,8 @@ function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentN
   )
 }
 
-interface SubscriptionPlan { id: string; name: string; description: string | null; price: number; currency: string; lessons_per_period: number; period: string; duration_minutes: number }
-interface LessonPackage { id: string; name: string; description: string | null; lessons_count: number; price: number }
+export interface SubscriptionPlan { id: string; name: string; description: string | null; price: number; currency: string; lessons_per_period: number; period: string; duration_minutes: number }
+export interface LessonPackage { id: string; name: string; description: string | null; lessons_count: number; price: number }
 
 function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackage[]; tutor: Tutor; name: string; email: string }) {
   function buyUrl(pkg: LessonPackage): string {
@@ -220,12 +220,12 @@ function SubscriptionPanel({ plans, highlightId = null, tutor, name, email, onSu
     const res = await fetch('/api/subscriptions/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan_id: plan.id, student_name: name, student_email: email, tutor_slug: (tutor as any).slug }),
+      body: JSON.stringify({ plan_id: plan.id, student_name: name, student_email: email, tutor_slug: tutor.slug }),
     })
     const d = await res.json()
     onSubscribing(false)
     setLoading(null)
-    if (d.url) window.location.href = d.url
+    if (d.url) window.location.assign(d.url)
     else toast.error(stripeErrorMessage(d, 'student', 'Failed to start checkout'))
   }
 
@@ -383,7 +383,7 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
   useEffect(() => {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-      setStudentTz(tz)
+      setStudentTz(tz) // eslint-disable-line react-hooks/set-state-in-effect -- the student's time zone is only known in the browser, after mount
     } catch {
       setStudentTz('')
     }
@@ -425,8 +425,8 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
     }
   }
 
-  function prevMonth() { month === 0 ? (setMonth(11), setYear(y => y - 1)) : setMonth(m => m - 1); setDate(''); setTime('') }
-  function nextMonth() { month === 11 ? (setMonth(0), setYear(y => y + 1)) : setMonth(m => m + 1); setDate(''); setTime('') }
+  function prevMonth() { if (month === 0) { setMonth(11); setYear(y => y - 1) } else setMonth(m => m - 1); setDate(''); setTime('') }
+  function nextMonth() { if (month === 11) { setMonth(0); setYear(y => y + 1) } else setMonth(m => m + 1); setDate(''); setTime('') }
 
   function pickDay(d: number) {
     const ds = toDS(year, month, d)
@@ -487,7 +487,7 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
           </a>
         )}
       </div>
-      <PaymentPanel tutor={tutor} booked={booked} cardCheckoutEnabled={cardCheckoutEnabled} duration={duration} lessonId={lessonId} portalToken={portalToken} studentName={name} />
+      <PaymentPanel tutor={tutor} booked={booked} cardCheckoutEnabled={cardCheckoutEnabled} duration={duration} lessonId={lessonId} portalToken={portalToken} />
     </div>
   )
 

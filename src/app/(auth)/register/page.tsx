@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -16,15 +16,11 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState('')
-  const [refCode, setRefCode] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-
-  useEffect(() => {
-    const ref = searchParams.get('ref')
-    if (ref) setRefCode(ref)
-  }, [searchParams])
+  // The invite code from the address (?ref=), read straight from it
+  const refCode = searchParams.get('ref') ?? ''
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
@@ -60,8 +56,8 @@ function RegisterForm() {
 
     // If session exists = email confirmation disabled → go to onboarding
     if (data.session) {
-      const dest = email === 'tubxeebyajtube@gmail.com' ? '/admin' : '/onboarding?signup=1'
-      router.push(dest)
+      // The owner's account is never made here (it exists already), so no address is compared: the admin gate sits on the server.
+      router.push('/onboarding?signup=1')
       router.refresh()
     } else {
       setError('✅ Account created! Check your email to confirm, then sign in.')

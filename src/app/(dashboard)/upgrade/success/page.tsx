@@ -83,7 +83,7 @@ export default async function UpgradeSuccessPage() {
       </div>
 
       <p className="text-[11px] text-gray-400 text-center mt-5">
-        If you still don't see the upgrade after 10 minutes, please email <ContactEmails linkClassName="underline" />
+        If you still don&apos;t see the upgrade after 10 minutes, please email <ContactEmails linkClassName="underline" />
       </p>
     </PageColumn>
   )

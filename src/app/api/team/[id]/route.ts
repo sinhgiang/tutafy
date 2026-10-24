@@ -9,13 +9,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
-  let body: any
+  let body: Record<string, unknown>
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
 
   const patch: Record<string, unknown> = {}
   if (body.name !== undefined) { const n = String(body.name).trim(); if (!n) return NextResponse.json({ error: 'name cannot be empty' }, { status: 400 }); patch.name = n }
   if (body.email !== undefined) patch.email = body.email ? String(body.email).trim() : null
-  if (body.pay_type !== undefined) { if (!PAY_TYPES.includes(body.pay_type)) return NextResponse.json({ error: 'invalid pay_type' }, { status: 400 }); patch.pay_type = body.pay_type }
+  if (body.pay_type !== undefined) { if (!PAY_TYPES.includes(body.pay_type as string)) return NextResponse.json({ error: 'invalid pay_type' }, { status: 400 }); patch.pay_type = body.pay_type }
   if (body.pay_rate !== undefined) { const r = Number(body.pay_rate); if (!Number.isFinite(r) || r < 0) return NextResponse.json({ error: 'invalid pay_rate' }, { status: 400 }); patch.pay_rate = r }
   if (body.active !== undefined) patch.active = Boolean(body.active)
   if (body.bio !== undefined) patch.bio = body.bio ? String(body.bio).slice(0, 1000) : null

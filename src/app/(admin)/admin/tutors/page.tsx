@@ -1,7 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
 import { getAdminT } from '@/lib/admin-lang'
-import { Users, BookOpen, GraduationCap } from 'lucide-react'
+import { BookOpen, GraduationCap } from 'lucide-react'
 import { planBadgeClass, planLabel } from '@/lib/buyers'
 
 export default async function AdminTutorsPage() {

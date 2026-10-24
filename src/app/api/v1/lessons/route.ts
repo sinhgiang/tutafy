@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { authenticateApiKey } from '@/lib/apiAuth'
 import { createAdminClient } from '@/lib/supabase/server'
+import { one } from '@/lib/relation'
 
 // GET /api/v1/lessons — list this tutor's lessons (newest first).
 // Supports ?status (scheduled|completed|cancelled|no_show), ?limit, ?offset.
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const lessons = (data ?? []).map((l: any) => ({
+  const lessons = (data ?? []).map((l) => ({
     id: l.id,
     starts_at: l.starts_at,
     ends_at: l.ends_at,
@@ -33,8 +34,8 @@ export async function GET(request: Request) {
     status: l.status,
     payment_status: l.payment_status,
     price: l.price,
-    student_name: l.students?.name ?? null,
-    student_email: l.students?.email ?? null,
+    student_name: one(l.students)?.name ?? null,
+    student_email: one(l.students)?.email ?? null,
   }))
   return NextResponse.json({ lessons })
 }

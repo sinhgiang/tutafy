@@ -394,9 +394,9 @@ async function runViaPg(sql: string): Promise<{ ok: boolean; error?: string }> {
     await client.query(sql)
     await client.end()
     return { ok: true }
-  } catch (err: any) {
+  } catch (err) {
     await client.end().catch(() => {})
-    return { ok: false, error: err.message }
+    return { ok: false, error: err instanceof Error ? err.message : String(err) }
   }
 }
 

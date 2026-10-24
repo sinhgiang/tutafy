@@ -96,7 +96,7 @@ const packages = `<section class="card" id="packages"><h2>Lesson packages</h2><p
 /* ------------------------------------------------------------------ booking card */
 const TIMES = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '4:00 PM', '6:00 PM', '7:00 PM', '8:00 PM']
 
-function calendar({ sel = null, picked = false, blockedNote = false, error = false }) {
+function calendar({ sel = null }) {
   const first = 4 // Oct 1, 2026 is a Thursday (0 = Sunday)
   const cells = []
   for (let i = 0; i < first; i++) cells.push('<span class="blank"></span>')

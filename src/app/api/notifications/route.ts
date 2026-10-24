@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,7 +36,7 @@ export async function GET() {
         .limit(8),
     ])
 
-    let recentReviews: any[] = []
+    let recentReviews: { id: string; rating: number; created_at: string }[] = []
     try {
       const { data: rv } = await supabase.from('reviews')
         .select('id, rating, created_at')
@@ -46,7 +47,7 @@ export async function GET() {
       recentReviews = rv ?? []
     } catch { /* reviews table may not exist yet */ }
 
-    let recentWaitlist: any[] = []
+    let recentWaitlist: { id: string; name: string | null; created_at: string }[] = []
     try {
       const { data: wl } = await supabase.from('waitlist')
         .select('id, name, created_at')
@@ -58,23 +59,23 @@ export async function GET() {
     } catch { /* waitlist table may not exist yet */ }
 
     const notifications = [
-      ...(recentLessons ?? []).map((l: any) => ({
+      ...(recentLessons ?? []).map((l) => ({
         id: `lesson-${l.id}`,
         type: 'booking',
-        title: `New booking from ${(l.students as any)?.name ?? 'student'}`,
+        title: `New booking from ${one(l.students)?.name ?? 'student'}`,
         body: new Date(l.starts_at).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
         link: `/lessons/${l.id}`,
         time: l.created_at,
       })),
-      ...(unreadMessages ?? []).map((m: any) => ({
+      ...(unreadMessages ?? []).map((m) => ({
         id: `msg-${m.id}`,
         type: 'message',
-        title: `${(m.students as any)?.name ?? 'Student'} sent a message`,
+        title: `${one(m.students)?.name ?? 'Student'} sent a message`,
         body: (m.content as string)?.slice(0, 70) ?? '',
         link: m.student_id ? `/messages/${m.student_id}` : `/messages`,
         time: m.created_at,
       })),
-      ...(recentStudents ?? []).map((s: any) => ({
+      ...(recentStudents ?? []).map((s) => ({
         id: `student-${s.id}`,
         type: 'student',
         title: `New student: ${s.name ?? 'student'}`,
@@ -82,7 +83,7 @@ export async function GET() {
         link: `/students/${s.id}`,
         time: s.created_at,
       })),
-      ...recentWaitlist.map((w: any) => ({
+      ...recentWaitlist.map((w) => ({
         id: `waitlist-${w.id}`,
         type: 'waitlist',
         title: `${w.name ?? 'Someone'} joined the waitlist`,
@@ -90,7 +91,7 @@ export async function GET() {
         link: `/waitlist`,
         time: w.created_at,
       })),
-      ...recentReviews.map((r: any) => ({
+      ...recentReviews.map((r) => ({
         id: `review-${r.id}`,
         type: 'review',
         title: `New ${r.rating}★ review received`,

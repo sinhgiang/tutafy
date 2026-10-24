@@ -109,7 +109,7 @@ export default function StudentLoginPage() {
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder="you@example.com"
               autoFocus
               className="w-full text-[14px] pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors bg-white"
             />

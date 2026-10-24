@@ -5,6 +5,9 @@ import { subscriptionPeriod } from '@/lib/stripe/subscription-period'
 
 export const runtime = 'nodejs'
 
+// The period fields this handler reads from the subscription object (not in the Stripe typings of this API version)
+type SubscriptionPeriod = { current_period_start: number; current_period_end: number }
+
 // Handles Stripe Connect webhooks for subscription events
 export async function POST(req: NextRequest) {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
@@ -39,7 +42,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
-    const sub = event.data.object as Stripe.Subscription
+    const sub = event.data.object as Stripe.Subscription & SubscriptionPeriod
     const meta = sub.metadata ?? {}
     const planId = meta.plan_id
     const tutorId = meta.tutor_id

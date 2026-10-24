@@ -2,6 +2,7 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { cronGate } from '@/lib/secrets'
 import { createMailer } from '@/lib/email'
+import { one } from '@/lib/relation'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -55,8 +56,8 @@ export async function GET(request: Request) {
 
   for (const lesson of lessons) {
     const lessonTime = new Date(lesson.starts_at)
-    const student = lesson.students as any
-    const tutor = lesson.tutors as any
+    const student = one(lesson.students)
+    const tutor = one(lesson.tutors)
     if (!student?.email) continue
 
     const dateLabel = lessonTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
@@ -133,8 +134,8 @@ export async function GET(request: Request) {
 
   if (paymentLessons) {
     for (const lesson of paymentLessons) {
-      const student = lesson.students as any
-      const tutor = lesson.tutors as any
+      const student = one(lesson.students)
+      const tutor = one(lesson.tutors)
       if (!student?.email) continue
 
       const lessonDate = new Date(lesson.starts_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
@@ -154,7 +155,7 @@ export async function GET(request: Request) {
       try {
         await supabase
           .from('lessons')
-          .update({ payment_reminder_sent_at: now.toISOString() } as any)
+          .update({ payment_reminder_sent_at: now.toISOString() })
           .eq('id', lesson.id)
       } catch {}
 
