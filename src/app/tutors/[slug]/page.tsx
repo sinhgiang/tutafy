@@ -14,6 +14,9 @@ import {
   bioParagraphs, firstNameOf, hasTrial, initialsOf, joinedLabel, priceLabel, profileNotes, reviewText, safeZone, usableReviews,
 } from '@/lib/tutor-profile'
 import { MadeWithTutafy } from '@/components/MadeWithTutafy'
+import { ReviewsSection } from '@/components/profile/ReviewsSection'
+import { reviewsFlowOn } from '@/lib/reviews-flow'
+import { countLessonsHeld, loadProfileReviews, type FlowClient } from '@/lib/reviews-data'
 import { NextTimes, FreeTimesSection, StickyBookBar } from '@/components/profile/FreeTimes'
 import Link from 'next/link'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -33,10 +36,11 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }
 
 // One read of the tutor per request, shared by the page and its metadata. Read on the server with the admin client, only the public
 // columns (T-0774); a tutor whose page is off is found only by that tutor themselves, signed in (their own preview), as the old policy did.
+const getViewerId = cache(async (): Promise<string | null> => {
+  try { return (await (await createClient()).auth.getUser()).data.user?.id ?? null } catch { return null }
+})
 const getTutor = cache(async (slug: string) => {
-  let viewerId: string | null = null
-  try { viewerId = (await (await createClient()).auth.getUser()).data.user?.id ?? null } catch {}
-  const data = await loadPublicTutor(createAdminClient(), slug, PROFILE_PAGE_COLUMNS, viewerId)
+  const data = await loadPublicTutor(createAdminClient(), slug, PROFILE_PAGE_COLUMNS, await getViewerId())
   return data
 })
 
@@ -104,6 +108,13 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
     bookable ? loadFreeTimes(supabase as unknown as ReadClient, getAdmin, tutor, lengths.defaultDuration) : Promise.resolve({ slots: [], state: 'unknown' as const }),
     loadReviewLessonCounts(getAdmin, tutor.id, shown.map(r => r.student_id ?? '')),
   ])
+
+  // The new review flow (T-0898), only while REVIEWS_FLOW is on: the reviews with names as "Maria K.", the summary card, the lessons that took place and
+  // (for the signed-in tutor of this page) the one-time answer box. Off, none of this is read and the page is what it was.
+  const flowOn = reviewsFlowOn()
+  const flowReviews = flowOn ? await loadProfileReviews(admin as unknown as FlowClient, tutor.id) : null
+  const lessonsTaught = flowOn ? await countLessonsHeld(admin as unknown as FlowClient, tutor.id, new Date()) : 0
+  const canReply = flowOn && (await getViewerId()) === tutor.id
 
   const photo = httpsImage(tutor.avatar_url)
   const reviewCount = Number(tutor.review_count ?? 0)
@@ -232,7 +243,9 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
             {/* Reviews */}
             <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="reviews-title" id="reviews" data-testid="profile-reviews">
               <h2 id="reviews-title" className={H2}>Reviews</h2>
-              {hasReviews ? (
+              {flowReviews && flowReviews.summary.count > 0 ? (
+                <ReviewsSection summary={flowReviews.summary} reviews={flowReviews.reviews} lessonsTaught={lessonsTaught} first={first} now={new Date()} canReply={canReply} />
+              ) : hasReviews ? (
                 <div className="mt-4">
                   <div className="flex items-center gap-4">
                     <p className="text-[40px] leading-none font-extrabold text-gray-900">{Number(tutor.average_rating ?? 0).toFixed(1)}</p>

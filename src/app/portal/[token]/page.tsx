@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { cleanUrl } from '@/lib/url'
 import { Calendar, BookOpen, MessageCircle, ChevronRight, Video, Clock, Star, Award } from 'lucide-react'
 import { ReviewForm } from './ReviewForm'
+import { reviewsFlowOn } from '@/lib/reviews-flow'
 import { RescheduleCancel } from './RescheduleCancel'
 import PushSubscribe from '@/components/PushSubscribe'
 import { GamificationCard } from '@/components/GamificationCard'
@@ -312,7 +313,10 @@ export default async function StudentPortalPage({ params }: { params: Promise<{ 
                   {new Date(lesson.starts_at).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                   <span className="text-gray-400 font-normal ml-2">{lesson.duration_minutes} min</span>
                 </p>
-                <ReviewForm lessonId={lesson.id} portalToken={token} />
+                {/* with the new review flow on (REVIEWS_FLOW=on) a lesson is rated on its own page, one review per tutor; off, the old form stays */}
+                  {reviewsFlowOn()
+                    ? <Link href={`/portal/${token}/review/${lesson.id}`} className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold text-indigo-600 hover:text-indigo-700 underline underline-offset-2">Rate this tutor</Link>
+                    : <ReviewForm lessonId={lesson.id} portalToken={token} />}
               </div>
             ))}
           </div>

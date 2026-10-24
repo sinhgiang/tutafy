@@ -554,3 +554,58 @@ test('the page sets no title, canonical or contact detail of its own, and reads 
   assert.doesNotMatch(src, /\bcanonical\b|\balternates\b|title:\s*['"`]/)
   assert.match(read('lib/profile-data.ts'), /select\('starts_at, ends_at, duration_minutes'\)/)
 })
+
+// ---- the new review flow on a profile (T-0898), behind REVIEWS_FLOW=on ---------------------------------------------------------------
+
+const withFlow = async <T>(value: string | undefined, fn: () => Promise<T>): Promise<T> => {
+  const before = process.env.REVIEWS_FLOW
+  if (value === undefined) delete process.env.REVIEWS_FLOW; else process.env.REVIEWS_FLOW = value
+  try { return await fn() } finally { if (before === undefined) delete process.env.REVIEWS_FLOW; else process.env.REVIEWS_FLOW = before }
+}
+function flowWorld() {
+  db.tables.students = [
+    { id: S1, name: 'Maria Kowalski', email: 'maria.private@example.com', tutor_id: T_FULL },
+    { id: S2, name: 'James Tan', email: 'james.private@example.com', tutor_id: T_FULL },
+    { id: S3, name: 'Anna', email: 'anna.private@example.com', tutor_id: T_FULL },
+  ]
+  Object.assign(db.tables.reviews.find(r => r.id === 'r1')!, { flow: true, tags: ['patient', 'well_prepared'], tutor_reply: 'Thank you, Maria! Your past tense is great.', replied_at: '2026-09-11T10:00:00Z' })
+  Object.assign(db.tables.reviews.find(r => r.id === 'r2')!, { flow: true, tags: ['clear_explanations'] })
+}
+
+test('review flow OFF: the profile is exactly what it was (no new section, no summary card, no answer box, nothing read from students)', async () => {
+  flowWorld()
+  const html = await withFlow(undefined, () => render('maya-reyes'))
+  assert.doesNotMatch(html, /data-testid="reviews-flow"|data-testid="reviews-summary"|reply-open|Reply from/)
+  assert.equal((html.match(/data-testid="profile-review"/g) ?? []).length, 3, 'the old list of three public reviews')
+  assert.equal(adminReads.some(r => r.table === 'students'), false, 'the students table is not read while the flow is off')
+  for (const wrong of ['off', 'true', '1', 'ON', ' ']) assert.doesNotMatch(await withFlow(wrong, () => render('maya-reyes')), /data-testid="reviews-flow"/, `REVIEWS_FLOW=${wrong} is not "on"`)
+})
+
+test('review flow ON: the summary card (average, share of each star, lessons taught that took place), names as "Maria K.", lessons per student, tags and the tutor\'s one answer', async () => {
+  flowWorld()
+  const html = await withFlow('on', () => render('maya-reyes'))
+  assert.match(html, /data-testid="reviews-flow"/)
+  assert.match(html, /data-testid="reviews-summary"[\s\S]*?4\.7[\s\S]*?3 reviews/)
+  assert.match(html, /5 stars[\s\S]*?67%/)
+  assert.match(html, /data-testid="lessons-taught"[^>]*>[\s\S]*?<b>4<\/b> lessons taught on Tutafy/, 'only lessons that took place: the scheduled one in December does not count')
+  assert.match(html, /Every review is from a student who took a lesson/)
+  assert.match(html, /<b>Maria K\.<\/b>/)
+  assert.match(html, /<b>James T\.<\/b>/)
+  assert.match(html, /<b>Anna<\/b>/, 'a single name stays as it is')
+  assert.match(html, /Took 3 lessons with Maya/)
+  assert.match(html, /Patient/)
+  assert.match(html, /Well prepared/)
+  assert.match(html, /data-testid="review-reply"[\s\S]*?Reply from Maya[\s\S]*?Your past tense is great/)
+  assert.doesNotMatch(html, /Private note nobody may see/)
+  assert.doesNotMatch(html, /private@|\.private@example\.com|Kowalski|"tutor_reply"/, 'no email and no last name')
+})
+
+test('review flow ON: only the signed-in tutor of the page sees the one-time answer box, and only on a review with no answer', async () => {
+  flowWorld()
+  assert.doesNotMatch(await withFlow('on', () => render('maya-reyes')), /data-testid="reply-open"/, 'a visitor')
+  viewer = '99999999-9999-4999-8999-999999999999'
+  assert.doesNotMatch(await withFlow('on', () => render('maya-reyes')), /data-testid="reply-open"/, 'another signed-in account')
+  viewer = T_FULL
+  const own = await withFlow('on', () => render('maya-reyes'))
+  assert.equal((own.match(/data-testid="reply-open"/g) ?? []).length, 2, 'r2 and r4 have no answer; r1 has one')
+})

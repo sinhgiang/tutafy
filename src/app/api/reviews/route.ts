@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { reviewsFlowOn } from '@/lib/reviews-flow'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -38,6 +39,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  // With the new review flow on (REVIEWS_FLOW=on) a review is written on its own page, one per student and tutor (src/app/api/reviews/flow): this old
+  // route, which saved one review per lesson, no longer takes new reviews. Off, it works as it always did.
+  if (reviewsFlowOn()) return NextResponse.json({ error: 'Reviews have moved to a new form. Open the link in your student page.' }, { status: 410 })
   try {
     const { portal_token, lesson_id, rating, comment } = await request.json()
 
