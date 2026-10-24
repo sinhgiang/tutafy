@@ -25,6 +25,19 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient()
 
+  // These events come from tutors' connected Stripe accounts (`event.account`). The tutor named inside the event is only believed when this
+  // event comes from the Stripe account that tutor connected: the signature proves Stripe sent it, not that the metadata is right.
+  const account = typeof event.account === 'string' ? event.account : ''
+  const fromTutorsAccount = async (tutorId: unknown): Promise<boolean> => {
+    if (!account || typeof tutorId !== 'string' || !tutorId) return false
+    const { data } = await supabase.from('tutors').select('stripe_account_id').eq('id', tutorId).maybeSingle()
+    return !!data?.stripe_account_id && data.stripe_account_id === account
+  }
+  const ignoreMismatch = () => {
+    console.error('[stripe-webhook] event is not from the Stripe account of the tutor it names; ignored:', event.id)
+    return NextResponse.json({ received: true, ignored: 'account_mismatch' })
+  }
+
   if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
     const sub = event.data.object as Stripe.Subscription
     const meta = sub.metadata ?? {}
@@ -36,6 +49,11 @@ export async function POST(req: NextRequest) {
     if (!planId || !tutorId || !studentEmail) {
       return NextResponse.json({ received: true })
     }
+
+    if (!(await fromTutorsAccount(tutorId))) return ignoreMismatch()
+    // the plan must be this tutor's too: a subscription is never attached to another tutor's plan
+    const { data: plan } = await supabase.from('subscription_plans').select('id').eq('id', planId).eq('tutor_id', tutorId).maybeSingle()
+    if (!plan) return ignoreMismatch()
 
     // Find or create student
     let { data: student } = await supabase.from('students')
@@ -77,6 +95,10 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'customer.subscription.deleted') {
     const sub = event.data.object as Stripe.Subscription
+    // only the subscription of a tutor whose connected account sent this event
+    const { data: saved } = await supabase.from('student_subscriptions').select('tutor_id').eq('stripe_subscription_id', sub.id).maybeSingle()
+    if (!saved) return NextResponse.json({ received: true })
+    if (!(await fromTutorsAccount(saved.tutor_id))) return ignoreMismatch()
     await supabase.from('student_subscriptions')
       .update({ status: 'cancelled' })
       .eq('stripe_subscription_id', sub.id)
