@@ -19,6 +19,18 @@ export const TIMES_HORIZON_DAYS = 14
 export type FreeTimes = { slots: FreeSlot[]; state: 'ok' | 'none' | 'unknown' }
 
 /**
+ * Starts a read now and hands back what happened to it, never a rejection: the caller judges it later, in its own order, and a read it
+ * never gets to judge (the tutor has no weekly hours) cannot end as an unhandled rejection. A throw while building the read counts too.
+ */
+function started<T>(make: () => PromiseLike<T>): Promise<{ ok: true; value: T } | { ok: false; error: unknown }> {
+  try {
+    return Promise.resolve(make()).then(value => ({ ok: true as const, value }), error => ({ ok: false as const, error }))
+  } catch (error) {
+    return Promise.resolve({ ok: false as const, error })
+  }
+}
+
+/**
  * The tutor's next free times for the profile. `anon` is the visitor's session client (the weekly hours are public, the booking page
  * reads them the same way); `getAdmin` makes the admin client for the blocked days and the lessons and may throw when it is not configured.
  */
@@ -30,17 +42,28 @@ export async function loadFreeTimes(
   now: Date = new Date(),
 ): Promise<FreeTimes> {
   try {
+    const today = now.toISOString().slice(0, 10)
+    // lessons that could overlap a slot in the window: the same read the booking route does (clashWindowStart goes back far enough
+    // for the longest lesson), for the tutor's own calendar (assigned_to is null), and cancelled lessons free their time
+    const until = new Date(now.getTime() + (TIMES_HORIZON_DAYS + 2) * 86400000).toISOString()
+    // The three reads need nothing from each other, so they go out together (T-0896). The two admin reads are started now and judged below,
+    // in the order they always were: no weekly hours is still "none" even if one of them failed, and a throw there still ends as 'unknown'.
+    const blockedRead = started(() => getAdmin().from('availability_exceptions').select('date').eq('tutor_id', tutor.id).gte('date', today))
+    const lessonsRead = started(() => getAdmin().from('lessons').select('starts_at, ends_at, duration_minutes')
+      .eq('tutor_id', tutor.id).is('assigned_to', null).neq('status', 'cancelled')
+      .gte('starts_at', clashWindowStart(new Date(now.getTime() - 86400000))).lt('starts_at', until).limit(1000))
     const hours = await anon.from('availability').select('day_of_week, start_time, end_time').eq('tutor_id', tutor.id)
     if (hours.error || !hours.data) return { slots: [], state: 'unknown' }
     const availability = hours.data as unknown as AvailabilityRow[]
     if (availability.length === 0) return { slots: [], state: 'none' }
 
     const tz = safeZone(tutor.timezone)
-    const today = now.toISOString().slice(0, 10)
     let blockedDates: string[] = []
     // the table may not exist on an older database: no blocked days is the right answer then. Any other failure is not: a day the
     // tutor blocked must never be offered, so the times become 'unknown'.
-    const blocked = await getAdmin().from('availability_exceptions').select('date').eq('tutor_id', tutor.id).gte('date', today)
+    const blockedDone = await blockedRead
+    if (!blockedDone.ok) throw blockedDone.error
+    const blocked = blockedDone.value
     if (blocked.error) {
       const code = (blocked.error as { code?: string }).code
       if (code !== '42P01' && code !== 'PGRST205') return { slots: [], state: 'unknown' }
@@ -48,12 +71,9 @@ export async function loadFreeTimes(
       blockedDates = (blocked.data ?? []).map(r => String(r.date))
     }
 
-    // lessons that could overlap a slot in the window: the same read the booking route does (clashWindowStart goes back far enough
-    // for the longest lesson), for the tutor's own calendar (assigned_to is null), and cancelled lessons free their time
-    const until = new Date(now.getTime() + (TIMES_HORIZON_DAYS + 2) * 86400000).toISOString()
-    const lessons = await getAdmin().from('lessons').select('starts_at, ends_at, duration_minutes')
-      .eq('tutor_id', tutor.id).is('assigned_to', null).neq('status', 'cancelled')
-      .gte('starts_at', clashWindowStart(new Date(now.getTime() - 86400000))).lt('starts_at', until).limit(1000)
+    const lessonsDone = await lessonsRead
+    if (!lessonsDone.ok) throw lessonsDone.error
+    const lessons = lessonsDone.value
     if (lessons.error || !lessons.data) return { slots: [], state: 'unknown' }
 
     const slots = nextFreeSlots({

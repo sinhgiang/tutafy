@@ -18,13 +18,16 @@ export function TutorCard({ card, zone, viewerZone, now }: { card: DirectoryCard
   return (
     <article data-testid="tutor-card" data-slug={card.slug}
       className="bg-white border border-gray-100 rounded-[18px] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition overflow-hidden flex flex-wrap min-[721px]:flex-nowrap min-[721px]:flex-col">
-      <Link href={`/tutors/${card.slug}`} aria-label={`View ${card.name}'s profile`}
+      {/* The link has no aria-label: its name is made of its own content (a hidden sentence, the photo, the trial badge), so what a visitor reads on
+          it is always part of the name (WCAG 2.5.3, the Lighthouse audit "label-content-name-mismatch" failed on the old aria-label). */}
+      <Link href={`/tutors/${card.slug}`}
         className="relative block w-28 shrink-0 min-[721px]:w-auto min-[721px]:aspect-[4/3] min-h-[150px] min-[721px]:min-h-0 bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset">
+        <span className="sr-only">View {card.name}&apos;s profile</span>
         {card.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={card.photo} alt={`Photo of ${card.name}`} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <div role="img" aria-label={`${card.name} has not added a photo yet`} data-testid="card-monogram"
+          <div aria-hidden="true" data-testid="card-monogram"
             style={{ background: bg, color: fg }}
             className="absolute inset-0 flex items-center justify-center font-extrabold text-[34px] min-[721px]:text-[56px]">
             {initialsOf(card.name)}
