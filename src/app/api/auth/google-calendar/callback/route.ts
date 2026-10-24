@@ -1,18 +1,28 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { originFromRequest } from '@/lib/app-url'
+import { GCAL_STATE_COOKIE, GCAL_STATE_PATH, gcalStateMatches } from '@/lib/gcal-state'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
-  const state = req.nextUrl.searchParams.get('state') // tutor user id
+  const state = req.nextUrl.searchParams.get('state') // the random value made when the connection was started
   const error = req.nextUrl.searchParams.get('error')
 
   if (error || !code || !state) {
     return NextResponse.redirect(new URL('/settings?gcal=error', req.url))
   }
+
+  // Who is connecting: the signed-in account, and only if this browser started this very connection (cookie and state agree). The tutor id
+  // is the session's; nothing in the address names it. The cookie is single use.
+  const { data: { user } } = await (await createClient()).auth.getUser()
+  if (!user) return NextResponse.redirect(new URL('/login', req.url))
+  const started = req.cookies.get(GCAL_STATE_COOKIE)?.value
+  const failed = NextResponse.redirect(new URL('/settings?gcal=error', req.url))
+  failed.cookies.set(GCAL_STATE_COOKIE, '', { path: GCAL_STATE_PATH, maxAge: 0 })
+  if (!gcalStateMatches(started, state, user.id)) return failed
 
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
     return NextResponse.redirect(new URL('/settings?gcal=not-configured', req.url))
@@ -54,7 +64,9 @@ export async function GET(req: NextRequest) {
       google_calendar_refresh_token: tokens.refresh_token,
       google_calendar_id: calendarId,
     } as any)
-    .eq('id', state)
+    .eq('id', user.id)
 
-  return NextResponse.redirect(new URL('/settings?gcal=connected', req.url))
+  const done = NextResponse.redirect(new URL('/settings?gcal=connected', req.url))
+  done.cookies.set(GCAL_STATE_COOKIE, '', { path: GCAL_STATE_PATH, maxAge: 0 })
+  return done
 }

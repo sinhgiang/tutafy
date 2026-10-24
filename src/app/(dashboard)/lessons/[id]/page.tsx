@@ -263,8 +263,8 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
         hasPrice={!!lesson.price}
         studentEmail={(lesson.students as any)?.email ?? null}
         isCompleted={lesson.status === 'completed'}
-        isScheduled={lesson.status === 'scheduled'}
         lessonStatus={lesson.status}
+        startsAt={lesson.starts_at}
       />
     </PageColumn>
   )

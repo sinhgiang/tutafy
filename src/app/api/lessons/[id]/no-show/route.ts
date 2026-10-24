@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createMailer } from '@/lib/email'
+import { noShowOffered } from '@/lib/no-show'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,14 +13,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { data: lesson } = await supabase
     .from('lessons')
-    .select('id, starts_at, duration_minutes, students(name, email)')
+    .select('id, status, starts_at, duration_minutes, students(name, email)')
     .eq('id', id)
     .eq('tutor_id', user.id)
     .single()
 
   if (!lesson) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  await supabase.from('lessons').update({ status: 'no_show' }).eq('id', id)
+  // Only a scheduled lesson whose start has passed (the card on the lesson page is shown by the same rule); anything else is left as it is
+  // and the student is not mailed.
+  if (!noShowOffered(lesson.status, lesson.starts_at, Date.now())) {
+    return NextResponse.json({ error: 'Only a scheduled lesson that has already started can be marked as a no-show.' }, { status: 409 })
+  }
+
+  await supabase.from('lessons').update({ status: 'no_show' }).eq('id', id).eq('tutor_id', user.id)
 
   const student = lesson.students as any
   if (process.env.RESEND_API_KEY?.startsWith('re_') && student?.email) {

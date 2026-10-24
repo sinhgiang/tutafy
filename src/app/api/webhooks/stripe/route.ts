@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
+import { subscriptionPeriod } from '@/lib/stripe/subscription-period'
 
 export const runtime = 'nodejs'
 
@@ -53,17 +54,25 @@ export async function POST(req: NextRequest) {
 
     if (!student) return NextResponse.json({ received: true })
 
+    // The period dates: from the subscription or from its first item, whichever this Stripe API version sends. When the event carries none,
+    // the row is still saved and the dates it already has are kept (a key left out of an upsert is not overwritten), and the event id goes
+    // to the log so the gap can be traced. Never a 500 over a missing date: Stripe would send the same event again for days.
+    const period = subscriptionPeriod(sub)
+    if (!period.start || !period.end) console.warn('[stripe-webhook] subscription event without period dates:', event.id, sub.id)
+
     // Upsert subscription record
-    await supabase.from('student_subscriptions').upsert({
+    const { error: saveError } = await supabase.from('student_subscriptions').upsert({
       plan_id: planId,
       student_id: student.id,
       tutor_id: tutorId,
       stripe_subscription_id: sub.id,
       stripe_customer_id: sub.customer as string,
       status: sub.status === 'active' ? 'active' : sub.status === 'past_due' ? 'past_due' : 'cancelled',
-      current_period_start: new Date((sub as any).current_period_start * 1000).toISOString(),
-      current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+      ...(period.start ? { current_period_start: period.start } : {}),
+      ...(period.end ? { current_period_end: period.end } : {}),
     }, { onConflict: 'stripe_subscription_id' })
+    // A row that could not be saved is a failure Stripe should retry.
+    if (saveError) return NextResponse.json({ error: 'Could not save the subscription' }, { status: 500 })
   }
 
   if (event.type === 'customer.subscription.deleted') {
