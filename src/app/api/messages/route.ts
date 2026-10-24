@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     .eq('id', student_id)
     .single()
   if ((studentFull as any)?.push_subscription) {
-    const { data: tutorFull } = await admin.from('tutors').select('name').eq('user_id', user.id).single()
+    const { data: tutorFull } = await admin.from('tutors').select('name').eq('id', user.id).single()
     await sendPushNotification((studentFull as any).push_subscription, {
       title: `New message from ${tutorFull?.name ?? 'your tutor'}`,
       body: content.trim().slice(0, 100),

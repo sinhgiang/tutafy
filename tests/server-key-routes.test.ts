@@ -109,7 +109,7 @@ const HOUR = 3_600_000
 function seed() {
   return createFakeDb({
     tutors: [
-      { id: A, google_calendar_refresh_token: 'rt_A', google_calendar_id: 'a@example.com' },
+      { id: A, google_calendar_refresh_token: 'rt_A', google_calendar_id: 'a@example.com', stripe_account_id: 'acct_A' },
       { id: B, google_calendar_refresh_token: 'rt_B', google_calendar_id: 'b@example.com' },
     ],
     students: [{ id: SA, tutor_id: A, name: 'Student A' }, { id: SB, tutor_id: B, name: 'Student B' }],
@@ -117,6 +117,7 @@ function seed() {
       { id: LA, tutor_id: A, student_id: SA, status: 'scheduled', starts_at: '2026-10-30T10:00:00Z', ends_at: '2026-10-30T11:00:00Z', duration_minutes: 60, notes: null, zoom_link: null, google_event_id: null },
       { id: LB, tutor_id: B, student_id: SB, status: 'scheduled', starts_at: '2026-10-30T12:00:00Z', ends_at: '2026-10-30T13:00:00Z', duration_minutes: 60, notes: null, zoom_link: null, google_event_id: null },
     ],
+    subscription_plans: [{ id: '60000000-0000-4000-8000-00000000000a', tutor_id: A }],
     lesson_students: [
       { id: EA, lesson_id: LA, student_id: SA, price: 20, payment_status: 'pending' },
       { id: EB, lesson_id: LB, student_id: SB, price: 20, payment_status: 'pending' },
@@ -414,7 +415,7 @@ const PLAN = '60000000-0000-4000-8000-00000000000a'
 
 function subscriptionEvent(sub: Record<string, unknown>, type = 'customer.subscription.created') {
   const body = JSON.stringify({
-    id: 'evt_sub_1', object: 'event', type,
+    id: 'evt_sub_1', object: 'event', type, account: 'acct_A',
     data: { object: { id: 'sub_1', object: 'subscription', customer: 'cus_1', status: 'active', metadata: { plan_id: PLAN, tutor_id: A, student_email: 'learner@example.com', student_name: 'Learner' }, ...sub } },
   })
   const header = Stripe.webhooks.generateTestHeaderString({ payload: body, secret: WH_SECRET })

@@ -16,10 +16,10 @@ The server's key (`createAdminClient`) skips row level security, so a route that
 
 `tests/support/server-key-registry.ts` lists every file under `src/app` that uses the key (68), each with the reason it is safe, written after reading it. `tests/server-key-routes.test.ts` fails when a file starts using the key without an entry, and when an entry names a file that no longer uses it. Result of the reading: after the two faults above, every other file is scoped by the session's tutor id, a student's portal token, a signed link, an API key, a webhook signature or the cron secret, or reads only public data.
 
-## Not changed, for the owner
+## Left open here, done in T-0904
 
-- `src/app/api/push/subscribe/route.ts` and `src/app/api/messages/route.ts` read `tutors.user_id`, a column no migration creates: a tutor's push address is never saved. It is not an access fault (it saves nothing), so it is left for a ticket of its own.
-- The Stripe subscription webhook takes the tutor from the event's metadata; the event is signed, and the metadata is written by `api/subscriptions/checkout`. A tutor with their own Stripe dashboard access could in principle create a subscription with other metadata; that needs a design decision (check the connected account of the event against the tutor).
+- `src/app/api/push/subscribe/route.ts` and `src/app/api/messages/route.ts` read `tutors.user_id`, a column no migration creates: a tutor's push address was never saved. Fixed in T-0904 (see `docs/features/T-0904-stripe-event-account-and-tutor-push.md`).
+- The Stripe subscription webhook took the tutor from the event's metadata. T-0904 checks the event's connected account against that tutor, and the plan against the tutor.
 
 ## Tests
 
