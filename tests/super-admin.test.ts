@@ -24,7 +24,7 @@ mock.module('@supabase/ssr', {
   exports: { createServerClient: () => ({ auth: { getUser: async () => ({ data: { user: currentUser } }) } }) },
 })
 
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 const { requireAdminPage } = await import('@/lib/admin-guard.ts')
 const { proxy } = await import('@/proxy.ts')
 const { NextRequest } = await import('next/server.js')

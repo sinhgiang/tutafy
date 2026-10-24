@@ -27,15 +27,20 @@ mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
 })
 
 const mail = await import('@/lib/email.ts')
+// The sender and the Reply-To are role mailboxes of the site's own domain (rule 4b: no address is typed in a test); what the domain is, is asserted below.
+const { DEFAULT_FROM_ADDRESS: FROM, DEFAULT_REPLY_TO: REPLY, MAIL_DOMAIN } = await import('@/lib/email-config.ts')
 const bookings = await import('@/app/api/bookings/route.ts')
 
 // ---- the settings ------------------------------------------------------------------------------
 
 test('the sender is a named, real address, and replies go to a real mailbox (the defaults)', () => {
-  assert.equal(mail.emailFromAddress({}), 'booking@tutafy.com')
-  assert.equal(mail.emailReplyTo({}), 'support@tutafy.com')
-  assert.equal(mail.emailFrom('bookings', {}), 'Tutafy Bookings <booking@tutafy.com>')
-  assert.equal(mail.emailFrom('general', {}), 'Tutafy <booking@tutafy.com>')
+  assert.equal(MAIL_DOMAIN, new URL(read('src/lib/site-url.ts').match(/SITE_URL = '([^']+)'/)![1]).hostname.replace(/^www\./, ''), 'the mailboxes live on the site\'s own domain')
+  assert.equal(FROM, `booking@${MAIL_DOMAIN}`)
+  assert.equal(REPLY, `support@${MAIL_DOMAIN}`)
+  assert.equal(mail.emailFromAddress({}), FROM)
+  assert.equal(mail.emailReplyTo({}), REPLY)
+  assert.equal(mail.emailFrom('bookings', {}), `Tutafy Bookings <${FROM}>`)
+  assert.equal(mail.emailFrom('general', {}), `Tutafy <${FROM}>`)
   assert.doesNotMatch(mail.emailFrom('bookings', {}), /no-?reply/i)
 })
 
@@ -43,11 +48,11 @@ test('both addresses are read from ONE place and can be changed there; anything 
   assert.equal(mail.emailFromAddress({ EMAIL_FROM_ADDRESS: 'hello@example.com' }), 'hello@example.com')
   assert.equal(mail.emailReplyTo({ EMAIL_REPLY_TO: ' help@example.com ' }), 'help@example.com')
   assert.equal(mail.emailFrom('bookings', { EMAIL_FROM_ADDRESS: 'hello@example.com' }), 'Tutafy Bookings <hello@example.com>')
-  for (const bad of ['', '   ', 'nope', 'a@b', 'Name <a@b.co>', 'a@b.co\nBcc: x@y.co', 'a@b.co, c@d.co', '<script>@x.co', 'a b@c.co']) {
-    assert.equal(mail.emailFromAddress({ EMAIL_FROM_ADDRESS: bad }), 'booking@tutafy.com', JSON.stringify(bad))
-    assert.equal(mail.emailReplyTo({ EMAIL_REPLY_TO: bad }), 'support@tutafy.com', JSON.stringify(bad))
+  for (const bad of ['', '   ', 'nope', 'a@b', 'Name <a@example.com>', 'a@example.com\nBcc: x@example.com', 'a@example.com, c@example.com', '<script>@example.com', 'a b@example.com']) {
+    assert.equal(mail.emailFromAddress({ EMAIL_FROM_ADDRESS: bad }), FROM, JSON.stringify(bad))
+    assert.equal(mail.emailReplyTo({ EMAIL_REPLY_TO: bad }), REPLY, JSON.stringify(bad))
   }
-  assert.equal(mail.emailFromAddress({ EMAIL_FROM_ADDRESS: undefined }), 'booking@tutafy.com')
+  assert.equal(mail.emailFromAddress({ EMAIL_FROM_ADDRESS: undefined }), FROM)
 })
 
 test('the sender and the reply address are written once in src: no other file names an address on the domain, nor a no-reply one', () => {
@@ -100,16 +105,18 @@ test('htmlToText: nothing is lost that a reader needs, and broken or empty input
 
 test('withEmailDefaults fills the sender, the reply address and the text, and leaves what the caller set', () => {
   const out = mail.withEmailDefaults({ to: 'a@example.com', subject: 'S', html: '<p>Hello</p>' }, 'bookings', {})
-  assert.deepEqual([out.from, out.replyTo, out.text, out.html], ['Tutafy Bookings <booking@tutafy.com>', 'support@tutafy.com', 'Hello', '<p>Hello</p>'])
+  assert.deepEqual([out.from, out.replyTo, out.text, out.html], [`Tutafy Bookings <${FROM}>`, REPLY, 'Hello', '<p>Hello</p>'])
   const own = mail.withEmailDefaults({ to: 'a@example.com', subject: 'S', html: '<p>Hello</p>', from: 'X <x@example.com>', replyTo: 'r@example.com', text: 'mine' }, 'bookings', {})
   assert.deepEqual([own.from, own.replyTo, own.text], ['X <x@example.com>', 'r@example.com', 'mine'])
 })
 
 test('the spam line names the real sender address and tells the reader what to do, in one sentence', () => {
-  const line = mail.spamHintFor('booking@tutafy.com')
-  assert.equal(line, "Can't find our email? Check your spam or junk folder, and add booking@tutafy.com to your contacts.")
+  const line = mail.spamHintFor(FROM)
+  assert.equal(line, `Can't find our email? Check your spam or junk folder, and add ${FROM} to your contacts.`)
   assert.equal(mail.spamHint({ EMAIL_FROM_ADDRESS: 'hello@example.com' }), "Can't find our email? Check your spam or junk folder, and add hello@example.com to your contacts.")
-  assert.match(mail.spamHintHtml({}), /^<p [^>]*>Can't find our email\? Check your spam or junk folder, and add booking@tutafy\.com to your contacts\.<\/p>$/)
+  const html = mail.spamHintHtml({})
+  assert.match(html, /^<p [^>]*>/)
+  assert.ok(html.endsWith(`>Can't find our email? Check your spam or junk folder, and add ${FROM} to your contacts.</p>`), html)
 })
 
 // ---- the mailer ---------------------------------------------------------------------------------
@@ -121,7 +128,7 @@ test('createMailer sends HTML with a plain-text copy, the named sender and the R
   assert.equal(sent.length, 1)
   assert.deepEqual(
     { from: sent[0].from, replyTo: sent[0].replyTo, text: sent[0].text, html: sent[0].html, to: sent[0].to, subject: sent[0].subject },
-    { from: 'Tutafy Bookings <booking@tutafy.com>', replyTo: 'support@tutafy.com', text: 'Hi Sam', html: '<p>Hi <b>Sam</b></p>', to: 'a@example.com', subject: 'Hello there' },
+    { from: `Tutafy Bookings <${FROM}>`, replyTo: REPLY, text: 'Hi Sam', html: '<p>Hi <b>Sam</b></p>', to: 'a@example.com', subject: 'Hello there' },
   )
 })
 
@@ -186,8 +193,8 @@ test('a booking sends two mails (student, tutor), each from the named sender, wi
   assert.equal(res.status, 200)
   assert.deepEqual(sent.map(m => m.to).sort(), ['sam@example.com', 'tina@example.com'])
   for (const m of sent) {
-    assert.equal(m.from, 'Tutafy Bookings <booking@tutafy.com>')
-    assert.equal(m.replyTo, 'support@tutafy.com')
+    assert.equal(m.from, `Tutafy Bookings <${FROM}>`)
+    assert.equal(m.replyTo, REPLY)
     assert.ok(m.html.length > 200 && m.html.includes('<div'), 'HTML body')
     assert.ok(m.text && m.text.length > 40 && !/<[a-z]/i.test(m.text), 'plain-text body')
     const hint = mail.spamHint({})
@@ -213,7 +220,7 @@ test('the subjects are plain and clear: no emoji, no shouting, the business cont
 
 test('the booking answer names the sender address, so the page can tell the student where to look', async () => {
   const body = await (await book()).json()
-  assert.equal(body.sender_email, 'booking@tutafy.com')
+  assert.equal(body.sender_email, FROM)
   const form = read('src/app/book/[slug]/BookingForm.tsx')
   assert.match(form, /import \{ DEFAULT_FROM_ADDRESS, spamHintFor \} from '@\/lib\/email-config'/)
   assert.match(form, /d\.sender_email/)
