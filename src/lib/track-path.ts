@@ -4,7 +4,7 @@
 // null and is never sent or stored. Query strings and fragments are dropped.
 // No imports, so the node tests can load it.
 
-export const PUBLIC_PAGES = ['/', '/about', '/contact', '/privacy', '/terms', '/customers', '/updates', '/tutors', '/login', '/register', '/onboarding'] as const
+export const PUBLIC_PAGES = ['/', '/about', '/contact', '/privacy', '/terms', '/customers', '/updates', '/tutors', '/find-a-tutor', '/login', '/register', '/onboarding'] as const
 
 // First path segment of the signed-in tutor area; the rest of the path (ids) is cut off.
 export const APP_SECTIONS = [

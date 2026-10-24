@@ -406,7 +406,7 @@ const PUBLIC_PAGES = [
   'src/app/page.tsx', 'src/app/switch/page.tsx', 'src/app/about/page.tsx', 'src/app/contact/page.tsx',
   'src/app/customers/page.tsx', 'src/app/privacy/page.tsx', 'src/app/terms/page.tsx', 'src/app/updates/page.tsx',
   'src/app/blog/page.tsx', 'src/app/blog/[slug]/page.tsx', 'src/app/tutors/(directory)/page.tsx', 'src/app/tutors/[slug]/page.tsx',
-  'src/app/learn/[language]/page.tsx', 'src/app/unsubscribe/page.tsx',
+  'src/app/learn/[language]/page.tsx', 'src/app/find-a-tutor/page.tsx', 'src/app/unsubscribe/page.tsx',
 ]
 
 /** Pages that are public but are not a place to browse, so they have no site footer: the reason is written. */
@@ -443,7 +443,7 @@ test('the shared footer shows Updates next to Privacy and Terms, and the link go
   const labels = [...html.matchAll(/<a [^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(m => [m[2], m[1]])
   assert.ok(labels.some(([label, href]) => label === 'Updates' && href === '/updates'), html)
   for (const l of ['About', 'Blog', 'Customers', 'Contact', 'Privacy', 'Terms']) assert.ok(labels.some(([label]) => label === l), l)
-  assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['Find tutors', 'About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
+  assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['Find tutors', 'Find me a tutor', 'About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
 })
 
 test('every public page has the Updates link in its footer', () => {
