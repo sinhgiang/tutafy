@@ -31,6 +31,7 @@ const track = await import('@/app/api/track/route.ts')
 const register = await import('@/app/api/auth/register/route.ts')
 const feedback = await import('@/app/api/feedback/route.ts')
 const avatar = await import('@/app/api/tutors/avatar/route.ts')
+const introVideo = await import('@/app/api/tutors/intro-video/route.ts')
 const waitlist = await import('@/app/api/waitlist/route.ts')
 const { signStudentToken } = await import('@/lib/student-auth.ts')
 const { createLimiter } = await import('@/lib/rate-limit-memory.ts')
@@ -515,5 +516,27 @@ test('/api/tutors/avatar: at most 10 photo uploads in 10 minutes for one signed-
     })),
   })
   assert.equal(r.limit, 10)
+  sessionUser = null
+})
+
+// ---- /api/tutors/intro-video (T-0915) ------------------------------------------------------------------------
+
+test('/api/tutors/intro-video: at most 30 saves in 10 minutes for one signed-in tutor, whatever link the body carries', async () => {
+  db = createFakeDb({ tutors: [{ id: A_SESSION, email: 'a@example.com', name: 'A', slug: 'a', intro_video_url: null }] })
+  sessionUser = { id: A_SESSION, email: 'a@example.com' }
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/tutors/intro-video/route.ts',
+    limiter: 'perTutor',
+    fixed: [
+      ...feedbackFixed,
+      { kind: 'header', name: 'content-length', reason: 'only a ceiling on the size of the body; the limit is counted on the account of the session, not on a size' },
+    ],
+    call: v => introVideo.POST(v.request({
+      url: `${ORIGIN}/api/tutors/intro-video`,
+      headers: { origin: ORIGIN, host: 'www.tutafy.test' },
+      body: { url: v.text() },
+    })),
+  })
+  assert.equal(r.limit, 30)
   sessionUser = null
 })

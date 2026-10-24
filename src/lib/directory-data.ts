@@ -10,6 +10,7 @@
 // its error state, never an empty list that looks like "no tutors".
 import { clashWindowStart, type AvailabilityRow, type LessonWindow } from '@/lib/booking-slots'
 import { chunks, ROWS_PER_REQUEST, MAX_PAGES } from '@/lib/paged-read'
+import { loadEstablished, loadIntroVideos, type ExtrasClient } from '@/lib/established-data'
 import { HORIZON_DAYS, MAX_LISTED, buildCard, checkListing, directoryIsOpen, listingSlots, sortCards, type DirectoryCard } from '@/lib/directory'
 
 type Row = Record<string, unknown>
@@ -20,7 +21,7 @@ type Query = PromiseLike<Answer> & {
   range(from: number, to: number): PromiseLike<Answer>
 }
 /** The part of a Supabase client these reads use. */
-export type DirectoryClient = { from(table: string): { select(cols: string): Query } }
+export type DirectoryClient = { from(table: string): { select(cols: string): Query }; rpc?(fn: string, args: Record<string, unknown>): PromiseLike<Answer> }
 
 /** The columns of `tutors` the directory reads. Nothing else is ever selected. */
 export const TUTOR_COLUMNS = 'id, slug, name, bio, avatar_url, languages, timezone, booking_url_active, average_rating, review_count, default_lesson_price, currency, trial_enabled, trial_price, buffer_minutes'
@@ -89,7 +90,10 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
     if (tutors.length === 0) continue
 
     // The four reads below need nothing from each other, so they go out together (T-0896); any of them failing still throws.
-    const [chosenRows, levelRows, blockedRows, lessonRows] = await Promise.all([
+    // The intro video and the "Established" badge (T-0915) are optional reads too (migration 028): none on a database without it, never a failure.
+    const extrasDb = db as unknown as ExtrasClient
+    const withRpc = typeof db.rpc === 'function'
+    const [chosenRows, levelRows, blockedRows, lessonRows, videos, badges] = await Promise.all([
       // lesson lengths: a database without the two columns (migration 018) means "chose nothing", like the booking page
       all(() => db.from('tutors').select('id, lesson_durations, default_lesson_duration').in('id', ids).order('id'), 'tutors', true),
       // levels the tutor says they teach (migration 026, T-0863): a database without the column means "said nothing", never a failure
@@ -98,6 +102,8 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
       // the tutor's own calendar (assigned_to is null), lessons that are not cancelled: the same read the booking route and the public profile do
       all(() => db.from('lessons').select('tutor_id, starts_at, ends_at, duration_minutes').in('tutor_id', ids)
         .is('assigned_to', null).neq('status', 'cancelled').gte('starts_at', clashWindowStart(yesterday)).lt('starts_at', until).order('starts_at').order('id'), 'lessons'),
+      loadIntroVideos(extrasDb, ids),
+      withRpc ? loadEstablished(extrasDb, tutors.map(t => ({ id: String(t.id), bio: t.bio, booking_url_active: t.booking_url_active })), now) : Promise.resolve(new Map()),
     ])
     const chosen = new Map<string, Row>()
     for (const r of chosenRows) chosen.set(String(r.id), r)
@@ -118,7 +124,7 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
       })
       if (!checkListing(t as { booking_url_active: unknown; name: unknown; bio: unknown; timezone: unknown }, slots.length).listed) continue
       listed += 1
-      const card = buildCard({ ...t, levels_taught: levelsOf.get(id) } as Parameters<typeof buildCard>[0], slots)
+      const card = buildCard({ ...t, levels_taught: levelsOf.get(id), established: badges.has(id), intro_video_url: videos.get(id)?.canonical } as Parameters<typeof buildCard>[0], slots)
       if (card) cards.push(card)
     }
   }

@@ -18,6 +18,10 @@ import { ReviewsSection } from '@/components/profile/ReviewsSection'
 import { reviewsFlowOn } from '@/lib/reviews-flow'
 import { countLessonsHeld, loadProfileReviews, type FlowClient } from '@/lib/reviews-data'
 import { NextTimes, FreeTimesSection, StickyBookBar } from '@/components/profile/FreeTimes'
+import { IntroVideo } from '@/components/profile/IntroVideo'
+import { EstablishedName } from '@/components/profile/EstablishedBadge'
+import { loadEstablished, loadIntroVideos, type ExtrasClient } from '@/lib/established-data'
+import { profileFaq, profileFaqJsonLd, profileSummary } from '@/lib/profile-answers'
 import Link from 'next/link'
 import { SiteFooter } from '@/components/SiteFooter'
 import { Globe, Star, Sparkles, Languages, BookOpen, Check, Video, RefreshCw, Zap, Clock, ArrowRight } from 'lucide-react'
@@ -119,12 +123,23 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
     }
   }
 
-  const [{ lengths, times }, { shown, lessonsBy }, lessonCount, showMadeWith] = await Promise.all([
+  // The intro video and the "Established" badge (T-0915) each need the migration 028, which the owner applies: both reads give "none" on a database
+  // that does not have it, or when a read fails, so a missing extra never takes the profile down and never shows a badge that was not earned.
+  const readExtras = async () => {
+    const [videos, established] = await Promise.all([
+      loadIntroVideos(admin as unknown as ExtrasClient, [tutor.id]),
+      loadEstablished(admin as unknown as ExtrasClient, [tutor], new Date()),
+    ])
+    return { video: videos.get(tutor.id) ?? null, badge: established.get(tutor.id) ?? null }
+  }
+
+  const [{ lengths, times }, { shown, lessonsBy }, lessonCount, showMadeWith, { video, badge }] = await Promise.all([
     readLengthsAndTimes(),
     readReviews(),
     readLessonCount(),
     // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
     loadShowMadeWith(admin, tutor.id),
+    readExtras(),
   ])
 
   // The new review flow (T-0898), only while REVIEWS_FLOW is on: the reviews with names as "Maria K.", the summary card, the lessons that took place and
@@ -149,12 +164,18 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
   const languages: string[] = Array.isArray(tutor.languages) ? tutor.languages.filter((l: unknown): l is string => typeof l === 'string' && l.trim() !== '') : []
   const timesProps = { slots: times.slots, state: times.state, tutorTz, bookHref, first }
   const noteIcon = { lessons: Clock, cancel: RefreshCw, trial: Zap, video: Video } as const
+  // The first sentence of the profile and the questions (T-0915): the same list is drawn and put in the FAQPage markup.
+  const summary = profileSummary({ ...tutor, durations: lengths.durations })
+  const faq = profileFaq({ ...tutor, durations: lengths.durations, bookable, established: !!badge, video: video?.provider ?? null })
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] pb-24 lg:pb-0">
+    <div className="min-h-screen bg-[#F7F8FA] pb-24 lg:pb-0 dir-page">
       {tutor.booking_url_active && tutorJsonLd({ ...tutor, reviews: shown }).map((data, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(data) }} />
       ))}
+      {bookable && faq.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(profileFaqJsonLd(faq, slug)) }} />
+      )}
       {/* Nav */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
@@ -176,20 +197,26 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
 
           {/* Left: the profile */}
           <div className="space-y-5 min-w-0">
+            {/* Intro video first (T-0915, design A): a poster until the visitor presses play */}
+            {video && <IntroVideo embedUrl={video.embedUrl} watchUrl={video.watchUrl} provider={video.provider} name={tutor.name} first={first} />}
             {/* Hero */}
             <section className={`${CARD} p-5 sm:p-6 flex flex-col sm:flex-row gap-5`} data-testid="profile-hero">
               {photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photo} alt={`Photo of ${tutor.name}`} width={160} height={200} fetchPriority="high" decoding="async" data-testid="profile-photo"
-                  className="w-32 sm:w-40 aspect-[4/5] rounded-2xl object-cover shrink-0 bg-indigo-50" />
+                  className="w-32 sm:w-40 aspect-[4/5] rounded-2xl object-cover shrink-0 self-start bg-indigo-50" />
               ) : (
                 <div role="img" aria-label={`${tutor.name} has not added a photo yet`} data-testid="profile-monogram"
-                  className="w-32 sm:w-40 aspect-[4/5] rounded-2xl shrink-0 bg-indigo-100 text-indigo-700 flex items-center justify-center text-[36px] font-bold">
+                  className="w-32 sm:w-40 aspect-[4/5] rounded-2xl shrink-0 self-start bg-indigo-100 text-indigo-700 flex items-center justify-center text-[36px] font-bold">
                   {initialsOf(tutor.name)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <h1 className="text-[28px] sm:text-[32px] leading-tight font-extrabold text-gray-900 tracking-tight break-words">{tutor.name}</h1>
+                {badge ? (
+                  <EstablishedName name={tutor.name} checks={badge.checks} />
+                ) : (
+                  <h1 className="text-[28px] sm:text-[32px] leading-tight font-extrabold text-gray-900 tracking-tight break-words">{tutor.name}</h1>
+                )}
                 {hasReviews ? (
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2" data-testid="profile-rating">
                     <StarRow rating={Number(tutor.average_rating ?? 0)} size="md" />
@@ -206,6 +233,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                 ) : (
                   <p className="mt-2 text-[13px] text-gray-600 flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5" aria-hidden="true" /> {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'} taught</p>
                 )}
+                <p className="mt-3 text-[14px] leading-relaxed text-gray-700" data-testid="profile-summary">{summary}</p>
                 <ul className="mt-4 space-y-1.5 text-[13.5px] text-gray-700">
                   {languages.length > 0 && (
                     <li className="flex items-center gap-2"><Languages className="h-4 w-4 text-gray-500 shrink-0" aria-hidden="true" /> <span><span className="sr-only">Teaches: </span>Teaches {languages.join(' · ')}</span></li>
@@ -331,6 +359,21 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                 })}
               </div>
             </section>
+
+            {/* Questions people ask (T-0915): the same list is in the FAQPage markup at the top of the page */}
+            {bookable && faq.length > 0 && (
+              <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="faq-title" data-testid="profile-faq">
+                <h2 id="faq-title" className={H2}>Questions about {first}</h2>
+                <dl className="mt-3 divide-y divide-gray-100">
+                  {faq.map(item => (
+                    <div key={item.q} className="py-3 first:pt-0 last:pb-0">
+                      <dt className="text-[14px] font-bold text-gray-900">{item.q}</dt>
+                      <dd className="mt-1 text-[14px] leading-relaxed text-gray-700">{item.a}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
           </div>
 
           {/* Right: the booking card (wide screens; on a phone the bar at the bottom does this job) */}

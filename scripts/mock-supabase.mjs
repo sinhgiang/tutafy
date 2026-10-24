@@ -15,7 +15,7 @@
 // It speaks the part of PostgREST the app uses: select (with embedded many-to-one and
 // one-to-many tables, and `rel(count)`), eq / neq / gt / gte / lt / lte / in / is / like /
 // ilike / not / or filters, order, limit, range, single / maybeSingle, count (exact, head),
-// insert / update / upsert / delete, and rpc (answers empty).
+// insert / update / upsert / delete, and rpc (answers empty, except tutor_established_facts).
 import http from 'node:http'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -39,7 +39,7 @@ const NAMES = ['Maria Santos', 'Liam Johnson', 'Yuki Tanaka', 'Anna Schmidt', 'P
 const tutors = [
   {
     id: TUTOR_ID, email: 'tutor@example.com', name: 'Sarah Test', slug: 'sarah-test', bio: 'Friendly English and Spanish tutor with ten years of experience helping adults speak with confidence.',
-    avatar_url: null, languages: ['English', 'Spanish'], timezone: 'America/New_York', stripe_account_id: null, stripe_onboarding_complete: false,
+    avatar_url: null, intro_video_url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', languages: ['English', 'Spanish'], timezone: 'America/New_York', stripe_account_id: null, stripe_onboarding_complete: false,
     booking_url_active: true, cancellation_hours: 24, subscription_status: 'pro', subscription_expires_at: iso(25), default_lesson_price: 40, currency: 'USD',
     paypal_link: null, payment_link: null, trial_enabled: true, trial_price: 15, buffer_minutes: 10, average_rating: 4.8, review_count: 12,
     referral_code: 'SARAH10', referral_credits: 0, custom_domain: null, created_at: iso(-90), updated_at: iso(-1),
@@ -275,6 +275,7 @@ if (process.env.MOCK_DIRECTORY === 'many') {
     const tid = id(300 + i, 'b')
     tutors.push({ id: tid, email: `directory${i}@example.com`, name, slug: name.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, ''), subscription_status: 'free', languages, timezone,
       created_at: iso(-20 - i), booking_url_active: true, default_lesson_price: price, currency, trial_enabled: trial > 0, trial_price: trial || null, average_rating: rating, review_count: reviewCount, bio, avatar_url: null, buffer_minutes: 0, levels_taught: [['beginner', 'intermediate'], ['advanced'], [], ['beginner'], ['intermediate', 'advanced']][i % 5] })
+    if (name === 'Tomás Ruiz') tutors[tutors.length - 1].intro_video_url = 'https://vimeo.com/76979871' // the design sample's tutor has a video
     hours.forEach((h, k) => availability.push({ id: id(3000 + i * 10 + k, 'f'), tutor_id: tid, day_of_week: h.d, start_time: `${h.from}:00`, end_time: `${h.to}:00`, created_at: iso(-20) }))
   })
   const unlisted = [
@@ -366,7 +367,18 @@ http.createServer(async (req, res) => {
   if (p.startsWith('/storage/') || p.startsWith('/functions/') || p.startsWith('/realtime/')) return send(res, 200, {})
 
   const rpc = /^\/rest\/v1\/rpc\/(\w+)/.exec(p)
-  if (rpc) { await readBody(req); return send(res, 200, []) }
+  if (rpc) {
+    const body = await readBody(req)
+    if (rpc[1] !== 'tutor_established_facts') return send(res, 200, [])
+    // the facts behind the "Established" badge (T-0915): Sarah and every tutor with 11 or more reviews have taught 12 lessons, the others 3
+    const rows = (Array.isArray(body?.ids) ? body.ids : []).map(tid => {
+      const t = tutors.find(x => x.id === tid)
+      if (!t) return null
+      const many = t.id === TUTOR_ID || Number(t.review_count) >= 11
+      return { tutor_id: tid, email_confirmed_at: iso(-200), completed_lessons: many ? 12 : 3, tenth_lesson_at: many ? iso(-45) : null }
+    }).filter(Boolean)
+    return send(res, 200, rows)
+  }
 
   const t = /^\/rest\/v1\/(\w+)/.exec(p)?.[1]
   if (!t) return send(res, 404, { message: 'not found' })

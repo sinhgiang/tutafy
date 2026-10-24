@@ -5,12 +5,13 @@
 import { User } from 'lucide-react'
 import { IntroEditor } from '@/components/IntroEditor'
 import { AvatarUploader } from '@/components/settings/AvatarUploader'
+import { IntroVideoField } from '@/components/settings/IntroVideoField'
 import { LEVEL_OPTIONS, cleanLevels } from '@/lib/tutor-levels'
 import { SectionHead } from '@/components/settings/sections/SectionHead'
 import type { SettingsCtx } from '@/components/settings/sections/context'
 
 export default function ProfileSection({ ctx }: { ctx: SettingsCtx }) {
-  const { form, setForm, avatarUrl, setAvatarUrl } = ctx
+  const { form, setForm, avatarUrl, setAvatarUrl, introVideoUrl, setIntroVideoUrl } = ctx
   return (
     <>
       <SectionHead title="Profile" text="Your name, photo and introduction. Students read this first." />
@@ -21,6 +22,7 @@ export default function ProfileSection({ ctx }: { ctx: SettingsCtx }) {
           </div>
           <div className="p-5 space-y-4">
             <AvatarUploader name={form.name} url={avatarUrl} onChange={setAvatarUrl} />
+            <IntroVideoField url={introVideoUrl} onChange={setIntroVideoUrl} />
             <div>
               <label htmlFor="settings-full-name" className="block text-[12px] font-medium text-gray-600 mb-1.5">Full name</label>
               <input id="settings-full-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}

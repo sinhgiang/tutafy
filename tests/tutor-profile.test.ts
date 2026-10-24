@@ -501,6 +501,7 @@ test('a stranger cannot change what the page reads: it uses the slug\'s own tuto
     'lessons: starts_at, ends_at, duration_minutes',
     'lessons: student_id',
     'tutors: hide_branding',
+    'tutors: id, intro_video_url', // T-0915: read apart (migration 028), turned into a checked video before it leaves; a database without it gives no video
     `tutors: ${PROFILE_PAGE_COLUMNS}`,
     'tutors: lesson_durations, default_lesson_duration',
     'tutors: subscription_status',

@@ -12,6 +12,7 @@ import { cleanLevels } from '@/lib/tutor-levels'
 import { BookingPreview } from '@/components/settings/BookingPreview'
 import { unfilledParts } from '@/lib/intro-templates'
 import { ALL_DURATIONS, resolveDurationConfig, checkDurations } from '@/lib/lesson-durations'
+import { introVideoFromStored } from '@/lib/intro-video'
 import dynamic from 'next/dynamic'
 import type { SettingsCtx } from '@/components/settings/sections/context'
 
@@ -46,6 +47,7 @@ export default function SettingsPage() {
   const [slug, setSlug] = useState('')
   // the profile photo (T-0766): saved the moment it is chosen, by its own route, so it is not part of `form` or of the Save bar
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [introVideoUrl, setIntroVideoUrl] = useState<string | null>(null)
   const [linkCopied, setLinkCopied] = useState(false)
   const [cardLinkError, setCardLinkError] = useState('')
   // the Custom box under "Lengths you take" (T-0700)
@@ -106,6 +108,7 @@ export default function SettingsPage() {
       if (data) {
         setSlug(data.slug ?? '')
         setAvatarUrl(typeof data.avatar_url === 'string' && data.avatar_url ? data.avatar_url : null)
+        setIntroVideoUrl(introVideoFromStored(data.intro_video_url)?.canonical ?? null) // T-0915: a database without migration 028 has no such column: no video
         setStripeConnected(data.stripe_onboarding_complete ?? false)
         setSubscriptionStatus(data.subscription_status ?? 'free')
         setGcalConnected(!!data.google_calendar_refresh_token)
@@ -226,7 +229,7 @@ export default function SettingsPage() {
   }
 
   const ctx: SettingsCtx = {
-    form, setForm, savedSnapshot, userId, userEmail, slug, avatarUrl, setAvatarUrl, linkCopied, setLinkCopied, cardLinkError, setCardLinkError,
+    form, setForm, savedSnapshot, userId, userEmail, slug, avatarUrl, setAvatarUrl, introVideoUrl, setIntroVideoUrl, linkCopied, setLinkCopied, cardLinkError, setCardLinkError,
     customLength, setCustomLength, customLengthError, setCustomLengthError, stripeConnected, stripeEnabled, connectingStripe, connectStripe,
     gcalConnected, setGcalConnected, disconnectingGcal, setDisconnectingGcal, subscriptionStatus, isPaid, planLabel, savedCardLink, savedCardLinkUnusable, supabase,
   }

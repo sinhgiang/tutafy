@@ -16,6 +16,7 @@ import { resolveDurationConfig } from '@/lib/lesson-durations'
 import { normalizeCurrency } from '@/lib/currency'
 import { cleanText, httpsImage } from '@/lib/tutor-seo'
 import { LEVEL_OPTIONS, cleanLevels, type LevelId } from '@/lib/tutor-levels'
+import { introVideoFromStored } from '@/lib/intro-video'
 
 // ---- the rule ------------------------------------------------------------------------------------------------------------------------
 
@@ -115,7 +116,7 @@ export { LEVEL_OPTIONS, cleanLevels, type LevelId } from '@/lib/tutor-levels'
 // ---- the card ------------------------------------------------------------------------------------------------------------------------
 
 /** What one card carries to the browser. A test fixes this list of keys: nothing else of a tutor row (never an email, phone or payment field) is sent. */
-export const CARD_KEYS = ['slug', 'name', 'photo', 'languages', 'headline', 'rating', 'reviews', 'price', 'currency', 'trialPrice', 'tz', 'levels', 'complete', 'slots'] as const
+export const CARD_KEYS = ['slug', 'name', 'photo', 'languages', 'headline', 'rating', 'reviews', 'price', 'currency', 'trialPrice', 'tz', 'levels', 'complete', 'slots', 'established', 'video'] as const
 
 export type DirectoryCard = {
   slug: string
@@ -137,6 +138,10 @@ export type DirectoryCard = {
   complete: number
   /** Free times as minutes since 1970 (UTC), soonest first, at most MAX_CARD_SLOTS. */
   slots: number[]
+  /** The "Established" badge, earned automatically (src/lib/established.ts, T-0915). false on a database without migration 028. */
+  established: boolean
+  /** The tutor has an intro video on the profile (only the fact, never the address). */
+  video: boolean
 }
 
 export type CardSource = {
@@ -144,6 +149,10 @@ export type CardSource = {
   average_rating: unknown; review_count: unknown; default_lesson_price: unknown; currency: unknown; trial_enabled: unknown; trial_price: unknown
   /** tutors.levels_taught (migration 026); absent on a database that does not have it yet. */
   levels_taught?: unknown
+  /** The "Established" badge, worked out by the loader (T-0915). */
+  established?: unknown
+  /** tutors.intro_video_url (migration 028); absent on a database that does not have it yet. */
+  intro_video_url?: unknown
 }
 
 /** "Fr" "french " " ENGLISH" become "French" / "English": the stored values are free text, so display and matching use one cleaned form. */
@@ -211,6 +220,8 @@ export function buildCard(t: CardSource, slots: FreeSlot[]): DirectoryCard | nul
     levels: cleanLevels(t.levels_taught),
     complete: (photo ? 1 : 0) + (chars(t.bio) >= 200 ? 1 : 0) + (price ? 1 : 0) + (trialPrice ? 1 : 0),
     slots: thin,
+    established: t.established === true,
+    video: introVideoFromStored(t.intro_video_url) !== null,
   }
 }
 

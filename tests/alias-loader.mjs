@@ -8,6 +8,7 @@ import { readFile } from 'node:fs/promises'
 import ts from 'typescript'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src')
+const NEXT_CONFIG = path.resolve(SRC, '..', 'next.config.ts')
 const CANDIDATES = ['', '.ts', '.tsx', '/index.ts', '/index.tsx']
 
 export async function resolve(specifier, context, nextResolve) {
@@ -27,7 +28,8 @@ export async function resolve(specifier, context, nextResolve) {
   // A relative import inside src/ with no extension ('./BookingForm'): bundlers add .ts or .tsx, node does not.
   if (specifier.startsWith('.') && !/\.[a-z]+$/.test(specifier) && context.parentURL?.startsWith('file:')) {
     const parent = fileURLToPath(context.parentURL)
-    if (parent.startsWith(SRC)) {
+    // next.config.ts (T-0915) imports the one file that names the video frame origins, so the header and the page cannot disagree
+    if (parent.startsWith(SRC) || parent === NEXT_CONFIG) {
       const base = path.resolve(path.dirname(parent), specifier)
       for (const ext of CANDIDATES) {
         if (existsSync(base + ext) && /\.(ts|tsx)$/.test(base + ext)) return nextResolve(pathToFileURL(base + ext).href, context)

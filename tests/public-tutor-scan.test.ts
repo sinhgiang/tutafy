@@ -31,6 +31,7 @@ const load = (): Map<string, string> => new Map(sourceFiles(path.join(ROOT, 'src
 /** Reads with the signed-in user's own session client. Each file: how many reads, how many of them are not narrowed to the user's own row in the query itself, and why that is safe. */
 const OWN_SESSION: Record<string, { reads: number; unscoped?: number; reason: string }> = {
   'src/app/api/tutors/avatar/route.ts': { reads: 4, reason: 'T-0766 (pull request #67): a signed-in tutor reads and changes their own photo address (.eq id, user.id); the route answers 401 without a session' },
+  'src/app/api/tutors/intro-video/route.ts': { reads: 2, reason: 'T-0915: a signed-in tutor saves or removes the link of their own intro video (.eq id, user.id, with their own session so row level security keeps it to their row); the route answers 401 without a session and 403 for another site' },
   'src/app/api/ai/lesson-summary/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own name; the route answers 401 without a session' },
   'src/app/api/custom-domain/route.ts': { reads: 3, reason: 'a signed-in tutor reads and writes their own domain; the route answers 401 without a session' },
   'src/app/api/invoices/send/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own name and address for an invoice they send' },
@@ -58,6 +59,7 @@ const TAKES_A_CLIENT: Record<string, { reads: number; helpers: string[]; reason:
   'src/lib/admin-revenue.ts': { reads: 1, helpers: ['loadAdminRevenue'], reason: 'the owner\'s admin pages only' },
   'src/lib/branding.ts': { reads: 2, helpers: ['loadShowMadeWith'], reason: 'turns the plan and a switch into a yes/no; public pages call it with the admin client' },
   'src/lib/directory-data.ts': { reads: 4, helpers: ['loadDirectory'], reason: 'src/lib/directory-cache.ts calls it with the admin client' },
+  'src/lib/established-data.ts': { reads: 1, helpers: ['loadIntroVideos', 'loadEstablished'], reason: 'T-0915: the profile and the directory hand in the admin client; it reads the intro video link of the tutors it is given and turns it into a checked video, and asks the server-only function for the badge facts (a date and two numbers)' },
   'src/lib/first-student.ts': { reads: 2, helpers: ['loadFirstStudent'], reason: 'the signed-in tutor\'s own dashboard card' },
   'src/lib/lesson-durations.ts': { reads: 1, helpers: ['loadChosenDurations'], reason: 'the lengths a tutor takes; public pages call it with the admin client' },
   'src/lib/listing-status.ts': { reads: 2, helpers: ['loadListingCard'], reason: 'the signed-in tutor\'s own dashboard card' },
