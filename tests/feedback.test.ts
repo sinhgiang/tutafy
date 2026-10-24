@@ -63,7 +63,7 @@ mock.module('next/navigation', {
 const lib = await import('@/lib/feedback.ts')
 const route = await import('@/app/api/feedback/route.ts')
 const { signStudentToken } = await import('@/lib/student-auth.ts')
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 const AdminFeedbackPage = (await import('@/app/(admin)/admin/feedback/page.tsx')).default as () => Promise<React.ReactElement>
 const studentPage = (await import('@/app/student/dashboard/page.tsx')).default
 const { Header } = await import('@/components/layout/Header.tsx')

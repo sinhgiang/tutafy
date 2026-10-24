@@ -4,12 +4,13 @@ import { pageMetadata, PAGE_SEO } from '@/lib/page-meta'
 import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 import { SiteFooter } from '@/components/SiteFooter'
 import { ContactEmails } from '@/components/ContactEmails'
-import { CONTACT_EMAILS, PRIMARY_CONTACT_EMAIL, REPLY_PROMISE } from '@/lib/contact'
+import { contactEmails, REPLY_PROMISE } from '@/lib/contact'
 import { SiteLogo } from '@/components/SiteLogo'
 
 export const metadata = pageMetadata('contact')
 
 export default function ContactPage() {
+  const emails = contactEmails()
   return (
     <div className="min-h-screen bg-white">
       {pageJsonLd(PAGE_SEO.contact, 'Contact', 'ContactPage').map((d, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(d) }} />)}
@@ -38,13 +39,13 @@ export default function ContactPage() {
             </div>
             <p className="text-[14px] font-bold text-gray-900">Email us</p>
             <p className="text-[12px] text-gray-500 mt-1">Support & general questions</p>
-            {CONTACT_EMAILS.map(email => (
+            {emails.map(email => (
               <a key={email} href={`mailto:${email}`} className="block text-[12px] font-semibold text-indigo-600 mt-2 break-all hover:underline">{email}</a>
             ))}
           </div>
           {[
             { icon: HelpCircle, title: 'Help', desc: 'Read the FAQ on our homepage', action: 'View FAQ', href: '/#how' },
-            { icon: MessageCircle, title: 'Feedback', desc: 'Tell us what to build next', action: 'Send feedback', href: `mailto:${PRIMARY_CONTACT_EMAIL}?subject=Tutafy%20feedback` },
+            { icon: MessageCircle, title: 'Feedback', desc: 'Tell us what to build next', action: 'Send feedback', href: `mailto:${emails[0]}?subject=Tutafy%20feedback` },
           ].map(c => (
             <a key={c.title} href={c.href} className="bg-white rounded-2xl border border-gray-100 p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">

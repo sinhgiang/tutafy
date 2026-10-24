@@ -30,7 +30,7 @@ mock.module('next/navigation', {
   exports: { redirect: (to: string) => { redirects.push(to); throw new Error(`NEXT_REDIRECT:${to}`) }, usePathname: () => '/admin' },
 })
 
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 const { loadAdminRevenue } = await import('@/lib/admin-revenue.ts')
 const RevenuePage = (await import('@/app/(admin)/admin/revenue/page.tsx')).default as () => Promise<React.ReactElement>
 

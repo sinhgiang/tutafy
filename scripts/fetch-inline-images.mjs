@@ -19,7 +19,7 @@ import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs'
 const OUT_DIR = 'public/blog/inline'
 mkdirSync(OUT_DIR, { recursive: true })
 
-const UA = 'Tutafy-blog/1.0 (admin@sinhgiang.com)'
+const UA = 'Tutafy-blog/1.0 (+https://www.tutafy.com)'
 const OK_LICENSES = ['cc0', 'pdm', 'by', 'by-sa'] // commercially usable
 const NO_ATTRIBUTION = new Set(['cc0', 'pdm'])
 const W = 1100, H = 619 // 16:9-ish, fixed → no layout shift

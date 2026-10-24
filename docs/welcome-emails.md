@@ -32,7 +32,7 @@ only thing that reaches them is one welcome mail at sign-up. This series adds tw
 - There is **no unsubscribe anywhere** (no opt-out column, table or page) and **no record of which mail went to whom**.
 - A tutor's booking link name (`tutafy.com/book/<name>`) is made at sign-up (`name-xxxx`) and **cannot be changed in the product**
   (Settings, Booking page tab, shows it read-only). So "name your link" cannot be a day-0 job today; see decision 1.
-- Mail goes through `createMailer` (`src/lib/email.ts`): sender "Tutafy <booking@tutafy.com>", Reply-To the company mailbox, a plain-text
+- Mail goes through `createMailer` (`src/lib/email.ts`): sender "Tutafy <booking@ on the site's domain>", Reply-To the company mailbox, a plain-text
   copy beside the HTML, and the domain is already verified at Resend. A daily Vercel cron already exists for lesson reminders
   (`/api/cron/reminders`, closed unless `CRON_SECRET` is sent), so the same pattern fits.
 
@@ -114,7 +114,7 @@ At most one mail per tutor per run.
 
 Each run: read the tutors who signed up in the last ten days and after the start date; read the two small tables below; for each, call
 `dueWelcomeSteps`; for the first due step, **claim it first** (insert the row; the unique key makes a double run harmless), then send one
-mail with `createMailer(key, 'general')` (sender "Tutafy <booking@tutafy.com>", Reply-To the company mailbox, plain-text copy added by the
+mail with `createMailer(key, 'general')` (sender "Tutafy <booking@ on the site's domain>", Reply-To the company mailbox, plain-text copy added by the
 mailer); if Resend refuses, remove the claim so the next run can try again inside the window.
 
 Safeguards, all on by default:

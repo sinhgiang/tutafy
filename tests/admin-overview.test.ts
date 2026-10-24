@@ -29,7 +29,7 @@ mock.module('next/navigation', {
   exports: { redirect: (to: string) => { redirects.push(to); throw new Error(`NEXT_REDIRECT:${to}`) } },
 })
 
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 const overview = await import('@/lib/platform-overview.ts')
 const { readErrorMessage } = await import('@/lib/read-errors.ts')
 const { loadSuperAdmin } = await import('@/lib/super-admin-data.ts')

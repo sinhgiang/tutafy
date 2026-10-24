@@ -34,7 +34,8 @@ mock.module('@supabase/ssr', {
   },
 })
 
-const { ADMIN_EMAIL, isAdminEmail, adminGateTarget } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
+const { isAdminEmail, adminGateTarget } = await import('@/lib/admin.ts')
 const { requireAdminPage } = await import('@/lib/admin-guard.ts')
 const { loadBuyers, BUYERS_LIST_LIMIT } = await import('@/lib/buyers-data.ts')
 const buyersLib = await import('@/lib/buyers.ts')
