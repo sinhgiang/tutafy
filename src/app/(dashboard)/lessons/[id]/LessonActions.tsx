@@ -3,22 +3,25 @@
 import { useState } from 'react'
 import { Sparkles, Mail, Loader2, CheckCircle, Copy, UserX } from 'lucide-react'
 import { toast } from 'sonner'
+import { noShowOffered } from '@/lib/no-show'
 
 export function LessonActions({
   lessonId,
   hasPrice,
   studentEmail,
   isCompleted,
-  isScheduled,
   lessonStatus,
+  startsAt,
 }: {
   lessonId: string
   hasPrice: boolean
   studentEmail: string | null
   isCompleted: boolean
-  isScheduled?: boolean
   lessonStatus?: string
+  startsAt?: string
 }) {
+  // The moment the page was opened: the card shows once the lesson's start has passed (src/lib/no-show.ts), the same rule the route applies.
+  const [openedAt] = useState(() => Date.now())
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [summary, setSummary] = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
@@ -74,16 +77,16 @@ export function LessonActions({
 
   async function markNoShow() {
     setNoShowLoading(true)
-    await fetch(`/api/lessons/${lessonId}/no-show`, { method: 'POST' })
+    const res = await fetch(`/api/lessons/${lessonId}/no-show`, { method: 'POST' }).catch(() => null)
     setNoShowLoading(false)
-    setNoShowDone(true)
+    if (res?.ok) setNoShowDone(true)
+    else toast.error('We could not mark this lesson as a no-show. Please try again.')
   }
 
   return (
     <div className="space-y-3">
       {/* No-show */}
-      {/* eslint-disable-next-line react-hooks/purity -- the test below is always false (the card never shows); kept as it was, see the T-0895 report */}
-      {isScheduled && new Date() > new Date(Date.now()) && !noShowDone && (
+      {noShowOffered(lessonStatus, startsAt, openedAt) && !noShowDone && (
         <div className="bg-white rounded-xl border border-gray-100 p-4 flex items-center justify-between">
           <div>
             <p className="text-[13px] font-semibold text-gray-900">Student didn&apos;t show up?</p>

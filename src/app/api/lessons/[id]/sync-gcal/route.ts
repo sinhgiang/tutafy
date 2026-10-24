@@ -31,7 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   // Get lesson details
   const { data: lesson } = await admin
     .from('lessons')
-    .select('id, starts_at, ends_at, duration_minutes, meet_link, zoom_link, notes, students(name, email)')
+    .select('id, starts_at, ends_at, duration_minutes, meet_link, zoom_link, notes, google_event_id, students(name, email)')
     .eq('id', lessonId)
     .eq('tutor_id', user.id)
     .single()
@@ -59,6 +59,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     },
   }
 
+  // Read with the lesson above: without the column every sync looked like the first one and made one more calendar event.
   const existingEventId = (lesson as typeof lesson & { google_event_id?: string | null }).google_event_id
 
   let gcalEventId: string | null = null
