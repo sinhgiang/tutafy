@@ -8,6 +8,7 @@ import { User, Link, Wallet, Zap, FileText, Plug } from 'lucide-react'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { cardLinkForSave, safeHttpsUrl } from '@/lib/payment-link'
 import { saveTutorSettings } from '@/lib/settings-save'
+import { cleanLevels } from '@/lib/tutor-levels'
 import { BookingPreview } from '@/components/settings/BookingPreview'
 import { unfilledParts } from '@/lib/intro-templates'
 import { ALL_DURATIONS, resolveDurationConfig, checkDurations } from '@/lib/lesson-durations'
@@ -65,6 +66,7 @@ export default function SettingsPage() {
     lesson_durations: [...ALL_DURATIONS] as number[], default_lesson_duration: 60,
     // the "Made with Tutafy" line on the booking page: true = the tutor turned it off (a paid plan only; migration 021)
     hide_branding: false,
+    levels_taught: [] as string[],
   })
   // Snapshot of the last loaded/saved values → detect unsaved changes for the sticky bar
   const [savedSnapshot, setSavedSnapshot] = useState('')
@@ -122,6 +124,7 @@ export default function SettingsPage() {
           trial_price: data.trial_price ? String(data.trial_price) : '',
           currency: data.currency ?? 'USD',
           hide_branding: data.hide_branding === true,
+          levels_taught: cleanLevels(data.levels_taught),
           ...(() => {
             const lengths = resolveDurationConfig(data.lesson_durations, data.default_lesson_duration)
             return { lesson_durations: lengths.durations, default_lesson_duration: lengths.defaultDuration }

@@ -15,6 +15,7 @@ import type { Metadata } from 'next'
 import { absoluteUrl } from '@/lib/site-url'
 import { tutorSeoText, type TutorSeoInput } from '@/lib/tutor-seo'
 import { bookingSeoText, type BookingTutor } from '@/lib/booking-page'
+import { languagePagePath, type LanguageGuide } from '@/lib/language-pages'
 
 export const TITLE_MAX = 60
 export const TITLE_MIN = 20
@@ -237,6 +238,11 @@ function build(path: string, title: string, description: string, opts: { noindex
       images: [image.url],
     },
   }
+}
+
+/** The metadata of a language page (/learn/<language>, T-0875): its own title and description from the guide, canonical on the main site. */
+export function languagePageMetadata(guide: Pick<LanguageGuide, 'slug' | 'title' | 'description'>): Metadata {
+  return build(languagePagePath(guide.slug), guide.title, guide.description)
 }
 
 /** The metadata of a fixed page. */

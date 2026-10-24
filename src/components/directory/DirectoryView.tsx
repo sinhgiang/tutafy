@@ -8,12 +8,12 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import {
-  Search, SlidersHorizontal, ChevronDown, Languages, Wallet, CalendarClock, Zap, X, Globe, Sprout, SearchX, CalendarX, AlertCircle, GraduationCap, Check, Lightbulb,
+  Search, SlidersHorizontal, ChevronDown, Languages, Wallet, CalendarClock, Zap, X, Globe, Sprout, SearchX, CalendarX, AlertCircle, GraduationCap, Check, Lightbulb, Signal,
 } from 'lucide-react'
 import { safeZone, zoneCity } from '@/lib/tutor-profile'
 import {
-  APPROX_RATES_NOTE, DIRECTORY_OPENS_AT, FEW_TUTORS_BELOW, NO_FILTERS, PAGE_SIZE, PRICE_BUCKETS, SORT_OPTIONS, TOD_OPTIONS, WHEN_OPTIONS,
-  activeFilters, applyFilters, filterLabel, filtersToQuery, languageCounts, relaxations, sortCards, stateOf, withoutFilter,
+  APPROX_RATES_NOTE, DIRECTORY_OPENS_AT, FEW_TUTORS_BELOW, NEAR_HOURS, PAGE_SIZE, PRICE_BUCKETS, SORT_OPTIONS, TOD_OPTIONS, WHEN_OPTIONS, ZONE_CHOICES,
+  activeFilters, applyFilters, clearedFilters, filterLabel, filtersToQuery, languageCounts, levelCounts, relaxations, sortCards, stateOf, withoutFilter,
   type DirectoryCard, type Filters, type SortId,
 } from '@/lib/directory'
 import { TutorCard } from '@/components/directory/TutorCard'
@@ -23,7 +23,7 @@ const browserZone = (): string | null => {
   try { return safeZone(Intl.DateTimeFormat().resolvedOptions().timeZone) } catch { return null }
 }
 
-type Panel = 'lang' | 'price' | 'time' | 'sheet' | null
+type Panel = 'lang' | 'level' | 'price' | 'time' | 'zone' | 'sheet' | null
 
 const BTN = 'inline-flex items-center justify-center gap-2 min-h-11 px-5 text-[14px] font-bold rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2'
 const PRIMARY = `${BTN} text-white bg-indigo-600 hover:bg-indigo-700`
@@ -57,6 +57,40 @@ function LanguageGroup({ languages, filters, set }: { languages: { language: str
         </Option>
       ))}
     </Group>
+  )
+}
+
+function LevelGroup({ levels, filters, set }: { levels: ReturnType<typeof levelCounts>; filters: Filters; set: (f: Filters) => void }) {
+  return (
+    <Group title="Student level" note="Only levels that a tutor who can be booked has chosen are listed. A tutor who has not chosen a level is not matched.">
+      <Option on={!filters.level} onClick={() => set({ ...filters, level: null })}>Any</Option>
+      {levels.map(l => (
+        <Option key={l.level} on={filters.level === l.level} onClick={() => set({ ...filters, level: l.level })}>
+          {l.label} <span className="text-[12.5px] opacity-80">{l.hint} · {l.count}</span>
+        </Option>
+      ))}
+    </Group>
+  )
+}
+
+/** The zone the visitor reads times in (kept in the address as ?tz=) and the "near me" filter, which compares each tutor's clock with that zone. */
+function ZoneGroup({ filters, set, browser }: { filters: Filters; set: (f: Filters) => void; browser: string | null }) {
+  const options = filters.tz && !(ZONE_CHOICES as readonly string[]).includes(filters.tz) ? [filters.tz, ...ZONE_CHOICES] : [...ZONE_CHOICES]
+  return (
+    <>
+      <div className="[&+&]:mt-4">
+        <label htmlFor="dir-zone" className="block text-[13px] font-bold text-gray-700 mb-2">Show times in</label>
+        <select id="dir-zone" value={filters.tz ?? ''} onChange={e => set({ ...filters, tz: e.target.value || null })}
+          className="w-full min-h-11 rounded-xl border border-gray-300 bg-white px-3 text-[14px] text-gray-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20">
+          <option value="">{browser ? `Automatic: ${zoneCity(browser)}` : 'Automatic (your browser)'}</option>
+          {options.map(z => <option key={z} value={z}>{zoneCity(z)} ({z.split('/')[0].replace('_', ' ')})</option>)}
+        </select>
+        <p className="mt-1.5 text-[12.5px] text-gray-600">Free times, the Day and Time of day filters and each card follow this zone. It is saved in the page address.</p>
+      </div>
+      <Group title="Tutor's clock" note={`Tutors whose local time is within ${NEAR_HOURS} hours of yours, so a lesson does not land in the middle of their night.`}>
+        <Option on={filters.near} onClick={() => set({ ...filters, near: !filters.near })}>{filters.near && <Check className="h-4 w-4" aria-hidden="true" />} Within {NEAR_HOURS} hours of me</Option>
+      </Group>
+    </>
   )
 }
 
@@ -133,7 +167,9 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
   const [filters, setFilters] = useState<Filters>(initial)
   const [panel, setPanel] = useState<Panel>(null)
   const [shown, setShown] = useState(PAGE_SIZE)
-  const viewerZone = useSyncExternalStore(subscribe, browserZone, () => null)
+  const browser = useSyncExternalStore(subscribe, browserZone, () => null)
+  // the zone chosen in the address wins over the browser's, and it is known on the server too, so a shared link draws the same days and hours there
+  const viewerZone = filters.tz ?? browser
   const now = useMemo(() => new Date(nowIso), [nowIso])
 
   const first = useRef(true)
@@ -147,21 +183,24 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
   const state = stateOf(cards.length)
   const matching = useMemo(() => sortCards(applyFilters(cards, filters, ctx), filters.sort, now), [cards, filters, viewerZone, now]) // eslint-disable-line react-hooks/exhaustive-deps -- ctx is built from viewerZone and now
   const languages = useMemo(() => languageCounts(cards), [cards])
+  const levels = useMemo(() => levelCounts(cards), [cards])
+  const showLevels = levels.length > 0 || Boolean(filters.level)
   const active = activeFilters(filters)
   const relax = useMemo(() => (matching.length < FEW_TUTORS_BELOW && active.length > 0 ? relaxations(cards, filters, ctx) : []), [cards, filters, matching.length, viewerZone, now]) // eslint-disable-line react-hooks/exhaustive-deps -- ctx is built from viewerZone and now
   const rows = matching.slice(0, shown)
   const near = matching.length > 0 ? relax[0] : undefined
   const zoneKnown = viewerZone !== null
-  const filterCount = active.filter(k => k !== 'q').length
+  const filterCount = active.filter(k => k !== 'q').length + (filters.tz ? 1 : 0)
 
-  const tzLine = viewerZone ? `Times shown in your time zone: ${zoneCity(viewerZone)}` : 'Times shown in each tutor’s own time zone, until we know yours'
+  const tzLine = filters.tz ? `Times shown in: ${zoneCity(filters.tz)}` : viewerZone ? `Times shown in your time zone: ${zoneCity(viewerZone)}` : 'Times shown in each tutor’s own time zone, until we know yours'
 
   return (
     <div className="max-w-[1120px] mx-auto px-4 pt-[18px] pb-10 min-[721px]:pt-7 min-[721px]:pb-12">
       <div>
         <h1 className="text-[28px] min-[721px]:text-[34px] leading-[1.1] tracking-tight font-extrabold text-gray-900">Find a language tutor you can book today</h1>
         <p className="text-[15px] min-[721px]:text-[16px] text-gray-600 mt-2 max-w-[640px]">Every tutor here has open times in the next 14 days. Book with just your name and email.</p>
-        <p className="inline-flex items-center gap-1.5 text-[13px] text-gray-600 mt-2.5" data-testid="tz-line"><Globe className="h-3.5 w-3.5" aria-hidden="true" /> {tzLine}</p>
+        <p className="inline-flex items-center gap-1.5 text-[13px] text-gray-600 mt-2.5" data-testid="tz-line"><Globe className="h-3.5 w-3.5" aria-hidden="true" /> {tzLine}
+          <button type="button" onClick={() => setPanel(window.matchMedia('(min-width: 721px)').matches ? 'zone' : 'sheet')} className="min-h-11 -my-3 px-1.5 font-semibold text-indigo-700 underline underline-offset-2" data-testid="tz-change">Change</button></p>
       </div>
 
       {error && (
@@ -209,6 +248,14 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
                   </button>
                   {panel === 'lang' && <Dialog label="Language" onClose={() => setPanel(null)}><LanguageGroup languages={languages} filters={filters} set={set} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set(withoutFilter(filters, 'lang'))} /></Dialog>}
                 </div>
+                {showLevels && (
+                  <div className="relative">
+                    <button type="button" className={pillClass(Boolean(filters.level))} aria-haspopup="dialog" aria-expanded={panel === 'level'} onClick={() => setPanel(panel === 'level' ? null : 'level')}>
+                      <Signal className="h-4 w-4 text-gray-500" aria-hidden="true" /> Level <ChevronDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
+                    </button>
+                    {panel === 'level' && <Dialog label="Student level" onClose={() => setPanel(null)}><LevelGroup levels={levels} filters={filters} set={set} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set(withoutFilter(filters, 'level'))} /></Dialog>}
+                  </div>
+                )}
                 <div className="relative">
                   <button type="button" className={pillClass(Boolean(filters.price))} aria-haspopup="dialog" aria-expanded={panel === 'price'} onClick={() => setPanel(panel === 'price' ? null : 'price')}>
                     <Wallet className="h-4 w-4 text-gray-500" aria-hidden="true" /> Price <ChevronDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
@@ -220,6 +267,12 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
                     <CalendarClock className="h-4 w-4 text-gray-500" aria-hidden="true" /> Free times <ChevronDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
                   </button>
                   {panel === 'time' && <Dialog label="Free times" onClose={() => setPanel(null)}><TimeGroups filters={filters} set={set} zoneKnown={zoneKnown} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set({ ...filters, when: null, tod: null })} /></Dialog>}
+                </div>
+                <div className="relative">
+                  <button type="button" className={pillClass(Boolean(filters.tz || filters.near))} aria-haspopup="dialog" aria-expanded={panel === 'zone'} onClick={() => setPanel(panel === 'zone' ? null : 'zone')}>
+                    <Globe className="h-4 w-4 text-gray-500" aria-hidden="true" /> Time zone <ChevronDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
+                  </button>
+                  {panel === 'zone' && <Dialog label="Time zone" onClose={() => setPanel(null)}><ZoneGroup filters={filters} set={set} browser={browser} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set({ ...filters, tz: null, near: false })} /></Dialog>}
                 </div>
                 <button type="button" className={pillClass(filters.trial)} aria-pressed={filters.trial} onClick={() => set({ ...filters, trial: !filters.trial })}>
                   <Zap className="h-4 w-4 text-gray-500" aria-hidden="true" /> Trial lesson
@@ -245,7 +298,7 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
                     <button type="button" aria-label={`Remove filter ${filterLabel(filters, k)}`} onClick={() => set(withoutFilter(filters, k))} className="w-7 h-7 grid place-items-center rounded-full hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"><X className="h-3.5 w-3.5" aria-hidden="true" /></button>
                   </span>
                 ))}
-                <button type="button" onClick={() => set({ ...NO_FILTERS, sort: filters.sort })} className="min-h-11 px-2 text-[13px] font-semibold text-gray-700 underline underline-offset-2">Clear all</button>
+                <button type="button" onClick={() => set(clearedFilters(filters))} className="min-h-11 px-2 text-[13px] font-semibold text-gray-700 underline underline-offset-2">Clear all</button>
               </div>
             )}
           </div>
@@ -264,7 +317,7 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
                   <span key={r.key}>{i > 0 ? ' or ' : ''}<button type="button" onClick={() => set(withoutFilter(filters, r.key))} className="font-bold text-indigo-700 underline underline-offset-2 p-1">removing {r.label} ({r.count} {r.count === 1 ? 'tutor' : 'tutors'})</button></span>
                 ))}.</p>
               )}
-              <div className="mt-1.5"><button type="button" onClick={() => set({ ...NO_FILTERS, sort: filters.sort })} className={PRIMARY}>Clear all filters</button></div>
+              <div className="mt-1.5"><button type="button" onClick={() => set(clearedFilters(filters))} className={PRIMARY}>Clear all filters</button></div>
             </div>
           ) : (
             <>
@@ -306,8 +359,10 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
             <button type="button" aria-label="Close filters" onClick={() => setPanel(null)} className="w-11 h-11 rounded-full bg-gray-100 grid place-items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"><X className="h-[18px] w-[18px]" aria-hidden="true" /></button>
           </div>
           <LanguageGroup languages={languages} filters={filters} set={set} />
+          {showLevels && <LevelGroup levels={levels} filters={filters} set={set} />}
           <PriceGroup filters={filters} set={set} />
           <TimeGroups filters={filters} set={set} zoneKnown={zoneKnown} />
+          <div className="mt-4"><ZoneGroup filters={filters} set={set} browser={browser} /></div>
           <div className="mt-4 flex items-center justify-between gap-3.5 rounded-2xl border border-gray-200 px-3.5 py-3">
             <div><b className="block text-[14px] text-gray-900">Trial lesson offered</b><span className="text-[12.5px] text-gray-600">Tutors with a cheaper first lesson</span></div>
             <button type="button" role="switch" aria-checked={filters.trial} aria-label="Trial lesson offered" onClick={() => set({ ...filters, trial: !filters.trial })}
@@ -316,7 +371,7 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
             </button>
           </div>
           <div className="sticky bottom-0 bg-white pt-3 pb-4 mt-4 border-t border-gray-100 flex items-center justify-between gap-2.5">
-            <button type="button" onClick={() => set({ ...NO_FILTERS, sort: filters.sort })} className="min-h-11 px-2 text-[13px] font-semibold text-gray-700 underline underline-offset-2">Clear all</button>
+            <button type="button" onClick={() => set(clearedFilters(filters))} className="min-h-11 px-2 text-[13px] font-semibold text-gray-700 underline underline-offset-2">Clear all</button>
             <button type="button" onClick={() => setPanel(null)} className={PRIMARY}>Show {matching.length} {matching.length === 1 ? 'tutor' : 'tutors'}</button>
           </div>
         </Dialog>
