@@ -152,7 +152,7 @@ export function LockedFeature({
             <div className="p-7">
               <p className="text-[13.5px] text-gray-600 leading-relaxed text-center">
                 This is the <strong className="text-gray-900">{PLAN_LABEL[required]}</strong> plan
-                ({PLAN_PRICE[required]}). If you continue, we'll charge the prorated difference for the
+                ({PLAN_PRICE[required]}). If you continue, we&apos;ll charge the prorated difference for the
                 rest of your billing period to your card on file <strong className="text-gray-900">right now</strong>,
                 and unlock {PLAN_LABEL[required]} immediately — no checkout needed.
               </p>

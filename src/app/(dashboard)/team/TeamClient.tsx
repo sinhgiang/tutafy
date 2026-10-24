@@ -135,7 +135,7 @@ function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: 
         </div>
         <div className="flex flex-wrap gap-1.5">
           {(slots ?? []).length === 0 ? (
-            <p className="text-[11px] text-gray-400">No availability set — this tutor's booking page will show a waitlist form.</p>
+            <p className="text-[11px] text-gray-400">No availability set — this tutor&apos;s booking page will show a waitlist form.</p>
           ) : (slots ?? []).map(s => (
             <div key={s.id} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg text-[11px] font-medium">
               {DAYS[s.day_of_week]} {s.start_time.slice(0, 5)}–{s.end_time.slice(0, 5)}

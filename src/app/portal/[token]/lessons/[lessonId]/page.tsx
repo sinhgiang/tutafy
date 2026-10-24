@@ -5,6 +5,7 @@ import { ArrowLeft, BookOpen, FileText, Video, Award, MonitorPlay, Paperclip } f
 import { HomeworkChecker } from './HomeworkChecker'
 import { HomeworkSubmit } from '../../HomeworkSubmit'
 import { RecordingEmbed } from '@/components/RecordingEmbed'
+import { one } from '@/lib/relation'
 
 export default async function PortalLessonPage({
   params,
@@ -34,10 +35,10 @@ export default async function PortalLessonPage({
   const vocab = (lesson.vocabulary as { word: string; definition: string }[] | null) ?? []
   const now = new Date()
   const lessonStart = new Date(lesson.starts_at)
-  const lessonEnd = new Date((lesson as any).ends_at ?? lessonStart.getTime() + lesson.duration_minutes * 60 * 1000)
+  const lessonEnd = new Date(lesson.ends_at ?? lessonStart.getTime() + lesson.duration_minutes * 60 * 1000)
   const isOngoing = now >= new Date(lessonStart.getTime() - 15 * 60 * 1000) && now <= lessonEnd
   const showVideoCall = lesson.status === 'scheduled'
-  const tutorName = (lesson.tutors as any)?.name ?? 'your tutor'
+  const tutorName = one(lesson.tutors)?.name ?? 'your tutor'
 
   return (
     <div className="space-y-4">
@@ -105,7 +106,7 @@ export default async function PortalLessonPage({
           </div>
           <p className="text-[13px] text-gray-700 leading-relaxed whitespace-pre-wrap">{lesson.homework}</p>
           <HomeworkChecker token={token} lessonId={lesson.id} homework={lesson.homework} />
-          <HomeworkSubmit token={token} lessonId={lesson.id} homework={lesson.homework} />
+          <HomeworkSubmit token={token} lessonId={lesson.id} />
         </div>
       )}
 
@@ -126,7 +127,7 @@ export default async function PortalLessonPage({
             <p className="text-[13px] font-semibold text-gray-900">Materials</p>
           </div>
           <div className="space-y-2">
-            {(lesson.materials as any[]).map((m: any, i: number) => (
+            {lesson.materials.map((m, i) => (
               <a key={i} href={m.url} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 text-[13px] text-indigo-600 hover:underline">
                 <Paperclip className="h-3.5 w-3.5 flex-shrink-0" />

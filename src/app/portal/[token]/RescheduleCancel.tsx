@@ -25,7 +25,9 @@ export function RescheduleCancel({
   const [done, setDone] = useState<'cancelled' | 'rescheduled' | null>(null)
 
   const lessonStart = new Date(startsAt)
-  const hoursUntil = (lessonStart.getTime() - Date.now()) / 3600000
+  // When the page was opened: read once, not on every render
+  const [openedAt] = useState(() => Date.now())
+  const hoursUntil = (lessonStart.getTime() - openedAt) / 3600000
   const withinPolicy = hoursUntil < cancellationHours
   const todayStr = new Date().toISOString().split('T')[0]
 

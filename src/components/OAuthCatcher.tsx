@@ -8,7 +8,7 @@ export function OAuthCatcher({ children }: { children: React.ReactNode }) {
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
     if (code) {
-      setRedirecting(true)
+      setRedirecting(true) // eslint-disable-line react-hooks/set-state-in-effect -- the code is in the address, which only the browser knows: it is read after mount
       const dest = new URL('/auth/callback', window.location.origin)
       dest.searchParams.set('code', code)
       const next = params.get('next')

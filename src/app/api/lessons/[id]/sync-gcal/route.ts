@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from '@/lib/google-calendar'
+import { one } from '@/lib/relation'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -20,8 +21,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     .eq('id', user.id)
     .single()
 
-  const refreshToken = (tutor as any)?.google_calendar_refresh_token
-  const calendarId = (tutor as any)?.google_calendar_id
+  const refreshToken = tutor?.google_calendar_refresh_token
+  const calendarId = tutor?.google_calendar_id
 
   if (!refreshToken || !calendarId) {
     return NextResponse.json({ error: 'Google Calendar not connected' }, { status: 400 })
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
 
-  const student = lesson.students as any
+  const student = one(lesson.students)
   const endAt = lesson.ends_at ?? new Date(new Date(lesson.starts_at).getTime() + lesson.duration_minutes * 60000).toISOString()
 
   const event = {
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     },
   }
 
-  const existingEventId = (lesson as any).google_event_id
+  const existingEventId = (lesson as typeof lesson & { google_event_id?: string | null }).google_event_id
 
   let gcalEventId: string | null = null
 
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       if (meetLink) {
         await admin
           .from('lessons')
-          .update({ meet_link: meetLink } as any)
+          .update({ meet_link: meetLink })
           .eq('id', lessonId)
       }
     } catch (err) {
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (gcalEventId) {
     await admin
       .from('lessons')
-      .update({ google_event_id: gcalEventId } as any)
+      .update({ google_event_id: gcalEventId })
       .eq('id', lessonId)
   }
 
@@ -112,13 +113,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     .eq('tutor_id', user.id)
     .single()
 
-  const refreshToken = (tutor as any)?.google_calendar_refresh_token
-  const calendarId = (tutor as any)?.google_calendar_id
-  const gcalEventId = (lesson as any)?.google_event_id
+  const refreshToken = tutor?.google_calendar_refresh_token
+  const calendarId = tutor?.google_calendar_id
+  const gcalEventId = lesson?.google_event_id
 
   if (refreshToken && calendarId && gcalEventId) {
     await deleteCalendarEvent(refreshToken, calendarId, gcalEventId)
-    await admin.from('lessons').update({ google_event_id: null } as any).eq('id', lessonId)
+    await admin.from('lessons').update({ google_event_id: null }).eq('id', lessonId)
   }
 
   return NextResponse.json({ ok: true })

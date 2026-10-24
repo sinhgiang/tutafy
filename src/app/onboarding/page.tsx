@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { getConsent } from '@/components/CookieConsent'
 import { sendGaEvent, sendAdsSignupConversion } from '@/lib/google-tag'
 import { saveOnboardingAvailability, checkAvailabilityInput, ONBOARDING_DAYS } from '@/lib/onboarding-availability'
-import { Zap, User, Clock, Share2, Check, ChevronRight, Copy, RefreshCw } from 'lucide-react'
+import { Zap, User, Clock, Share2, Check, ChevronRight, Copy } from 'lucide-react'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'America/Toronto',
@@ -50,7 +50,7 @@ export default function OnboardingPage() {
       }
     }
     load()
-  }, [])
+  }, [router, supabase])
 
   // Fires the Google Ads "Sign Up" conversion exactly once, right after a brand
   // new tutor account lands here from register/OAuth (see ?signup=1). It is a real

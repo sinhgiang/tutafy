@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
-import Link from 'next/link'
-import { BookOpen, CheckCircle, Clock, AlertCircle, TrendingUp } from 'lucide-react'
+import { CheckCircle, Clock, AlertCircle, TrendingUp } from 'lucide-react'
 
 export default async function ParentPortalPage({
   params,
@@ -15,7 +14,7 @@ export default async function ParentPortalPage({
   const { data: student, error: studentError } = await supabase
     .from('students')
     .select('id, name, email, status, language_level, learning_goals, tutor_id')
-    .eq('parent_token', token as any)
+    .eq('parent_token', token)
     .maybeSingle()
 
   if (studentError?.message?.includes('column') || (!student && !studentError)) {
@@ -41,7 +40,6 @@ export default async function ParentPortalPage({
   const completedLessons = (lessons ?? []).filter(l => l.status === 'completed')
   const upcomingLessons = (lessons ?? []).filter(l => l.status === 'scheduled' && new Date(l.starts_at) > now)
   const totalHours = completedLessons.reduce((a, l) => a + l.duration_minutes, 0) / 60
-  const totalPaid = completedLessons.filter(l => l.payment_status === 'paid').reduce((a, l) => a + Number(l.price ?? 0), 0)
   const pendingPayments = completedLessons.filter(l => l.payment_status === 'pending' && Number(l.price ?? 0) > 0)
 
   const LEVEL_COLORS: Record<string, string> = {

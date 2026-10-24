@@ -1,7 +1,7 @@
 import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Check, X, Zap, Crown, Users } from 'lucide-react'
+import { Check, X, Zap, Users } from 'lucide-react'
 import Link from 'next/link'
 import { ContactEmails } from '@/components/ContactEmails'
 import { TrackedCheckoutLink } from '@/components/plan/TrackedCheckoutLink'
@@ -129,7 +129,6 @@ export default async function UpgradePage() {
 
   const currentPlan = tutor?.subscription_status ?? 'free'
   const currentRank = RANK[currentPlan] ?? 0
-  const tutorName = tutor?.name?.split(' ')[0] ?? 'there'
 
   return (
     <PageColumn size="list">
@@ -258,7 +257,7 @@ export default async function UpgradePage() {
         </p>
         <p className="text-[11px] text-gray-400 mt-3">
           After payment, your account is upgraded automatically within a few minutes.
-          If you don't see the change after 10 minutes, email <strong><ContactEmails /></strong>
+          If you don&apos;t see the change after 10 minutes, email <strong><ContactEmails /></strong>
         </p>
       </div>
 

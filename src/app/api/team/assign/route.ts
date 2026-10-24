@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   if ('error' in gate) return gate.error
   const { supabase, userId: user } = gate
 
-  let body: any
+  let body: Record<string, unknown>
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
   const lessonId = (body?.lessonId ?? '').toString()
   const memberId = body?.memberId ? String(body.memberId) : null

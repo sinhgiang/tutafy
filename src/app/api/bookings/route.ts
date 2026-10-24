@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from 'next/server'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/server'
 import { createMailer, emailFromAddress, spamHintHtml } from '@/lib/email'
 import { createCalendarEvent } from '@/lib/google-calendar'
@@ -8,7 +9,7 @@ import { loadChosenDurations, durationAccepted, requestedLength } from '@/lib/le
 import { withinBookingTextLimits } from '@/lib/input-limits'
 import { clashWindowStart, overlappingLesson } from '@/lib/booking-slots'
 
-async function validateAndApplyCoupon(supabase: any, tutorId: string, code: string, basePrice: number | null) {
+async function validateAndApplyCoupon(supabase: SupabaseClient, tutorId: string, code: string, basePrice: number | null) {
   if (!code || !basePrice) return { discount: 0, couponId: null }
   const { data: coupon } = await supabase
     .from('coupons')
@@ -170,7 +171,7 @@ export async function POST(request: Request) {
     // up front so the room URL can be built before the row is inserted.
     const lessonId = crypto.randomUUID()
     const origin = resolveOrigin(request)
-    const meetLink = genRoomLink(origin, (student as any).portal_token, lessonId)
+    const meetLink = genRoomLink(origin, student.portal_token, lessonId)
     const { data: createdLesson, error } = await supabase.from('lessons').insert({
       id: lessonId,
       tutor_id: tutorId,
@@ -202,11 +203,11 @@ export async function POST(request: Request) {
     })
 
     // Sync to Google Calendar (fire-and-forget)
-    if (createdLesson && (tutor as any)?.google_calendar_refresh_token) {
+    if (createdLesson && tutor?.google_calendar_refresh_token) {
       try {
         const gcalId = await createCalendarEvent(
-          (tutor as any).google_calendar_refresh_token,
-          (tutor as any).google_calendar_id ?? 'primary',
+          tutor.google_calendar_refresh_token,
+          tutor.google_calendar_id ?? 'primary',
           {
             summary: `Lesson with ${name}`,
             description: [
@@ -219,7 +220,7 @@ export async function POST(request: Request) {
           }
         )
         if (gcalId) {
-          await supabase.from('lessons').update({ google_event_id: gcalId } as any).eq('id', createdLesson.id)
+          await supabase.from('lessons').update({ google_event_id: gcalId }).eq('id', createdLesson.id)
         }
       } catch { /* non-critical */ }
     }
@@ -232,7 +233,7 @@ export async function POST(request: Request) {
 
       // Deep-links so each recipient can jump straight from the email to the
       // right place: the student to their portal, the tutor to the lesson detail.
-      const studentPortalLink = `${origin}/portal/${(student as any).portal_token}`
+      const studentPortalLink = `${origin}/portal/${student.portal_token}`
       const tutorLessonLink = `${origin}/lessons/${lessonId}`
       const btn = (href: string, label: string) => `
         <div style="text-align:center;margin:24px 0 8px;">
@@ -299,14 +300,14 @@ export async function POST(request: Request) {
     // exactly what the card checkout charges, so the page shows the student the same amount.
     return NextResponse.json({
       success: true,
-      portal_token: (student as any)?.portal_token ?? null,
+      portal_token: student?.portal_token ?? null,
       lesson_id: createdLesson?.id ?? null,
       price: finalPrice,
       currency: normalizeCurrency(tutor?.currency),
       // the address the confirmation comes from: the page asks the student to look for it in the spam folder
       sender_email: emailFromAddress(),
     })
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

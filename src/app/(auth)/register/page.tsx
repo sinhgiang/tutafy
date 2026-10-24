@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -16,15 +16,11 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState('')
-  const [refCode, setRefCode] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-
-  useEffect(() => {
-    const ref = searchParams.get('ref')
-    if (ref) setRefCode(ref)
-  }, [searchParams])
+  // The invite code from the address (?ref=), read straight from it
+  const refCode = searchParams.get('ref') ?? ''
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()

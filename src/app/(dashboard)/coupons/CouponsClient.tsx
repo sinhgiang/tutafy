@@ -26,7 +26,6 @@ export function CouponsClient() {
   const now = new Date()
   const stats = couponStats(coupons, now)
 
-  useEffect(() => { void load() }, [])
   async function load() {
     try {
       const res = await fetch('/api/coupons')
@@ -34,6 +33,8 @@ export function CouponsClient() {
       setCoupons((await res.json()).coupons ?? [])
     } catch { setFailed(true) } finally { setLoading(false) }
   }
+
+  useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/set-state-in-effect -- load once on arrival; the state is set when the answer comes back
 
   async function create() {
     const body = { code, discount_type: discountType, discount_value: discountValue, max_uses: maxUses || null, expires_at: expiresAt || null }

@@ -24,7 +24,6 @@ export function DevelopersClient({ apiBase }: { apiBase: string }) {
   const [freshKey, setFreshKey] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
 
-  useEffect(() => { void load() }, [])
   async function load() {
     try {
       const res = await fetch('/api/keys')
@@ -32,6 +31,8 @@ export function DevelopersClient({ apiBase }: { apiBase: string }) {
       setKeys((await res.json()).keys ?? [])
     } catch { setFailed(true) } finally { setLoading(false) }
   }
+
+  useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/set-state-in-effect -- load once on arrival; the state is set when the answer comes back
 
   async function createKey() {
     setCreating(true)

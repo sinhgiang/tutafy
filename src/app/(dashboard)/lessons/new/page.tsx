@@ -62,7 +62,7 @@ export default function NewLessonPage() {
       setOffered(chosenDurations((await loadChosenDurations(supabase, user.id)).lesson_durations))
     }
     load()
-  }, [])
+  }, [supabase])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

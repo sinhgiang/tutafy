@@ -65,7 +65,7 @@ export default function CustomersPage() {
             </div>
             <h2 className="text-[24px] font-bold text-gray-900">Your story could be the first</h2>
             <p className="text-[15px] text-gray-500 mt-3 max-w-lg mx-auto leading-relaxed">
-              Tutafy is brand new. Join as a founding tutor, and if you love it we'd be honored to feature how you grew your
+              Tutafy is brand new. Join as a founding tutor, and if you love it we&apos;d be honored to feature how you grew your
               tutoring business here.
             </p>
             <Link href="/register"

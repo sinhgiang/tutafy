@@ -84,7 +84,7 @@ test('every key is used by an admin file (the families read through the table he
   const FAMILIES = ['revenue.polar.', 'stage.', 'source.', 'status.', 'table.', 'page.', 'nav.', 'readError.', 'buyers.status.', 'buyers.why.']
   const used = new Set<string>()
   const files: string[] = []
-  const walk = (dir: string) => { for (const f of readdirSync(dir)) { const p = path.join(dir, f); statSync(p).isDirectory() ? walk(p) : files.push(p) } }
+  const walk = (dir: string) => { for (const f of readdirSync(dir)) { const p = path.join(dir, f); if (statSync(p).isDirectory()) walk(p); else files.push(p) } }
   walk(SRC)
   for (const f of files) {
     if (f.endsWith(`${path.sep}admin-i18n.ts`) || !/\.(ts|tsx)$/.test(f)) continue

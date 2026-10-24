@@ -94,7 +94,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <span className="text-indigo-500">and keep 100% of what you earn.</span>
         </h1>
         <p className="text-[18px] text-gray-500 mt-6 max-w-2xl mx-auto leading-relaxed">
-          Bookings, a built-in video classroom, payments, and AI lesson tools — everything you're juggling
+          Bookings, a built-in video classroom, payments, and AI lesson tools — everything you&apos;re juggling
           across five apps, finally in one. Free to start, and we never take a cut of your income.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-9">
@@ -188,7 +188,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-[32px] font-extrabold text-gray-900 tracking-tight">Teaching is the easy part.<br className="hidden sm:block" /> The business side is a mess.</h2>
-          <p className="text-[16px] text-gray-500 mt-4 max-w-xl mx-auto">You didn't become a tutor to manage seven browser tabs and hand a third of your income to a marketplace.</p>
+          <p className="text-[16px] text-gray-500 mt-4 max-w-xl mx-auto">You didn&apos;t become a tutor to manage seven browser tabs and hand a third of your income to a marketplace.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 text-left">
             {PAINS.map(p => (
               <div key={p.text} className="flex items-start gap-3 bg-gray-50 rounded-2xl p-5">
@@ -253,8 +253,8 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
             </div>
             <h2 className="text-[30px] font-extrabold text-gray-900 tracking-tight leading-tight">Get your evenings back</h2>
             <p className="text-[15px] text-gray-500 mt-4 leading-relaxed">
-              Tutafy's AI writes lesson plans, homework, essay corrections, student feedback and monthly progress reports —
-              tailored to each student's level and goals. What used to take an hour now takes seconds.
+              Tutafy&apos;s AI writes lesson plans, homework, essay corrections, student feedback and monthly progress reports —
+              tailored to each student&apos;s level and goals. What used to take an hour now takes seconds.
             </p>
             <Link href="/register" className="inline-flex items-center gap-1.5 text-[14px] font-bold text-indigo-600 hover:text-indigo-700 mt-6">
               Try it free <ArrowRight className="h-4 w-4" />
@@ -348,7 +348,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 <Star className="h-3.5 w-3.5 text-amber-300" fill="currentColor" /><span className="text-[12px] font-semibold text-white">Founding tutors — early access</span>
               </div>
               <h2 className="text-[28px] md:text-[32px] font-extrabold text-white tracking-tight max-w-2xl mx-auto leading-tight">Be one of the first tutors to run their business on Tutafy</h2>
-              <p className="text-[15px] text-indigo-100 mt-4 max-w-xl mx-auto leading-relaxed">We're just getting started. Join now, shape the product with your feedback, and lock in every feature free while we grow.</p>
+              <p className="text-[15px] text-indigo-100 mt-4 max-w-xl mx-auto leading-relaxed">We&apos;re just getting started. Join now, shape the product with your feedback, and lock in every feature free while we grow.</p>
               <Link href="/register" className="inline-flex items-center gap-2 mt-8 text-[14px] font-bold text-indigo-600 bg-white hover:bg-indigo-50 transition-colors px-7 py-3 rounded-xl">Start free — no credit card <ArrowRight className="h-4 w-4" /></Link>
             </div>
           )}
@@ -361,7 +361,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="text-center mb-14">
             <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">Pricing</p>
             <h2 className="text-[36px] font-extrabold text-gray-900 tracking-tight">Simple pricing. No commission. Ever.</h2>
-            <p className="text-[15px] text-gray-500 mt-3">Start free · Upgrade when you're ready · Cancel anytime</p>
+            <p className="text-[15px] text-gray-500 mt-3">Start free · Upgrade when you&apos;re ready · Cancel anytime</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {PLANS.map(p => (
@@ -393,7 +393,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">Questions</p>
-            <h2 className="text-[34px] font-extrabold text-gray-900 tracking-tight">Everything else you're wondering</h2>
+            <h2 className="text-[34px] font-extrabold text-gray-900 tracking-tight">Everything else you&apos;re wondering</h2>
           </div>
           <div className="space-y-3">
             {FAQ.map(item => (

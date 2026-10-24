@@ -81,7 +81,7 @@ test('Settings: the last ticked length cannot be unticked, and the default follo
   const noNinety = lib.toggleDuration(all, 90)
   assert.deepEqual(noNinety.durations, [30, 45, 60])
   assert.deepEqual(lib.toggleDuration(noNinety, 90).durations, [30, 45, 60, 90], 'ticking it again puts it back in order')
-  let only = lib.toggleDuration(lib.toggleDuration(lib.toggleDuration(all, 30), 45), 90)
+  const only = lib.toggleDuration(lib.toggleDuration(lib.toggleDuration(all, 30), 45), 90)
   assert.deepEqual(only.durations, [60])
   assert.deepEqual(lib.toggleDuration(only, 60), only, 'the last one stays')
   // default follows

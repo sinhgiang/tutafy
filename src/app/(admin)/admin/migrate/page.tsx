@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Database, Copy, CheckCircle, ExternalLink, Play, Loader2, Key, Zap } from 'lucide-react'
+import { Database, Copy, CheckCircle, ExternalLink, Play, Loader2, Zap } from 'lucide-react'
 import { useAdminT } from '@/components/admin/AdminLang'
 
 const SQL_007_008 = `-- Migration 007 + 008 (idempotent — safe to run multiple times)

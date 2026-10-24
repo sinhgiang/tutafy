@@ -73,7 +73,7 @@ test('loadShowMadeWith: reads the plan and the column apart; a missing column or
   assert.equal(await branding.loadShowMadeWith(ok({ subscription_status: 'pro', hide_branding: true }), 'T'), false)
   assert.equal(await branding.loadShowMadeWith(ok({ subscription_status: 'academy', hide_branding: true }), 'T'), false)
   // the database has no such column yet: only that read answers an error
-  const noColumn = { from: (t: string) => ({ select: (cols: string) => ({ eq: () => ({ single: async () => (cols === 'hide_branding' ? { data: null, error: { code: '42703' } } : { data: { subscription_status: 'pro' }, error: null }) }) }) }) }
+  const noColumn = { from: () => ({ select: (cols: string) => ({ eq: () => ({ single: async () => (cols === 'hide_branding' ? { data: null, error: { code: '42703' } } : { data: { subscription_status: 'pro' }, error: null }) }) }) }) }
   assert.equal(await branding.loadShowMadeWith(noColumn, 'T'), true, 'column missing: the line stays even for a paid tutor')
   assert.equal(await branding.loadShowMadeWith({ from: () => { throw new Error('network down') } }, 'T'), true)
   assert.equal(await branding.loadShowMadeWith(ok({ subscription_status: 'pro', hide_branding: 'true' }), 'T'), true, 'only a real true turns it off')
@@ -206,7 +206,7 @@ test('Settings: a switch in the Booking page tab, switchable only on a paid plan
   assert.match(src, /disabled=\{!paid\}/, 'a Free tutor sees the switch on and cannot change it')
   assert.match(src, /const shown = !\(paid && form\.hide_branding\)/, 'shown unless a PAID tutor turned it off')
   assert.match(src, /Pro and Academy plans can turn it off/)
-  assert.match(src, /hide_branding: \(data as any\)\.hide_branding === true/, 'read from the loaded row; a missing column reads as false')
+  assert.match(src, /hide_branding: data\.hide_branding === true/, 'read from the loaded row; a missing column reads as false')
   // the writes live in src/lib/settings-save.ts; their ORDER and what the saved copy takes are run for real in tests/settings-save.test.ts
   const save = read('src/lib/settings-save.ts')
   assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, \.\.\.rest \} = form/, 'left out of the main update, because its column may not exist yet')
