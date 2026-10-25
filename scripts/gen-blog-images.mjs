@@ -1,9 +1,14 @@
 // Generates on-brand blog hero images (SVG -> AVIF + WebP, 1200x630).
-// Run: node scripts/gen-blog-images.mjs
+// Run: node --import ./tests/register.mjs scripts/gen-blog-images.mjs   (the register hook lets it read the brand source in src/lib)
+// T-0969: the corner logo is the brand logo D2, one colour in white (a full-colour tile would vanish on the indigo backgrounds); BRAND.md section 1.
 import sharp from 'sharp'
+import { iconShapes, logoSvg } from '@/lib/brand-svg'
 import { mkdirSync } from 'node:fs'
 
 mkdirSync('public/blog', { recursive: true })
+
+// The logo in the top left corner, drawn from the brand source (white, one colour).
+const CORNER_LOGO = logoSvg('mono-white', 48).replace('<svg ', '<svg x="64" y="58" ')
 
 // Shared frame: gradient background, dot grid, Tutafy wordmark, category label.
 function base({ from, to, label, motif }) {
@@ -19,11 +24,7 @@ function base({ from, to, label, motif }) {
   <rect width="1200" height="630" fill="url(#g)"/>
   <rect width="1200" height="630" fill="url(#dots)"/>
   ${motif}
-  <g transform="translate(64,64)">
-    <rect x="0" y="0" width="40" height="40" rx="11" fill="#ffffff" opacity="0.95"/>
-    <path d="M12 26 L20 12 L28 26 Z" fill="url(#g)"/>
-    <text x="54" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff">Tutafy</text>
-  </g>
+  ${CORNER_LOGO}
   <g transform="translate(64,520)">
     <rect x="0" y="0" width="${28 + label.length * 12}" height="40" rx="20" fill="#ffffff" opacity="0.20"/>
     <text x="18" y="27" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#ffffff" letter-spacing="1">${label.toUpperCase()}</text>
@@ -143,8 +144,7 @@ const HEROES = {
     <g transform="translate(760,150)" opacity="0.95">
       <rect x="0" y="30" width="200" height="270" rx="20" fill="#ffffff" opacity="0.9"/>
       <rect x="240" y="30" width="200" height="270" rx="20" fill="#ffffff" opacity="0.32"/>
-      <path d="M40 90 L20 12 L28 26 Z" fill="none"/>
-      <path d="M60 70 L100 130 L60 130 L100 190" stroke="#0d9488" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <g transform="translate(50,95) scale(1.6)">${iconShapes('light')}</g>
       <circle cx="220" cy="165" r="46" fill="#ffffff"/>
       <text x="220" y="182" font-family="Segoe UI, Arial" font-size="30" font-weight="800" fill="#4f46e5" text-anchor="middle">VS</text>
       <rect x="280" y="90" width="120" height="16" rx="8" fill="#ffffff" opacity="0.6"/>

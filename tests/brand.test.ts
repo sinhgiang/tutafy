@@ -18,6 +18,7 @@ import {
   BRAND_COLORS, BRAND_FONT, BRAND_NAME, ICON_SHAPES, LOGO_COLORS, LOGO_MIN, brandVar,
 } from '@/lib/brand'
 import { LOGO_HEIGHT, LOGO_WIDTH, WORDMARK_PATH } from '@/lib/brand-wordmark'
+import { logoSvg } from '@/lib/brand-svg'
 import { BrandLogo } from '@/components/brand/BrandLogo.tsx'
 import { BrandMark } from '@/components/brand/BrandMark.tsx'
 import { SiteLogo } from '@/components/SiteLogo.tsx'
@@ -213,6 +214,49 @@ test('the share picture is drawn with the brand logo and brand colours, with no 
   assert.ok(!/#[0-9a-fA-F]{6}\b/.test(og), 'no hex colour is typed in the share picture; it reads brand.ts')
   assert.ok(!/M21\.42 10\.922/.test(og), 'the old line-drawing cap is gone')
   assert.match(read('src/lib/page-meta.ts'), /url: '\/og'/, 'every page without its own picture uses the one route')
+})
+
+// The share picture of a blog post is its hero (public/blog/<slug>-hero.webp and .avif), drawn by scripts/gen-blog-images.mjs. Each carries the
+// logo in its top left corner; the old ones carried a white tile with a triangle there. The check looks at the pixels: where the brand logo
+// (one colour, white) has ink, the picture is white, and where it has none, it is not.
+async function cornerAgreement(picture: Buffer): Promise<number> {
+  const logo = await sharp(Buffer.from(logoSvg('mono-white', 48))).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  const crop = await sharp(picture).extract({ left: 64, top: 58, width: logo.info.width, height: logo.info.height }).raw().toBuffer({ resolveWithObject: true })
+  let same = 0
+  const n = logo.info.width * logo.info.height
+  for (let i = 0; i < n; i++) {
+    const ink = logo.data[i * 4 + 3] > 128
+    const o = i * crop.info.channels
+    const white = crop.data[o] > 215 && crop.data[o + 1] > 215 && crop.data[o + 2] > 215
+    if (ink === white) same++
+  }
+  return same / n
+}
+
+test('every blog hero, the share picture of a post, carries the brand logo in its corner and not an older mark', async () => {
+  const heroes = fs.readdirSync(path.join(ROOT, 'public/blog')).filter(f => f.endsWith('-hero.webp')).sort()
+  assert.ok(heroes.length >= 25, 'the scan finds the heroes (it is not an empty loop)')
+  for (const f of heroes) {
+    for (const ext of ['webp', 'avif']) {
+      const file = path.join(ROOT, 'public/blog', f.replace(/webp$/, ext))
+      assert.ok(fs.existsSync(file), `${f}: the .${ext} twin is missing`)
+      const a = await cornerAgreement(fs.readFileSync(file))
+      assert.ok(a > 0.93, `${f.replace(/webp$/, ext)}: the corner is not the brand logo (agreement ${a.toFixed(2)}). Run: node --import ./tests/register.mjs scripts/gen-blog-images.mjs`)
+    }
+  }
+  // the same measure on the old corner (a white tile with a triangle, 40 px, at 64,64) must fail it, so the check can tell the two apart
+  const old = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="400" height="200" fill="#4f46e5"/><g transform="translate(64,64)"><rect width="40" height="40" rx="11" fill="#fff" opacity="0.95"/><path d="M12 26 L20 12 L28 26 Z" fill="#4f46e5"/><text x="54" y="28" font-family="Arial" font-size="24" font-weight="700" fill="#fff">Tutafy</text></g></svg>`
+  assert.ok(await cornerAgreement(await sharp(Buffer.from(old)).png().toBuffer()) < 0.93, 'the old corner is told apart from the new one')
+  const gen = read('scripts/gen-blog-images.mjs')
+  assert.match(gen, /logoSvg\('mono-white'/)
+  assert.ok(!gen.includes('M12 26 L20 12 L28 26 Z'), 'the old corner logo is gone from the generator')
+  assert.ok(!gen.includes('M60 70 L100 130 L60 130 L100 190'), 'the old lightning bolt is gone from the generator')
+})
+
+test('a page that writes its own openGraph names a share picture (a page that sets openGraph drops the site default)', () => {
+  const own = SRC_FILES.filter(f => f.startsWith('src/app/') && f.endsWith('.tsx') && /\bopenGraph:/.test(read(f)))
+  assert.ok(own.includes('src/app/switch/page.tsx'), 'the scan finds /switch, which does this')
+  for (const f of own) assert.match(read(f), /images:\s*\[SOCIAL_IMAGE\]/, `${f} writes openGraph without the share picture`)
 })
 
 // Where a lightning bolt or a graduation cap icon may still appear: as an icon in a sentence or a button, never as the logo.

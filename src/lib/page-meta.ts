@@ -23,7 +23,7 @@ export const DESCRIPTION_MAX = 155
 export const DESCRIPTION_MIN = 70
 
 // The share picture drawn by src/app/og/route.tsx: 1200 x 630 with the name Tutafy (T-0850). It was the 512 px app icon.
-const SOCIAL_IMAGE = { url: '/og', width: 1200, height: 630, alt: 'Tutafy: software for online tutors' }
+export const SOCIAL_IMAGE = { url: '/og', width: 1200, height: 630, alt: 'Tutafy: software for online tutors' }
 
 export interface PageSeo {
   /** Path on the site; '/' is the home page. */
