@@ -204,7 +204,7 @@ Everything in the code reads the logo from `BrandMark`, `BrandLogo` or a file wr
 | Organization data for search engines | Icon, 512 px | `src/lib/seo.ts` (`logo`) |
 | Service worker cache | Cleared on this release (`tutafy-v2`) so no page or picture with the old logo is served from it | `public/sw.js` |
 
-Blog posts use their own hero pictures (and tutor profiles their own photos) as the share picture, as before: they are content, not the logo, and none of them carries the old mark.
+Every page uses `/og` as its share picture (Open Graph, Twitter, LinkedIn and Facebook all read the same tags), except a blog post, which uses its own hero picture, `public/blog/<slug>-hero.webp` and `.avif`. Those 25 heroes carried a third old mark (a white tile with a triangle) in their corner and one of them a lightning bolt; `scripts/gen-blog-images.mjs` now draws the brand logo in white, one colour, and the heroes were regenerated. `/switch` sets its own tags and had no share picture at all; it now names `/og`. `tests/brand.test.ts` checks each hero's corner against the logo and that every page that writes its own `openGraph` names an image.
 
 **Not changed, and why**
 
@@ -214,7 +214,8 @@ Blog posts use their own hero pictures (and tutor profiles their own photos) as 
 | Tutor app top bar and the word "Tutafy" in breadcrumbs, `Powered by Tutafy` and `Back to Tutafy` text lines | They are plain text in a sentence, not the logo. |
 | The lightning bolt on "Upgrade" buttons and the plan screens | It stands for the Pro plan, not for Tutafy. Kept on purpose; `tests/brand.test.ts` lists where it is allowed. |
 | `docs/booking-design/`, `docs/directory-design/`, `docs/dashboard-redesign/` | Design samples that were approved earlier. They are history, not shipped. |
-| `public/updates/*.webp`, `public/blog/*` | Screenshots and pictures made while the old logo was on screen: history, not checked picture by picture. |
+| `public/updates/*.webp` | Screenshots made while the old logo was on screen: history, not checked picture by picture. |
+| `public/blog/inline/*` | Stock photographs and a few drawings inside articles. Looked at one by one (41 pictures): none carries a Tutafy mark. |
 | `public/file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg` | Leftovers of the Next.js starter. Not Tutafy marks and not used by any page. |
 
 **Outside the repository (the owner's accounts, to upload by hand)**

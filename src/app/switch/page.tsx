@@ -8,6 +8,7 @@ import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
 import { SiteLogo } from '@/components/SiteLogo'
 import { MarketplaceRatesNote } from '@/components/MarketplaceRatesNote'
 import { ITALKI_RANGE, PREPLY_RANGE } from '@/lib/marketplace-rates'
+import { SOCIAL_IMAGE } from '@/lib/page-meta'
 
 // Dedicated, distraction-free landing page for Google Ads "switching / alternative"
 // keywords (preply alternative, italki alternative, commission free tutoring platform...).
@@ -42,8 +43,9 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     description,
     alternates: { canonical: '/switch' },
     robots: { index: false, follow: true },
-    openGraph: { type: 'website', title, description },
-    twitter: { card: 'summary_large_image', title, description },
+    // T-0969: a page that sets its own openGraph replaces the site's, so the share picture has to be named here too (it had none)
+    openGraph: { type: 'website', title, description, images: [SOCIAL_IMAGE] },
+    twitter: { card: 'summary_large_image', title, description, images: [SOCIAL_IMAGE.url] },
   }
 }
 
