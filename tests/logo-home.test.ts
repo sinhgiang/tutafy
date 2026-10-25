@@ -37,7 +37,8 @@ test('SiteLogo is a real link to the home page: name, a big enough area, hand cu
     assert.match(html, /min-h-11/, 'the area is at least 44px high')
     assert.match(html, /cursor-pointer/, 'the pointer is a hand')
     assert.match(html, /focus-visible:ring-2/, 'keyboard focus shows')
-    assert.match(html, />Tutafy<\/span>/)
+    // T-0969: the logo is the horizontal logo D2, a picture of the name; the link carries the name for a screen reader
+    assert.match(html, /<svg[^>]*data-brand="logo"[^>]*aria-hidden="true"/)
   }
 })
 
@@ -93,7 +94,7 @@ test('every public page that has a top bar or a sign-in title draws the logo thr
   ]
   const missing = MUST.filter(rel => {
     const src = fs.readFileSync(path.join(APP, rel), 'utf8')
-    return !/<SiteLogo\b/.test(src) && !/<Link href="\/"[^>]*>(?:\s|<[^>]*>)*Tutafy/.test(src)
+    return !/<SiteLogo\b/.test(src) && !/<Link href="\/"[^>]*>\s*(?:<BrandLogo\b|(?:\s|<[^>]*>)*Tutafy)/.test(src)
   })
   assert.deepEqual(missing, [], `no logo link in: ${missing.join(', ')}`)
   assert.ok(/<SiteLogo\b/.test(fs.readFileSync(path.join(ROOT, 'src/components/SiteFooter.tsx'), 'utf8')), 'the shared footer')

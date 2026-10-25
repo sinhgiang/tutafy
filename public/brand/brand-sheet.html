@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tutafy brand sheet</title>
+<style>
+@font-face { font-family: "Geist"; src: url("fonts/Geist-Variable.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+:root {
+  --brand-primary: #4F46E5;
+  --brand-primary-hover: #4338CA;
+  --brand-primary-soft: #EEF0FF;
+  --brand-primary-line: #C7CCFA;
+  --brand-accent: #F59E0B;
+  --brand-primary-on-dark: #6366F1;
+  --brand-primary-text-on-dark: #818CF8;
+  --brand-primary-hover-on-dark: #A5B4FC;
+  --brand-primary-soft-on-dark: #232A52;
+  --brand-primary-line-on-dark: #3B4586;
+  --brand-accent-on-dark: #FBBF24;
+  --brand-ink: #111827;
+  --brand-ink-2: #374151;
+  --brand-ink-3: #5B6475;
+  --brand-canvas: #F6F7FB;
+  --brand-surface: #FFFFFF;
+  --brand-surface-2: #F3F4F8;
+  --brand-line: #E5E7EF;
+  --brand-line-strong: #D0D4E0;
+  --brand-ink-on-dark: #F3F4F8;
+  --brand-ink-2-on-dark: #D1D5E0;
+  --brand-ink-3-on-dark: #A3ABBD;
+  --brand-canvas-dark: #0E1117;
+  --brand-surface-dark: #171B24;
+  --brand-surface-2-dark: #1F2430;
+  --brand-line-dark: #2A3040;
+  --brand-line-strong-dark: #3A4256;
+  --brand-ok: #047857;
+  --brand-ok-soft: #E8F7F0;
+  --brand-warn: #92400E;
+  --brand-warn-soft: #FEF3C7;
+  --brand-danger: #B42318;
+  --brand-danger-soft: #FDECEA;
+  --brand-ok-on-dark: #34D399;
+  --brand-ok-soft-on-dark: #12261F;
+  --brand-warn-on-dark: #FBBF24;
+  --brand-warn-soft-on-dark: #2B2208;
+  --brand-danger-on-dark: #F87171;
+  --brand-danger-soft-on-dark: #2E1514;
+  --brand-white: #FFFFFF;
+  --brand-font: Geist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--brand-canvas); color: var(--brand-ink); font-family: var(--brand-font); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.sheet { max-width: 1440px; margin: 0 auto; padding: 48px 56px 56px; }
+header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid var(--brand-line); }
+header p { margin: 0; color: var(--brand-ink-3); font-size: 14px; text-align: right; }
+h2 { margin: 44px 0 16px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand-ink-3); }
+.grid { display: grid; gap: 16px; }
+.g4 { grid-template-columns: repeat(4, 1fr); } .g3 { grid-template-columns: repeat(3, 1fr); } .g2 { grid-template-columns: 1.4fr 1fr; } .g6 { grid-template-columns: repeat(6, 1fr); }
+.panel { border-radius: 16px; display: flex; align-items: center; justify-content: center; min-height: 168px; padding: 24px; position: relative; }
+.panel small { position: absolute; left: 14px; bottom: 10px; font-size: 12px; font-weight: 600; opacity: .75; }
+.p-light { background: #fff; box-shadow: inset 0 0 0 1px var(--brand-line); } .p-dark { background: var(--brand-canvas-dark); color: #fff; }
+.p-brand { background: var(--brand-primary); color: #fff; } .p-soft { background: var(--brand-primary-soft); }
+.card { background: #fff; border: 1px solid var(--brand-line); border-radius: 16px; padding: 24px; }
+.card h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -.01em; } .card p { margin: 0; color: var(--brand-ink-2); font-size: 14px; }
+.clear { display: flex; align-items: center; justify-content: center; padding: 18px; }
+.clear .box { outline: 1px dashed var(--brand-primary); outline-offset: 0; padding: 24px; background: repeating-linear-gradient(45deg, #fff 0 6px, var(--brand-primary-soft) 6px 7px); }
+.clear .box > div { background: #fff; line-height: 0; }
+.mins { display: flex; align-items: flex-end; gap: 28px; margin-top: 14px; }
+.mins figure { margin: 0; text-align: center; font-size: 12px; color: var(--brand-ink-3); } .mins img { display: block; margin: 0 auto 6px; }
+.sw .chip { height: 72px; border-radius: 12px; display: flex; align-items: flex-end; padding: 8px 10px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.sw b { display: block; margin-top: 8px; font-size: 14px; } .sw span { display: block; font-size: 12px; color: var(--brand-ink-3); font-family: ui-monospace, Menlo, Consolas, monospace; } .sw em { display: block; font-style: normal; font-size: 12px; color: var(--brand-ink-2); }
+.colors { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px 14px; }
+.trow { display: grid; grid-template-columns: 90px 1fr 120px; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--brand-line); } .trow code, .trow i, code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: var(--brand-ink-3); font-style: normal; }
+.shapes { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px; } .rad div { width: 64px; height: 64px; background: var(--brand-primary-soft); border: 2px solid var(--brand-primary); margin-bottom: 6px; } .spc { display: inline-block; margin-right: 14px; vertical-align: bottom; } .spc div { background: var(--brand-primary); margin-bottom: 6px; }
+.dont .stage { height: 120px; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 1px var(--brand-line); display: flex; align-items: center; justify-content: center; overflow: hidden; } .dont p { margin: 8px 0 0; font-size: 13px; color: var(--brand-ink-2); } .x { color: var(--brand-danger); font-weight: 800; }
+.voice { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } .voice blockquote { margin: 0; padding: 14px 16px; border-radius: 12px; font-size: 15px; } .yes { background: #E8F7F0; border-left: 4px solid var(--brand-ok); } .no { background: #FDECEA; border-left: 4px solid var(--brand-danger); }
+.voice b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--brand-line); color: var(--brand-ink-3); font-size: 13px; display: flex; justify-content: space-between; gap: 24px; }
+@media (max-width: 900px) { .sheet { padding: 24px 16px 32px; } header { flex-direction: column; align-items: flex-start; } header p { text-align: left; } .g4, .g3, .g2, .g6, .voice { grid-template-columns: 1fr 1fr; } .colors { grid-template-columns: repeat(2, 1fr); } .trow { grid-template-columns: 70px 1fr; } .trow i { display: none; } }
+@media (max-width: 520px) { .g4, .g3, .g2, .g6, .voice { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <header>
+    <img src="tutafy-logo.svg" height="56" alt="Tutafy logo" style="">
+    <p><b>Brand sheet</b> · logo D2 · 25 Oct 2026<br>Full rules: docs/brand/BRAND.md · files: /brand/</p>
+  </header>
+
+  <h2>Logo</h2>
+  <div class="grid g4">
+    <div class="panel p-light"><img src="tutafy-logo.svg" height="56" alt="Tutafy logo" style=""><small>Light surface</small></div>
+    <div class="panel p-dark"><img src="tutafy-logo-dark.svg" height="56" alt="Tutafy logo" style=""><small>Dark surface</small></div>
+    <div class="panel p-brand"><img src="tutafy-logo-mono-white.svg" height="56" alt="Tutafy logo" style=""><small>One colour, white</small></div>
+    <div class="panel p-soft"><img src="tutafy-logo-mono-black.svg" height="56" alt="Tutafy logo" style=""><small>One colour, black</small></div>
+  </div>
+  <div class="grid g6" style="margin-top:16px">
+    <div class="panel p-light"><img src="tutafy-icon.svg" height="72" alt="Tutafy logo" style=""><small>Icon</small></div>
+    <div class="panel p-dark"><img src="tutafy-icon-dark.svg" height="72" alt="Tutafy logo" style=""><small>Icon, dark</small></div>
+    <div class="panel p-soft"><img src="tutafy-icon-mono-black.svg" height="72" alt="Tutafy logo" style=""><small>Icon, black</small></div>
+    <div class="panel p-brand"><img src="tutafy-icon-mono-white.svg" height="72" alt="Tutafy logo" style=""><small>Icon, white</small></div>
+    <div class="panel p-light"><img src="tutafy-icon-maskable.svg" height="72" alt="Maskable app icon" style="border-radius:50%"><small>App icon, circle crop</small></div>
+    <div class="panel" style="background:#8a8f9c"><img src="tutafy-badge.svg" height="72" alt="Notification badge"><small style="color:#fff">Push badge</small></div>
+  </div>
+
+  <h2>Space, size and misuse</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Clear space and smallest size</h3>
+      <p>Keep a quarter of the icon's height free on every side (the corner radius of the tile). Nothing enters that space. The icon is never drawn under 16 px; the horizontal logo is never lower than 24 px high.</p>
+      <div class="clear"><div class="box"><div><img src="tutafy-logo.svg" height="72" alt="Tutafy logo" style=""></div></div></div>
+      <div class="mins"><figure><img src="tutafy-icon.svg" height="16" alt="Tutafy logo" style="">16 px<br>smallest</figure><figure><img src="tutafy-icon.svg" height="32" alt="Tutafy logo" style="">32</figure><figure><img src="tutafy-icon.svg" height="48" alt="Tutafy logo" style="">48</figure><figure><img src="tutafy-logo.svg" height="24" alt="Tutafy logo" style="">horizontal, 24 px high</figure><figure><img src="tutafy-logo.svg" height="40" alt="Tutafy logo" style="">40</figure></div>
+    </div>
+    <div class="card">
+      <h3>Do not</h3>
+      <div class="grid g3" style="margin-top:12px">
+        <div class="dont"><div class="stage "><img src="tutafy-logo.svg" height="44" alt="Tutafy logo" style="transform:scale(1.2,.75)"></div><p><span class="x">✕</span> Stretch or squash it</p></div>
+        <div class="dont"><div class="stage "><img src="tutafy-logo.svg" height="44" alt="Tutafy logo" style="filter:hue-rotate(140deg) saturate(1.4)"></div><p><span class="x">✕</span> Change its colours</p></div>
+        <div class="dont"><div class="stage "><img src="tutafy-logo.svg" height="44" alt="Tutafy logo" style="transform:rotate(-12deg)"></div><p><span class="x">✕</span> Rotate or tilt it</p></div>
+        <div class="dont"><div class="stage "><img src="tutafy-logo.svg" height="44" alt="Tutafy logo" style="filter:drop-shadow(4px 5px 3px rgba(0,0,0,.45))"></div><p><span class="x">✕</span> Add a shadow or outline</p></div>
+        <div class="dont"><div class="stage" style="background:#4F46E5"><img src="tutafy-icon.svg" height="56" alt="Tutafy logo" style=""></div><p><span class="x">✕</span> Put the full-colour icon on a surface of its own colour</p></div>
+        <div class="dont"><div class="stage"><span style="display:inline-flex;align-items:center;gap:8px"><img src="tutafy-icon.svg" height="40" alt="Tutafy logo" style=""><span style="font:italic 700 28px Georgia,serif">Tutafy</span></span></div><p><span class="x">✕</span> Set the word in another font</p></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Colour</h2>
+  <div class="colors">
+    <div class="sw"><div class="chip" style="background:#4F46E5;color:#FFFFFF;">#4F46E5</div><b>Indigo</b><span>--brand-primary</span><em>Logo tile, main buttons, links</em></div>
+    <div class="sw"><div class="chip" style="background:#4338CA;color:#FFFFFF;">#4338CA</div><b>Indigo, hover</b><span>--brand-primary-hover</span><em>Pressed and hover state</em></div>
+    <div class="sw"><div class="chip" style="background:#EEF0FF;color:#111827;">#EEF0FF</div><b>Indigo, soft</b><span>--brand-primary-soft</span><em>Selected rows, tags</em></div>
+    <div class="sw"><div class="chip" style="background:#C7CCFA;color:#111827;">#C7CCFA</div><b>Indigo, line</b><span>--brand-primary-line</span><em>Borders on soft indigo</em></div>
+    <div class="sw"><div class="chip" style="background:#F59E0B;color:#111827;">#F59E0B</div><b>Amber</b><span>--brand-accent</span><em>The tassel; a small accent only</em></div>
+    <div class="sw"><div class="chip" style="background:#6366F1;color:#FFFFFF;">#6366F1</div><b>Indigo on dark</b><span>--brand-primary-on-dark</span><em>Logo tile on a dark surface</em></div>
+    <div class="sw"><div class="chip" style="background:#818CF8;color:#FFFFFF;">#818CF8</div><b>Indigo text on dark</b><span>--brand-primary-text-on-dark</span><em>Links and active items on dark</em></div>
+    <div class="sw"><div class="chip" style="background:#232A52;color:#FFFFFF;">#232A52</div><b>Indigo soft on dark</b><span>--brand-primary-soft-on-dark</span><em>Selected rows on dark</em></div>
+    <div class="sw"><div class="chip" style="background:#FBBF24;color:#111827;">#FBBF24</div><b>Amber on dark</b><span>--brand-accent-on-dark</span><em>The tassel on a dark surface</em></div>
+    <div class="sw"><div class="chip" style="background:#111827;color:#FFFFFF;">#111827</div><b>Ink</b><span>--brand-ink</span><em>Headings and body text</em></div>
+    <div class="sw"><div class="chip" style="background:#374151;color:#FFFFFF;">#374151</div><b>Ink 2</b><span>--brand-ink-2</span><em>Secondary text</em></div>
+    <div class="sw"><div class="chip" style="background:#5B6475;color:#FFFFFF;">#5B6475</div><b>Ink 3</b><span>--brand-ink-3</span><em>Captions, placeholders</em></div>
+    <div class="sw"><div class="chip" style="background:#F6F7FB;color:#111827;">#F6F7FB</div><b>Canvas</b><span>--brand-canvas</span><em>App background</em></div>
+    <div class="sw"><div class="chip" style="background:#FFFFFF;color:#111827;box-shadow:inset 0 0 0 1px #E5E7EF;">#FFFFFF</div><b>Surface</b><span>--brand-surface</span><em>Cards and panels</em></div>
+    <div class="sw"><div class="chip" style="background:#E5E7EF;color:#111827;">#E5E7EF</div><b>Line</b><span>--brand-line</span><em>Borders and dividers</em></div>
+    <div class="sw"><div class="chip" style="background:#0E1117;color:#FFFFFF;">#0E1117</div><b>Canvas, dark</b><span>--brand-canvas-dark</span><em>Dark background</em></div>
+    <div class="sw"><div class="chip" style="background:#171B24;color:#FFFFFF;">#171B24</div><b>Surface, dark</b><span>--brand-surface-dark</span><em>Dark cards</em></div>
+    <div class="sw"><div class="chip" style="background:#2A3040;color:#FFFFFF;">#2A3040</div><b>Line, dark</b><span>--brand-line-dark</span><em>Dark borders</em></div>
+    <div class="sw"><div class="chip" style="background:#047857;color:#FFFFFF;">#047857</div><b>Success</b><span>--brand-ok</span><em>Paid, done</em></div>
+    <div class="sw"><div class="chip" style="background:#92400E;color:#FFFFFF;">#92400E</div><b>Warning</b><span>--brand-warn</span><em>Needs attention</em></div>
+    <div class="sw"><div class="chip" style="background:#B42318;color:#FFFFFF;">#B42318</div><b>Danger</b><span>--brand-danger</span><em>Errors, cancel</em></div>
+    <div class="sw"><div class="chip" style="background:#F3F4F8;color:#111827;">#F3F4F8</div><b>Ink on dark</b><span>--brand-ink-on-dark</span><em>Text on a dark surface</em></div>
+  </div>
+
+  <h2>Type, corners and spacing</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Geist</h3>
+      <p>One family for everything: Geist (regular 400 to extra bold 800). The word in the logo is Geist Bold drawn as outlines, so the logo never depends on the font loading.</p>
+      <div class="trow"><code>display</code><span style="font-size:40px;line-height:1.15;font-weight:800;letter-spacing:-0.03em">Run your tutoring business</span><i>48/52 · 800</i></div>
+      <div class="trow"><code>h1</code><span style="font-size:34px;line-height:1.15;font-weight:800;letter-spacing:-0.025em">Run your tutoring business</span><i>34/40 · 800</i></div>
+      <div class="trow"><code>h2</code><span style="font-size:24px;line-height:1.15;font-weight:700;letter-spacing:-0.02em">Run your tutoring business</span><i>24/30 · 700</i></div>
+      <div class="trow"><code>h3</code><span style="font-size:18px;line-height:1.15;font-weight:700;letter-spacing:-0.01em">Run your tutoring business</span><i>18/26 · 700</i></div>
+      <div class="trow"><code>body</code><span style="font-size:16px;line-height:1.15;font-weight:400;letter-spacing:0">Run your tutoring business</span><i>16/26 · 400</i></div>
+      <div class="trow"><code>small</code><span style="font-size:14px;line-height:1.15;font-weight:500;letter-spacing:0">Run your tutoring business</span><i>14/20 · 500</i></div>
+      <div class="trow"><code>caption</code><span style="font-size:12px;line-height:1.15;font-weight:600;letter-spacing:0.04em">CAPTION LABEL</span><i>12/16 · 600</i></div>
+    </div>
+    <div class="card">
+      <h3>Corners and spacing</h3>
+      <p>Corners: 6, 8, 12, 16 and full. Spacing on a 4 px grid: 4, 8, 12, 16, 24, 32, 48, 64.</p>
+      <div class="shapes"><div class="rad"><div style="border-radius:6px"></div><code>sm 6px</code></div><div class="rad"><div style="border-radius:8px"></div><code>md 8px</code></div><div class="rad"><div style="border-radius:12px"></div><code>lg 12px</code></div><div class="rad"><div style="border-radius:16px"></div><code>xl 16px</code></div><div class="rad"><div style="border-radius:28px"></div><code>pill full</code></div></div>
+      <div style="margin-top:20px"><div class="spc"><div style="width:4px;height:4px"></div><code>4</code></div><div class="spc"><div style="width:8px;height:8px"></div><code>8</code></div><div class="spc"><div style="width:12px;height:12px"></div><code>12</code></div><div class="spc"><div style="width:16px;height:16px"></div><code>16</code></div><div class="spc"><div style="width:24px;height:24px"></div><code>24</code></div><div class="spc"><div style="width:32px;height:32px"></div><code>32</code></div><div class="spc"><div style="width:48px;height:48px"></div><code>48</code></div><div class="spc"><div style="width:64px;height:64px"></div><code>64</code></div></div>
+    </div>
+  </div>
+
+  <h2>Voice</h2>
+  <div class="voice">
+    <blockquote class="yes"><b>Right</b>Share one link. Students see your real availability in their timezone and book. No emails, no double-bookings.</blockquote>
+    <blockquote class="no"><b>Wrong</b>Unlock a seamless, next-level booking experience that empowers your tutoring journey.</blockquote>
+    <blockquote class="yes"><b>Right</b>Never. Unlike marketplaces, Tutafy takes 0% of what your students pay you, on every plan.</blockquote>
+    <blockquote class="no"><b>Wrong</b>Our revolutionary all-in-one solution transforms the way you teach!</blockquote>
+  </div>
+  <p style="color:var(--brand-ink-2);font-size:14px;margin-top:14px">Short and direct, like a colleague in the trade. Say the number, the price or the step. Honest about limits. Warm, not gushing: no exclamation marks, no emoji as icons. English only in the product.</p>
+
+  <footer><span>Tutafy · brand sheet · 25 Oct 2026</span><span>Logo chosen by the owner (D2). Trademark search not done yet.</span></footer>
+</main>
+</body>
+</html>

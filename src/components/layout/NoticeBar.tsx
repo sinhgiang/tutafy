@@ -32,7 +32,7 @@ export function NoticeBar() {
   async function enableNotifications() {
     try {
       const p = await window.Notification.requestPermission()
-      if (p === 'granted') new window.Notification('Tutafy notifications are on', { body: 'You will get an alert for new messages, bookings and students.', icon: '/favicon.ico' })
+      if (p === 'granted') new window.Notification('Tutafy notifications are on', { body: 'You will get an alert for new messages, bookings and students.', icon: '/icon-192.png' })
     } catch { /* the browser refused to ask */ }
     setState(readState())
   }

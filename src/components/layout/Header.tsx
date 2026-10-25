@@ -124,7 +124,7 @@ export function Header({ tutor, canViewAsStudent = false }: { tutor: Tutor; canV
       const n = new window.Notification(item.title, {
         body: item.body || 'Tutafy',
         tag: item.id, // collapses duplicates of the same event
-        icon: '/favicon.ico',
+        icon: '/icon-192.png',
       })
       n.onclick = () => {
         window.focus()

@@ -11,11 +11,13 @@
    so a page is readable in the dark theme before its own redesign. Delete a line of it when no page uses the class. */
 
 .dash {
+  /* brand:begin light (written by `npm run brand:build` from src/lib/brand.ts, T-0969; do not edit these lines) */
   --d-bg: #F6F7FB; --d-surface: #FFFFFF; --d-surface-2: #F3F4F8; --d-line: #E5E7EF; --d-line-strong: #D0D4E0;
   --d-ink: #111827; --d-ink-2: #374151; --d-ink-3: #5B6475;
   --d-brand: #4F46E5; --d-brand-hover: #4338CA; --d-brand-ink: #FFFFFF; --d-brand-soft: #EEF0FF; --d-brand-line: #C7CCFA;
   --d-ok: #047857; --d-ok-soft: #E8F7F0; --d-warn: #92400E; --d-warn-soft: #FEF3C7; --d-err: #B42318; --d-err-soft: #FDECEA;
   --d-focus: 0 0 0 3px rgba(79, 70, 229, .28);
+  /* brand:end */
   --d-shadow-1: 0 1px 2px rgba(17, 24, 39, .05), 0 1px 1px rgba(17, 24, 39, .03);
   --d-shadow-3: 0 24px 64px rgba(17, 24, 39, .22);
   --d-side: 64px; --d-top: 56px;
@@ -23,11 +25,13 @@
   color-scheme: light;
 }
 .dash[data-theme="dark"] {
+  /* brand:begin dark (written by `npm run brand:build` from src/lib/brand.ts, T-0969; do not edit these lines) */
   --d-bg: #0E1117; --d-surface: #171B24; --d-surface-2: #1F2430; --d-line: #2A3040; --d-line-strong: #3A4256;
   --d-ink: #F3F4F8; --d-ink-2: #D1D5E0; --d-ink-3: #A3ABBD;
   --d-brand: #818CF8; --d-brand-hover: #A5B4FC; --d-brand-ink: #0E1117; --d-brand-soft: #232A52; --d-brand-line: #3B4586;
   --d-ok: #34D399; --d-ok-soft: #12261F; --d-warn: #FBBF24; --d-warn-soft: #2B2208; --d-err: #F87171; --d-err-soft: #2E1514;
   --d-focus: 0 0 0 3px rgba(129, 140, 248, .4);
+  /* brand:end */
   --d-shadow-1: none;
   --d-shadow-3: 0 24px 64px rgba(0, 0, 0, .6);
   color-scheme: dark;
@@ -62,9 +66,10 @@
 .dash-brand { display: flex; align-items: center; gap: 8px; padding: 6px 0 14px; justify-content: center; }
 @media (min-width: 1280px) { .dash-brand { justify-content: flex-start; padding: 6px 8px 14px; } }
 .dash-brand a { display: flex; align-items: center; gap: 8px; min-height: 36px; border-radius: 8px; color: var(--d-ink); font-weight: 700; font-size: 16px; text-decoration: none; }
-.dash-logo { width: 28px; height: 28px; border-radius: 8px; background: var(--d-brand); color: var(--d-brand-ink); display: grid; place-items: center; flex-shrink: 0; }
-.dash-brand-name, .dash-plan-tag { display: none; }
-@media (min-width: 1280px) { .dash-brand-name { display: inline; } .dash-plan-tag { display: inline; } }
+/* The logo (T-0969): the icon alone on the narrow rail, the horizontal logo from 1280px. Both are the brand drawing, coloured by --brand-logo-* so the dark theme gets the dark-surface colours. */
+.dash-logo, .dash-logo-full { display: grid; place-items: center; flex-shrink: 0; line-height: 0; }
+.dash-logo-full, .dash-plan-tag { display: none; }
+@media (min-width: 1280px) { .dash-logo { display: none; } .dash-logo-full { display: grid; } .dash-plan-tag { display: inline; } }
 .dash-plan-tag { margin-left: auto; font-size: 12px; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; background: var(--d-brand-soft); color: var(--d-brand); }
 .dash-group-title { display: none; font-size: 12px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--d-ink-3); padding: 14px 10px 6px; margin: 0; }
 @media (min-width: 1280px) { .dash-group-title { display: block; } }

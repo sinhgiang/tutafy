@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { hasPlan, PLAN_LABEL } from '@/lib/plans'
-import { Zap } from 'lucide-react'
+import { BrandMark } from '@/components/brand/BrandMark'
+import { BrandLogo } from '@/components/brand/BrandLogo'
 import { NAV } from './nav-items'
 
 const PLAN_META: Record<string, { label: string; desc: string }> = {
@@ -78,8 +79,8 @@ export function Sidebar({ plan = 'free', unreadMessages = 0 }: { plan?: string; 
     <aside data-dash-sidebar className="dash-side" aria-label="Sidebar">
       <div className="dash-brand">
         <Link href="/dashboard" aria-label="Tutafy dashboard">
-          <span className="dash-logo" aria-hidden="true"><Zap className="h-4 w-4" fill="currentColor" /></span>
-          <span className="dash-brand-name">Tutafy</span>
+          <span className="dash-logo" aria-hidden="true"><BrandMark size={32} theme="auto" /></span>
+          <span className="dash-logo-full" aria-hidden="true"><BrandLogo height={32} theme="auto" /></span>
         </Link>
         <span className="dash-plan-tag">{meta.label.toUpperCase()}</span>
       </div>

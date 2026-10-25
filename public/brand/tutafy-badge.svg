@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Tutafy notification badge: the shape only, white on transparent. -->
+  <path d="M32 13L54 25L32 37L10 25Z" fill="#fff"/>
+  <path d="M19 31V39Q32 47 45 39V31L32 38Z" fill="#fff"/>
+  <path d="M52 27V43" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="52" cy="46" r="3.8" fill="#fff"/>
+</svg>

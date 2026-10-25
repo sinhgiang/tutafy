@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { OAuthCatcher } from '@/components/OAuthCatcher'
+import { BrandLogo } from '@/components/brand/BrandLogo'
 import { FEATURES, FAQ, PLANS, type FeatureId } from '@/lib/site-content'
 import { homeJsonLd, jsonLdScript } from '@/lib/seo'
 import { pageMetadata } from '@/lib/page-meta'
@@ -125,8 +126,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               {/* Sidebar */}
               <div className="w-48 bg-[#0A0A0F] p-4 min-h-[380px] hidden sm:block">
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="w-6 h-6 bg-indigo-500 rounded-lg" />
-                  <span className="text-[13px] font-bold text-white">Tutafy</span>
+                  <BrandLogo height={28} theme="dark" />
                 </div>
                 {['Dashboard', 'Students', 'Lessons', 'Calendar', 'Messages', 'Payments', 'AI Tools', 'Reports'].map((item, i) => (
                   <div key={item} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg mb-0.5 ${i === 0 ? 'bg-white/10' : ''}`}>

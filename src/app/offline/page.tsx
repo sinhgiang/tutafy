@@ -1,9 +1,12 @@
 'use client'
 
+import { BrandLogo } from '@/components/brand/BrandLogo'
+
 export default function OfflinePage() {
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="text-center max-w-sm">
+        <div className="flex justify-center mb-8"><BrandLogo height={36} title="Tutafy" /></div>
         <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728M15.536 8.464a5 5 0 010 7.072M6.343 6.343a9 9 0 000 12.728M9.172 9.172a5 5 0 000 7.072M12 12h.01" />
