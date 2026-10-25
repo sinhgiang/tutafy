@@ -228,6 +228,18 @@ function Block({ b }: { b: PostBlock }) {
         )}
       </figure>
     )
+    case 'source': return (
+      <p className="text-[12px] text-gray-500 leading-relaxed -mt-2" data-testid="rates-note">
+        {b.text} Sources:{' '}
+        {b.links.map((l, i) => (
+          <span key={l.href}>
+            {i > 0 && ' · '}
+            <a href={l.href} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">{l.label}</a>
+          </span>
+        ))}
+        .
+      </p>
+    )
     case 'faq': return (
       <div className="not-prose pt-2">
         <h2 className="text-[22px] font-bold text-gray-900 tracking-tight mb-4">Frequently asked questions</h2>

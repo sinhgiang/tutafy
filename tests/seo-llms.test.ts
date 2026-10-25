@@ -18,7 +18,7 @@ import { homeJsonLd, jsonLdScript, type JsonLd } from '@/lib/seo'
 import { SITE_URL, PLANS, FAQ, FEATURES, KEY_PAGES } from '@/lib/site-content'
 import { PAGE_SEO, pageMetadata } from '@/lib/page-meta'
 import { PLAN_PRICE } from '@/lib/plans'
-import { POSTS } from '@/lib/blog'
+import { POSTS, postDates as modifiedDates } from '@/lib/blog'
 import { loadUpdates } from '@/lib/updates'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -198,10 +198,10 @@ test('the page check does catch a page that types its own FAQ or price', () => {
 
 // ---- sitemap ----------------------------------------------------------------
 
-test('the sitemap puts no date on static pages and the posts keep their own dates', async () => {
+test('the sitemap puts no date on static pages and the posts carry the day they were last changed (the publish day until a post is edited)', async () => {
   const entries = (await sitemap())
   const prefix = `${SITE_URL}/blog/`
-  const postDates = new Map(POSTS.map(p => [`${prefix}${p.slug}`, new Date(p.date + 'T00:00:00').getTime()]))
+  const postDates = new Map(POSTS.map(p => [`${prefix}${p.slug}`, new Date(modifiedDates(p).modified + 'T00:00:00').getTime()]))
 
   for (const e of entries) {
     if (postDates.has(e.url)) {

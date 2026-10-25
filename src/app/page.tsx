@@ -11,6 +11,8 @@ import { FEATURES, FAQ, PLANS, type FeatureId } from '@/lib/site-content'
 import { homeJsonLd, jsonLdScript } from '@/lib/seo'
 import { pageMetadata } from '@/lib/page-meta'
 import { SiteLogo } from '@/components/SiteLogo'
+import { MarketplaceRatesNote } from '@/components/MarketplaceRatesNote'
+import { HOME_MARKETPLACE_SENTENCE, MARKETPLACE_RANGE } from '@/lib/marketplace-rates'
 
 export const metadata = pageMetadata('home')
 
@@ -27,7 +29,7 @@ const TRUST = [
 ]
 
 const PAINS = [
-  { icon: TrendingUp, text: 'Marketplaces skim 20–33% off every lesson you teach — and 100% of your trials.' },
+  { icon: TrendingUp, text: HOME_MARKETPLACE_SENTENCE },
   { icon: Clock, text: 'Your week disappears into Zoom links, Calendly, spreadsheets and WhatsApp.' },
   { icon: CreditCard, text: 'You chase students for payments instead of preparing great lessons.' },
   { icon: BookOpen, text: 'Lesson prep, homework and progress reports eat the evenings you don\'t get paid for.' },
@@ -43,7 +45,7 @@ const FEATURE_STYLE: Record<FeatureId, { icon: LucideIcon; color: string }> = {
 }
 
 const COMPARE = [
-  { label: 'Commission on your income', tutafy: '0%', market: '20–33%' },
+  { label: 'Commission on your income', tutafy: '0%', market: MARKETPLACE_RANGE },
   { label: 'Built-in video classroom', tutafy: true, market: false },
   { label: 'AI lesson & homework tools', tutafy: true, market: false },
   { label: 'You own the student relationship', tutafy: true, market: false },
@@ -199,6 +201,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               </div>
             ))}
           </div>
+          <MarketplaceRatesNote className="mt-4" />
           <p className="text-[17px] font-semibold text-gray-900 mt-10">Tutafy puts it all in one place — and hands the busywork to AI.</p>
         </div>
       </section>
@@ -287,6 +290,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               </div>
             ))}
           </div>
+          <MarketplaceRatesNote className="mt-3 text-center" />
         </div>
       </section>
 
