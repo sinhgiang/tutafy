@@ -6,6 +6,8 @@ import {
 } from 'lucide-react'
 import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
 import { SiteLogo } from '@/components/SiteLogo'
+import { MarketplaceRatesNote } from '@/components/MarketplaceRatesNote'
+import { ITALKI_RANGE, PREPLY_RANGE } from '@/lib/marketplace-rates'
 
 // Dedicated, distraction-free landing page for Google Ads "switching / alternative"
 // keywords (preply alternative, italki alternative, commission free tutoring platform...).
@@ -13,8 +15,8 @@ import { SiteLogo } from '@/components/SiteLogo'
 // Kept out of the site nav and out of the sitemap on purpose (noindex, follow).
 
 const COMPETITORS: Record<string, { name: string; rate: string; calcRate: number }> = {
-  preply: { name: 'Preply', rate: '18–33%', calcRate: 25 },
-  italki: { name: 'iTalki', rate: '~15%', calcRate: 15 },
+  preply: { name: 'Preply', rate: PREPLY_RANGE, calcRate: 25 },
+  italki: { name: 'iTalki', rate: ITALKI_RANGE, calcRate: 21 },
   wyzant: { name: 'Wyzant', rate: '~25%', calcRate: 25 },
   cambly: { name: 'Cambly', rate: 'a per-minute cut', calcRate: 20 },
   verbling: { name: 'Verbling', rate: '~15%', calcRate: 15 },
@@ -46,7 +48,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 }
 
 const PAIN = [
-  { icon: Percent, title: 'The cut on every lesson', text: 'Marketplaces typically keep 15–33% of what a student pays you — and most take 100% of the first trial lesson too.' },
+  { icon: Percent, title: 'The cut on every lesson', text: 'Marketplaces typically keep 15–33% of what a student pays you — and some, like Preply, take 100% of the first trial lesson too.' },
   { icon: Clock, title: 'Five apps to run one business', text: 'Zoom for class, Calendly or spreadsheets for booking, WhatsApp for reminders, a notebook for progress — none of it talks to the others.' },
   { icon: Users, title: 'You don’t own the relationship', text: 'Message a student off-platform and some marketplaces can suspend your account. Your student list lives in their database, not yours.' },
 ]
@@ -117,6 +119,7 @@ export default async function SwitchLandingPage({ searchParams }: { searchParams
         <p className="text-[17px] text-gray-500 mt-6 max-w-xl mx-auto leading-relaxed">
           {subhead}
         </p>
+        <MarketplaceRatesNote className="mt-3 max-w-xl mx-auto" />
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
           <Link href="/register" className="flex items-center gap-2 text-[15px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-7 py-3.5 rounded-xl shadow-lg shadow-indigo-200 w-full sm:w-auto justify-center">
             Start free — no credit card <ArrowRight className="h-4 w-4" />
