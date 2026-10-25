@@ -6,6 +6,7 @@ import { CookieConsent } from '@/components/CookieConsent'
 import { Analytics } from '@/components/Analytics'
 import { VisitorTracker } from '@/components/VisitorTracker'
 import { ROOT_METADATA } from '@/lib/page-meta'
+import { BRAND_COLORS } from '@/lib/brand'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'] })
@@ -17,7 +18,7 @@ const geist = Geist({ subsets: ['latin'] })
 export const metadata: Metadata = ROOT_METADATA
 
 export const viewport: Viewport = {
-  themeColor: '#6366f1',
+  themeColor: BRAND_COLORS.primary,
   width: 'device-width',
   initialScale: 1,
   // No zoom limit of any kind: a visitor must be able to pinch-zoom (WCAG 1.4.4, Lighthouse
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        {/* The browser icon (icon.svg, favicon.ico) and the iPhone home-screen icon (apple-icon.png) are the files of the same names in this folder, linked by Next.js (T-0969). */}
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={geist.className}>

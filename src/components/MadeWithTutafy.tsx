@@ -1,4 +1,5 @@
 import { MADE_WITH_TEXT, madeWithHref, type BrandingSurface } from '@/lib/branding'
+import { BrandMark } from '@/components/brand/BrandMark'
 
 // The "Made with Tutafy" line at the foot of a public booking page or the embed window (T-0717).
 // It sits in the normal flow under the page, never fixed or floating, so it cannot cover the booking button. The strip it lives in
@@ -8,7 +9,8 @@ export function MadeWithTutafy({ show, surface }: { show: boolean; surface: Bran
     <div data-testid="made-with-strip" className="h-14 flex items-center justify-center">
       {show && (
         <a href={madeWithHref(surface)} target="_blank" rel="noopener" data-testid="made-with-tutafy"
-          className="text-[11px] text-gray-500 hover:text-gray-700 transition-colors">
+          className="inline-flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-700 transition-colors">
+          <BrandMark size={16} />
           {MADE_WITH_TEXT}
         </a>
       )}

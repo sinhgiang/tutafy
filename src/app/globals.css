@@ -1,10 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* The brand's colours, type and corners as --brand-* variables, written from src/lib/brand.ts (T-0969; docs/brand/BRAND.md). */
+@import "../styles/brand-tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Utilities for the brand colours: bg-brand, text-brand, border-brand-line, bg-tassel ... (the same values as --brand-*) */
+  --color-brand: var(--brand-primary);
+  --color-brand-hover: var(--brand-primary-hover);
+  --color-brand-soft: var(--brand-primary-soft);
+  --color-brand-line: var(--brand-primary-line);
+  --color-tassel: var(--brand-accent);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);

@@ -7,7 +7,8 @@ import { toast } from 'sonner'
 import { getConsent } from '@/components/CookieConsent'
 import { sendGaEvent, sendAdsSignupConversion } from '@/lib/google-tag'
 import { saveOnboardingAvailability, checkAvailabilityInput, ONBOARDING_DAYS } from '@/lib/onboarding-availability'
-import { Zap, User, Clock, Share2, Check, ChevronRight, Copy } from 'lucide-react'
+import { BrandMark } from '@/components/brand/BrandMark'
+import { User, Clock, Share2, Check, ChevronRight, Copy } from 'lucide-react'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'America/Toronto',
@@ -118,8 +119,8 @@ export default function OnboardingPage() {
       <div className="w-full max-w-md space-y-5">
         {/* Header */}
         <div className="text-center">
-          <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Zap className="h-6 w-6 text-white" fill="white" />
+          <div className="mx-auto mb-3 w-12 h-12">
+            <BrandMark size={48} title="Tutafy" />
           </div>
           <h1 className="text-[22px] font-bold text-gray-900">Welcome to Tutafy!</h1>
           <p className="text-[13px] text-gray-400 mt-1">Let&apos;s get your tutor profile ready in 3 steps</p>

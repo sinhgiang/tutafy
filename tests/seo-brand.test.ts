@@ -87,7 +87,13 @@ test('/og is a real 1200 x 630 PNG, and every page and post points to it as its 
   const view = new DataView(bytes.buffer, bytes.byteOffset)
   assert.equal(view.getUint32(16), 1200, 'width')
   assert.equal(view.getUint32(20), 630, 'height')
-  assert.match(read('src/app/og/route.tsx'), />Tutafy</, 'the picture carries the name')
+  assert.match(read('src/app/og/route.tsx'), /alt="Tutafy"/, 'the picture carries the name (T-0969: the horizontal logo, whose word is outlines)')
+  // and the name really is in the picture: the top left of the drawn PNG holds the white word on the dark surface
+  const sharp = (await import('sharp')).default
+  const { data, info } = await sharp(Buffer.from(bytes)).extract({ left: 80, top: 64, width: 400, height: 100 }).raw().toBuffer({ resolveWithObject: true })
+  let bright = 0
+  for (let i = 0; i < data.length; i += info.channels) if (data[i] > 230 && data[i + 1] > 230 && data[i + 2] > 230) bright++
+  assert.ok(bright > 1500, `white pixels of the word in the logo area: ${bright}`)
 
   for (const key of Object.keys(PAGE_SEO) as (keyof typeof PAGE_SEO)[]) {
     const m = pageMetadata(key) as Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any

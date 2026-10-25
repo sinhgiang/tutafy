@@ -1,4 +1,4 @@
-const CACHE = 'tutafy-v1'
+const CACHE = 'tutafy-v2' // v2 (T-0969): drops cached pages and pictures that still show the old logo
 const STATIC = ['/offline', '/manifest.webmanifest']
 
 self.addEventListener('install', e => {
@@ -42,7 +42,7 @@ self.addEventListener('push', function(event) {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      badge: '/brand/tutafy-badge-96.png', // the shape only, white on transparent: a phone paints it in one colour
       data: { url: data.url || '/' }
     })
   )

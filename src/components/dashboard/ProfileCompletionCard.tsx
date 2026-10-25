@@ -48,7 +48,7 @@ export function ProfileCompletionView({ card, onCopy, copied }: { card: ProfileC
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <div className="relative w-12 h-12 rounded-full" aria-hidden="true"
-            style={{ background: `conic-gradient(#4F46E5 ${card.percent * 3.6}deg, #E5E7EB 0deg)` }}>
+            style={{ background: `conic-gradient(var(--brand-primary) ${card.percent * 3.6}deg, #E5E7EB 0deg)` }}>
             <div className="absolute inset-[5px] rounded-full bg-white" />
           </div>
           <div className="leading-tight">

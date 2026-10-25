@@ -127,7 +127,7 @@ test('/updates renders every entry from the files: version, day, title, summary,
   assert.equal((html.match(/<main[ >]/g) ?? []).length, 1)
   assert.match(html, /<footer class="border-t border-gray-100 py-8 px-6">/, "the site's own footer")
   assert.match(html, /<div class="min-h-screen bg-white">/, 'a white page like the rest of the site')
-  assert.match(html, /bg-indigo-500/)
+  assert.match(html, /data-brand="logo"/, 'the top bar draws the Tutafy logo')
   // the page code names no version and no date: those come from the files
   const pageSrc = read('src/app/updates/page.tsx') + read('src/components/updates/UpdatesBrowser.tsx')
   assert.doesNotMatch(pageSrc, /\b\d+\.\d+\.\d+\b|\b2026-\d\d-\d\d\b/)

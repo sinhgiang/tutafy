@@ -105,7 +105,7 @@ beforeEach(() => {
 
 type Page = (props: { params: Promise<Record<string, string>> }) => Promise<React.ReactElement>
 const render = async (page: unknown, params: Record<string, string>) => renderToStaticMarkup(await (page as Page)({ params: Promise.resolve(params) }))
-const LINK = /<a href="([^"]*)" target="_blank" rel="noopener" data-testid="made-with-tutafy" class="[^"]*">Made with Tutafy<\/a>/
+const LINK = /<a href="([^"]*)" target="_blank" rel="noopener" data-testid="made-with-tutafy" class="[^"]*">(?:<svg[^>]*data-brand="icon"[^>]*>(?:(?!<\/svg>)[\s\S])*<\/svg>)?Made with Tutafy<\/a>/ // T-0969: the small Tutafy icon, drawn decoratively, may stand before the words
 const lines = (html: string) => (html.match(/data-testid="made-with-tutafy"/g) ?? []).length
 
 test('/book/<slug> of a Free tutor shows "Made with Tutafy": one link, to the home page, in a new tab, with the source', async () => {

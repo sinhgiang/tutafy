@@ -1,15 +1,12 @@
 import Link from 'next/link'
-import { Zap } from 'lucide-react'
+import { BrandLogo } from '@/components/brand/BrandLogo'
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
       <header className="bg-white border-b border-gray-100 h-[56px] flex items-center px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-indigo-500 flex items-center justify-center">
-            <Zap className="h-3.5 w-3.5 text-white" fill="white" />
-          </div>
-          <span className="text-[14px] font-semibold text-gray-900">Tutafy</span>
+        <Link href="/" aria-label="Tutafy home" className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+          <BrandLogo height={28} />
         </Link>
         <span className="text-[11px] text-gray-500 ml-2">· Student</span>
       </header>
