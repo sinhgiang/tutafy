@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
 import { isTutorId, loadJourney, parsePage, parsePlanFilter, parseStageFilter } from '@/lib/people-data'
-import { buildJourneyView, parseStepsPage, VIEW_PAGE_SIZE, type ViewRow } from '@/lib/journey-view'
-import type { TimelineEntry } from '@/lib/timeline'
+import { buildJourneyView, parseStepsPage, VIEW_PAGE_SIZE } from '@/lib/journey-view'
 import { countryName, formatWhen } from '@/lib/format'
 import { JourneyStep } from '@/components/admin/JourneyStep'
 import { getAdminT } from '@/lib/admin-lang'
@@ -79,6 +77,7 @@ export default async function PersonJourneyPage({
           <div>
             <h1 className="text-xl font-bold text-gray-900" data-testid="person-name">{p.name || p.email}</h1>
             <p className="text-sm text-gray-400">{p.email}</p>
+            <Link href={`/admin/tutors/${id}`} data-testid="person-tutor-page" className="text-xs font-medium text-indigo-600 hover:underline">{t('journey.tutorPage')}</Link>
           </div>
           <div className="flex items-center gap-2">
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${planBadgeClass(p.plan)}`}>{planLabel(p.plan)}</span>

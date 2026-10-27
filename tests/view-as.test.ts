@@ -74,7 +74,7 @@ test('restRequest: every write, every unlisted table and everything that is not 
 
 test('the list of readable tables is the one the dashboard needs: every table the dashboard code reads is either listed or knowingly left out', () => {
   const files: string[] = []
-  const walk = (dir: string) => { for (const f of readdirSync(dir)) { const p = path.join(dir, f); statSync(p).isDirectory() ? walk(p) : /\.(ts|tsx)$/.test(f) && files.push(p) } }
+  const walk = (dir: string) => { for (const f of readdirSync(dir)) { const p = path.join(dir, f); if (statSync(p).isDirectory()) walk(p); else if (/\.(ts|tsx)$/.test(f)) files.push(p) } }
   walk(path.join(SRC, 'app/(dashboard)')); walk(path.join(SRC, 'components/layout')); files.push(path.join(SRC, 'lib/guard.tsx'))
   const used = new Set<string>()
   for (const f of files) for (const m of readFileSync(f, 'utf8').matchAll(/\.from\('([a-z_]+)'\)/g)) used.add(m[1])

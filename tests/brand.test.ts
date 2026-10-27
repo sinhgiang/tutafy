@@ -203,7 +203,7 @@ test('the manifest, the browser colour, the icons and the service worker are the
   assert.ok(badge && exists(`public${badge}`) && badge !== '/icon-192.png', 'the push badge is the white shape, not the full-colour icon')
   const logoUrl = /logo: `\$\{SITE_URL\}(\/[^`]+)`/.exec(read('src/lib/seo.ts'))?.[1]
   assert.ok(logoUrl && exists(`public${logoUrl}`), 'the Organization logo in the structured data is a file that exists')
-  const matcher = /matcher: \['([^']+)'\]/.exec(read('src/proxy.ts'))?.[1] ?? ''
+  const matcher = /matcher: \['([^']+)'/.exec(read('src/proxy.ts'))?.[1] ?? ''
   for (const skip of ['icon-', 'icon\\\\.svg', 'apple-icon', 'brand/']) assert.ok(matcher.includes(skip), `the proxy leaves ${skip} alone`)
 })
 

@@ -51,7 +51,7 @@ function installDatabase() {
   }) as typeof fetch
 }
 
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 const server = await import('@/lib/supabase/server.ts')
 const { requireAdminPage, adminApiGate } = await import('@/lib/admin-guard.ts')
 const view = await import('@/lib/view-as.ts')
@@ -333,8 +333,6 @@ test('the dashboard layout draws the strip only while a view is open, and the re
 
 test('nothing builds its own database client around the seam: only the files that are the seam, the login callback and the proxy do', () => {
   const files = ['app/auth/callback/route.ts', 'lib/supabase/client.ts', 'lib/supabase/server.ts', 'proxy.ts']
-  const found = (dir: string): string[] => []
-  void found
   const SKIP = new Set(files)
   const offenders: string[] = []
   const walk = (dir: string) => {

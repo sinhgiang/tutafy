@@ -35,7 +35,7 @@ mock.module('next/navigation', {
   },
 })
 
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 const detail = await import('@/lib/tutor-detail-data.ts')
 const TutorPage = (await import('@/app/(admin)/admin/tutors/[id]/page.tsx')).default as (p: { params: Promise<{ id: string }> }) => Promise<React.ReactElement>
 
@@ -332,4 +332,25 @@ test('the tutor page says why a view could not be opened, in words, for each rea
     assert.match(await renderWith('bad_id'), /not a tutor id/)
     for (const odd of ['<script>', 'constructor', '__proto__', 'toString', ['unavailable'], undefined]) assert.doesNotMatch(await renderWith(odd as never), /data-testid="view-as-error"/, String(odd))
   } finally { p.restore() }
+})
+
+// ---- the way in from /super-admin (T-1030) ---------------------------------------------------------------------------------------------
+
+test('on /super-admin a tutor\'s name opens the tutor page (account, payment, journey, View as this tutor); the journey stays one click away', async () => {
+  const SuperAdmin = (await import('@/app/(admin)/super-admin/page.tsx')).default as (p: { searchParams: Promise<Record<string, string>> }) => Promise<React.ReactElement>
+  const html = renderToStaticMarkup(await SuperAdmin({ searchParams: Promise.resolve({}) }))
+  const row = (id: string) => new RegExp(`data-person="${id}"[\\s\\S]*?</tr>`).exec(html)?.[0] ?? ''
+  const ann = row(ANN)
+  assert.ok(ann.includes(`href="/admin/tutors/${ANN}"`), 'the name goes to the tutor page')
+  assert.match(ann, /data-testid="person-link"/)
+  assert.ok(ann.includes(`href="/super-admin/people/${ANN}"`), 'the journey is still one click away')
+  assert.ok(!ann.includes(DEE), 'no other tutor is in her row')
+  for (const id of [BO, CY, DEE]) assert.ok(row(id).includes(`href="/admin/tutors/${id}"`), id)
+})
+
+test('the journey page links to the tutor page, so the paying list of /admin reaches View as this tutor too', async () => {
+  const Journey = (await import('@/app/(admin)/super-admin/people/[id]/page.tsx')).default as (p: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string>> }) => Promise<React.ReactElement>
+  const html = renderToStaticMarkup(await Journey({ params: Promise.resolve({ id: ANN }), searchParams: Promise.resolve({}) }))
+  assert.match(html, /data-testid="person-tutor-page"[^>]*>Tutor page and View as this tutor</)
+  assert.ok(html.includes(`href="/admin/tutors/${ANN}"`))
 })

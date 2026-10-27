@@ -135,8 +135,9 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
               {people.rows.map(p => (
                 <tr key={p.id} className="align-top hover:bg-gray-50 transition-colors" data-person={p.id}>
                   <td className="px-5 py-3">
-                    <Link href={`/super-admin/people/${p.id}${query({ page: page > 1 ? page : null })}`} className="font-medium text-indigo-700 hover:underline">{p.name || p.email}</Link>
+                    <Link href={`/admin/tutors/${p.id}`} className="font-medium text-indigo-700 hover:underline" data-testid="person-link">{p.name || p.email}</Link>
                     <p className="text-xs text-gray-400">{p.email}</p>
+                    <Link href={`/super-admin/people/${p.id}${query({ page: page > 1 ? page : null })}`} className="text-xs text-gray-500 hover:text-indigo-700 hover:underline">{t('sa.journeyLink')}</Link>
                   </td>
                   <td className="px-5 py-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${planBadgeClass(p.plan)}`}>{planLabel(p.plan)}</span>
