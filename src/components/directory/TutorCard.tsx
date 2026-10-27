@@ -41,7 +41,7 @@ export function TutorCard({ card, zone, viewerZone, now }: { card: DirectoryCard
           </span>
         )}
         {trial && (
-          <span className="absolute left-1.5 top-1.5 min-[721px]:left-2.5 min-[721px]:top-2.5 inline-flex items-center gap-1 bg-white/95 text-emerald-700 text-[11px] min-[721px]:text-[12px] font-bold px-[7px] py-[3px] min-[721px]:px-[9px] min-[721px]:py-1 rounded-full shadow-sm" data-testid="card-trial">
+          <span className="absolute left-1.5 top-1.5 min-[721px]:left-2.5 min-[721px]:top-2.5 inline-flex max-w-[calc(100%-0.75rem)] items-center gap-1 bg-white/95 text-emerald-700 text-[11px] min-[721px]:text-[12px] leading-tight font-bold px-[7px] py-[3px] min-[721px]:px-[9px] min-[721px]:py-1 rounded-full shadow-sm" data-testid="card-trial">
             <Zap className="h-3 w-3" aria-hidden="true" /> {TRIAL_BADGE} {trial}
           </span>
         )}
