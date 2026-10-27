@@ -5,6 +5,7 @@ import { getSlots, overlappingLesson, type AvailabilityRow, type LessonWindow } 
 import { describeDurations } from '@/lib/lesson-durations'
 import { formatMoney } from '@/lib/currency'
 import { cleanText } from '@/lib/tutor-seo'
+import { TRIAL_MINUTES } from '@/lib/trial'
 
 // ---- time zones --------------------------------------------------------------------------------------------------------------------
 
@@ -215,7 +216,7 @@ export function profileNotes(t: {
     ? { id: 'cancel', title: 'Cancel or reschedule', text: `Free up to ${hours} ${hours === 1 ? 'hour' : 'hours'} before the lesson.` }
     : { id: 'cancel', title: 'Cancel or reschedule', text: `${first} has not set a free-cancellation window. Ask before you book if you may need to change the time.` })
   if (t.trial_enabled && Number(t.trial_price) > 0) {
-    notes.push({ id: 'trial', title: 'Trial lesson', text: `Your first lesson with ${first} costs ${priceLabel(t.trial_price, t.currency)}.` })
+    notes.push({ id: 'trial', title: 'Trial lesson', text: `Your first lesson with ${first} can be a ${TRIAL_MINUTES}-minute trial for ${priceLabel(t.trial_price, t.currency)}.` })
   }
   notes.push({ id: 'video', title: 'Video lesson', text: 'Your lesson link comes by email. It opens in your browser, nothing to install.' })
   return notes

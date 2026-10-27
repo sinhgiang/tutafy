@@ -172,7 +172,7 @@ test('the preview shows the form as it is now: name, introduction, price in the 
 })
 
 test('the preview follows each field: a paid trial, no price, no trial, no cancellation, a page that is off, a long introduction, a name nobody typed yet', () => {
-  assert.match(draw({ trial_price: '12.5' }), /Trial lesson €12\.50/)
+  assert.match(draw({ trial_price: '12.5' }), /30-minute trial €12\.50/)
   assert.match(draw({ default_lesson_price: '' }), /No price set/)
   assert.ok(!draw({ trial_enabled: false }).includes('Free trial'))
   assert.match(draw({ cancellation_hours: 0, buffer_minutes: 0 }), /No notice needed/)

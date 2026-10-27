@@ -39,9 +39,9 @@ test('title and description: their own words, inside the search-result limits, b
   assert.ok(t.description.length >= 70 && t.description.length <= lib.BOOKING_DESCRIPTION_MAX, t.description)
   assert.match(t.title, /Maya Reyes/)
   assert.match(t.description, /\$22 per lesson/)
-  assert.match(t.description, /trial lesson \$10/)
+  assert.match(t.description, /30-minute trial \$10/)
   // a long sentence drops the facts at its end rather than being cut in the middle; a short name has room for all three
-  assert.match(lib.bookingSeoText({ ...FULL, name: 'Li', languages: ['English'] }).description, /\$22 per lesson, trial lesson \$10, free cancellation up to 24h\./)
+  assert.match(lib.bookingSeoText({ ...FULL, name: 'Li', languages: ['English'] }).description, /\$22 per lesson, 30-minute trial \$10, free cancellation up to 24h\./)
   // the profile page has its own words: the two never repeat each other
   assert.notEqual(t.title, meta.tutorMetadata({ slug: 'maya-reyes', ...FULL, booking_url_active: true }).title && (meta.tutorMetadata({ slug: 'maya-reyes', ...FULL, booking_url_active: true }).title as { absolute: string }).absolute)
 })
@@ -126,7 +126,9 @@ test('a full tutor: one h1 with the name, the facts, About, packages, reviews, b
   assert.match(html, /Teaches English, Spanish/)
   assert.match(html, /America\/New_York/)
   assert.match(html, />\$22<span[^>]*>\/ lesson/)
-  assert.match(html, /Trial lesson \$10/)
+  assert.match(html, /30-minute trial \$10/)
+  assert.match(html, /\$10<span[^>]*>for 30 min/, 'the facts row says what the trial price buys')
+  assert.match(html, /data-testid="trial-switch"[\s\S]*?30-minute trial \$10[\s\S]*?Always 30 minutes/, 'the booking card names the trial the same way')
   assert.match(html, /Free<span[^>]*>up to 24h before/)
   assert.match(html, /I teach English to adults\./)
   assert.match(html, /data-testid="booking-packages"/)

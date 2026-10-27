@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Star, Zap, Languages, Clock, Signal, Video } from 'lucide-react'
 import { EstablishedChip } from '@/components/profile/EstablishedBadge'
 import { priceLabel, initialsOf, zoneCity } from '@/lib/tutor-profile'
+import { TRIAL_BADGE } from '@/lib/trial'
 import { nextAvailableText, LEVEL_OPTIONS, type DirectoryCard } from '@/lib/directory'
 
 // Soft tints for the "no photo" tile, picked from the name so a grid is not one flat colour (never a grey silhouette).
@@ -41,7 +42,7 @@ export function TutorCard({ card, zone, viewerZone, now }: { card: DirectoryCard
         )}
         {trial && (
           <span className="absolute left-1.5 top-1.5 min-[721px]:left-2.5 min-[721px]:top-2.5 inline-flex items-center gap-1 bg-white/95 text-emerald-700 text-[11px] min-[721px]:text-[12px] font-bold px-[7px] py-[3px] min-[721px]:px-[9px] min-[721px]:py-1 rounded-full shadow-sm" data-testid="card-trial">
-            <Zap className="h-3 w-3" aria-hidden="true" /> Trial {trial}
+            <Zap className="h-3 w-3" aria-hidden="true" /> {TRIAL_BADGE} {trial}
           </span>
         )}
       </Link>

@@ -22,6 +22,7 @@ import { IntroVideo } from '@/components/profile/IntroVideo'
 import { EstablishedName } from '@/components/profile/EstablishedBadge'
 import { loadEstablished, loadIntroVideos, type ExtrasClient } from '@/lib/established-data'
 import { profileFaq, profileFaqJsonLd, profileSummary } from '@/lib/profile-answers'
+import { TRIAL_MINUTES, TRIAL_NAME } from '@/lib/trial'
 import Link from 'next/link'
 import { SiteFooter } from '@/components/SiteFooter'
 import { Globe, Star, Sparkles, Languages, BookOpen, Check, Video, RefreshCw, Zap, Clock, ArrowRight } from 'lucide-react'
@@ -242,7 +243,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                 </ul>
                 {(trial || freeCancel) && (
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {trial && trialPrice && <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12.5px] font-semibold text-emerald-800"><Zap className="h-3.5 w-3.5" aria-hidden="true" /> Trial lesson {trialPrice}</span>}
+                    {trial && trialPrice && <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12.5px] font-semibold text-emerald-800"><Zap className="h-3.5 w-3.5" aria-hidden="true" /> {TRIAL_NAME} {trialPrice}</span>}
                     {freeCancel && <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-[12.5px] font-semibold text-indigo-800"><RefreshCw className="h-3.5 w-3.5" aria-hidden="true" /> Free cancellation up to {cancelHours}h</span>}
                   </div>
                 )}
@@ -268,7 +269,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                     <li className="flex items-start justify-between gap-4 py-3">
                       <div>
                         <p className="text-[15px] font-bold text-gray-900">Trial lesson <span className="ml-1 align-middle rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800">First lesson only</span></p>
-                        <p className="text-[13px] text-gray-600 mt-0.5">Meet {first} and agree on a plan.</p>
+                        <p className="text-[13px] text-gray-600 mt-0.5">{TRIAL_MINUTES} minutes to meet {first} and agree on a plan.</p>
                       </div>
                       <p className="text-[18px] font-extrabold text-gray-900 shrink-0">{trialPrice}</p>
                     </li>
@@ -383,7 +384,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
                 <p className="text-[32px] leading-none font-extrabold text-gray-900">{price}<span className="ml-1.5 text-[14px] font-normal text-gray-600">/ lesson</span></p>
               )}
               {trialPrice && (
-                <p className="mt-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12.5px] font-semibold text-emerald-800"><Zap className="h-3.5 w-3.5" aria-hidden="true" /> Trial lesson {trialPrice} · first lesson only</span></p>
+                <p className="mt-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12.5px] font-semibold text-emerald-800"><Zap className="h-3.5 w-3.5" aria-hidden="true" /> {TRIAL_NAME} {trialPrice} · first lesson only</span></p>
               )}
               <p className="mt-4 flex items-center gap-2 text-[13px] text-gray-700"><Clock className="h-4 w-4 text-gray-500 shrink-0" aria-hidden="true" /><span>{describeDurations(lengths.durations)}</span></p>
               {bookable ? (
@@ -411,7 +412,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
 
       <MadeWithTutafy show={showMadeWith} surface="profile-page" />
       <SiteFooter />
-      {bookable && <StickyBookBar slots={times.slots} state={times.state} tutorTz={tutorTz} bookHref={bookHref} priceText={price ? `${price} / lesson${trialPrice ? ` · trial ${trialPrice}` : ''}` : null} buttonText={trialPrice ? 'Book trial' : 'Book a lesson'} />}
+      {bookable && <StickyBookBar slots={times.slots} state={times.state} tutorTz={tutorTz} bookHref={bookHref} priceText={price ? `${price} / lesson${trialPrice ? ` · ${TRIAL_MINUTES}-min trial ${trialPrice}` : ''}` : null} buttonText={trialPrice ? 'Book trial' : 'Book a lesson'} />}
     </div>
   )
 }

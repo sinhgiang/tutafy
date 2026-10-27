@@ -7,6 +7,7 @@ import { firstNameOf, hasTrial, priceLabel, safeZone, zoneCity } from '@/lib/tut
 import { describeDurations } from '@/lib/lesson-durations'
 import { ESTABLISHED_LESSONS, ESTABLISHED_TITLE } from '@/lib/established'
 import { absoluteUrl } from '@/lib/site-url'
+import { TRIAL_MINUTES } from '@/lib/trial'
 import type { VideoProvider } from '@/lib/intro-video'
 
 export type FaqItem = { q: string; a: string }
@@ -34,7 +35,7 @@ export function profileSummary(t: ProfileFacts): string {
   const city = zoneCity(safeZone(t.timezone))
   let text = `${teaches}, in ${city} time.`
   if (price) text += ` A lesson costs ${price} (${describeDurations(t.durations)}).`
-  if (trial) text += ` The first lesson is ${trial}.`
+  if (trial) text += ` The first lesson is a ${TRIAL_MINUTES}-minute trial for ${trial}.`
   return text
 }
 

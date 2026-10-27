@@ -5,6 +5,7 @@ import { Star, Sparkles, Languages, Globe, BookOpenCheck, Gift, CalendarCheck, R
 import { formatMoney } from '@/lib/currency'
 import { initialsOf, firstNameOf, bioParagraphs, reviewText } from '@/lib/tutor-profile'
 import { describeDurations } from '@/lib/lesson-durations'
+import { TRIAL_MINUTES, TRIAL_NAME } from '@/lib/trial'
 import type { FaqItem } from '@/lib/booking-page'
 
 export const CARD = 'bg-white rounded-2xl border border-gray-200 shadow-sm'
@@ -80,14 +81,14 @@ export function Hero(p: HeroProps) {
             <li className="flex items-center gap-1.5"><Globe className="h-4 w-4 text-gray-600 shrink-0" aria-hidden="true" /> {p.zone}</li>
           </ul>
           {p.trialPrice && (
-            <p className="mt-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[13px] font-semibold text-emerald-800"><Gift className="h-3.5 w-3.5" aria-hidden="true" /> Trial lesson {p.trialPrice}</span></p>
+            <p className="mt-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[13px] font-semibold text-emerald-800"><Gift className="h-3.5 w-3.5" aria-hidden="true" /> {TRIAL_NAME} {p.trialPrice}</span></p>
           )}
         </div>
       </div>
       <dl className="hidden sm:grid grid-cols-4 border-t border-gray-200 divide-x divide-gray-200" data-testid="booking-facts">
         <div className={fact}><dt className={factLabel}>Price</dt><dd className="mt-0.5 text-[20px] font-bold text-gray-900">{p.price ? <>{p.price}<span className="ml-1 text-[13px] font-medium text-gray-600">/ lesson</span></> : <span className="text-[16px] font-semibold text-gray-600">Ask the tutor</span>}</dd></div>
         <div className={fact}><dt className={factLabel}>Lesson lengths</dt><dd className="mt-0.5 text-[20px] font-bold text-gray-900">{p.durations.join(' · ')}<span className="ml-1 text-[13px] font-medium text-gray-600">min</span></dd></div>
-        <div className={fact}><dt className={factLabel}>Trial lesson</dt><dd className="mt-0.5 text-[20px] font-bold text-gray-900">{p.trialPrice ?? <span className="text-[16px] font-semibold text-gray-600">Not offered</span>}</dd></div>
+        <div className={fact}><dt className={factLabel}>Trial lesson</dt><dd className="mt-0.5 text-[20px] font-bold text-gray-900">{p.trialPrice ? <>{p.trialPrice}<span className="ml-1 text-[13px] font-medium text-gray-600">for {TRIAL_MINUTES} min</span></> : <span className="text-[16px] font-semibold text-gray-600">Not offered</span>}</dd></div>
         <div className={fact}><dt className={factLabel}>Cancellation</dt><dd className="mt-0.5 text-[20px] font-bold text-gray-900">{p.cancelHours ? <>Free<span className="ml-1 text-[13px] font-medium text-gray-600">up to {p.cancelHours}h before</span></> : <span className="text-[16px] font-semibold text-gray-600">No free cancellation</span>}</dd></div>
       </dl>
     </section>

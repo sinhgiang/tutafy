@@ -365,7 +365,7 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
           <TimeGroups filters={filters} set={set} zoneKnown={zoneKnown} />
           <div className="mt-4"><ZoneGroup filters={filters} set={set} browser={browser} /></div>
           <div className="mt-4 flex items-center justify-between gap-3.5 rounded-2xl border border-gray-200 px-3.5 py-3">
-            <div><b className="block text-[14px] text-gray-900">Trial lesson offered</b><span className="text-[12.5px] text-gray-600">Tutors with a cheaper first lesson</span></div>
+            <div><b className="block text-[14px] text-gray-900">Trial lesson offered</b><span className="text-[12.5px] text-gray-600">Tutors with a 30-minute first lesson</span></div>
             <button type="button" role="switch" aria-checked={filters.trial} aria-label="Trial lesson offered" onClick={() => set({ ...filters, trial: !filters.trial })}
               className={`w-11 h-[26px] rounded-full relative shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${filters.trial ? 'bg-indigo-600' : 'bg-gray-300'}`}>
               <span className={`absolute top-[3px] w-5 h-5 rounded-full bg-white shadow transition-all ${filters.trial ? 'left-[21px]' : 'left-[3px]'}`} />

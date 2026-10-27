@@ -195,7 +195,7 @@ export function FindTutorView({ cards, initial, nowIso, error, listed }: { cards
             </details>
 
             <label className="relative mt-4 flex items-center justify-between gap-3.5 rounded-2xl border border-gray-200 px-3.5 py-3 cursor-pointer">
-              <span><b className="block text-[14px] text-gray-900">Only tutors with a trial lesson</b><span className="text-[12.5px] text-gray-600">A cheaper first lesson</span></span>
+              <span><b className="block text-[14px] text-gray-900">Only tutors with a trial lesson</b><span className="text-[12.5px] text-gray-600">A 30-minute first lesson</span></span>
               <input type="checkbox" role="switch" name="trial" value="1" checked={filters.trial} onChange={e => set({ trial: e.target.checked })} className="peer sr-only" />
               <span aria-hidden="true" className={`w-11 h-[26px] rounded-full relative shrink-0 bg-gray-300 peer-checked:bg-indigo-600 ${RING} after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:w-5 after:h-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:after:left-[21px]`} />
             </label>
