@@ -235,7 +235,7 @@ test('the name card component: a button that opens a disclosure, with the checks
 
 test('the profile opens with a sentence that answers who, what, where and how much, and the questions match the FAQPage markup exactly', async () => {
   const html = await render('maya-reyes')
-  assert.match(html, /data-testid="profile-summary">Maya Reyes teaches English and Spanish online, in Toronto time\. A lesson costs \$40 \(30, 45, 60 or 90 min sessions\)\. The first lesson is \$10\.</)
+  assert.match(html, /data-testid="profile-summary">Maya Reyes teaches English and Spanish online, in Toronto time\. A lesson costs \$40 \(30, 45, 60 or 90 min sessions\)\. The first lesson is a 30-minute trial for \$10\.</)
   const faqBlock = ldBlocks(html).find(b => b['@type'] === 'FAQPage')!
   assert.ok(faqBlock)
   const asked = (faqBlock.mainEntity as { name: string; acceptedAnswer: { text: string } }[])
