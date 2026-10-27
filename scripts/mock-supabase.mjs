@@ -83,6 +83,14 @@ const team_members = [
 ]
 const visitors = Array.from({ length: 12 }, (_, i) => ({ id: id(i + 1, '7'), visitor_id: `v${i}`, first_seen: iso(-i), first_source: ['Direct', 'Google Search', 'Facebook'][i % 3], country: ['US', 'GB', 'VN'][i % 3], created_at: iso(-i) }))
 const visitor_events = visitors.slice(0, 8).map((v, i) => ({ id: id(i + 1, '8'), visitor_id: v.id, path: ['/', '/blog', '/register', '/upgrade'][i % 4], event: 'page_view', created_at: iso(-i) }))
+// One recorded journey for the sample tutor (the owner's page for a tutor shows it): came from ChatGPT, read two pages, signed up, upgraded.
+visitors.push({ id: id(90, '7'), tutor_id: TUTOR_ID, first_seen_at: iso(-31, 9), country: 'DE', first_source: 'ai_chatgpt', first_path: '/', first_referrer_host: 'chatgpt.com', utm_source: null, utm_medium: null, utm_campaign: null })
+visitor_events.push(
+  { id: id(90, '8'), visitor_id: id(90, '7'), kind: 'page_view', path: '/', plan: null, created_at: iso(-31, 9) },
+  { id: id(91, '8'), visitor_id: id(90, '7'), kind: 'page_view', path: '/upgrade', plan: null, created_at: iso(-31, 10) },
+  { id: id(92, '8'), visitor_id: id(90, '7'), kind: 'checkout_click', path: null, plan: 'pro', created_at: iso(-30, 9) },
+  { id: id(93, '8'), visitor_id: id(90, '7'), kind: 'order_paid', path: null, plan: 'pro', created_at: iso(-30, 10) },
+)
 const subscription_plans = [
   { id: id(1, '9'), tutor_id: TUTOR_ID, name: 'Monthly 4 lessons', price: 140, currency: 'usd', period: 'month', duration_minutes: 60, lessons_per_period: 4, is_active: true, created_at: iso(-20) },
 ]
