@@ -15,16 +15,15 @@
 // It speaks the part of PostgREST the app uses: select (with embedded many-to-one and
 // one-to-many tables, and `rel(count)`), eq / neq / gt / gte / lt / lte / in / is / like /
 // ilike / not / or filters, order, limit, range, single / maybeSingle, count (exact, head),
-// insert / update / upsert / delete, and rpc (answers empty).
+// insert / update / upsert / delete, and rpc (answers empty, except tutor_established_facts).
 import http from 'node:http'
-import { readFileSync, writeFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 const PORT = Number(process.env.MOCK_PORT ?? 54399)
-const HERE = path.dirname(fileURLToPath(import.meta.url))
-// The admin account is the one src/lib/admin.ts names; read it from there, never type it here.
-const ADMIN_EMAIL = /ADMIN_EMAIL = '([^']+)'/.exec(readFileSync(path.join(HERE, '../src/lib/admin.ts'), 'utf8'))?.[1] ?? 'admin@example.com'
+// The admin account is the one the app is told about by its ADMIN_EMAIL variable (src/lib/admin.ts); run the app with the same
+// value as this tool (the default below is a made-up address), and never type a real address here.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim() || 'admin@example.com'
 
 const TUTOR_ID = '00000000-0000-4000-8000-000000000001'
 const ADMIN_ID = '00000000-0000-4000-8000-0000000000ad'
@@ -39,15 +38,15 @@ const NAMES = ['Maria Santos', 'Liam Johnson', 'Yuki Tanaka', 'Anna Schmidt', 'P
 const tutors = [
   {
     id: TUTOR_ID, email: 'tutor@example.com', name: 'Sarah Test', slug: 'sarah-test', bio: 'Friendly English and Spanish tutor with ten years of experience helping adults speak with confidence.',
-    avatar_url: null, languages: ['English', 'Spanish'], timezone: 'America/New_York', stripe_account_id: null, stripe_onboarding_complete: false,
+    avatar_url: null, intro_video_url: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', languages: ['English', 'Spanish'], timezone: 'America/New_York', stripe_account_id: null, stripe_onboarding_complete: false,
     booking_url_active: true, cancellation_hours: 24, subscription_status: 'pro', subscription_expires_at: iso(25), default_lesson_price: 40, currency: 'USD',
     paypal_link: null, payment_link: null, trial_enabled: true, trial_price: 15, buffer_minutes: 10, average_rating: 4.8, review_count: 12,
     referral_code: 'SARAH10', referral_credits: 0, custom_domain: null, created_at: iso(-90), updated_at: iso(-1),
   },
   // the row that pages list shows a made-up address; only the login session below carries the real one, because the admin gate compares it
   { id: ADMIN_ID, email: 'platform-admin@example.com', name: 'Platform Admin', slug: 'platform-admin', subscription_status: 'academy', created_at: iso(-200), languages: [], timezone: 'UTC' },
-  { id: id(2, 'b'), email: 'tutor2@example.com', name: 'Diego Prueba', slug: 'diego-prueba', subscription_status: 'free', languages: ['Spanish'], timezone: 'Europe/Madrid', created_at: iso(-30), average_rating: 4.5, review_count: 3, booking_url_active: true, default_lesson_price: 25, currency: 'EUR', lesson_durations: [45, 90], default_lesson_duration: 45 },
-  { id: id(3, 'b'), email: 'tutor3@example.com', name: 'Mai Thử', slug: 'mai-thu', subscription_status: 'pro', hide_branding: true, languages: ['Vietnamese', 'English'], timezone: 'Asia/Ho_Chi_Minh', created_at: iso(-12), average_rating: 5, review_count: 1, booking_url_active: true, default_lesson_price: 500000, currency: 'VND' },
+  { id: id(2, 'b'), referred_by: TUTOR_ID, email: 'tutor2@example.com', name: 'Diego Prueba', slug: 'diego-prueba', subscription_status: 'free', languages: ['Spanish'], timezone: 'Europe/Madrid', created_at: iso(-30), average_rating: 4.5, review_count: 3, booking_url_active: true, default_lesson_price: 25, currency: 'EUR', lesson_durations: [45, 90], default_lesson_duration: 45 },
+  { id: id(3, 'b'), referred_by: TUTOR_ID, email: 'tutor3@example.com', name: 'Mai Thử', slug: 'mai-thu', subscription_status: 'pro', hide_branding: true, languages: ['Vietnamese', 'English'], timezone: 'Asia/Ho_Chi_Minh', created_at: iso(-12), average_rating: 5, review_count: 1, booking_url_active: true, default_lesson_price: 500000, currency: 'VND' },
 ]
 const students = NAMES.map((name, i) => ({
   id: id(i + 1), tutor_id: TUTOR_ID, name, email: `student${i + 1}@example.com`, phone: null, country: ['Brazil', 'UK', 'Japan', 'Germany', 'Spain', 'China', 'Italy', 'Egypt'][i],
@@ -75,8 +74,8 @@ const packages = [
   { id: id(1, '1'), tutor_id: TUTOR_ID, name: '10 lesson pack', description: 'Ten one-hour lessons, use within six months.', lessons_count: 10, price: 360, currency: 'USD', active: true, created_at: iso(-20) },
   { id: id(2, '1'), tutor_id: TUTOR_ID, name: '5 lesson pack', description: 'Five lessons to get started.', lessons_count: 5, price: 190, currency: 'USD', active: true, created_at: iso(-20) },
 ]
-const coupons = [{ id: id(1, '2'), tutor_id: TUTOR_ID, code: 'WELCOME20', discount_type: 'percent', discount_value: 20, max_uses: 50, uses: 3, active: true, expires_at: null, created_at: iso(-10) }]
-const reviews = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '3'), tutor_id: TUTOR_ID, student_id: s.id, rating: 5 - (i % 2), comment: 'Patient, clear and always well prepared.', created_at: iso(-5 - i), students: undefined }))
+const coupons = [{ id: id(1, '2'), tutor_id: TUTOR_ID, code: 'WELCOME20', discount_type: 'percent', discount_value: 20, max_uses: 50, uses_count: 3, active: true, expires_at: null, created_at: iso(-10) }]
+const reviews = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '3'), tutor_id: TUTOR_ID, student_id: s.id, rating: 5 - (i % 2), comment: 'Patient, clear and always well prepared.', is_public: true, created_at: iso(-5 - i), students: undefined }))
 const invoices = students.slice(0, 4).map((s, i) => ({ id: id(i + 1, '4'), tutor_id: TUTOR_ID, student_id: s.id, lesson_id: lessons[i].id, amount: 40 + i * 5, currency: 'USD', status: ['paid', 'sent', 'overdue', 'draft'][i], due_date: iso(i - 2).slice(0, 10), created_at: iso(-10) }))
 const homework_submissions = students.slice(0, 3).map((s, i) => ({ id: id(i + 1, '5'), lesson_id: lessons[i].id, student_id: s.id, content: 'I have worked here for three years. She has lived in Spain since 2019.', ai_feedback: null, tutor_feedback: null, feedback_at: null, submitted_at: iso(-i - 1) }))
 const team_members = [
@@ -85,10 +84,10 @@ const team_members = [
 const visitors = Array.from({ length: 12 }, (_, i) => ({ id: id(i + 1, '7'), visitor_id: `v${i}`, first_seen: iso(-i), first_source: ['Direct', 'Google Search', 'Facebook'][i % 3], country: ['US', 'GB', 'VN'][i % 3], created_at: iso(-i) }))
 const visitor_events = visitors.slice(0, 8).map((v, i) => ({ id: id(i + 1, '8'), visitor_id: v.id, path: ['/', '/blog', '/register', '/upgrade'][i % 4], event: 'page_view', created_at: iso(-i) }))
 const subscription_plans = [
-  { id: id(1, '9'), tutor_id: TUTOR_ID, name: 'Monthly 4 lessons', amount: 140, currency: 'USD', interval: 'monthly', lessons_per_period: 4, active: true, created_at: iso(-20) },
+  { id: id(1, '9'), tutor_id: TUTOR_ID, name: 'Monthly 4 lessons', price: 140, currency: 'usd', period: 'month', duration_minutes: 60, lessons_per_period: 4, is_active: true, created_at: iso(-20) },
 ]
 const student_subscriptions = [{ id: id(1, '9'), student_id: students[0].id, plan_id: subscription_plans[0].id, status: 'active', created_at: iso(-10) }]
-const waitlist = [{ id: id(1, 'a'), tutor_id: TUTOR_ID, name: 'Wait Lister', email: 'wait@example.com', note: 'Weekday evenings please', created_at: iso(-2) }]
+const waitlist = [{ id: id(1, 'a'), tutor_id: TUTOR_ID, name: 'Wait Lister', email: 'wait@example.com', message: 'Weekday evenings please', created_at: iso(-2) }]
 const referrals = []
 const api_keys = [{ id: id(1, 'b'), tutor_id: TUTOR_ID, name: 'Zapier', key_prefix: 'tfy_ab12', created_at: iso(-4), last_used_at: null }]
 const webhook_subscriptions = []
@@ -249,6 +248,71 @@ lessons.push(
 tutors.push({ id: NEW_TUTOR_ID, email: 'nina@example.com', name: 'Nina Nueva', slug: 'nina-nueva', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-1), booking_url_active: true, currency: 'USD' })
 students.push({ id: id(40), tutor_id: NEW_TUTOR_ID, name: 'Nina Nueva', email: 'nina@example.com', status: 'active', portal_token: id(40, 'c'), created_at: iso(-1) })
 
+// Profile page samples (T-0765): a NEW tutor (Priya: hours and a price, no bio, no photo, no reviews, not Pro) and public reviews for the Free tutor
+// Diego, so /tutors/priya-nair and /tutors/diego-prueba show the "new" and the "Free plan" states; /tutors/sarah-test is the full one.
+tutors.push({ id: id(4, 'b'), email: 'tutor4@example.com', name: 'Priya Nair', slug: 'priya-nair', subscription_status: 'free', languages: ['English'], timezone: 'Asia/Kolkata', created_at: iso(-10), booking_url_active: true, default_lesson_price: 12, currency: 'USD', cancellation_hours: 0, average_rating: 0, review_count: 0, bio: null, avatar_url: null })
+for (const d of [1, 2, 3, 4, 5, 6]) availability.push({ id: id(40 + d, 'f'), tutor_id: id(4, 'b'), day_of_week: d, start_time: '08:00:00', end_time: '12:00:00', created_at: iso(-10) })
+Object.assign(tutors.find(t => t.slug === 'diego-prueba'), { bio: 'Spanish for people moving to Spain, and for DELE exam candidates. Clear grammar, lots of speaking.', cancellation_hours: 12, trial_enabled: true, trial_price: 8, review_count: 3, average_rating: 4.7 })
+for (const [i, [rating, comment]] of [[5, 'I passed DELE B1 after three months.'], [5, 'Very clear explanations and friendly.'], [4, 'Good lessons. I would like a few more speaking games.']].entries()) reviews.push({ id: id(60 + i, '3'), tutor_id: id(2, 'b'), student_id: id(30), rating, comment, is_public: true, created_at: iso(-6 - i), students: undefined })
+
+// Tutor directory samples (T-0769). MOCK_DIRECTORY=many adds twelve made-up tutors who can be booked (different languages, prices, currencies, trial
+// lessons, reviews, time zones and weekly hours, two with no reviews, none with a photo because a photo must be an https address), plus four who must NOT
+// be listed (page off, no hours, short introduction, unknown time zone). MOCK_DIRECTORY=empty removes every tutor's hours, so nobody can be booked.
+// Unset, the small default data stays: two tutors can be booked (the "few tutors" state).
+if (process.env.MOCK_DIRECTORY === 'empty') availability.length = 0
+if (process.env.MOCK_DIRECTORY === 'many') {
+  const INTRO = 'I help busy people speak with confidence. Every lesson has a plan, real conversation and clear homework you can finish in twenty minutes.'
+  const week = (from, to, days = [1, 2, 3, 4, 5]) => days.map(d => ({ d, from, to }))
+  const SAMPLES = [
+    ['Maya Reyes', ['English', 'Spanish'], 'America/New_York', 22, 'USD', 10, 4.9, 38, 'IELTS and business English coach. I help busy professionals reach band 7+ with a weekly plan and honest feedback.', week('08:00', '21:00', [0, 1, 2, 3, 4, 5, 6])],
+    ['Daniel Weiss', ['German', 'English'], 'Europe/Berlin', 28, 'EUR', 8, 4.8, 17, 'German for people moving to Germany, and for Goethe exam candidates. Clear grammar, real situations.', week('09:00', '18:00')],
+    ['Priya Nair', ['English', 'Hindi'], 'Asia/Kolkata', 12, 'USD', 5, 0, 0, 'Friendly English conversation practice for beginners and nervous speakers. We start slowly and build up.', week('07:00', '12:00', [1, 2, 3, 4, 5, 6])],
+    ['Hana Sato', ['Japanese'], 'Asia/Tokyo', 25, 'USD', 12, 5, 9, 'Japanese from zero to JLPT N3, with real conversations from the first lesson and small weekly goals.', week('18:00', '23:00', [1, 2, 3, 4, 6, 0])],
+    ['Lucas Moreau', ['French', 'English'], 'Europe/Paris', 30, 'EUR', 0, 4.7, 21, 'French for travel and work. Clear grammar, relaxed pace, and a lot of speaking from day one of our lessons.', week('10:00', '19:00')],
+    ['Sofia Marino', ['Italian', 'English'], 'Europe/Rome', 26, 'USD', 9, 4.9, 14, 'Italian for beginners and for people with Italian family. Lots of speaking, songs and little stories to read.', week('09:00', '17:00', [1, 3, 5, 6])],
+    ['Wei Zhang', ['Mandarin'], 'Asia/Shanghai', 20, 'USD', 6, 4.8, 31, 'Mandarin for adults: pronunciation, tones and everyday conversation. I explain the why behind every rule.', week('19:00', '23:00', [0, 1, 2, 3, 4, 5, 6])],
+    ['Carlos Mendes', ['Portuguese', 'Spanish'], 'America/Sao_Paulo', 18, 'USD', 5, 0, 0, 'Brazilian Portuguese for expats and for travellers heading to Brazil. Practical phrases, then real chats.', week('13:00', '21:00', [2, 4, 6])],
+    ['Emma Clarke', ['English'], 'Europe/London', 35, 'GBP', 0, 4.6, 52, 'Academic English and essay writing for university applications. Detailed written feedback after every lesson.', week('09:00', '17:00')],
+    ['Tomás Ruiz', ['Spanish'], 'Europe/Madrid', 24, 'USD', 8, 4.9, 44, 'Spanish for travel, work and DELE exams. Patient and structured, with short exercises between lessons.', week('10:00', '20:00', [1, 2, 3, 4, 5, 6])],
+    ['Aisha Rahman', ['English', 'Arabic'], 'Asia/Dubai', 28, 'USD', 7, 5, 11, 'Relaxed English conversation for people who understand more than they can say. No pressure, just practice.', week('16:00', '22:00', [0, 1, 2, 3, 4])],
+    ['Alexandra Konstantinopoulou-Papadakis', ['Greek', 'English'], 'Europe/Athens', 40, 'EUR', 0, 4.7, 14, 'Greek for heritage learners and for people moving to Greece, from the alphabet to a first real conversation.', week('09:00', '15:00')],
+  ]
+  SAMPLES.forEach(([name, languages, timezone, price, currency, trial, rating, reviewCount, bio, hours], i) => {
+    const tid = id(300 + i, 'b')
+    tutors.push({ id: tid, email: `directory${i}@example.com`, name, slug: name.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, ''), subscription_status: 'free', languages, timezone,
+      created_at: iso(-20 - i), booking_url_active: true, default_lesson_price: price, currency, trial_enabled: trial > 0, trial_price: trial || null, average_rating: rating, review_count: reviewCount, bio, avatar_url: null, buffer_minutes: 0, levels_taught: [['beginner', 'intermediate'], ['advanced'], [], ['beginner'], ['intermediate', 'advanced']][i % 5] })
+    if (name === 'Tomás Ruiz') tutors[tutors.length - 1].intro_video_url = 'https://vimeo.com/76979871' // the design sample's tutor has a video
+    hours.forEach((h, k) => availability.push({ id: id(3000 + i * 10 + k, 'f'), tutor_id: tid, day_of_week: h.d, start_time: `${h.from}:00`, end_time: `${h.to}:00`, created_at: iso(-20) }))
+  })
+  const unlisted = [
+    ['Page Off', { booking_url_active: false }, true], ['No Hours', {}, false], ['Short Intro', { bio: 'Hello there.' }, true], ['Odd Zone', { timezone: 'Mars/Olympus_Mons' }, true],
+  ]
+  unlisted.forEach(([name, o, hasHours], i) => {
+    const tid = id(400 + i, 'b')
+    tutors.push({ id: tid, email: `unlisted${i}@example.com`, name, slug: name.toLowerCase().replace(/ /g, '-'), subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-5), booking_url_active: true, default_lesson_price: 20, currency: 'USD', bio: INTRO, ...o })
+    if (hasHours) availability.push({ id: id(4000 + i, 'f'), tutor_id: tid, day_of_week: 2, start_time: '09:00:00', end_time: '17:00:00', created_at: iso(-5) })
+  })
+}
+
+// The seven lessons of the Revenue report (T-0741), with made-up tutors and students: four cancelled lessons marked paid (30 each), one lesson
+// past its day and still scheduled (300), two completed lessons (300 each). The admin page /admin/revenue must show 600 as its main number.
+{
+  const ALPHA = id(50, 'b'), BETA = id(51, 'b')
+  tutors.push(
+    { id: ALPHA, email: 'alpha@example.com', name: 'Tutor Alpha', slug: 'tutor-alpha', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-60), booking_url_active: true, currency: 'USD' },
+    { id: BETA, email: 'beta@example.com', name: 'Tutor Beta', slug: 'tutor-beta', subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-60), booking_url_active: true, currency: 'USD' },
+  )
+  const kid = (n, tid, name) => ({ id: id(n), tutor_id: tid, name, email: `kid${n}@example.com`, status: 'active', portal_token: id(n, 'c'), created_at: iso(-60) })
+  students.push(kid(60, ALPHA, 'Student One'), kid(61, ALPHA, 'Student Two'), kid(62, BETA, 'Student Beta'))
+  const lesson = (n, tid, sid, status, from, price) => ({ id: id(n, 'd'), tutor_id: tid, student_id: sid, starts_at: iso(from, 15), ends_at: iso(from, 16), duration_minutes: 60, status, price, payment_status: 'paid', currency: 'USD', created_at: iso(-60) })
+  lessons.push(
+    lesson(910, BETA, id(62), 'cancelled', 6, 30), lesson(911, BETA, id(62), 'cancelled', 6, 30), lesson(912, BETA, id(62), 'cancelled', -1, 30), lesson(913, BETA, id(62), 'cancelled', -1, 30),
+    lesson(914, ALPHA, id(60), 'scheduled', -43, 300), lesson(915, ALPHA, id(60), 'completed', -45, 300), lesson(916, ALPHA, id(61), 'completed', -46, 300),
+  )
+  // MOCK_REVENUE_SEVEN=1: make every other sample lesson unpaid, so the Revenue page holds exactly these seven (for a picture of the report's case).
+  if (process.env.MOCK_REVENUE_SEVEN === '1') for (const l of lessons) if (!/^00000000-0000-4000-d000-0000000009(1[0-6])$/.test(l.id)) l.payment_status = 'pending'
+}
+
 // ---------- server ----------
 const send = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*', 'access-control-expose-headers': 'content-range', ...headers })
@@ -256,6 +320,7 @@ const send = (res, status, body, headers = {}) => {
 }
 const readBody = req => new Promise(r => { let s = ''; req.on('data', c => { s += c }); req.on('end', () => { try { r(s ? JSON.parse(s) : null) } catch { r(null) } }) })
 
+const STORED = new Map() // "bucket/path" -> { type, bytes }
 http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`)
   if (req.method === 'OPTIONS') return send(res, 204)
@@ -274,6 +339,28 @@ http.createServer(async (req, res) => {
     writeFileSync(path.join(process.env.MOCK_SAVE_DIR, name), text)
     return send(res, 200, { saved: name, bytes: text.length })
   }
+  // Storage (T-0766): the photo bucket, kept in memory. MOCK_STORAGE_MISSING=1 answers "Bucket not found" to every upload (the bucket was never made).
+  if (p.startsWith('/storage/v1/object/')) {
+    const rest = decodeURIComponent(p.slice('/storage/v1/object/'.length))
+    const chunks = []; for await (const c of req) chunks.push(c)
+    const bytes = Buffer.concat(chunks)
+    if (req.method === 'GET' && rest.startsWith('public/')) {
+      const f = STORED.get(rest.slice('public/'.length))
+      if (!f) return send(res, 404, { message: 'not found' })
+      res.writeHead(200, { 'content-type': f.type, 'access-control-allow-origin': '*' }); return res.end(f.bytes)
+    }
+    if (req.method === 'POST') {
+      if (process.env.MOCK_STORAGE_MISSING) return send(res, 404, { statusCode: '404', error: 'Bucket not found', message: 'Bucket not found' })
+      STORED.set(rest, { type: String(req.headers['content-type'] ?? 'application/octet-stream'), bytes })
+      return send(res, 200, { Key: rest, Id: rest })
+    }
+    if (req.method === 'DELETE') {
+      let prefixes = []; try { prefixes = JSON.parse(bytes.toString() || '{}').prefixes ?? [] } catch { /* none */ }
+      for (const x of prefixes) STORED.delete(`${rest}/${x}`)
+      return send(res, 200, [])
+    }
+    return send(res, 405, { message: 'method not allowed' })
+  }
   if (p === '/auth/v1/user') {
     const u = userFromAuth(req)
     return u ? send(res, 200, { ...u, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} }) : send(res, 401, { code: 401, msg: 'no session' })
@@ -286,7 +373,18 @@ http.createServer(async (req, res) => {
   if (p.startsWith('/storage/') || p.startsWith('/functions/') || p.startsWith('/realtime/')) return send(res, 200, {})
 
   const rpc = /^\/rest\/v1\/rpc\/(\w+)/.exec(p)
-  if (rpc) { await readBody(req); return send(res, 200, []) }
+  if (rpc) {
+    const body = await readBody(req)
+    if (rpc[1] !== 'tutor_established_facts') return send(res, 200, [])
+    // the facts behind the "Established" badge (T-0915): Sarah and every tutor with 11 or more reviews have taught 12 lessons, the others 3
+    const rows = (Array.isArray(body?.ids) ? body.ids : []).map(tid => {
+      const t = tutors.find(x => x.id === tid)
+      if (!t) return null
+      const many = t.id === TUTOR_ID || Number(t.review_count) >= 11
+      return { tutor_id: tid, email_confirmed_at: iso(-200), completed_lessons: many ? 12 : 3, tenth_lesson_at: many ? iso(-45) : null }
+    }).filter(Boolean)
+    return send(res, 200, rows)
+  }
 
   const t = /^\/rest\/v1\/(\w+)/.exec(p)?.[1]
   if (!t) return send(res, 404, { message: 'not found' })
@@ -347,8 +445,10 @@ http.createServer(async (req, res) => {
     return /return=representation/.test(prefer) ? send(res, 200, wantsOne ? out[0] : out) : send(res, 204)
   }
   if (req.method === 'DELETE') {
-    for (let i = table.length - 1; i >= 0; i--) if (matchRow(table[i], params)) table.splice(i, 1)
-    return send(res, 204)
+    const removed = []
+    for (let i = table.length - 1; i >= 0; i--) if (matchRow(table[i], params)) removed.push(...table.splice(i, 1))
+    // like PostgREST: with Prefer return=representation (a .select() after .delete()) the removed rows come back
+    return /return=representation/.test(prefer) ? send(res, 200, removed.map(r => project(t, r, select))) : send(res, 204)
   }
   send(res, 405, { message: 'method not allowed' })
 }).listen(PORT, '127.0.0.1', () => console.log(`mock supabase (FAKE data) on http://localhost:${PORT} (this machine only)`))

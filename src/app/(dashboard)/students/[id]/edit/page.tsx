@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -33,15 +34,15 @@ export default function EditStudentPage() {
           country: data.country ?? '', native_language: data.native_language ?? '',
           level: data.level ?? 'A1', status: data.status ?? 'active',
           goals: data.goals ?? '', notes: data.notes ?? '',
-          parent_email: (data as any).parent_email ?? '',
+          parent_email: data.parent_email ?? '',
         })
         setTags(data.tags ?? [])
-        setParentToken((data as any).parent_token ?? null)
+        setParentToken(data.parent_token ?? null)
       }
       setLoading(false)
     }
     load()
-  }, [id])
+  }, [id, supabase])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -64,8 +65,9 @@ export default function EditStudentPage() {
 
   const field = (label: string, key: keyof typeof form, opts?: { type?: string; placeholder?: string }) => (
     <div>
-      <label className="block text-[12px] font-medium text-gray-600 mb-1.5">{label}</label>
+      <label htmlFor={`student-${key}`} className="block text-[12px] font-medium text-gray-600 mb-1.5">{label}</label>
       <input
+        id={`student-${key}`}
         type={opts?.type ?? 'text'}
         value={form[key]}
         onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
@@ -76,9 +78,9 @@ export default function EditStudentPage() {
   )
 
   return (
-    <div className="max-w-[620px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
-        <Link href={`/students/${id}`} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href={`/students/${id}`} aria-label="Back to student" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div>
@@ -123,7 +125,7 @@ export default function EditStudentPage() {
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Learning goals</label>
-            <textarea value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} rows={3}
+            <textarea aria-label="Learning goals" value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} rows={3}
               placeholder="Prepare for IELTS, improve business communication..."
               className="w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
           </div>
@@ -163,7 +165,7 @@ export default function EditStudentPage() {
 
         <div className="bg-white rounded-xl border border-gray-100 p-5">
           <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Private notes</label>
-          <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={4}
+          <textarea aria-label="Private notes" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={4}
             placeholder="Notes only you can see..."
             className="w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
         </div>
@@ -179,6 +181,6 @@ export default function EditStudentPage() {
           </button>
         </div>
       </form>
-    </div>
+    </PageColumn>
   )
 }

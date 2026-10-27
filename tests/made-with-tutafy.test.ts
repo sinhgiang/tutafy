@@ -10,6 +10,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -72,7 +73,7 @@ test('loadShowMadeWith: reads the plan and the column apart; a missing column or
   assert.equal(await branding.loadShowMadeWith(ok({ subscription_status: 'pro', hide_branding: true }), 'T'), false)
   assert.equal(await branding.loadShowMadeWith(ok({ subscription_status: 'academy', hide_branding: true }), 'T'), false)
   // the database has no such column yet: only that read answers an error
-  const noColumn = { from: (t: string) => ({ select: (cols: string) => ({ eq: () => ({ single: async () => (cols === 'hide_branding' ? { data: null, error: { code: '42703' } } : { data: { subscription_status: 'pro' }, error: null }) }) }) }) }
+  const noColumn = { from: () => ({ select: (cols: string) => ({ eq: () => ({ single: async () => (cols === 'hide_branding' ? { data: null, error: { code: '42703' } } : { data: { subscription_status: 'pro' }, error: null }) }) }) }) }
   assert.equal(await branding.loadShowMadeWith(noColumn, 'T'), true, 'column missing: the line stays even for a paid tutor')
   assert.equal(await branding.loadShowMadeWith({ from: () => { throw new Error('network down') } }, 'T'), true)
   assert.equal(await branding.loadShowMadeWith(ok({ subscription_status: 'pro', hide_branding: 'true' }), 'T'), true, 'only a real true turns it off')
@@ -104,7 +105,7 @@ beforeEach(() => {
 
 type Page = (props: { params: Promise<Record<string, string>> }) => Promise<React.ReactElement>
 const render = async (page: unknown, params: Record<string, string>) => renderToStaticMarkup(await (page as Page)({ params: Promise.resolve(params) }))
-const LINK = /<a href="([^"]*)" target="_blank" rel="noopener" data-testid="made-with-tutafy" class="[^"]*">Made with Tutafy<\/a>/
+const LINK = /<a href="([^"]*)" target="_blank" rel="noopener" data-testid="made-with-tutafy" class="[^"]*">(?:<svg[^>]*data-brand="icon"[^>]*>(?:(?!<\/svg>)[\s\S])*<\/svg>)?Made with Tutafy<\/a>/ // T-0969: the small Tutafy icon, drawn decoratively, may stand before the words
 const lines = (html: string) => (html.match(/data-testid="made-with-tutafy"/g) ?? []).length
 
 test('/book/<slug> of a Free tutor shows "Made with Tutafy": one link, to the home page, in a new tab, with the source', async () => {
@@ -164,7 +165,7 @@ test('turning it off moves nothing: the page is identical except for the link it
 test('the line cannot cover the booking button: it comes after the booking form, in the normal flow, never fixed, floating or sticky', async () => {
   for (const [page, params] of [[bookPage, { slug: 'tutor-free' }], [embedPage, { slug: 'tutor-free' }]] as const) {
     const html = await render(page, params)
-    const form = html.indexOf('Session length')
+    const form = html.indexOf('aria-label="Lesson length"')
     const strip = html.indexOf('data-testid="made-with-strip"')
     assert.ok(form >= 0 && strip > form, 'the booking form comes first')
     // nothing after the form can reach back over it: the strip is a plain block with a fixed height
@@ -199,14 +200,16 @@ test('no text in the page-facing files is in another language, and no address is
 // ---- Settings ----------------------------------------------------------------------------------------------------------------------
 
 test('Settings: a switch in the Booking page tab, switchable only on a paid plan, written apart and only when changed, with a plain message if the column is missing', () => {
-  const src = read('src/app/(dashboard)/settings/page.tsx')
+  const src = settingsSource()
   assert.match(src, /Show &quot;Made with Tutafy&quot; on my booking page/)
   assert.match(src, /const paid = hasPlan\(subscriptionStatus, 'pro'\)/)
   assert.match(src, /disabled=\{!paid\}/, 'a Free tutor sees the switch on and cannot change it')
   assert.match(src, /const shown = !\(paid && form\.hide_branding\)/, 'shown unless a PAID tutor turned it off')
   assert.match(src, /Pro and Academy plans can turn it off/)
-  assert.match(src, /hide_branding: \(data as any\)\.hide_branding === true/, 'read from the loaded row; a missing column reads as false')
-  assert.match(src, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, \.\.\.rest \} = form/, 'left out of the main update, because its column may not exist yet')
-  assert.match(src, /if \(hide_branding !== savedBranding\) \{\s*const \{ error: brandingError \} = await supabase\.from\('tutors'\)\.update\(\{ hide_branding \}\)\.eq\('id', user\.id\)/, 'written alone, only when changed, on the signed-in tutor\'s own row')
-  assert.match(src, /This option is not available yet\. Your other settings are saved\./)
+  assert.match(src, /hide_branding: data\.hide_branding === true/, 'read from the loaded row; a missing column reads as false')
+  // the writes live in src/lib/settings-save.ts; their ORDER and what the saved copy takes are run for real in tests/settings-save.test.ts
+  const save = read('src/lib/settings-save.ts')
+  assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, \.\.\.rest \} = form/, 'left out of the main update, because its column may not exist yet')
+  assert.match(save, /if \(hide_branding !== savedBranding\) \{\s*const \{ error: brandingError \} = await db\.from\('tutors'\)\.update\(\{ hide_branding \}\)\.eq\('id', userId\)/, 'written alone, only when changed, on the signed-in tutor\'s own row')
+  assert.match(save, /This option is not available yet\. Your other settings are saved\./)
 })

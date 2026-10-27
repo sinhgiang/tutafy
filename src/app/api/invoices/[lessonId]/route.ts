@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { one } from '@/lib/relation'
+import { BRAND_COLORS } from '@/lib/brand'
+import { inlineLogoSvg } from '@/lib/brand-svg'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,8 +21,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ les
 
   if (!lesson) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const tutor = lesson.tutors as any
-  const student = lesson.students as any
+  const tutor = one(lesson.tutors)
+  const student = one(lesson.students)
   const date = new Date(lesson.starts_at)
   const dateLabel = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   const timeLabel = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
@@ -38,8 +41,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ les
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; }
   .page { max-width: 680px; margin: 40px auto; background: white; border-radius: 16px; padding: 48px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; }
-  .logo { font-size: 20px; font-weight: 800; color: #6366f1; letter-spacing: -0.5px; }
-  .logo span { color: #111; }
+  .logo { line-height: 0; }
   .invoice-num { text-align: right; }
   .invoice-label { font-size: 28px; font-weight: 800; color: #111; }
   .invoice-id { font-size: 13px; color: #9ca3af; margin-top: 2px; }
@@ -57,8 +59,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ les
   .status-row { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
   .status-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; }
   .status-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-  .print-btn { background: #6366f1; color: white; border: none; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-  .print-btn:hover { background: #4f46e5; }
+  .print-btn { background: ${BRAND_COLORS.primary}; color: white; border: none; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .print-btn:hover { background: ${BRAND_COLORS.primaryHover}; }
   .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid #f3f4f6; font-size: 12px; color: #9ca3af; }
   @media print {
     body { background: white; }
@@ -70,7 +72,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ les
 <body>
 <div class="page">
   <div class="header">
-    <div class="logo">Tutafy</div>
+    <div class="logo">${inlineLogoSvg('light', 36)}</div>
     <div class="invoice-num">
       <div class="invoice-label">Invoice</div>
       <div class="invoice-id">#${invoiceId}</div>

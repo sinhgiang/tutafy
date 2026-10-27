@@ -22,7 +22,7 @@ Every decision on the page serves these two, **in this order**:
 1. **CONVERSION.** A reader who likes what they see acts with near-zero friction: the offer (Free / $12 / $29, no card) is visible before the ask; the primary CTA (Start free) is one tap away; a trust signal (0% commission, free forever, your data is yours, cancel anytime) sits at the moment of doubt.
 2. **SEO / AEO.** The page ranks for a real query *and* is structured so AI answer engines can quote it. Original, expert, honestly-grounded content wins; thin/derivative content is penalized.
 
-If a section, sentence, visual, or widget advances neither goal, cut it. Write as if one real expert (AUTHOR) is talking to one real tutor who is tired of handing 20–33% to a marketplace or juggling five apps.
+If a section, sentence, visual, or widget advances neither goal, cut it. Write as if one real expert (AUTHOR) is talking to one real tutor who is tired of handing 15–33% to a marketplace or juggling five apps.
 
 ---
 
@@ -52,7 +52,7 @@ If a section, sentence, visual, or widget advances neither goal, cut it. Write a
 - **Teaching concepts:** trial lesson, no-show, cancellation policy, buffer time, recurring lessons, timezone booking, group class, lesson packages, prepaid credits, homework, progress report, vocab quiz, student portal, parent portal, booking link, embed widget.
 - **Credentials / exams / levels:** TEFL, TESOL, CELTA, DELTA; IELTS, TOEFL, TOEIC, SAT, ACT, GCSE, A-Level; CEFR A1–C2.
 - **Business metrics:** commission / take-rate, MRR, LTV, CAC, churn, retention, occupancy/utilization, hourly rate, no-show rate, 1099 (US tutor tax form).
-- **Benchmarks (state as ranges, honestly):** marketplace commissions typically 15–33%; Preply keeps 100% of the trial lesson then a sliding ~18–33%; iTalki ~15% flat; payment-processor fees ~2.9% + 30¢.
+- **Benchmarks (state as ranges, honestly):** marketplace commissions typically 15–33%; Preply keeps 100% of the first trial lesson with each new student, then a sliding 18–33%; iTalki 15–21% by lesson type (21% single lesson, 19% / 17% / 15% for packages of 5 / 10 / 15 or 20, 30% group class) and 0% on trial lessons (both checked 25 Oct 2026, source links in `src/lib/marketplace-rates.ts`); payment-processor fees ~2.9% + 30¢.
 
 **3.4 Length by intent, not by quota.** Broad/commercial keywords → 2,500–4,000+ words; a focused sub-topic → 1,500–2,500. Never pad; earn length with real sub-sections (by platform, by subject taught, by tutor experience level, by persona, by use-case).
 

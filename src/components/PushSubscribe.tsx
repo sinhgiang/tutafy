@@ -11,7 +11,7 @@ export default function PushSubscribe({ portalToken }: Props) {
 
   useEffect(() => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      setStatus('unsupported')
+      setStatus('unsupported') // eslint-disable-line react-hooks/set-state-in-effect -- what the browser supports is only known in the browser, after mount
       return
     }
     if (Notification.permission === 'denied') setStatus('denied')

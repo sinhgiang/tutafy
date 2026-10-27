@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url'
 import { NAV } from '@/components/layout/nav-items'
 import { ADMIN_NAV } from '@/components/admin/admin-nav'
 import { nonSquareButtons, smallTextClasses, fixedWidthProblems, tablesWithoutFrame } from './support/mobile-scans.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
@@ -106,7 +107,7 @@ test('every button drawn at a fixed non-square size is a switch with aria-checke
   assert.ok(shapes.length >= 3, `expected the three settings switches, found ${shapes.length}`)
   assert.deepEqual(shapes.filter(s => !s.isSwitch).map(s => `${s.file}: ${s.shape}`), [], 'a button with a fixed non-square shape that is not a role="switch" would be stretched into a circle or a blob')
   assert.deepEqual(shapes.filter(s => !s.checked).map(s => s.file), [], 'a switch must say whether it is on (aria-checked)')
-  const settings = read('src/app/(dashboard)/settings/page.tsx')
+  const settings = settingsSource()
   assert.equal([...settings.matchAll(/role="switch"/g)].length, 3)
   for (const key of ['booking_url_active', 'trial_enabled']) assert.match(settings, new RegExp(`role="switch" aria-checked=\\{form\\.${key}\\}`))
   assert.match(settings, /role="switch" aria-checked=\{shown\}/, 'the "Made with Tutafy" switch (T-0717) says whether it is on')
@@ -136,12 +137,14 @@ test('no fixed width over 360px without a breakpoint, no unprefixed fixed-pixel 
   assert.deepEqual(problems, [])
 })
 
-test('the payments page stacks its stat cards and its two columns on a phone (it used to cut them off)', () => {
-  const src = read('src/app/(dashboard)/payments/page.tsx')
-  assert.match(src, /grid grid-cols-2 lg:grid-cols-4 gap-4/)
-  // the bar chart is as tall as its bars on a phone; a fixed height with the bigger phone text made the bars cover the title
-  assert.match(src, /flex items-end gap-2 lg:h-28/)
-  assert.match(src, /grid grid-cols-1 lg:grid-cols-\[minmax\(0,1fr\)_300px\] gap-5/)
+test('the earnings page stacks its stat cards (two across) and its chart and ranking (one column) on a phone and a tablet (T-0821)', () => {
+  const src = read('src/app/(dashboard)/earnings/page.tsx')
+  assert.match(src, /dash-card dash-kpi dash-c3/)
+  assert.match(src, /dash-card dash-c8/)
+  assert.match(src, /dash-card dash-c4/)
+  const css = read('src/styles/dashboard-shell.css')
+  assert.ok(css.includes('@media (max-width: 1279px) { .dash-c3 { grid-column: span 6; } .dash-c4, .dash-c8 { grid-column: span 12; } }'))
+  assert.ok(css.includes('.dash-table-wrap { position: relative; overflow-x: auto; }'), 'the table scrolls inside its own frame')
   const student = read('src/app/(dashboard)/students/[id]/page.tsx')
   assert.match(student, /grid grid-cols-1 md:grid-cols-3 gap-4/)
   assert.match(student, /md:col-span-1/)
@@ -166,7 +169,7 @@ test('phone menu of the tutor app: a More sheet lists every page of the desktop 
   // the sheet renders the shared list, so every page of the sidebar is in it
   assert.match(nav, /NAV\.map\(\(\{ group, items \}\)/)
   const hrefs = NAV.flatMap(g => g.items.map(i => i.href))
-  for (const h of ['/dashboard', '/students', '/lessons', '/calendar', '/messages', '/payments', '/settings', '/referral']) assert.ok(hrefs.includes(h), h)
+  for (const h of ['/dashboard', '/students', '/lessons', '/calendar', '/messages', '/earnings', '/settings', '/referral']) assert.ok(hrefs.includes(h), h)
   // opens and closes: button with aria-expanded, close button, backdrop, Escape, closes on a link and on a page change
   assert.match(nav, /aria-expanded=\{open\}/)
   assert.match(nav, /aria-label="Close menu"/)
@@ -199,10 +202,11 @@ test('phone menu of the admin area: a top bar and drawer on phones, the sidebar 
   assert.ok(ADMIN_NAV.length >= 8 && ADMIN_NAV.every(i => i.href.startsWith('/admin') || i.href === '/super-admin'))
 })
 
-test('the notification box does not sit over the phone menu, and its list fits a phone', () => {
+test('the notification prompt no longer floats over the phone menu (T-0820: one notice bar in the page flow), and the bell list fits a phone', () => {
   const header = read('src/components/layout/Header.tsx')
-  assert.match(header, /fixed bottom-24 md:bottom-4 right-4 z-50 w-\[340px\] max-w-\[calc\(100vw-2rem\)\]/)
-  assert.match(header, /fixed left-2 right-2 top-\[64px\] md:absolute md:left-auto md:right-0 md:top-10 md:w-\[340px\]/)
+  assert.doesNotMatch(header, /fixed bottom-24/, 'the floating prompt is gone from the header')
+  assert.doesNotMatch(read('src/components/layout/NoticeBar.tsx'), /\bfixed\b/)
+  assert.match(header, /dash-panel fixed left-2 right-2 top-\[64px\] md:absolute md:left-auto md:right-0 md:top-10 md:w-\[340px\]/)
 })
 
 test('rows that held buttons beside text now wrap on a phone instead of running off the page', () => {
@@ -236,8 +240,10 @@ test('the on-screen keyboard cannot hide the send button: the page resizes, the 
   assert.match(read('src/app/layout.tsx'), /interactiveWidget: 'resizes-content'/)
   assert.match(layoutCss(), /body:has\(input:focus, textarea:focus, select:focus\) \[data-mobile-nav\] \{\s*display: none;/)
   assert.match(read('src/components/layout/MobileNav.tsx'), /<nav aria-label="Main" data-mobile-nav /)
-  // the chat is as tall as the visible screen minus the header and the menu (dvh follows the browser bar), on a phone
-  assert.match(read('src/app/(dashboard)/messages/[studentId]/page.tsx'), /h-\[calc\(100dvh-216px\)\] sm:h-\[calc\(100dvh-164px\)\] md:h-\[calc\(100vh-120px\)\]/)
+  // the chat is as tall as the visible screen minus the top bar, the frame padding and (on a phone) the bottom bar (dvh follows the browser bar)
+  const shellCss = read('src/styles/dashboard-shell.css')
+  assert.ok(shellCss.includes('.msg-shell { height: calc(100dvh - 176px);'))
+  assert.ok(shellCss.includes('@media (min-width: 768px) { .msg-shell { height: calc(100dvh - 136px); } }'))
   assert.match(read('src/app/portal/[token]/messages/page.tsx'), /h-\[calc\(100dvh-100px\)\] md:h-\[calc\(100vh-100px\)\]/)
   // fields are 16px on a phone (the browser does not zoom in on focus); the 14px rule leaves them alone so it cannot win
   const block = layerBlock()
@@ -287,6 +293,6 @@ test('the new development tools hold no real address, key or secret (example.com
   assert.match(mock, /listen\(PORT, '127\.0\.0\.1'/)
   assert.match(mock, /process\.env\.MOCK_SAVE_DIR/)
   assert.ok(mock.includes('!/^[\\w.-]+$/.test(name)'), 'a saved file name must be a plain name')
-  // the admin account is read from src/lib/admin.ts, never typed into the tool
-  assert.ok(mock.includes("/ADMIN_EMAIL = '([^']+)'/.exec(readFileSync(path.join(HERE, '../src/lib/admin.ts')"))
+  // the admin account comes from the ADMIN_EMAIL variable the app reads (src/lib/admin.ts), with a made-up default; never a real address in the tool
+  assert.ok(mock.includes("process.env.ADMIN_EMAIL?.trim() || 'admin@example.com'"))
 })

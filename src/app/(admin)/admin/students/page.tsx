@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
 import { getAdminT } from '@/lib/admin-lang'
 import { statusText } from '@/lib/admin-i18n'
+import { one } from '@/lib/relation'
 
 const LEVEL_COLOR: Record<string, string> = {
   A1: 'bg-gray-100 text-gray-600',
@@ -49,13 +50,13 @@ export default async function AdminStudentsPage() {
               {(students ?? []).length === 0 && (
                 <tr><td colSpan={6} className="text-center py-10 text-gray-400">{t('students.empty')}</td></tr>
               )}
-              {(students ?? []).map((s: any) => (
+              {(students ?? []).map((s) => (
                 <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3">
                     <p className="font-medium text-gray-900">{s.name}</p>
                     <p className="text-xs text-gray-400">{s.email ?? '—'}</p>
                   </td>
-                  <td className="px-5 py-3 text-gray-600">{s.tutors?.name ?? '—'}</td>
+                  <td className="px-5 py-3 text-gray-600">{one(s.tutors)?.name ?? '—'}</td>
                   <td className="px-5 py-3 text-gray-500">{s.country ?? '—'}</td>
                   <td className="px-5 py-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${LEVEL_COLOR[s.level] ?? 'bg-gray-100 text-gray-600'}`}>

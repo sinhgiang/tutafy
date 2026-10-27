@@ -2,17 +2,24 @@
 // the mail service, so the booking page (which runs in the browser) can use the same address and the same sentence.
 //
 // One place decides:
-//   - who a mail comes from: a named, real address ("Tutafy Bookings <booking@tutafy.com>") instead of a no-reply
+//   - who a mail comes from: a named, real address ("Tutafy Bookings <booking@...>") instead of a no-reply
 //     one, because mail from "noreply" with a bare name is judged harsher by spam filters (school mailboxes especially);
-//   - where a reply goes: a real, read mailbox (support@tutafy.com), so a student's answer reaches a person;
+//   - where a reply goes: a real, read mailbox (support@...), so a student's answer reaches a person;
 //   - a plain-text version beside every HTML one (mail with only HTML is another thing filters mark down).
-// Resend sends from the domain tutafy.com, which is verified there, so booking@tutafy.com can send; an address at any other
+// Resend sends from the site's own domain, which is verified there, so booking@ at that domain can send; an address at any other
 // domain would be refused until that domain is verified too. The mailboxes booking@ and support@ both exist (forwarded to the owner).
+// Both are role mailboxes of the product's own domain, so the domain is taken from SITE_URL and only the role names are written here;
+// no personal address of anyone is in the code (rule 4b, T-0908).
 // The two addresses can be changed without touching code: EMAIL_FROM_ADDRESS and EMAIL_REPLY_TO (optional; a value
 // that is not a plain address is ignored and the default stays).
 
-export const DEFAULT_FROM_ADDRESS = 'booking@tutafy.com'
-export const DEFAULT_REPLY_TO = 'support@tutafy.com'
+import { SITE_URL } from '@/lib/site-url'
+
+/** The domain the site and its mailboxes live on ("www." left off): the verified sending domain. */
+export const MAIL_DOMAIN = new URL(SITE_URL).hostname.replace(/^www\./, '')
+
+export const DEFAULT_FROM_ADDRESS = `booking@${MAIL_DOMAIN}`
+export const DEFAULT_REPLY_TO = `support@${MAIL_DOMAIN}`
 
 /** "bookings": lesson and booking mail; "general": account, invoice and message mail. Same address, a clearer name. */
 export type MailKind = 'bookings' | 'general'
@@ -36,7 +43,7 @@ export function emailReplyTo(env: Env = process.env): string {
   return address(env.EMAIL_REPLY_TO, DEFAULT_REPLY_TO)
 }
 
-/** "Tutafy Bookings <booking@tutafy.com>" */
+/** `Tutafy Bookings <booking@domain>` */
 export function emailFrom(kind: MailKind = 'general', env: Env = process.env): string {
   return `${SENDER_NAME[kind]} <${emailFromAddress(env)}>`
 }
@@ -160,6 +167,8 @@ export type MailInput = {
   replyTo?: string | string[]
   cc?: string | string[]
   bcc?: string | string[]
+  /** Extra mail headers, for example List-Unsubscribe on the tips mail. */
+  headers?: Record<string, string>
 }
 
 /**

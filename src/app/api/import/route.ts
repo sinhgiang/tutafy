@@ -1,99 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireApiPlan } from '@/lib/api-guard'
+import { MAX_CSV_CHARS, MAX_PROBLEMS, PREVIEW_ROWS, detectPlatform, parseCSV, parsePreplyWithProblems, previewRow, type ImportProblem } from '@/lib/csv-import'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-
-type ParsedStudent = {
-  name: string
-  email: string
-  notes: string
-  language: string
-  lessons: ParsedLesson[]
-}
-
-type ParsedLesson = {
-  date: string
-  duration: number
-  price: number | null
-  notes: string
-}
-
-function detectPlatform(headers: string[]): 'preply' | 'italki' | 'generic' {
-  const h = headers.join(',').toLowerCase()
-  if (h.includes('preply') || h.includes('trial')) return 'preply'
-  if (h.includes('italki') || h.includes('instant')) return 'italki'
-  return 'generic'
-}
-
-function parseCSV(text: string): { headers: string[]; rows: string[][] } {
-  const lines = text.split(/\r?\n/).filter(l => l.trim())
-  if (lines.length < 2) return { headers: [], rows: [] }
-  const parse = (line: string) => {
-    const result: string[] = []
-    let cur = '', inQuote = false
-    for (let i = 0; i < line.length; i++) {
-      if (line[i] === '"') { inQuote = !inQuote }
-      else if (line[i] === ',' && !inQuote) { result.push(cur.trim()); cur = '' }
-      else { cur += line[i] }
-    }
-    result.push(cur.trim())
-    return result
-  }
-  const headers = parse(lines[0])
-  const rows = lines.slice(1).map(parse)
-  return { headers, rows }
-}
-
-function parsePreply(headers: string[], rows: string[][]): ParsedStudent[] {
-  const idx = (name: string) => headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()))
-  const iName = idx('student') !== -1 ? idx('student') : idx('name')
-  const iEmail = idx('email')
-  const iDate = idx('date') !== -1 ? idx('date') : idx('time')
-  const iDur = idx('duration') !== -1 ? idx('duration') : idx('length')
-  const iAmt = idx('amount') !== -1 ? idx('amount') : idx('price')
-  const iLang = idx('language') !== -1 ? idx('language') : idx('subject')
-  const iNotes = idx('notes') !== -1 ? idx('notes') : idx('comment')
-
-  const students = new Map<string, ParsedStudent>()
-
-  for (const row of rows) {
-    if (row.length < 2) continue
-    const name = (row[iName] ?? '').trim()
-    const email = (row[iEmail] ?? '').trim()
-    const key = email || name
-    if (!key) continue
-
-    if (!students.has(key)) {
-      students.set(key, {
-        name: name || 'Unknown',
-        email: email || '',
-        notes: '',
-        language: iLang >= 0 ? (row[iLang] ?? '').trim() : '',
-        lessons: [],
-      })
-    }
-
-    const dateStr = iDate >= 0 ? (row[iDate] ?? '').trim() : ''
-    if (dateStr) {
-      const d = new Date(dateStr)
-      if (!isNaN(d.getTime())) {
-        const durRaw = iDur >= 0 ? row[iDur] ?? '' : ''
-        const dur = parseInt(durRaw.replace(/[^0-9]/g, '')) || 60
-        const priceRaw = iAmt >= 0 ? row[iAmt] ?? '' : ''
-        const price = parseFloat(priceRaw.replace(/[^0-9.]/g, '')) || null
-        students.get(key)!.lessons.push({
-          date: d.toISOString(),
-          duration: dur,
-          price,
-          notes: iNotes >= 0 ? (row[iNotes] ?? '').trim() : '',
-        })
-      }
-    }
-  }
-  return Array.from(students.values())
-}
 
 export async function POST(req: NextRequest) {
   const gate = await requireApiPlan('pro')
@@ -102,35 +13,55 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient()
 
-  const body = await req.json()
-  const { csvText, dryRun = false } = body as { csvText: string; dryRun?: boolean }
+  const body = await req.json().catch(() => null) as { csvText?: unknown; dryRun?: unknown } | null
+  const csvText = body?.csvText
+  const dryRun = body?.dryRun === true
 
-  if (!csvText) return NextResponse.json({ error: 'No CSV provided' }, { status: 400 })
+  if (typeof csvText !== 'string' || !csvText) return NextResponse.json({ error: 'No CSV provided' }, { status: 400 })
+  if (csvText.length > MAX_CSV_CHARS) return NextResponse.json({ error: 'That file is too large (2 MB at most)' }, { status: 413 })
 
   const { headers, rows } = parseCSV(csvText)
   if (!headers.length) return NextResponse.json({ error: 'Could not parse CSV — check file format' }, { status: 400 })
 
   const platform = detectPlatform(headers)
-  const students = parsePreply(headers, rows)
+  const { students, problems: readProblems } = parsePreplyWithProblems(headers, rows)
 
   if (dryRun) {
+    // The preview table (T-0824): the first rows with what would happen to each, BEFORE anything is saved. "Already your
+    // student" is looked up among THIS tutor's students only (tutor_id from the session).
+    const shown = students.slice(0, PREVIEW_ROWS)
+    const emails = shown.map(s => s.email).filter(Boolean)
+    const known = new Set<string>()
+    if (emails.length > 0) {
+      const { data } = await admin.from('students').select('email').eq('tutor_id', user.id).in('email', emails)
+      for (const row of (data ?? []) as { email: string | null }[]) if (row.email) known.add(row.email.toLowerCase())
+    }
     return NextResponse.json({
       ok: true,
       platform,
-      preview: students.slice(0, 5),
+      rows: shown.map(s => previewRow(s, known)),
+      shown: shown.length,
       totalStudents: students.length,
       totalLessons: students.reduce((a, s) => a + s.lessons.length, 0),
+      rowsInFile: rows.length,
+      // what the file holds that cannot be imported, with the reason, for the page and the problems file (T-0841)
+      problems: readProblems.slice(0, MAX_PROBLEMS),
+      problemsTotal: readProblems.length,
     })
   }
 
   let importedStudents = 0
   let importedLessons = 0
   const errors: string[] = []
+  const problems: ImportProblem[] = [...readProblems]
+  // A reason the tutor can read: what the database said stays on the server (T-0841).
+  const saveProblem = (s: { name: string; email: string; firstRow?: number }, problem: string, result: string) =>
+    problems.push({ row: s.firstRow ?? 0, student: s.name, email: s.email, problem, result })
 
   for (const s of students) {
     try {
       // Upsert student
-      let { data: existing } = await admin
+      const { data: existing } = await admin
         .from('students')
         .select('id')
         .eq('tutor_id', user.id)
@@ -153,7 +84,7 @@ export async function POST(req: NextRequest) {
           .select('id')
           .single()
 
-        if (ce || !created) { errors.push(`Failed to create student ${s.name}: ${ce?.message}`); continue }
+        if (ce || !created) { errors.push(`Could not save the student ${s.name}`); saveProblem(s, 'The student could not be saved', 'Student and lessons not saved'); continue }
         studentId = created.id
         importedStudents++
       }
@@ -171,9 +102,11 @@ export async function POST(req: NextRequest) {
           status: 'completed',
         })
         if (!le) importedLessons++
+        else saveProblem(s, `The lesson on ${l.date.slice(0, 10)} could not be saved`, 'Lesson not saved')
       }
-    } catch (e: any) {
-      errors.push(e.message)
+    } catch {
+      errors.push(`Could not import ${s.name}`)
+      saveProblem(s, 'Something went wrong while saving this student', 'Student not fully saved')
     }
   }
 
@@ -183,5 +116,7 @@ export async function POST(req: NextRequest) {
     importedStudents,
     importedLessons,
     errors: errors.slice(0, 10),
+    problems: problems.slice(0, MAX_PROBLEMS),
+    problemsTotal: problems.length,
   })
 }

@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -36,9 +37,9 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
   const totalRevenue = lessons?.filter(l => l.payment_status === 'paid').reduce((s, l) => s + (l.price ?? 0), 0) ?? 0
 
   return (
-    <div className="max-w-[900px] space-y-5">
+    <PageColumn size="list" className="space-y-5">
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/students" aria-label="Back to students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Student Profile</h1>
@@ -150,9 +151,12 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
           <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
               <p className="text-[13px] font-semibold text-gray-900">Lesson History</p>
-              <Link href={`/lessons/new?student=${id}`} className="text-[12px] text-indigo-500 hover:underline font-medium">
-                + Add Lesson
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link href={`/lessons?student=${id}`} className="text-[13px] text-indigo-500 hover:underline font-medium">See all lessons</Link>
+                <Link href={`/lessons/new?student=${id}`} className="text-[13px] text-indigo-500 hover:underline font-medium">
+                  + Add Lesson
+                </Link>
+              </div>
             </div>
             {!lessons || lessons.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10">
@@ -186,6 +190,6 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </div>
-    </div>
+    </PageColumn>
   )
 }

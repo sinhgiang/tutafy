@@ -1,5 +1,6 @@
 'use client'
 
+import { StatRow } from '@/components/lists/StatRow'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -108,7 +109,7 @@ function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: 
       <div>
         <p className="text-[11px] text-gray-400 mb-1.5">Bio (shown on booking page)</p>
         <div className="flex gap-2">
-          <textarea value={bio} onChange={e => setBio(e.target.value)} rows={2} placeholder="A short intro for students"
+          <textarea aria-label="Short intro" value={bio} onChange={e => setBio(e.target.value)} rows={2} placeholder="A short intro for students"
             className="flex-1 text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none" />
           <button onClick={saveBio} disabled={savingBio} className="text-[12px] font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-50 px-2">
             {savingBio ? '…' : 'Save'}
@@ -119,13 +120,13 @@ function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: 
       <div>
         <p className="text-[11px] text-gray-400 mb-1.5">Weekly availability</p>
         <div className="flex flex-wrap gap-2 items-end mb-2">
-          <select value={newDay} onChange={e => setNewDay(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+          <select aria-label="Day" value={newDay} onChange={e => setNewDay(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
             {DAYS.map((d, i) => <option key={i} value={i}>{d}</option>)}
           </select>
-          <select value={newStart} onChange={e => setNewStart(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+          <select aria-label="From" value={newStart} onChange={e => setNewStart(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
             {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-          <select value={newEnd} onChange={e => setNewEnd(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
+          <select aria-label="To" value={newEnd} onChange={e => setNewEnd(e.target.value)} className="text-[12px] px-2 py-1.5 rounded-lg border border-gray-200 bg-white">
             {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
           <button onClick={addSlot} disabled={savingSlot} className="text-[12px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-3 py-1.5 rounded-lg">
@@ -134,7 +135,7 @@ function MemberBookingPanel({ member, tutorSlug }: { member: Member; tutorSlug: 
         </div>
         <div className="flex flex-wrap gap-1.5">
           {(slots ?? []).length === 0 ? (
-            <p className="text-[11px] text-gray-400">No availability set — this tutor's booking page will show a waitlist form.</p>
+            <p className="text-[11px] text-gray-400">No availability set — this tutor&apos;s booking page will show a waitlist form.</p>
           ) : (slots ?? []).map(s => (
             <div key={s.id} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg text-[11px] font-medium">
               {DAYS[s.day_of_week]} {s.start_time.slice(0, 5)}–{s.end_time.slice(0, 5)}
@@ -211,23 +212,30 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
   }
 
   return (
-    <div className="max-w-[900px] space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="space-y-5">
+      <div className="dash-head" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Team & Payroll</h1>
-          <p className="text-[13px] text-gray-400 mt-0.5">Add your tutors, assign lessons, and track what each one earns.</p>
+          <h1>Team &amp; Payroll <span className="dash-chip is-brand-chip" style={{ verticalAlign: 'middle', marginLeft: 6 }}>Academy</span></h1>
+          <p>Add your tutors, assign lessons, and see what each one earns.</p>
         </div>
-        <div className="flex bg-gray-100 rounded-lg p-1 text-[12px] font-semibold">
-          <a href="/team?period=all" className={`px-3 py-1.5 rounded-md transition-colors ${scope === 'all' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>All time</a>
-          <a href="/team?period=month" className={`px-3 py-1.5 rounded-md transition-colors ${scope === 'month' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>This month</a>
-        </div>
+        <nav className="dash-seg" aria-label="Period">
+          <a href="/team?period=all" aria-current={scope === 'all' ? 'true' : undefined}>All time</a>
+          <a href="/team?period=month" aria-current={scope === 'month' ? 'true' : undefined}>This month</a>
+        </nav>
       </div>
 
       {plan !== 'academy' && (
-        <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-[12px] text-amber-700">
-          Team & payroll is an <strong>Academy</strong> feature. You can set it up now — upgrade to Academy to run a full team of tutors.
+        <div className="dash-card dash-card-b" role="note" style={{ background: 'var(--d-warn-soft)', color: 'var(--d-ink-2)' }}>
+          Team and payroll is part of the <b>Academy</b> plan. You can set it up now and upgrade when you run a full team.
         </div>
       )}
+
+      <StatRow stats={[
+        { id: 'members', label: 'Team members', value: String(members.length), foot: 'up to 5' },
+        { id: 'lessons', label: scope === 'month' ? 'Lessons this month' : 'Lessons assigned', value: String(payroll.totals.lessons), foot: `${payroll.totals.hours} hours` },
+        { id: 'earn', label: 'Your tutors earn', value: money(payroll.totals.earnings) },
+        { id: 'keep', label: 'Academy keeps', value: money(payroll.totals.companyShare) },
+      ]} />
 
       {/* Payroll summary */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
@@ -298,24 +306,24 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
         <div className="px-5 py-4 border-b border-gray-50 flex flex-wrap gap-2 items-end">
           <div className="flex-1 min-w-[130px]">
             <p className="text-[11px] text-gray-400 mb-1">Name</p>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="Tutor name"
+            <input aria-label="Name" value={name} onChange={e => setName(e.target.value)} placeholder="Tutor name"
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <div className="flex-1 min-w-[130px]">
             <p className="text-[11px] text-gray-400 mb-1">Email (optional)</p>
-            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@email.com"
+            <input aria-label="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} placeholder="tutor@example.com"
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <div>
             <p className="text-[11px] text-gray-400 mb-1">Pay type</p>
-            <select value={payType} onChange={e => setPayType(e.target.value)}
+            <select aria-label="Pay type" value={payType} onChange={e => setPayType(e.target.value)}
               className="text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400">
               {PAY_TYPES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
           </div>
           <div className="w-24">
             <p className="text-[11px] text-gray-400 mb-1">{payType === 'revenue_share' ? 'Percent' : 'Rate ($)'}</p>
-            <input value={payRate} onChange={e => setPayRate(e.target.value)} type="number" min="0" placeholder={payType === 'revenue_share' ? '70' : '20'}
+            <input aria-label={payType === 'revenue_share' ? 'Percent' : 'Rate ($)'} value={payRate} onChange={e => setPayRate(e.target.value)} type="number" min="0" placeholder={payType === 'revenue_share' ? '70' : '20'}
               className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
           </div>
           <button onClick={addMember} disabled={busy === 'add'}
@@ -375,6 +383,7 @@ export function TeamClient({ members, payroll, assignable, scope, plan, tutorSlu
                     </p>
                   </div>
                   <select
+                    aria-label="Assigned tutor"
                     value={l.assigned_to ?? ''}
                     onChange={e => assign(l.id, e.target.value)}
                     disabled={busy === l.id}

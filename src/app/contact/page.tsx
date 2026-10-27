@@ -1,23 +1,22 @@
 import Link from 'next/link'
-import { GraduationCap, ArrowLeft, Mail, MessageCircle, HelpCircle } from 'lucide-react'
-import { pageMetadata } from '@/lib/page-meta'
+import { ArrowLeft, Mail, MessageCircle, HelpCircle } from 'lucide-react'
+import { pageMetadata, PAGE_SEO } from '@/lib/page-meta'
+import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 import { SiteFooter } from '@/components/SiteFooter'
 import { ContactEmails } from '@/components/ContactEmails'
-import { CONTACT_EMAILS, PRIMARY_CONTACT_EMAIL, REPLY_PROMISE } from '@/lib/contact'
+import { contactEmails, REPLY_PROMISE } from '@/lib/contact'
+import { SiteLogo } from '@/components/SiteLogo'
 
 export const metadata = pageMetadata('contact')
 
 export default function ContactPage() {
+  const emails = contactEmails()
   return (
     <div className="min-h-screen bg-white">
+      {pageJsonLd(PAGE_SEO.contact, 'Contact', 'ContactPage').map((d, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(d) }} />)}
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
-            </div>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo />
           <Link href="/" className="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 hover:text-gray-900">
             <ArrowLeft className="h-3.5 w-3.5" /> Back to home
           </Link>
@@ -40,13 +39,13 @@ export default function ContactPage() {
             </div>
             <p className="text-[14px] font-bold text-gray-900">Email us</p>
             <p className="text-[12px] text-gray-500 mt-1">Support & general questions</p>
-            {CONTACT_EMAILS.map(email => (
-              <a key={email} href={`mailto:${email}`} className="block text-[12px] font-semibold text-indigo-500 mt-2 break-all hover:underline">{email}</a>
+            {emails.map(email => (
+              <a key={email} href={`mailto:${email}`} className="block text-[12px] font-semibold text-indigo-600 mt-2 break-all hover:underline">{email}</a>
             ))}
           </div>
           {[
             { icon: HelpCircle, title: 'Help', desc: 'Read the FAQ on our homepage', action: 'View FAQ', href: '/#how' },
-            { icon: MessageCircle, title: 'Feedback', desc: 'Tell us what to build next', action: 'Send feedback', href: `mailto:${PRIMARY_CONTACT_EMAIL}?subject=Tutafy%20feedback` },
+            { icon: MessageCircle, title: 'Feedback', desc: 'Tell us what to build next', action: 'Send feedback', href: `mailto:${emails[0]}?subject=Tutafy%20feedback` },
           ].map(c => (
             <a key={c.title} href={c.href} className="bg-white rounded-2xl border border-gray-100 p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
@@ -62,7 +61,7 @@ export default function ContactPage() {
         <div className="bg-gray-50 rounded-2xl p-6 text-center">
           <p className="text-[13px] text-gray-600">
             Prefer email? Reach us directly at{' '}
-            <ContactEmails linkClassName="font-semibold text-indigo-500 underline" />.
+            <ContactEmails linkClassName="font-semibold text-indigo-600 underline" />.
             {' '}{REPLY_PROMISE}
           </p>
         </div>

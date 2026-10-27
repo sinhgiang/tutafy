@@ -1,8 +1,9 @@
-# Runs on every pull request (T-0684, T-0693, T-0703): the type check, the tests (they include the scan for comments that still
+# Runs on every pull request (T-0684, T-0693, T-0703, T-0895): the lint (a warning fails it too), the type check, the tests (they include the scan for comments that still
 # state a value rule that was replaced), the production build, the check that every line citation in the Markdown files of the
 # repository points inside its file, and the check that no Markdown file calls a merged pull request "waiting to merge". The
 # tests and the build need no secrets and send nothing anywhere (the build gets placeholder public values, never a key); the last
-# step only READS pull request states from GitHub.
+# step only READS pull request states from GitHub. T-0834: the Updates entry step only warns (an annotation, never a failure) when
+# the branch changes a page or a component and adds no new file in content/updates/.
 name: Pull request
 
 on:
@@ -22,11 +23,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the Updates entry check compares the branch with its base
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Type check
         run: npm run typecheck
       - name: Tests
@@ -39,6 +44,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
       - name: Line citations in the Markdown files point inside their files
         run: npm run line-refs
+      - name: A change a user sees has an Updates entry (warning only)
+        run: npm run updates-entry
+        env:
+          BASE_REF: ${{ github.base_ref }}
       - name: No merged pull request is written as waiting to merge
         run: npm run pr-status
         env:

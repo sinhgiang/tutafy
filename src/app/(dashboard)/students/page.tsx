@@ -1,104 +1,112 @@
+// Students (T-0822): search, level and status filters, sort, 25 rows a page, bulk status change, CSV export.
+// The page reads the signed-in tutor's own students only (tutor_id from the session) and asks the database for one page.
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { CircleAlert, Download, Plus, RotateCw, Users } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { Plus, Users, Search } from 'lucide-react'
+import { ListPager } from '@/components/lists/ListPager'
+import { hrefWith, rangeOfPage } from '@/lib/list-params'
+import {
+  LEVELS, SORTS, SORT_LABEL, STATUSES, STUDENT_COLUMNS, STUDENT_DEFAULTS, applyStudentFilters, parseStudentFilters, type StudentRow,
+} from '@/lib/student-list'
+import { StudentsTable } from './StudentsTable'
 
-const LEVEL_COLOR: Record<string, string> = {
-  A1: 'bg-slate-100 text-slate-500', A2: 'bg-blue-50 text-blue-600',
-  B1: 'bg-cyan-50 text-cyan-700', B2: 'bg-green-50 text-green-700',
-  C1: 'bg-orange-50 text-orange-700', C2: 'bg-red-50 text-red-700',
-  Native: 'bg-purple-50 text-purple-700',
-}
-
-export default async function StudentsPage() {
+export default async function StudentsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const sp = await searchParams
+  const f = parseStudentFilters(sp)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: students } = await supabase
-    .from('students').select('*').eq('tutor_id', user!.id).order('created_at', { ascending: false })
+  if (!user) redirect('/login')
 
-  const active = students?.filter(s => s.status === 'active').length ?? 0
+  const [from, to] = rangeOfPage(f.page)
+  const { data, error, count } = await applyStudentFilters(
+    supabase.from('students').select(STUDENT_COLUMNS, { count: 'exact' }).eq('tutor_id', user.id), f,
+  ).range(from, to)
 
-  return (
-    <div className="space-y-6 max-w-[1100px]">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Students</h1>
-          <p className="text-[13px] text-gray-400 mt-0.5">{students?.length ?? 0} total · {active} active</p>
-        </div>
-        <Link href="/students/new"
-          className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">
-          <Plus className="h-3.5 w-3.5" /> Add Student
-        </Link>
+  // The total of all the tutor's students and the active ones, for the sentence under the title (two cheap counts).
+  const [{ count: all }, { count: active }] = await Promise.all([
+    supabase.from('students').select('id', { count: 'exact', head: true }).eq('tutor_id', user.id),
+    supabase.from('students').select('id', { count: 'exact', head: true }).eq('tutor_id', user.id).eq('status', 'active'),
+  ])
+
+  const current = { q: f.q, level: f.level, status: f.status, sort: f.sort, page: String(f.page) }
+  const href = (patch: Record<string, string | number | null>) => hrefWith('/students', current, patch, STUDENT_DEFAULTS)
+  const exportHref = `/api/students/export${hrefWith('', current, { page: null }, STUDENT_DEFAULTS)}`
+  const filtered = f.q !== '' || f.level !== 'all' || f.status !== 'all'
+
+  const head = (
+    <div className="dash-head">
+      <div>
+        <h1>Students</h1>
+        <p>{all ?? 0} total, {active ?? 0} active</p>
       </div>
+      <div className="dash-head-actions">
+        <Link href="/students/new" className="dash-btn is-primary"><Plus className="h-4 w-4" aria-hidden="true" /> Add student</Link>
+      </div>
+    </div>
+  )
 
-      {!students || students.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 flex flex-col items-center justify-center py-20">
-          <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
-            <Users className="h-6 w-6 text-indigo-400" />
-          </div>
-          <h3 className="text-[15px] font-semibold text-gray-900">No students yet</h3>
-          <p className="text-[13px] text-gray-400 mt-1 text-center max-w-xs">Add your first student to start managing your tutoring business.</p>
-          <Link href="/students/new"
-            className="mt-5 flex items-center gap-1.5 text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">
-            <Plus className="h-3.5 w-3.5" /> Add your first student
-          </Link>
+  if (error) {
+    return (
+      <div>
+        {head}
+        <div className="dash-card dash-state" role="alert" data-testid="students-error">
+          <div className="dash-state-ico"><CircleAlert className="h-6 w-6" aria-hidden="true" /></div>
+          <h2>We could not load your students</h2>
+          <p>Nothing was changed. Check your connection and try again.</p>
+          <div className="dash-state-actions"><Link href={href({})} className="dash-btn is-primary"><RotateCw className="h-4 w-4" aria-hidden="true" /> Try again</Link></div>
         </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50/80 border-b border-gray-100">
-                <tr>
-                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Student</th>
-                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Level</th>
-                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Country</th>
-                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Goals</th>
-                  <th className="text-center px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Added</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {students.map(s => {
-                  const initials = s.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-                  return (
-                    <Link key={s.id} href={`/students/${s.id}`} legacyBehavior>
-                      <tr className="hover:bg-gray-50/60 transition-colors cursor-pointer">
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                              <span className="text-[11px] font-bold text-indigo-600">{initials}</span>
-                            </div>
-                            <div>
-                              <p className="text-[13px] font-semibold text-gray-900">{s.name}</p>
-                              {s.email && <p className="text-[11px] text-gray-400">{s.email}</p>}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <span className={`text-[11px] px-2 py-0.5 rounded font-semibold ${LEVEL_COLOR[s.level] ?? 'bg-gray-100 text-gray-500'}`}>{s.level}</span>
-                        </td>
-                        <td className="px-5 py-3.5 text-[13px] text-gray-500">{s.country ?? '—'}</td>
-                        <td className="px-5 py-3.5 text-[12px] text-gray-400 max-w-[200px]">
-                          <p className="truncate">{s.goals ?? '—'}</p>
-                        </td>
-                        <td className="px-5 py-3.5 text-center">
-                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
-                            s.status === 'active' ? 'bg-emerald-50 text-emerald-600' :
-                            s.status === 'paused' ? 'bg-amber-50 text-amber-600' : 'bg-gray-100 text-gray-400'}`}>
-                            {s.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-[12px] text-gray-400">
-                          {new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </td>
-                      </tr>
-                    </Link>
-                  )
-                })}
-              </tbody>
-            </table>
+      </div>
+    )
+  }
+
+  if ((all ?? 0) === 0) {
+    return (
+      <div>
+        {head}
+        <div className="dash-card dash-state" data-testid="students-empty">
+          <div className="dash-state-ico is-brand"><Users className="h-6 w-6" aria-hidden="true" /></div>
+          <h2>No students yet</h2>
+          <p>Add your first student to start managing your tutoring business.</p>
+          <div className="dash-state-actions"><Link href="/students/new" className="dash-btn is-primary"><Plus className="h-4 w-4" aria-hidden="true" /> Add your first student</Link></div>
+        </div>
+      </div>
+    )
+  }
+
+  const rows = (data ?? []) as StudentRow[]
+  return (
+    <div>
+      {head}
+      <section className="dash-card" aria-label="Student list">
+        <div className="dash-toolbar">
+          <form method="get" action="/students" role="search">
+            <input className="dash-input" type="search" name="q" defaultValue={f.q} placeholder="Search name or email" aria-label="Search students" maxLength={60} />
+            <select className="dash-select" name="level" defaultValue={f.level} aria-label="Level">
+              {LEVELS.map(l => <option key={l} value={l}>{l === 'all' ? 'All levels' : l}</option>)}
+            </select>
+            <select className="dash-select" name="status" defaultValue={f.status} aria-label="Status">
+              {STATUSES.map(s => <option key={s} value={s}>{s === 'all' ? 'All statuses' : s[0].toUpperCase() + s.slice(1)}</option>)}
+            </select>
+            <select className="dash-select" name="sort" defaultValue={f.sort} aria-label="Sort by">
+              {SORTS.map(s => <option key={s} value={s}>{SORT_LABEL[s]}</option>)}
+            </select>
+            <button type="submit" className="dash-btn is-primary">Apply</button>
+          </form>
+          <div className="dash-toolbar-right">
+            {filtered && <Link href="/students" className="dash-btn is-ghost">Clear filters</Link>}
+            <a className="dash-btn" href={exportHref} data-testid="export-csv"><Download className="h-4 w-4" aria-hidden="true" /> Export CSV</a>
           </div>
         </div>
-      )}
+        {rows.length === 0 ? (
+          <div className="dash-state" data-testid="students-nomatch">
+            <h2>{f.page > 1 ? 'That page is empty' : 'No students match'}</h2>
+            <p>{f.page > 1 ? 'There are fewer students than that.' : 'Try a different word, or clear the filters.'}</p>
+            <div className="dash-state-actions"><Link href={f.page > 1 ? href({ page: 1 }) : '/students'} className="dash-btn">{f.page > 1 ? 'Go to page 1' : 'Clear filters'}</Link></div>
+          </div>
+        ) : <StudentsTable rows={rows} />}
+        <ListPager total={count ?? 0} page={f.page} hrefFor={p => href({ page: p })} noun="students" />
+      </section>
     </div>
   )
 }

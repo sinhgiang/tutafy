@@ -30,7 +30,7 @@ export function Analytics() {
   const metaFirstPage = useRef(true)
 
   useEffect(() => {
-    setOk(getConsent() === 'accepted')
+    setOk(getConsent() === 'accepted') // eslint-disable-line react-hooks/set-state-in-effect -- the saved choice is in localStorage, which the server cannot see: reading it after mount avoids a hydration mismatch
     const onConsent = (e: Event) => setOk((e as CustomEvent).detail === 'accepted')
     window.addEventListener(CONSENT_EVENT, onConsent)
     return () => window.removeEventListener(CONSENT_EVENT, onConsent)

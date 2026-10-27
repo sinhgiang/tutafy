@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   if ('error' in gate) return gate.error
   const { supabase, userId: user } = gate
 
-  let body: any
+  let body: Record<string, unknown>
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
   const name = (body?.name ?? '').toString().trim()
   const payType = (body?.pay_type ?? 'per_lesson').toString()
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     if (error.message === 'team_requires_academy') {
       return NextResponse.json({ error: 'upgrade_required' }, { status: 403 })
     }
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Could not add the team member' }, { status: 500 })
   }
   return NextResponse.json({ member: data }, { status: 201 })
 }

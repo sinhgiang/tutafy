@@ -1,0 +1,73 @@
+/* The tutor directory (/tutors) in a dark colour scheme (T-0863). The page is drawn with fixed light utility classes (bg-white, text-gray-900 ...), and the
+   public pages have no theme switch, so this follows the visitor's own system setting (prefers-color-scheme) and only inside `.dir-page`: no other page
+   is touched. Every colour is a variable below, so a change is made in one place. Contrast was measured on the real page (tests/directory-dark.test.ts
+   reads the pairs from this file and checks each is at least 4.5:1 for text, 3:1 for borders and controls). */
+.dir-page { color-scheme: light dark; }
+
+@media (prefers-color-scheme: dark) {
+  .dir-page {
+    --dir-bg: #0e1118;
+    --dir-surface: #161a24;
+    --dir-surface-2: #1d2230;
+    --dir-line: #2b3142;
+    --dir-line-strong: #4a5268;
+    --dir-ink: #f2f4fa;
+    --dir-ink-2: #c9cedd;
+    --dir-ink-3: #a3abc0;
+    --dir-accent: #a9b4ff;
+    --dir-accent-bg: rgba(129, 140, 248, 0.16);
+    --dir-accent-line: rgba(129, 140, 248, 0.45);
+    --dir-ok: #6ee7b7;
+    --dir-ok-bg: rgba(16, 185, 129, 0.14);
+    --dir-bad: #fecaca;
+    --dir-bad-bg: rgba(239, 68, 68, 0.14);
+    --dir-bad-line: rgba(248, 113, 113, 0.45);
+    --dir-chosen: #5558e8;
+    --dir-chosen-ink: #ffffff;
+    background-color: var(--dir-bg);
+    color: var(--dir-ink);
+  }
+  .dir-page.bg-\[\#F7F8FA\], .dir-page .bg-\[\#F7F8FA\] { background-color: var(--dir-bg); }
+
+  /* surfaces */
+  .dir-page .bg-white, .dir-page .hover\:bg-white:hover { background-color: var(--dir-surface); }
+  .dir-page .bg-gray-50, .dir-page .bg-gray-100, .dir-page .bg-gray-200 { background-color: var(--dir-surface-2); }
+  .dir-page .bg-gray-300 { background-color: var(--dir-line-strong); }
+  .dir-page .bg-indigo-50, .dir-page .bg-indigo-100, .dir-page .hover\:bg-indigo-50:hover, .dir-page .hover\:bg-indigo-100:hover { background-color: var(--dir-accent-bg); }
+  .dir-page .bg-emerald-50 { background-color: var(--dir-ok-bg); }
+  .dir-page .bg-red-50 { background-color: var(--dir-bad-bg); }
+
+  /* text */
+  .dir-page .text-gray-900, .dir-page .text-gray-800, .dir-page .hover\:text-gray-900:hover { color: var(--dir-ink); }
+  .dir-page .text-gray-700, .dir-page .text-gray-600, .dir-page .hover\:text-gray-700:hover { color: var(--dir-ink-2); }
+  .dir-page .text-gray-500, .dir-page .text-gray-400 { color: var(--dir-ink-3); }
+  .dir-page .text-indigo-700, .dir-page .text-indigo-600 { color: var(--dir-accent); }
+  .dir-page .text-emerald-800, .dir-page .text-emerald-900\/80 { color: var(--dir-ok); }
+  .dir-page .text-red-900 { color: var(--dir-bad); }
+  .dir-page .placeholder\:text-gray-500::placeholder, .dir-page input::placeholder { color: var(--dir-ink-3); }
+
+  /* lines */
+  .dir-page .border-gray-100, .dir-page .border-gray-200 { border-color: var(--dir-line); }
+  .dir-page .border-gray-300 { border-color: var(--dir-line-strong); }
+  .dir-page .hover\:border-indigo-300:hover, .dir-page .border-indigo-300, .dir-page .border-indigo-200 { border-color: var(--dir-accent-line); }
+  .dir-page .border-indigo-100 { border-color: var(--dir-accent-line); }
+  .dir-page .border-red-200 { border-color: var(--dir-bad-line); }
+  .dir-page .border-t, .dir-page .border-b { border-color: var(--dir-line); }
+
+  /* a chosen option keeps its solid indigo fill and white text (set with bg-indigo-600 / text-white, which are not remapped); a chosen pill is a tint */
+  .dir-page .bg-indigo-50.border-indigo-500 { border-color: var(--dir-accent); }
+
+  /* the pastel initials tile of a tutor with no photo (its colours are set inline, hence !important) takes the dark surface and the accent text */
+  .dir-page [data-testid="card-monogram"] { background: var(--dir-surface-2) !important; color: var(--dir-accent) !important; }
+
+  /* "Find me a tutor" (/find-a-tutor, T-0897): an answer is a hidden radio button or switch followed by a drawn pill or track. The light page fills the
+     chosen pill with indigo through a peer-checked class, which ties in weight with the surface remap above and loses; this rule is heavier, so the
+     chosen answer keeps its solid fill and white text in the dark scheme too. */
+  .dir-page input.peer:checked + span { background-color: var(--dir-chosen); border-color: var(--dir-chosen); color: var(--dir-chosen-ink); }
+
+  /* sticky bottom bar of the filter sheet and the popovers are plain surfaces */
+  .dir-page .sticky.bg-white { background-color: var(--dir-surface); }
+  .dir-page select, .dir-page input[type="search"] { background-color: var(--dir-surface); color: var(--dir-ink); }
+  .dir-page select option { background-color: var(--dir-surface); color: var(--dir-ink); }
+  .dir-page .shadow-sm, .dir-page .shadow-lg, .dir-page .shadow-xl, .dir-page .shadow-2xl { --tw-shadow-color: rgba(0, 0, 0, 0.5); }
+}

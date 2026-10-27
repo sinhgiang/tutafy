@@ -4,7 +4,7 @@
 // so its source is read; the constants and the post data are the real ones.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -14,10 +14,9 @@ import { BLOG_SEO } from '@/lib/page-meta'
 import { SITE_URL } from '@/lib/site-url'
 import { buildLlmsTxt, buildLlmsFullTxt } from '@/lib/llms'
 import sitemap from '@/app/sitemap'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8')
-const SETTINGS = 'src/app/(dashboard)/settings/page.tsx'
 
 const post = POSTS.find(p => p.slug === STRIPE_GUIDE_SLUG)
 
@@ -47,11 +46,11 @@ export function helpLinkProblems(source: string): string[] {
 }
 
 test('Settings: the field shows Stripe Payment links, the step-by-step guide and Stripe\'s official guide, each in a new tab', () => {
-  assert.deepEqual(helpLinkProblems(read(SETTINGS)), [])
+  assert.deepEqual(helpLinkProblems(settingsSource()), [])
 })
 
 test('Settings self-check: removing any one of the three links, or its new-tab or noopener, is reported', () => {
-  const src = read(SETTINGS)
+  const src = settingsSource()
   for (const expr of ['stripePaymentLinks', 'stepByStepGuide', 'stripeOfficialGuide']) {
     const gone = src.replace(`href={CARD_LINK_HELP_LINKS.${expr}}`, 'href="#"')
     assert.notEqual(gone, src, expr)
@@ -73,7 +72,7 @@ test('the three addresses are the real ones, and the post address is on the main
 })
 
 test('Settings still validates the link before saving (the help change touched nothing else)', () => {
-  const src = read(SETTINGS)
+  const src = settingsSource()
   assert.match(src, /cardLinkForSave\(form\.paddle_checkout_link, savedLink\)/)
   assert.match(src, /data-testid="card-link-error"/)
 })

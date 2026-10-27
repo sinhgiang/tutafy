@@ -1,11 +1,14 @@
 import { notFound } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { BookingForm } from '../BookingForm'
+import { BookingForm, type SubscriptionPlan, type LessonPackage } from '../BookingForm'
+import { loadPublicTutor, loadBlockedDates } from '@/lib/public-tutor'
+import { MEMBER_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
 import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
 import { MadeWithTutafy } from '@/components/MadeWithTutafy'
-import { GraduationCap, Globe, Clock } from 'lucide-react'
+import { Globe, Clock } from 'lucide-react'
+import { SiteLogo } from '@/components/SiteLogo'
 
 // Booking page for a single Academy team member — same flow as /book/[slug],
 // but availability + the bookable identity belong to the team member, while
@@ -16,18 +19,15 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
   const supabase = await createClient()
   const admin = createAdminClient()
 
-  const { data: tutor } = await supabase
-    .from('tutors')
-    .select('id, name, timezone, languages, cancellation_hours, booking_url_active, buffer_minutes, paypal_link, paddle_checkout_link, stripe_account_id, default_lesson_price, contract_template, trial_enabled, trial_price, currency')
-    .eq('slug', slug)
-    .single()
+  // The tutor and the blocked days are read here on the server, only the public columns (T-0774): a visitor's own key cannot read the tutors table.
+  const tutor = await loadPublicTutor(admin, slug, MEMBER_PAGE_COLUMNS)
 
   if (!tutor || !tutor.booking_url_active) notFound()
 
   // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
-  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const chosen = await loadChosenDurations(admin, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
-  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
+  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
   // Use the admin client for the member lookup so we only ever select the
   // non-sensitive columns needed for a public page (never pay_rate/email).
@@ -53,7 +53,7 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
     .eq('team_member_id', member.id)
     .order('day_of_week')
 
-  let subscriptionPlans: any[] = []
+  let subscriptionPlans: SubscriptionPlan[] = []
   try {
     const { data: plans } = await supabase
       .from('subscription_plans')
@@ -64,18 +64,9 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
     subscriptionPlans = plans ?? []
   } catch { /* table may not exist yet */ }
 
-  let blockedDates: string[] = []
-  try {
-    const today = new Date().toISOString().split('T')[0]
-    const { data: exc } = await supabase
-      .from('availability_exceptions')
-      .select('date')
-      .eq('tutor_id', tutor.id)
-      .gte('date', today)
-    blockedDates = (exc ?? []).map((e: any) => e.date)
-  } catch { /* table may not exist yet */ }
+  const blockedDates = await loadBlockedDates(admin, tutor.id)
 
-  let packages: any[] = []
+  let packages: LessonPackage[] = []
   try {
     const { data: pkgs } = await supabase
       .from('packages')
@@ -93,11 +84,8 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
   return (
     <div className="min-h-screen bg-[#F7F8FA]">
       <header className="bg-white border-b border-gray-100 px-6 py-3.5">
-        <div className="max-w-5xl mx-auto flex items-center gap-2">
-          <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center">
-            <GraduationCap className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-[15px] font-bold text-gray-900">Tutafy</span>
+        <div className="max-w-5xl mx-auto flex items-center">
+          <SiteLogo size="md" />
         </div>
       </header>
 
@@ -108,7 +96,8 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
             <div className="flex flex-col items-center text-center mb-6">
               <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mb-4 ring-4 ring-indigo-50">
                 {member.avatar_url ? (
-                  <img src={member.avatar_url} alt={member.name} className="w-20 h-20 rounded-full object-cover" />
+                  // eslint-disable-next-line @next/next/no-img-element -- a team member's photo can be any web address the owner pasted; next/image would need every host listed, and this is one 80px picture
+                    <img src={member.avatar_url} alt={member.name} className="w-20 h-20 rounded-full object-cover" />
                 ) : (
                   <span className="text-2xl font-bold text-indigo-600">{initials}</span>
                 )}
@@ -150,15 +139,15 @@ export default async function TeamMemberBookingPage({ params }: { params: Promis
           </div>
 
           <BookingForm
-            tutor={{ ...memberTutorView, timezone } as any}
+            tutor={{ ...memberTutorView, timezone }}
             cardCheckoutEnabled={isStripeEnabled()}
             availability={availability ?? []}
             subscriptionPlans={subscriptionPlans}
-            contractTemplate={(tutor as any).contract_template ?? null}
+            contractTemplate={tutor.contract_template ?? null}
             blockedDates={blockedDates}
             packages={packages}
-            trialEnabled={(tutor as any).trial_enabled ?? false}
-            trialPrice={(tutor as any).trial_price ?? null}
+            trialEnabled={tutor.trial_enabled ?? false}
+            trialPrice={tutor.trial_price ?? null}
             tutorSlug={`${slug}/${memberSlug}`}
             prefillName={prefillName}
             prefillEmail={prefillEmail}

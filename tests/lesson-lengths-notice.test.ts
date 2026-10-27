@@ -68,14 +68,16 @@ test('any other refusal keeps the database’s message with the note that the re
 })
 
 test('Settings uses the sentence, saves the rest first, keeps the save bar for the lengths, and does not break the page', () => {
+  // the writes moved to src/lib/settings-save.ts (T-0717 follow-up); the page calls them and keeps the bar when a part failed
   const settings = readFileSync(path.join(HERE, '..', 'src', 'app', '(dashboard)', 'settings', 'page.tsx'), 'utf8').replace(/\r\n/g, '\n')
-  assert.match(settings, /toast\.error\(lengthSaveErrorMessage\(lengthError, \{ durations: lesson_durations, defaultDuration: default_lesson_duration \}\)\)/)
-  assert.doesNotMatch(settings, /lesson lengths were not: ' \+ lengthError\.message/, 'no bare database message')
-  const save = settings.slice(settings.indexOf('async function handleSave()'))
-  // the main update is written before the lengths; the lengths error stops there with the snapshot of the OLD lengths (the bar stays)
-  assert.ok(save.indexOf(".update({\n      ...rest,") > 0 && save.indexOf(".update({\n      ...rest,") < save.indexOf('if (lengthError) {'))
-  const afterError = save.slice(save.indexOf('if (lengthError) {'))
-  assert.ok(afterError.indexOf('setSavedSnapshot(') < afterError.indexOf('setSaving(false)') && afterError.indexOf('return') < afterError.indexOf('setSavedSnapshot(JSON.stringify(form))'))
+  const save = readFileSync(path.join(HERE, '..', 'src', 'lib', 'settings-save.ts'), 'utf8').replace(/\r\n/g, '\n')
+  assert.match(save, /lengthMessage = lengthSaveErrorMessage\(lengthError, \{ durations: lesson_durations, defaultDuration: default_lesson_duration \}\)/)
+  assert.doesNotMatch(save, /lesson lengths were not: ' \+ lengthError\.message/, 'no bare database message')
+  // the main update is written before the lengths; a lengths error keeps the OLD lengths in the saved copy (the bar stays)
+  assert.ok(save.indexOf(".update({\n    ...rest,") > 0 && save.indexOf(".update({\n    ...rest,") < save.indexOf('if (lengthError) {'))
+  assert.match(save, /if \(lengthError\) \{\n      saved\.lesson_durations = before\?\.lesson_durations \?\? form\.lesson_durations/)
+  const handle = settings.slice(settings.indexOf('async function handleSave()'))
+  assert.ok(handle.indexOf('setSavedSnapshot(result.snapshot)') > 0 && handle.indexOf('setSavedSnapshot(result.snapshot)') < handle.indexOf("toast.success('Settings saved!')"))
   // the pages read the two columns apart from the rest and treat a failed read as "chose nothing"
   assert.match(readFileSync(path.join(HERE, '..', 'src', 'lib', 'lesson-durations.ts'), 'utf8'), /if \(error \|\| !data\) return \{ lesson_durations: null, default_lesson_duration: null \}/)
 })

@@ -30,7 +30,7 @@ const sendLink = await import('@/app/api/student/send-link/route.ts')
 const reminders = await import('@/app/api/cron/reminders/route.ts')
 const reports = await import('@/app/api/cron/progress-reports/route.ts')
 const migrate = await import('@/app/api/admin/migrate/route.ts')
-const { ADMIN_EMAIL } = await import('@/lib/admin.ts')
+const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 const { NextRequest } = await import('next/server.js')
 
 const GOOD = 'a-long-random-test-secret-0123456789'

@@ -52,7 +52,6 @@ export default async function PortalMessagesPage({ params }: { params: Promise<{
       <PortalChatPanel
         token={token}
         tutorName={tutor?.name ?? 'Tutor'}
-        studentName={student.name}
         initialMessages={messages ?? []}
       />
     </div>

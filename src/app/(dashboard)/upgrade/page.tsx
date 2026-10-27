@@ -1,6 +1,7 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Check, X, Zap, Crown, Users } from 'lucide-react'
+import { Check, X, Zap, Users } from 'lucide-react'
 import Link from 'next/link'
 import { ContactEmails } from '@/components/ContactEmails'
 import { TrackedCheckoutLink } from '@/components/plan/TrackedCheckoutLink'
@@ -65,12 +66,12 @@ const PLANS = [
     price: 12,
     per: '/month',
     desc: 'For professional tutors',
-    color: 'bg-indigo-500 border-indigo-500',
-    headerColor: 'text-indigo-200',
+    color: 'bg-indigo-600 border-indigo-600',
+    headerColor: 'text-indigo-100',
     priceColor: 'text-white',
     icon: Zap,
     badge: 'Most popular',
-    badgeColor: 'bg-white/20 text-white',
+    badgeColor: 'bg-indigo-800 text-white',
     cta: 'Upgrade to Pro',
     ctaStyle: 'bg-white text-indigo-600 hover:bg-indigo-50',
     checkoutUrl: PRO_URL,
@@ -128,22 +129,17 @@ export default async function UpgradePage() {
 
   const currentPlan = tutor?.subscription_status ?? 'free'
   const currentRank = RANK[currentPlan] ?? 0
-  const tutorName = tutor?.name?.split(' ')[0] ?? 'there'
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4">
+    <PageColumn size="list">
 
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 text-[12px] font-bold px-4 py-1.5 rounded-full mb-4">
-          <Zap className="h-3.5 w-3.5" fill="currentColor" />
-          Choose your plan
+      {/* Header: the same page head as every tutor page (T-0826) */}
+      <div className="dash-head">
+        <div>
+          <h1>Upgrade Tutafy</h1>
+          <p>You are on the <b style={{ textTransform: 'capitalize', color: 'var(--d-ink)' }}>{currentPlan}</b> plan{currentPlan !== 'free' ? '. Thank you.' : '. Pick a plan when you are ready.'}</p>
         </div>
-        <h1 className="text-[32px] font-bold text-gray-900">Upgrade Tutafy</h1>
-        <p className="text-[14px] text-gray-500 mt-2">
-          You're currently on the <span className="font-semibold capitalize text-gray-700">{currentPlan}</span> plan
-          {currentPlan !== 'free' && <span className="text-emerald-600"> ✓</span>}
-        </p>
+        <div className="dash-head-actions"><Link href="/settings" className="dash-btn">Back to Settings</Link></div>
       </div>
 
       {/* Plan cards */}
@@ -176,7 +172,7 @@ export default async function UpgradePage() {
               <div className="p-6">
                 {/* Plan name */}
                 <div className="flex items-center gap-2 mb-1">
-                  {Icon && <Icon className={`h-4 w-4 ${plan.id === 'pro' ? 'text-indigo-200' : 'text-gray-500'}`} />}
+                  {Icon && <Icon className={`h-4 w-4 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-500'}`} />}
                   <p className={`text-[12px] font-bold uppercase tracking-widest ${plan.headerColor}`}>
                     {plan.name}
                   </p>
@@ -188,19 +184,19 @@ export default async function UpgradePage() {
                     {plan.price === 0 ? '$0' : `$${plan.price}`}
                   </span>
                   {plan.per && (
-                    <span className={`text-[13px] pb-1 ${plan.id === 'pro' ? 'text-indigo-200' : 'text-gray-400'}`}>
+                    <span className={`text-[13px] pb-1 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400'}`}>
                       {plan.per}
                     </span>
                   )}
                 </div>
-                <p className={`text-[12px] mb-6 ${plan.id === 'pro' ? 'text-indigo-200' : 'text-gray-400'}`}>
+                <p className={`text-[12px] mb-6 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400'}`}>
                   {plan.desc}
                 </p>
 
                 {/* CTA button — labelled relative to the tutor's current plan */}
                 {isActive ? (
                   <div className={`w-full py-2.5 rounded-xl text-[13px] font-bold text-center ${
-                    onPro ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
+                    onPro ? 'bg-indigo-800 text-white' : 'bg-emerald-100 text-emerald-700'
                   }`}>
                     ✓ Your current plan
                   </div>
@@ -241,7 +237,7 @@ export default async function UpgradePage() {
                     <span className={`text-[12px] ${
                       f.ok
                         ? (plan.id === 'pro' ? 'text-white' : 'text-gray-700')
-                        : (plan.id === 'pro' ? 'text-indigo-300' : 'text-gray-300')
+                        : (plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400')
                     }`}>
                       {f.text}
                     </span>
@@ -261,7 +257,7 @@ export default async function UpgradePage() {
         </p>
         <p className="text-[11px] text-gray-400 mt-3">
           After payment, your account is upgraded automatically within a few minutes.
-          If you don't see the change after 10 minutes, email <strong><ContactEmails /></strong>
+          If you don&apos;t see the change after 10 minutes, email <strong><ContactEmails /></strong>
         </p>
       </div>
 
@@ -285,6 +281,6 @@ export default async function UpgradePage() {
           ← Back to Settings
         </Link>
       </div>
-    </div>
+    </PageColumn>
   )
 }

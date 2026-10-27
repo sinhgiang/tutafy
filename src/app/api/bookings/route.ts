@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from 'next/server'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/server'
 import { createMailer, emailFromAddress, spamHintHtml } from '@/lib/email'
 import { createCalendarEvent } from '@/lib/google-calendar'
@@ -7,8 +8,10 @@ import { normalizeCurrency } from '@/lib/currency'
 import { loadChosenDurations, durationAccepted, requestedLength } from '@/lib/lesson-durations'
 import { withinBookingTextLimits } from '@/lib/input-limits'
 import { clashWindowStart, overlappingLesson } from '@/lib/booking-slots'
+import { TRIAL_MINUTES, trialAllowed } from '@/lib/trial'
+import { hasTrial } from '@/lib/tutor-profile'
 
-async function validateAndApplyCoupon(supabase: any, tutorId: string, code: string, basePrice: number | null) {
+async function validateAndApplyCoupon(supabase: SupabaseClient, tutorId: string, code: string, basePrice: number | null) {
   if (!code || !basePrice) return { discount: 0, couponId: null }
   const { data: coupon } = await supabase
     .from('coupons')
@@ -58,7 +61,10 @@ export async function POST(request: Request) {
   try {
     const { tutorId, date, time, duration: requestedDuration, name, email, message, termsAgreed, isTrial, couponCode, teamMemberId } = await request.json()
 
-    if (!tutorId || !date || !time || !requestedDuration || !name || !email) {
+    // A trial lesson is always 30 minutes (T-1007): the length of a trial comes from this rule, never from the browser.
+    const wantsTrial = isTrial === true
+
+    if (!tutorId || !date || !time || (!requestedDuration && !wantsTrial) || !name || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -71,13 +77,16 @@ export async function POST(request: Request) {
 
     // A tutor who ticked lesson lengths in Settings only takes those; one who chose nothing is not limited.
     // The length comes from the browser, so the booking page hiding a button is not the check (T-0675).
-    const chosen = await loadChosenDurations(supabase, tutorId)
-    if (!durationAccepted(chosen.lesson_durations, requestedDuration)) {
-      return NextResponse.json({ error: 'This tutor does not offer lessons of that length. Please pick one of the lengths shown.' }, { status: 400 })
+    // A trial is not one of those lengths: it is 30 minutes for every tutor.
+    if (!wantsTrial) {
+      const chosen = await loadChosenDurations(supabase, tutorId)
+      if (!durationAccepted(chosen.lesson_durations, requestedDuration)) {
+        return NextResponse.json({ error: 'This tutor does not offer lessons of that length. Please pick one of the lengths shown.' }, { status: 400 })
+      }
     }
     // Whatever the tutor chose, the length is a real one (a whole number of minutes, 10 to 240, steps of 5): the lesson's end
     // time, the calendar entry and both emails are worked out from it (T-0700).
-    const duration = requestedLength(requestedDuration)
+    const duration = requestedLength(wantsTrial ? TRIAL_MINUTES : requestedDuration)
     if (duration === null) {
       return NextResponse.json({ error: 'That is not a valid lesson length.' }, { status: 400 })
     }
@@ -127,6 +136,11 @@ export async function POST(request: Request) {
       .eq('id', tutorId)
       .single()
 
+    // A trial the tutor does not offer is refused, not saved as a regular lesson that only says "trial" (T-1007).
+    if (wantsTrial && !hasTrial({ trial_enabled: tutor?.trial_enabled ?? null, trial_price: tutor?.trial_price })) {
+      return NextResponse.json({ error: 'This tutor does not offer a trial lesson.' }, { status: 400 })
+    }
+
     // Find or create student record
     let { data: student } = await supabase
       .from('students')
@@ -134,6 +148,20 @@ export async function POST(request: Request) {
       .eq('tutor_id', tutorId)
       .eq('email', email)
       .single()
+
+    // A trial is for a first lesson only: a student who already has a lesson with this tutor (one that was not cancelled) books a regular one.
+    if (wantsTrial && student) {
+      const { data: earlier } = await supabase
+        .from('lessons')
+        .select('id')
+        .eq('tutor_id', tutorId)
+        .eq('student_id', student.id)
+        .neq('status', 'cancelled')
+        .limit(1)
+      if (!trialAllowed(earlier?.length ?? 0)) {
+        return NextResponse.json({ error: 'A trial lesson is for a first lesson only. Please book a regular lesson.' }, { status: 400 })
+      }
+    }
 
     let wasNewStudent = false
     if (!student) {
@@ -154,8 +182,8 @@ export async function POST(request: Request) {
     let finalPrice: number | null = null
     let discountAmount: number | null = null
 
-    if (isTrial && tutor?.trial_enabled && tutor?.trial_price) {
-      finalPrice = Number(tutor.trial_price)
+    if (wantsTrial) {
+      finalPrice = Number(tutor?.trial_price)
     } else if (tutor?.default_lesson_price) {
       finalPrice = Number(tutor.default_lesson_price)
     }
@@ -170,7 +198,7 @@ export async function POST(request: Request) {
     // up front so the room URL can be built before the row is inserted.
     const lessonId = crypto.randomUUID()
     const origin = resolveOrigin(request)
-    const meetLink = genRoomLink(origin, (student as any).portal_token, lessonId)
+    const meetLink = genRoomLink(origin, student.portal_token, lessonId)
     const { data: createdLesson, error } = await supabase.from('lessons').insert({
       id: lessonId,
       tutor_id: tutorId,
@@ -182,7 +210,7 @@ export async function POST(request: Request) {
       assigned_to: assignedTo,
       meet_link: meetLink,
       terms_agreed_at: termsAgreed ? new Date().toISOString() : null,
-      is_trial: isTrial ?? false,
+      is_trial: wantsTrial,
       coupon_code: couponCode ?? null,
       discount_amount: discountAmount,
       price: finalPrice,
@@ -202,11 +230,11 @@ export async function POST(request: Request) {
     })
 
     // Sync to Google Calendar (fire-and-forget)
-    if (createdLesson && (tutor as any)?.google_calendar_refresh_token) {
+    if (createdLesson && tutor?.google_calendar_refresh_token) {
       try {
         const gcalId = await createCalendarEvent(
-          (tutor as any).google_calendar_refresh_token,
-          (tutor as any).google_calendar_id ?? 'primary',
+          tutor.google_calendar_refresh_token,
+          tutor.google_calendar_id ?? 'primary',
           {
             summary: `Lesson with ${name}`,
             description: [
@@ -219,7 +247,7 @@ export async function POST(request: Request) {
           }
         )
         if (gcalId) {
-          await supabase.from('lessons').update({ google_event_id: gcalId } as any).eq('id', createdLesson.id)
+          await supabase.from('lessons').update({ google_event_id: gcalId }).eq('id', createdLesson.id)
         }
       } catch { /* non-critical */ }
     }
@@ -232,7 +260,7 @@ export async function POST(request: Request) {
 
       // Deep-links so each recipient can jump straight from the email to the
       // right place: the student to their portal, the tutor to the lesson detail.
-      const studentPortalLink = `${origin}/portal/${(student as any).portal_token}`
+      const studentPortalLink = `${origin}/portal/${student.portal_token}`
       const tutorLessonLink = `${origin}/lessons/${lessonId}`
       const btn = (href: string, label: string) => `
         <div style="text-align:center;margin:24px 0 8px;">
@@ -299,14 +327,14 @@ export async function POST(request: Request) {
     // exactly what the card checkout charges, so the page shows the student the same amount.
     return NextResponse.json({
       success: true,
-      portal_token: (student as any)?.portal_token ?? null,
+      portal_token: student?.portal_token ?? null,
       lesson_id: createdLesson?.id ?? null,
       price: finalPrice,
       currency: normalizeCurrency(tutor?.currency),
       // the address the confirmation comes from: the page asks the student to look for it in the spam folder
       sender_email: emailFromAddress(),
     })
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

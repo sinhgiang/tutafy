@@ -21,8 +21,14 @@ export function feedbackErrorText(status: number | null, serverText?: string): s
   return 'Your message could not be sent. Please check your connection and try again.'
 }
 
-export function FeedbackButton({ token, className = '', iconOnlyOnPhone = false }: { token?: string; className?: string; iconOnlyOnPhone?: boolean }) {
-  const [open, setOpen] = useState(false)
+export function FeedbackButton({ token, className = '', iconOnlyOnPhone = false, open: openProp, onOpenChange, hideTrigger = false }: {
+  token?: string; className?: string; iconOnlyOnPhone?: boolean
+  /** The tutor app opens this box from its account menu (T-0826): the menu owns the state and the button is not drawn. */
+  open?: boolean; onOpenChange?: (open: boolean) => void; hideTrigger?: boolean
+}) {
+  const [innerOpen, setInnerOpen] = useState(false)
+  const open = openProp ?? innerOpen
+  const setOpen = (next: boolean) => { setInnerOpen(next); onOpenChange?.(next) }
   const [kind, setKind] = useState<FeedbackKind>('idea')
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<Status>('idle')
@@ -57,11 +63,11 @@ export function FeedbackButton({ token, className = '', iconOnlyOnPhone = false 
 
   return (
     <>
-      <button type="button" onClick={() => show(true)} data-testid="feedback-button" aria-haspopup="dialog" aria-label="Send feedback"
+      {!hideTrigger && <button type="button" onClick={() => show(true)} data-testid="feedback-button" aria-haspopup="dialog" aria-label="Send feedback"
         className={`inline-flex items-center gap-1.5 text-[12px] font-semibold text-gray-600 border border-gray-200 bg-white hover:bg-gray-50 transition-colors rounded-lg px-2.5 py-1.5 ${className}`}>
         <MessageSquarePlus className="h-3.5 w-3.5" aria-hidden="true" />
         <span className={iconOnlyOnPhone ? 'hidden sm:inline' : ''}>Feedback</span>
-      </button>
+      </button>}
 
       <Dialog open={open} onOpenChange={show}>
         <DialogContent className="sm:max-w-md" data-testid="feedback-dialog">

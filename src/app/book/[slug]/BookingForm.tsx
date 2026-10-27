@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { CheckCircle, ChevronLeft, ChevronRight, Globe, ExternalLink, RefreshCw, FileText, Package, Tag, Star, Users } from 'lucide-react'
+import { CheckCircle, ChevronLeft, ChevronRight, Globe, ExternalLink, RefreshCw, FileText, Package, Tag, Users, Gift, Zap, CalendarClock, CalendarCheck, CalendarX, ArrowRight, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { buildPaymentMethods, cardPaymentUrl, paypalUrl, showBuiltInCardCheckout } from '@/lib/payment-methods'
 import { formatMoney } from '@/lib/currency'
 import { ALL_DURATIONS, FALLBACK_DEFAULT } from '@/lib/lesson-durations'
+import { TRIAL_MINUTES, TRIAL_NAME } from '@/lib/trial'
 import { DEFAULT_FROM_ADDRESS, spamHintFor } from '@/lib/email-config'
 import { getSlots } from '@/lib/booking-slots'
+import { dayLabel, formatClock, safeZone, firstNameOf, priceLabel } from '@/lib/tutor-profile'
+
+const CARD_BOX = 'bg-white rounded-2xl border border-gray-200 shadow-sm'
 
 // "Continue with Google" — signs the student in, then returns to this booking
 // page with their name + email pre-filled (handled server-side via the session).
@@ -48,7 +52,7 @@ const durationLabel = (v: number) => `${v} min`
 interface Availability { day_of_week: number; start_time: string; end_time: string }
 
 interface Tutor {
-  id: string; name: string; timezone: string; cancellation_hours: number; buffer_minutes?: number
+  id: string; slug?: string; name: string; timezone: string; cancellation_hours: number; buffer_minutes?: number
   paypal_link?: string; paddle_checkout_link?: string; stripe_account_id?: string
   default_lesson_price?: number; currency?: string
 }
@@ -89,8 +93,8 @@ function fmt12(t: string) {
 // What the booking route saved the lesson at: the amount the card checkout charges, in the tutor's currency.
 type BookedPrice = { price: number | null; currency: string }
 
-function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentName, cardCheckoutEnabled }: {
-  tutor: Tutor; booked: BookedPrice; cardCheckoutEnabled: boolean; duration: number; lessonId?: string | null; portalToken?: string | null; studentName?: string
+function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, cardCheckoutEnabled }: {
+  tutor: Tutor; booked: BookedPrice; cardCheckoutEnabled: boolean; duration: number; lessonId?: string | null; portalToken?: string | null
 }) {
   const [payingCard, setPayingCard] = useState(false)
   // Not tutor.default_lesson_price: a trial lesson or a coupon changes the price the lesson is saved at.
@@ -103,7 +107,7 @@ function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentN
   if (methods.length === 0 && !showStripeCard) return null
 
   return (
-    <div className="mt-8 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="mt-8 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-50">
         <p className="text-[13px] font-semibold text-gray-900">Pay for your lesson</p>
         {price && (
@@ -117,7 +121,7 @@ function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentN
           <a key={m.key} href={m.link} target="_blank" rel="noopener noreferrer"
             className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-[13px] font-semibold transition-colors ${m.color}`}>
             <span>{m.label}</span>
-            <span className="flex items-center gap-1.5 text-[11px] font-normal opacity-80">
+            <span className="flex items-center gap-1.5 text-[12px] font-normal opacity-80">
               {m.hint} <ExternalLink className="h-3 w-3" />
             </span>
           </a>
@@ -151,7 +155,7 @@ function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentN
             {payingCard ? 'Redirecting...' : 'Pay by Card'}
           </button>
         )}
-        <p className="text-[11px] text-gray-500 text-center pt-1">
+        <p className="text-[12px] text-gray-500 text-center pt-1">
           You will pay directly to the tutor. Tutafy does not process this payment.
         </p>
       </div>
@@ -159,8 +163,8 @@ function PaymentPanel({ tutor, booked, duration, lessonId, portalToken, studentN
   )
 }
 
-interface SubscriptionPlan { id: string; name: string; description: string | null; price: number; currency: string; lessons_per_period: number; period: string; duration_minutes: number }
-interface LessonPackage { id: string; name: string; description: string | null; lessons_count: number; price: number }
+export interface SubscriptionPlan { id: string; name: string; description: string | null; price: number; currency: string; lessons_per_period: number; period: string; duration_minutes: number }
+export interface LessonPackage { id: string; name: string; description: string | null; lessons_count: number; price: number }
 
 function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackage[]; tutor: Tutor; name: string; email: string }) {
   function buyUrl(pkg: LessonPackage): string {
@@ -175,7 +179,7 @@ function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackag
       <div className="px-5 py-4 border-b border-emerald-50 flex items-center gap-2">
         <Package className="h-4 w-4 text-emerald-500" />
         <p className="text-[13px] font-semibold text-gray-900">Lesson packages</p>
-        <span className="text-[11px] text-gray-500 ml-1">— save by buying in bulk</span>
+        <span className="text-[12px] text-gray-500 ml-1">— save by buying in bulk</span>
       </div>
       <div className="p-4 space-y-3">
         {packages.map(pkg => {
@@ -185,28 +189,30 @@ function PackagePanel({ packages, tutor, name, email }: { packages: LessonPackag
             <div key={pkg.id} className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3">
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-gray-900">{pkg.name}</p>
-                <p className="text-[11px] text-gray-500 mt-0.5">{pkg.lessons_count} lessons · {perLesson}/lesson</p>
-                {pkg.description && <p className="text-[11px] text-gray-500 mt-0.5">{pkg.description}</p>}
+                <p className="text-[12px] text-gray-500 mt-0.5">{pkg.lessons_count} lessons · {perLesson}/lesson</p>
+                {pkg.description && <p className="text-[12px] text-gray-500 mt-0.5">{pkg.description}</p>}
               </div>
               <div className="text-right flex-shrink-0">
                 <p className="text-[15px] font-black text-gray-900">{formatMoney(pkg.price, tutor.currency)}</p>
                 <a href={url} target="_blank" rel="noopener noreferrer"
                   onClick={() => { if (!name.trim() || !email.trim()) { toast.error('Enter your name and email first'); return } }}
-                  className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 px-3 py-1.5 rounded-lg transition-colors">
+                  className="mt-1 inline-flex items-center gap-1 text-[12px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 px-3 py-1.5 rounded-lg transition-colors">
                   Buy <ExternalLink className="h-2.5 w-2.5" />
                 </a>
               </div>
             </div>
           )
         })}
-        <p className="text-[11px] text-gray-500 text-center">One-time payment · Paid directly to tutor</p>
+        <p className="text-[12px] text-gray-500 text-center">One-time payment · Paid directly to tutor</p>
       </div>
     </div>
   )
 }
 
-function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans: SubscriptionPlan[]; tutor: Tutor; name: string; email: string; onSubscribing: (v: boolean) => void }) {
+function SubscriptionPanel({ plans, highlightId = null, tutor, name, email, onSubscribing }: { plans: SubscriptionPlan[]; highlightId?: string | null; tutor: Tutor; name: string; email: string; onSubscribing: (v: boolean) => void }) {
   const [loading, setLoading] = useState<string | null>(null)
+  // A tutor's link for one plan (?plan=<id>, T-0841) brings the student to the plans with that one marked.
+  useEffect(() => { if (highlightId) document.getElementById('subscribe')?.scrollIntoView({ block: 'center' }) }, [highlightId])
 
   async function subscribe(plan: SubscriptionPlan) {
     if (!name.trim() || !email.trim()) { toast.error('Enter your name and email first'); return }
@@ -215,41 +221,41 @@ function SubscriptionPanel({ plans, tutor, name, email, onSubscribing }: { plans
     const res = await fetch('/api/subscriptions/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan_id: plan.id, student_name: name, student_email: email, tutor_slug: (tutor as any).slug }),
+      body: JSON.stringify({ plan_id: plan.id, student_name: name, student_email: email, tutor_slug: tutor.slug }),
     })
     const d = await res.json()
     onSubscribing(false)
     setLoading(null)
-    if (d.url) window.location.href = d.url
+    if (d.url) window.location.assign(d.url)
     else toast.error(stripeErrorMessage(d, 'student', 'Failed to start checkout'))
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden">
+    <div id="subscribe" className="bg-white rounded-2xl border border-indigo-100 shadow-sm overflow-hidden scroll-mt-4">
       <div className="px-5 py-4 border-b border-indigo-50 flex items-center gap-2">
         <RefreshCw className="h-4 w-4 text-indigo-400" />
         <p className="text-[13px] font-semibold text-gray-900">Subscribe for recurring lessons</p>
       </div>
       <div className="p-4 space-y-3">
         {plans.map(plan => (
-          <div key={plan.id} className="flex items-center justify-between gap-3 bg-gray-50 rounded-xl px-4 py-3">
+          <div key={plan.id} data-highlighted={plan.id === highlightId ? 'true' : undefined} className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 ${plan.id === highlightId ? 'bg-indigo-50 ring-2 ring-indigo-500' : 'bg-gray-50'}`}>
             <div className="flex-1">
               <p className="text-[13px] font-semibold text-gray-900">{plan.name}</p>
-              <p className="text-[11px] text-gray-500 mt-0.5">
+              <p className="text-[12px] text-gray-500 mt-0.5">
                 {plan.lessons_per_period} lessons/{plan.period} · {plan.duration_minutes} min each
               </p>
-              {plan.description && <p className="text-[11px] text-gray-500 mt-0.5">{plan.description}</p>}
+              {plan.description && <p className="text-[12px] text-gray-500 mt-0.5">{plan.description}</p>}
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-[15px] font-black text-gray-900">{formatMoney(plan.price, plan.currency)}<span className="text-[11px] font-normal text-gray-500">/{plan.period}</span></p>
+              <p className="text-[15px] font-black text-gray-900">{formatMoney(plan.price, plan.currency)}<span className="text-[12px] font-normal text-gray-500">/{plan.period}</span></p>
               <button onClick={() => subscribe(plan)} disabled={loading === plan.id}
-                className="mt-1 text-[11px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-3 py-1.5 rounded-lg transition-colors">
+                className="mt-1 text-[12px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-3 py-1.5 rounded-lg transition-colors">
                 {loading === plan.id ? 'Loading...' : 'Subscribe'}
               </button>
             </div>
           </div>
         ))}
-        <p className="text-[11px] text-gray-500 text-center">Recurring payment · Cancel anytime</p>
+        <p className="text-[12px] text-gray-500 text-center">Recurring payment · Cancel anytime</p>
       </div>
     </div>
   )
@@ -272,6 +278,7 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
     })
     setLoading(false)
     if (res.ok) onJoined()
+    else if (res.status === 429) toast.error('Too many sign-ups right now. Please try again in a few minutes.')
     else toast.error('Failed to join waitlist')
   }
 
@@ -280,15 +287,15 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
       <div className="px-5 py-4 border-b border-amber-50 flex items-center gap-2">
         <Users className="h-4 w-4 text-amber-500" />
         <p className="text-[13px] font-semibold text-gray-900">Join the waitlist</p>
-        <span className="text-[11px] text-gray-500 ml-1">— we&apos;ll notify you when slots open</span>
+        <span className="text-[12px] text-gray-500 ml-1">— we&apos;ll notify you when slots open</span>
       </div>
       <div className="p-5 space-y-3">
         {!signedIn && (
           <>
             <GoogleContinueButton slug={tutorSlug} label="Continue with Google — auto-fill" />
             <div className="relative py-0.5">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
-              <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-500">or enter manually</span></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
+              <div className="relative flex justify-center"><span className="bg-white px-3 text-[12px] text-gray-500">or enter manually</span></div>
             </div>
           </>
         )}
@@ -299,18 +306,18 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
         )}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-[11px] font-medium text-gray-600 mb-1.5">Full name *</label>
+            <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Full name *</label>
             <input value={name} onChange={e => setName(e.target.value)} placeholder="John Smith"
               className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-colors" />
           </div>
           <div>
-            <label className="block text-[11px] font-medium text-gray-600 mb-1.5">Email *</label>
+            <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Email *</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="john@example.com"
               className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-colors" />
           </div>
         </div>
         <div>
-          <label className="block text-[11px] font-medium text-gray-600 mb-1.5">Message <span className="text-gray-500 font-normal">(optional)</span></label>
+          <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Message <span className="text-gray-500 font-normal">(optional)</span></label>
           <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2}
             placeholder="What are you looking to learn?"
             className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-colors resize-none" />
@@ -324,7 +331,26 @@ function WaitlistForm({ tutorId, onJoined, tutorSlug = '', prefillName = '', pre
   )
 }
 
-export function BookingForm({ tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null, cardCheckoutEnabled = false, durations = [...ALL_DURATIONS], defaultDuration = FALLBACK_DEFAULT }: { durations?: number[]; defaultDuration?: number; cardCheckoutEnabled?: boolean; tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null }) {
+const INPUT = 'w-full min-h-11 rounded-[10px] border border-gray-300 bg-white px-3 text-[15px] text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/30 transition-colors'
+const LABEL = 'block text-[13px] font-semibold text-gray-700 mb-1.5'
+const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1'
+
+/** One of the next free times the page hands over (src/lib/profile-data.ts): the instant, and the same start on the tutor's own clock. */
+export interface SoonestSlot { at: string; date: string; time: string }
+
+function Step({ n, title, locked = false, children }: { n: number; title: string; locked?: boolean; children: React.ReactNode }) {
+  return (
+    <div className="px-4 sm:px-5 py-4 border-t border-gray-200">
+      <p className={`flex items-center gap-2 text-[14px] font-semibold mb-3 ${locked ? 'text-gray-600' : 'text-gray-800'}`}>
+        <span className={`h-[22px] w-[22px] rounded-full grid place-items-center text-[12px] font-bold ${locked ? 'bg-gray-100 text-gray-600 border border-gray-300' : 'bg-indigo-600 text-white'}`} aria-hidden="true">{n}</span>
+        {title}
+      </p>
+      {children}
+    </div>
+  )
+}
+
+export function BookingForm({ highlightPlanId = null, tutor, availability, subscriptionPlans = [], contractTemplate = null, blockedDates = [], packages = [], trialEnabled = false, trialPrice = null, tutorSlug = '', prefillName = '', prefillEmail = '', teamMemberId = null, cardCheckoutEnabled = false, durations = [...ALL_DURATIONS], defaultDuration = FALLBACK_DEFAULT, soonest = [] }: { highlightPlanId?: string | null; durations?: number[]; defaultDuration?: number; cardCheckoutEnabled?: boolean; tutor: Tutor; availability: Availability[]; subscriptionPlans?: SubscriptionPlan[]; contractTemplate?: string | null; blockedDates?: string[]; packages?: LessonPackage[]; trialEnabled?: boolean; trialPrice?: number | null; tutorSlug?: string; prefillName?: string; prefillEmail?: string; teamMemberId?: string | null; soonest?: SoonestSlot[] }) {
   const today = new Date()
   const todayStr = toDS(today.getFullYear(), today.getMonth(), today.getDate())
 
@@ -332,7 +358,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [month, setMonth] = useState(today.getMonth())
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
-  const [duration, setDuration] = useState(defaultDuration)
+  const [chosenDuration, setChosenDuration] = useState(defaultDuration)
   const [name, setName] = useState(prefillName)
   const [email, setEmail] = useState(prefillEmail)
   const [note, setNote] = useState('')
@@ -348,6 +374,9 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [signatureName, setSignatureName] = useState('')
   const [isTrial, setIsTrial] = useState(false)
+  // A trial lesson is always 30 minutes, whatever lengths the tutor offers (T-1007); every length below is read from this one.
+  const duration = isTrial ? TRIAL_MINUTES : chosenDuration
+  const [couponOpen, setCouponOpen] = useState(false)
   const [couponCode, setCouponCode] = useState('')
   const [couponApplied, setCouponApplied] = useState<{ code: string; type: string; value: number } | null>(null)
   const [couponLoading, setCouponLoading] = useState(false)
@@ -357,7 +386,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   useEffect(() => {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-      setStudentTz(tz)
+      setStudentTz(tz) // eslint-disable-line react-hooks/set-state-in-effect -- the student's time zone is only known in the browser, after mount
     } catch {
       setStudentTz('')
     }
@@ -370,8 +399,15 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const slots = getSlots(availability, date, duration, bufferMinutes)
-  const canBook = date && time && name.trim() && email.trim() && (!contractTemplate || (termsAgreed && signatureName.trim()))
+  const contractOk = !contractTemplate || (termsAgreed && signatureName.trim())
+  const detailsOk = name.trim() && email.trim()
+  const canBook = date && time && detailsOk && contractOk
   const showTzConvert = studentTz && studentTz !== tutorTz
+  const first = firstNameOf(tutor.name)
+  const dateWords = date ? new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : ''
+  // the soonest times were worked out for the length selected first; another length may not fit them
+  const quick = duration === defaultDuration && !date ? soonest.slice(0, 3) : []
+  const labelTz = safeZone(studentTz || tutorTz)
 
   async function applyCoupon() {
     if (!couponCode.trim()) return
@@ -392,19 +428,18 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
     }
   }
 
-  function calcDiscount(basePrice: number): number {
-    if (!couponApplied) return 0
-    if (couponApplied.type === 'percent') return Math.min(basePrice, (basePrice * couponApplied.value) / 100)
-    return Math.min(basePrice, couponApplied.value)
-  }
-
-  function prevMonth() { month === 0 ? (setMonth(11), setYear(y => y - 1)) : setMonth(m => m - 1); setDate(''); setTime('') }
-  function nextMonth() { month === 11 ? (setMonth(0), setYear(y => y + 1)) : setMonth(m => m + 1); setDate(''); setTime('') }
+  function prevMonth() { if (month === 0) { setMonth(11); setYear(y => y - 1) } else setMonth(m => m - 1); setDate(''); setTime('') }
+  function nextMonth() { if (month === 11) { setMonth(0); setYear(y => y + 1) } else setMonth(m => m + 1); setDate(''); setTime('') }
 
   function pickDay(d: number) {
     const ds = toDS(year, month, d)
     if (ds < todayStr || blockedSet.has(ds)) return
     setDate(ds); setTime('')
+  }
+
+  function pickSoonest(s: SoonestSlot) {
+    const [y, m] = s.date.split('-').map(Number)
+    setYear(y); setMonth(m - 1); setDate(s.date); setTime(s.time)
   }
 
   async function submit(e: React.FormEvent) {
@@ -435,360 +470,308 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
   const hasNoAvailability = availability.length === 0
 
   if (done) return (
-    <div>
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
-          <CheckCircle className="h-10 w-10 text-emerald-500" />
-        </div>
-        <h2 className="text-[24px] font-bold text-gray-900">You&apos;re booked!</h2>
-        <p className="text-[14px] text-gray-500 mt-2">
-          {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at {fmt12(time)} · {duration} min
-        </p>
-        <div className="mt-4 bg-emerald-50 border border-emerald-100 rounded-xl px-6 py-3 text-[13px] text-emerald-700">
+    <div className="mx-auto w-full max-w-[460px]">
+      <div className={`${CARD_BOX} px-5 py-8 text-center`} role="status">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-700"><CheckCircle className="h-8 w-8" aria-hidden="true" /></div>
+        <h2 className="text-[22px] font-bold text-gray-900">You&apos;re booked</h2>
+        <p className="mt-1.5 text-[15px] text-gray-700"><b className="text-gray-900">{dateWords} · {fmt12(time)}</b><br />{duration} min with {first}</p>
+        <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3 text-left text-[14px] text-emerald-900">
           Confirmation will be sent to <strong>{email}</strong>
-          <p className="mt-1 text-[13px] font-normal text-emerald-700">{spamHintFor(senderEmail)}</p>
+          <p className="mt-1 font-normal">{spamHintFor(senderEmail)}</p>
         </div>
         {signatureName && (
-          <div className="mt-3 bg-gray-50 border border-gray-100 rounded-xl px-6 py-3 text-[12px] text-gray-500">
-            Signed by: <strong className="text-gray-700">{signatureName}</strong>
+          <div className="mt-3 rounded-xl bg-gray-50 px-4 py-3 text-[13px] text-gray-600">
+            Signed by: <strong className="text-gray-800">{signatureName}</strong>
           </div>
         )}
         {portalToken && (
-          <a
-            href={`/portal/${portalToken}`}
-            className="mt-5 flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white text-[14px] font-bold px-6 py-3 rounded-xl transition-colors"
-          >
-            Access your student portal →
+          <a href={`/portal/${portalToken}`} className={`mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 text-[15px] font-bold text-white hover:bg-indigo-700 ${FOCUS}`}>
+            Access your student portal <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </a>
         )}
       </div>
-      <PaymentPanel tutor={tutor} booked={booked} cardCheckoutEnabled={cardCheckoutEnabled} duration={duration} lessonId={lessonId} portalToken={portalToken} studentName={name} />
+      <PaymentPanel tutor={tutor} booked={booked} cardCheckoutEnabled={cardCheckoutEnabled} duration={duration} lessonId={lessonId} portalToken={portalToken} />
     </div>
   )
 
   if (hasNoAvailability) {
     if (waitlistJoined) return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-16 text-center px-6">
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-          <CheckCircle className="h-8 w-8 text-amber-500" />
-        </div>
-        <h2 className="text-[20px] font-bold text-gray-900">You&apos;re on the list!</h2>
-        <p className="text-[13px] text-gray-500 mt-2">We&apos;ll notify you when new slots open up.</p>
+      <div className={`${CARD_BOX} mx-auto w-full max-w-[460px] px-5 py-10 text-center`} role="status">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-amber-100 text-amber-900"><CheckCircle className="h-8 w-8" aria-hidden="true" /></div>
+        <h2 className="text-[20px] font-bold text-gray-900">You&apos;re on the list</h2>
+        <p className="mt-2 text-[14px] text-gray-600">We&apos;ll tell you when new times open up.</p>
       </div>
     )
     return (
-      <div className="space-y-5">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-12 text-center px-6">
-          <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
-            <Users className="h-6 w-6 text-amber-500" />
-          </div>
-          <h2 className="text-[18px] font-bold text-gray-900">No availability right now</h2>
-          <p className="text-[13px] text-gray-500 mt-2">This tutor doesn&apos;t have open slots at the moment. Join the waitlist and be the first to know.</p>
+      <div className="mx-auto w-full max-w-[460px] space-y-4">
+        <div className={`${CARD_BOX} px-5 py-8 text-center`}>
+          <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-amber-100 text-amber-900"><Users className="h-6 w-6" aria-hidden="true" /></div>
+          <h2 className="text-[18px] font-bold text-gray-900">No times open right now</h2>
+          <p className="mt-2 text-[14px] text-gray-600">{first} has no free times at the moment. Leave your email and we will tell you the moment one opens.</p>
         </div>
         <WaitlistForm tutorId={tutor.id} onJoined={() => setWaitlistJoined(true)} tutorSlug={tutorSlug} prefillName={prefillName} prefillEmail={prefillEmail} />
       </div>
     )
   }
 
+  const priceText = trialPrice && isTrial ? formatMoney(trialPrice, tutor.currency) : priceLabel(tutor.default_lesson_price, tutor.currency)
+  const buttonText = loading ? 'Confirming...'
+    : canBook ? `Book ${duration} min ${isTrial ? 'trial lesson' : 'lesson'}`
+    : !date || !time ? 'Choose a day and time'
+    : !detailsOk ? 'Enter your name and email to book'
+    : 'Agree to the lesson agreement to book'
+
   return (
-    <div className="space-y-5">
-    <form onSubmit={submit} className="space-y-5">
+    <div className="mx-auto w-full max-w-[460px] space-y-4">
+    <form onSubmit={submit} className={`${CARD_BOX} overflow-hidden`} id="booking-form" aria-label={`Book a lesson with ${first}`}>
+      <div className="flex items-baseline justify-between gap-3 px-4 sm:px-5 pt-5 pb-4">
+        <h2 className="text-[20px] font-bold text-gray-900">Book a lesson</h2>
+        {isTrial && trialPrice ? (
+          <p className="text-[13px] text-gray-600" data-testid="booking-price"><b className="text-[20px] text-gray-900">{priceLabel(trialPrice, tutor.currency)}</b> / {TRIAL_MINUTES}-min trial</p>
+        ) : tutor.default_lesson_price ? (
+          <p className="text-[13px] text-gray-600" data-testid="booking-price"><b className="text-[20px] text-gray-900">{priceLabel(tutor.default_lesson_price, tutor.currency)}</b> / lesson</p>
+        ) : <p className="text-[13px] text-gray-600">Price: ask the tutor</p>}
+      </div>
 
-      {/* Trial lesson option */}
-      {trialEnabled && trialPrice && (
-        <div className={`rounded-2xl border-2 p-4 cursor-pointer transition-all ${
-          isTrial ? 'border-emerald-400 bg-emerald-50/60' : 'border-gray-100 bg-white hover:border-emerald-200'
-        }`} onClick={() => setIsTrial(v => !v)}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isTrial ? 'bg-emerald-500' : 'bg-gray-100'}`}>
-                <Star className={`h-4 w-4 ${isTrial ? 'text-white' : 'text-gray-500'}`} />
-              </div>
-              <div>
-                <p className="text-[13px] font-bold text-gray-900">Trial lesson — {formatMoney(trialPrice, tutor.currency)}</p>
-                <p className="text-[11px] text-gray-500">Your first session at a special introductory price</p>
-              </div>
-            </div>
-            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-              isTrial ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
-            }`}>
-              {isTrial && <div className="w-2 h-2 rounded-full bg-white" />}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Timezone notice */}
-      {showTzConvert && (
-        <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5">
-          <Globe className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
-          <p className="text-[12px] text-blue-700">
-            Tutor timezone: <strong>{tutorTz}</strong> · Times shown in tutor&apos;s timezone
-            {studentTz && <span className="text-blue-500"> (yours: {studentTz})</span>}
-          </p>
-        </div>
-      )}
-
-      {/* 1 — Duration */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-        <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">Session length</p>
-        <div className="flex gap-2 flex-wrap">
-          {durations.map(v => (
-            <button type="button" key={v}
-              onClick={() => { setDuration(v); setTime('') }}
-              className={`text-[13px] px-5 py-2 rounded-xl font-semibold transition-all ${
-                duration === v ? 'bg-indigo-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+      {/* 1 — Lesson length, and the trial lesson */}
+      <Step n={1} title="Lesson length">
+        <div className="grid grid-flow-col auto-cols-fr gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1" role="group" aria-label="Lesson length">
+          {(isTrial ? [TRIAL_MINUTES] : durations).map(v => (
+            <button type="button" key={v} aria-pressed={duration === v} disabled={isTrial}
+              onClick={() => { setChosenDuration(v); setTime('') }}
+              className={`min-h-10 rounded-[9px] text-[14px] font-semibold transition-colors ${FOCUS} ${
+                duration === v ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-600' : 'text-gray-700 hover:bg-white/60'
               }`}>
               {durationLabel(v)}
             </button>
           ))}
         </div>
-      </div>
+        {trialEnabled && trialPrice && (
+          <button type="button" role="switch" aria-checked={isTrial} data-testid="trial-switch" onClick={() => { setIsTrial(v => !v); setTime('') }}
+            className={`mt-3 flex w-full items-center gap-3 rounded-xl border border-dashed border-indigo-300 bg-indigo-50 px-3 py-2.5 text-left ${FOCUS}`}>
+            <Gift className="h-[18px] w-[18px] shrink-0 text-indigo-600" aria-hidden="true" />
+            <span className="block min-w-0 flex-1 whitespace-normal text-[14px]">
+              <b className="block text-gray-900">{TRIAL_NAME} {priceLabel(trialPrice, tutor.currency)}</b>
+              <span className="block text-[13px] leading-snug text-gray-600">For your first lesson with {first}. Always {TRIAL_MINUTES} minutes.</span>
+            </span>
+            <span className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${isTrial ? 'bg-indigo-600' : 'bg-gray-400'}`} aria-hidden="true">
+              <span className={`absolute top-[3px] h-[18px] w-[18px] rounded-full bg-white shadow transition-all ${isTrial ? 'left-[19px]' : 'left-[3px]'}`} />
+            </span>
+          </button>
+        )}
+      </Step>
 
-      {/* 2 — Calendar + Time */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] divide-y sm:divide-y-0 sm:divide-x divide-gray-50">
-
-          {/* Calendar */}
-          <div className="p-5">
-            <div className="flex items-center justify-between mb-4">
-              <button type="button" onClick={prevMonth}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">
-                <ChevronLeft className="h-4 w-4 text-gray-500" />
-              </button>
-              <p className="text-[14px] font-bold text-gray-900">{MONTHS[month]} {year}</p>
-              <button type="button" onClick={nextMonth}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">
-                <ChevronRight className="h-4 w-4 text-gray-500" />
-              </button>
-            </div>
-            <div className="grid grid-cols-7 mb-1">
-              {DAYS_SHORT.map(d => <p key={d} className="text-center text-[11px] font-bold text-gray-500 py-1">{d}</p>)}
-            </div>
-            <div className="grid grid-cols-7 gap-y-0.5">
-              {Array.from({ length: firstDay }).map((_, i) => <div key={i} />)}
-              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => {
-                const ds = toDS(year, month, d)
-                const isPast = ds < todayStr
-                const isBlocked = blockedSet.has(ds)
-                const isToday = ds === todayStr
-                const isSel = ds === date
-                const hasAvail = availDaySet.size === 0 || availDaySet.has(new Date(ds + 'T00:00:00').getDay())
+      {/* 2 — Day and time */}
+      <Step n={2} title="Day and time">
+        {quick.length > 0 && (
+          <div className="mb-3.5" data-testid="soonest-times">
+            <p className="mb-2 flex items-center gap-1.5 text-[13px] text-gray-600"><Zap className="h-3.5 w-3.5 text-emerald-700" aria-hidden="true" /> Soonest times</p>
+            <div className="grid grid-cols-3 gap-2">
+              {quick.map(s => {
+                const ms = Date.parse(s.at)
                 return (
-                  <button type="button" key={d} disabled={isPast || isBlocked} onClick={() => pickDay(d)}
-                    title={isBlocked ? 'Not available' : undefined}
-                    className={`mx-auto w-9 h-9 rounded-full text-[13px] font-medium transition-all flex items-center justify-center
-                      ${isSel ? 'bg-indigo-500 text-white shadow-sm' :
-                        isPast ? 'text-gray-200 cursor-default' :
-                        isBlocked ? 'text-red-300 line-through cursor-not-allowed bg-red-50' :
-                        isToday ? 'ring-2 ring-indigo-400 text-indigo-600 font-bold hover:bg-indigo-50' :
-                        hasAvail ? 'text-gray-800 hover:bg-indigo-50 hover:text-indigo-600' :
-                        'text-gray-500 hover:bg-gray-50'}`}>
-                    {d}
+                  <button type="button" key={s.at} onClick={() => pickSoonest(s)}
+                    className={`min-h-11 rounded-[10px] border border-indigo-200 bg-white px-1.5 py-1 text-[14px] font-semibold leading-tight text-indigo-700 hover:bg-indigo-50 ${FOCUS}`}>
+                    {dayLabel(ms, labelTz, today)}
+                    <span className="block text-[12px] font-medium text-gray-600">{formatClock(ms, labelTz)}</span>
                   </button>
                 )
               })}
             </div>
-          </div>
-
-          {/* Time slots */}
-          <div className="p-5">
-            {!date ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-8">
-                <p className="text-[12px] text-gray-500 font-medium">← Pick a date</p>
-              </div>
-            ) : slots.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-8 space-y-1">
-                <p className="text-[13px] font-semibold text-gray-500">No availability</p>
-                <p className="text-[11px] text-gray-500">Try another date</p>
-              </div>
-            ) : (
-              <>
-                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-3">
-                  {new Date(date + 'T00:00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' })}
-                </p>
-                <div className="space-y-1.5 max-h-[280px] overflow-y-auto">
-                  {slots.map(s => {
-                    const studentTime = showTzConvert ? convertSlot(date, s, tutorTz, studentTz) : null
-                    return (
-                      <button type="button" key={s} onClick={() => setTime(t => t === s ? '' : s)}
-                        className={`w-full text-left px-3 py-2.5 rounded-xl border transition-all ${
-                          time === s
-                            ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm'
-                            : 'bg-white text-indigo-600 border-indigo-100 hover:border-indigo-300 hover:bg-indigo-50'
-                        }`}>
-                        <span className="text-[13px] font-semibold">{fmt12(s)}</span>
-                        {studentTime && studentTime !== s && (
-                          <span className={`block text-[10px] mt-0.5 ${time === s ? 'text-indigo-200' : 'text-gray-500'}`}>
-                            {fmt12(studentTime)} your time
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Selected summary strip */}
-        {date && time && (
-          <div className="border-t border-indigo-50 bg-indigo-50/60 px-5 py-3 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0" />
-            <p className="text-[13px] text-indigo-800 font-medium">
-              {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-              {' · '}{fmt12(time)} · {duration} min
-              {showTzConvert && (
-                <span className="text-indigo-500 font-normal"> (tutor&apos;s time)</span>
-              )}
-            </p>
+            <p className="mt-3 flex items-center gap-3 text-[12px] text-gray-600"><span className="h-px flex-1 bg-gray-200" />or pick a date<span className="h-px flex-1 bg-gray-200" /></p>
           </div>
         )}
-      </div>
+
+        <div className="mb-1.5 flex items-center justify-between">
+          <button type="button" onClick={prevMonth} aria-label="Previous month"
+            className={`grid h-10 w-10 place-items-center rounded-[10px] border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 ${FOCUS}`}>
+            <ChevronLeft className="h-[18px] w-[18px]" aria-hidden="true" />
+          </button>
+          <p className="text-[15px] font-bold text-gray-900" aria-live="polite">{MONTHS[month]} {year}</p>
+          <button type="button" onClick={nextMonth} aria-label="Next month"
+            className={`grid h-10 w-10 place-items-center rounded-[10px] border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 ${FOCUS}`}>
+            <ChevronRight className="h-[18px] w-[18px]" aria-hidden="true" />
+          </button>
+        </div>
+        <div className="grid grid-cols-7 text-center">
+          {DAYS_SHORT.map(d => <p key={d} className="py-1 text-[12px] font-semibold text-gray-600" aria-hidden="true">{d.slice(0, 1)}</p>)}
+        </div>
+        <div className="grid grid-cols-7 gap-y-0.5">
+          {Array.from({ length: firstDay }).map((_, i) => <div key={i} />)}
+          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => {
+            const ds = toDS(year, month, d)
+            const isPast = ds < todayStr
+            const isBlocked = blockedSet.has(ds)
+            const isToday = ds === todayStr
+            const isSel = ds === date
+            const hasAvail = availDaySet.size === 0 || availDaySet.has(new Date(ds + 'T00:00:00').getDay())
+            const words = new Date(ds + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+            return (
+              <button type="button" key={d} disabled={isPast || isBlocked} onClick={() => pickDay(d)}
+                aria-label={`${words}${isBlocked ? ', not available' : ''}`} aria-pressed={isSel}
+                title={isBlocked ? 'Not available' : undefined}
+                className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full text-[14px] font-semibold transition-colors ${FOCUS}
+                  ${isSel ? 'bg-indigo-600 text-white' :
+                    isPast ? 'text-gray-200 cursor-default' :
+                    isBlocked ? 'text-red-300 line-through cursor-not-allowed bg-red-50' :
+                    hasAvail ? 'bg-indigo-50 text-indigo-700 hover:ring-2 hover:ring-indigo-300' :
+                    'text-gray-600 hover:bg-gray-100'}
+                  ${isToday && !isSel ? 'ring-1 ring-gray-500' : ''}`}>
+                {d}
+              </button>
+            )
+          })}
+        </div>
+        <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-gray-600">
+          <span><span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full border border-indigo-300 bg-indigo-50 align-[-1px]" aria-hidden="true" />Times available</span>
+          <span><span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full border border-gray-300 align-[-1px]" aria-hidden="true" />Not available</span>
+        </p>
+
+        {date && (
+          slots.length === 0 ? (
+            <div className="mt-4 flex items-start gap-2.5 rounded-[10px] bg-amber-50 px-3 py-2.5 text-[13px] text-amber-900" role="status">
+              <CalendarX className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <span><b>No times on this day.</b> Pick another day{soonest[0] && duration === defaultDuration ? ' or use one of the soonest times above' : ''}.</span>
+            </div>
+          ) : (
+            <>
+              <div className="mb-2 mt-4 flex items-baseline justify-between text-[14px]">
+                <b className="text-[15px] text-gray-900">{new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}</b>
+                <span className="text-gray-600">{duration} min</span>
+              </div>
+              <div className="grid max-h-[280px] grid-cols-3 gap-2 overflow-y-auto" role="group" aria-label="Times">
+                {slots.map(s => {
+                  const studentTime = showTzConvert ? convertSlot(date, s, tutorTz, studentTz) : null
+                  return (
+                    <button type="button" key={s} aria-pressed={time === s} onClick={() => setTime(t => t === s ? '' : s)}
+                      className={`min-h-11 rounded-[10px] border px-1 py-1 text-[14px] font-semibold leading-tight transition-colors ${FOCUS} ${
+                        time === s ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-50'
+                      }`}>
+                      {fmt12(s)}
+                      {studentTime && studentTime !== s && (
+                        <span className={`block text-[12px] font-medium ${time === s ? 'text-indigo-100' : 'text-gray-600'}`}>{fmt12(studentTime)} yours</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          )
+        )}
+        <p className="mt-3 flex items-center gap-1.5 text-[12px] text-gray-600">
+          <Globe className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          {showTzConvert ? <span>Times are in {first}&apos;s time zone: {tutorTz}. Your time zone: {studentTz}.</span> : <span>Time zone: {tutorTz}</span>}
+        </p>
+      </Step>
 
       {/* 3 — Your details */}
-      <div className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
-        date && time ? 'border-gray-100 opacity-100' : 'border-gray-100 opacity-40 pointer-events-none'
-      }`}>
-        <div className="px-5 py-4 border-b border-gray-50">
-          <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Your details</p>
-        </div>
-        <div className="p-5 space-y-4">
+      {date && time ? (
+        <Step n={3} title="Your details">
           {!prefillEmail && (
             <>
-              <GoogleContinueButton slug={tutorSlug} label="Continue with Google — auto-fill details" />
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100" /></div>
-                <div className="relative flex justify-center"><span className="bg-white px-3 text-[11px] text-gray-500">or enter manually</span></div>
-              </div>
+              <GoogleContinueButton slug={tutorSlug} label="Continue with Google" />
+              <p className="my-3 flex items-center gap-3 text-[12px] text-gray-600"><span className="h-px flex-1 bg-gray-200" />or enter your details<span className="h-px flex-1 bg-gray-200" /></p>
             </>
           )}
           {prefillEmail && (
-            <div className="flex items-center gap-2 text-[12px] text-green-700 bg-green-50 rounded-lg px-3 py-2">
-              <CheckCircle className="h-3.5 w-3.5" /> Signed in as {prefillEmail}
+            <div className="mb-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-900">
+              <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" /> Signed in as {prefillEmail}
             </div>
           )}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Full name *</label>
-              <input required value={name} onChange={e => setName(e.target.value)} placeholder="John Smith"
-                className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
+              <label htmlFor="bk-name" className={LABEL}>Full name</label>
+              <input id="bk-name" required value={name} onChange={e => setName(e.target.value)} placeholder="Alex Student" autoComplete="name" className={INPUT} />
             </div>
             <div>
-              <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Email address *</label>
-              <input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="john@example.com"
-                className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
+              <label htmlFor="bk-email" className={LABEL}>Email</label>
+              <input id="bk-email" required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" className={INPUT} />
             </div>
           </div>
-          <div>
-            <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Message <span className="text-gray-500 font-normal">(optional)</span></label>
-            <textarea value={note} onChange={e => setNote(e.target.value)} rows={3}
-              placeholder="What would you like to focus on in this lesson?"
-              className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
+          <div className="mt-3">
+            <label htmlFor="bk-note" className={LABEL}>Message <span className="font-normal text-gray-600">(optional)</span></label>
+            <textarea id="bk-note" value={note} onChange={e => setNote(e.target.value)} rows={3}
+              placeholder="What do you want to work on?" className={`${INPUT} resize-none py-2.5`} />
           </div>
-        </div>
-      </div>
 
-      {/* 4 — Coupon code */}
-      {date && time && name.trim() && email.trim() && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Tag className="h-4 w-4 text-gray-500" />
-            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Promo code</p>
-          </div>
-          {couponApplied ? (
-            <div className="flex items-center gap-3">
-              <div className="flex-1 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5 flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                <span className="text-[13px] font-bold text-emerald-700 font-mono">{couponApplied.code}</span>
-                <span className="text-[12px] text-emerald-600">
-                  — {couponApplied.type === 'percent' ? `${couponApplied.value}%` : formatMoney(couponApplied.value, tutor.currency)} off
-                </span>
-              </div>
-              <button type="button" onClick={() => { setCouponApplied(null); setCouponCode('') }}
-                className="text-[12px] text-gray-500 hover:text-gray-600 transition-colors">Remove</button>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <input value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())}
-                onKeyDown={e => e.key === 'Enter' && applyCoupon()}
-                placeholder="Enter code" maxLength={20}
-                className="flex-1 text-[13px] font-mono px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors uppercase" />
-              <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCode.trim()}
-                className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 px-4 rounded-xl transition-colors">
-                {couponLoading ? '...' : 'Apply'}
-              </button>
-            </div>
-          )}
-          {couponError && <p className="text-[11px] text-red-500 mt-2">{couponError}</p>}
-        </div>
-      )}
-
-      {/* 5 — Contract (if tutor has one) */}
-      {contractTemplate && (
-        <div className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
-          date && time && name.trim() && email.trim() ? 'border-amber-100 opacity-100' : 'border-gray-100 opacity-40 pointer-events-none'
-        }`}>
-          <div className="px-5 py-4 border-b border-amber-50 flex items-center gap-2">
-            <FileText className="h-4 w-4 text-amber-500" />
-            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Lesson agreement</p>
-          </div>
-          <div className="p-5 space-y-3">
-            <div className="bg-gray-50 rounded-xl px-4 py-3 max-h-36 overflow-y-auto">
-              <pre className="text-[12px] text-gray-600 leading-relaxed whitespace-pre-wrap font-sans">{contractTemplate}</pre>
-            </div>
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <div className="relative mt-0.5 flex-shrink-0">
-                <input
-                  type="checkbox"
-                  checked={termsAgreed}
-                  onChange={e => setTermsAgreed(e.target.checked)}
-                  className="sr-only"
-                />
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                  termsAgreed ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300 group-hover:border-indigo-400'
-                }`}>
-                  {termsAgreed && <CheckCircle className="h-3.5 w-3.5 text-white" />}
+          {/* Promo code: one quiet link until the student wants it */}
+          <div className="mt-3">
+            {couponApplied ? (
+              <div className="flex items-center gap-3">
+                <div className="flex flex-1 items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-[13px] text-emerald-900">
+                  <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="font-mono font-bold">{couponApplied.code}</span>
+                  <span>— {couponApplied.type === 'percent' ? `${couponApplied.value}%` : formatMoney(couponApplied.value, tutor.currency)} off</span>
                 </div>
+                <button type="button" onClick={() => { setCouponApplied(null); setCouponCode('') }}
+                  className={`min-h-11 px-2 text-[13px] font-semibold text-gray-700 underline ${FOCUS}`}>Remove</button>
               </div>
-              <span className="text-[13px] text-gray-700 leading-snug">
-                I have read and agree to the terms above
-              </span>
-            </label>
-            <div>
-              <label className="block text-[12px] font-medium text-gray-600 mb-1.5">
-                Type your full name to sign <span className="text-red-400">*</span>
+            ) : couponOpen ? (
+              <div>
+                <label htmlFor="bk-promo" className={LABEL}><Tag className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />Promo code</label>
+                <div className="flex gap-2">
+                  <input id="bk-promo" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); applyCoupon() } }}
+                    placeholder="Enter code" maxLength={20} className={`${INPUT} flex-1 font-mono uppercase`} />
+                  <button type="button" onClick={applyCoupon} disabled={couponLoading || !couponCode.trim()}
+                    className={`min-h-11 rounded-xl bg-indigo-600 px-4 text-[14px] font-semibold text-white hover:bg-indigo-700 disabled:opacity-60 ${FOCUS}`}>
+                    {couponLoading ? '...' : 'Apply'}
+                  </button>
+                </div>
+                {couponError && <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-red-700" role="alert"><AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />{couponError}</p>}
+              </div>
+            ) : (
+              <button type="button" onClick={() => setCouponOpen(true)} className={`min-h-11 text-[14px] font-semibold text-indigo-700 underline ${FOCUS}`}>Have a promo code?</button>
+            )}
+          </div>
+
+          {/* The lesson agreement, when the tutor has one */}
+          {contractTemplate && (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/50 p-3.5">
+              <p className="mb-2 flex items-center gap-2 text-[14px] font-semibold text-gray-900"><FileText className="h-4 w-4 text-amber-800" aria-hidden="true" /> Lesson agreement</p>
+              <div className="max-h-36 overflow-y-auto rounded-lg bg-white px-3 py-2.5">
+                <pre className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed text-gray-700">{contractTemplate}</pre>
+              </div>
+              <label className="mt-3 flex min-h-11 cursor-pointer items-start gap-3">
+                <input type="checkbox" checked={termsAgreed} onChange={e => setTermsAgreed(e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-indigo-600" />
+                <span className="text-[14px] leading-snug text-gray-800">I have read and agree to the terms above</span>
               </label>
-              <input
-                value={signatureName}
-                onChange={e => setSignatureName(e.target.value)}
-                placeholder="Your full name as signature"
-                className="w-full text-[13px] px-3 py-2.5 rounded-xl border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-colors"
-              />
+              <label htmlFor="bk-sign" className={`${LABEL} mt-2`}>Type your full name to sign</label>
+              <input id="bk-sign" value={signatureName} onChange={e => setSignatureName(e.target.value)} placeholder="Your full name as signature" className={INPUT} />
             </div>
+          )}
+        </Step>
+      ) : (
+        <Step n={3} title="Your details" locked>
+          <p className="text-[14px] text-gray-600">Choose a time first. Then you only need your name and email.</p>
+        </Step>
+      )}
+
+      {/* What was chosen, then the button */}
+      {date && time && (
+        <div className="mx-4 mb-4 flex items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-3.5 py-3 sm:mx-5" data-testid="booking-summary">
+          <CalendarClock className="h-5 w-5 shrink-0 text-indigo-600" aria-hidden="true" />
+          <div className="text-[13px] text-gray-700">
+            <b className="block text-[15px] text-gray-900">{dateWords} · {fmt12(time)}{showTzConvert ? <span className="font-normal text-gray-600"> (tutor&apos;s time)</span> : null}</b>
+            {duration} min with {first}
+            {couponApplied ? ` · promo ${couponApplied.code} applied` : priceText ? ` · ${isTrial ? 'trial ' : ''}${priceText}` : ''}
           </div>
         </div>
       )}
-
-      {/* 6 — Submit */}
-      <button type="submit" disabled={!canBook || loading || subscribing}
-        className={`w-full py-3.5 rounded-2xl text-[14px] font-bold transition-all shadow-sm ${
-          canBook && !loading
-            ? 'bg-indigo-500 hover:bg-indigo-600 text-white'
-            : 'bg-gray-100 text-gray-500 cursor-not-allowed'
-        }`}>
-        {loading ? 'Confirming...' : canBook ? `Book ${duration} min lesson →` : 'Select date, time and fill your details'}
-      </button>
-
-      {canBook && (
-        <p className="text-center text-[11px] text-gray-500">
-          By booking you agree to the {tutor.cancellation_hours}h cancellation policy.
+      <div className="border-t border-gray-200 px-4 pb-5 pt-4 sm:px-5">
+        <button type="submit" disabled={!canBook || loading || subscribing}
+          className={`flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl text-[16px] font-bold transition-colors ${FOCUS} ${
+            canBook && !loading ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'cursor-not-allowed border border-gray-200 bg-gray-100 text-gray-600'
+          }`}>
+          {canBook && !loading && <CalendarCheck className="h-5 w-5" aria-hidden="true" />}{buttonText}
+        </button>
+        <p className="mt-2.5 text-center text-[12px] text-gray-600">
+          {tutor.cancellation_hours > 0 ? `Free cancellation up to ${tutor.cancellation_hours}h before the lesson. ` : 'No free cancellation for this tutor. '}You pay the tutor directly.
         </p>
-      )}
+      </div>
     </form>
 
-    {/* Lesson Packages */}
+    {/* Lesson Packages (the embed and team pages; /book/<slug> draws them in the page itself) */}
     {packages.length > 0 && (
       <PackagePanel packages={packages} tutor={tutor} name={name} email={email} />
     )}
@@ -797,6 +780,7 @@ export function BookingForm({ tutor, availability, subscriptionPlans = [], contr
     {subscriptionPlans.length > 0 && (
       <SubscriptionPanel
         plans={subscriptionPlans}
+        highlightId={highlightPlanId}
         tutor={tutor}
         name={name}
         email={email}

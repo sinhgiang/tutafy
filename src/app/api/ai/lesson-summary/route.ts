@@ -3,6 +3,7 @@ import Groq from 'groq-sdk'
 import { createMailer } from '@/lib/email'
 import { requireApiPlan } from '@/lib/api-guard'
 import { aiUnavailableResponse } from '@/lib/ai-unavailable'
+import { one } from '@/lib/relation'
 
 export async function POST(req: NextRequest) {
   const gate = await requireApiPlan('pro')
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
     return aiUnavailableResponse('lesson-summary')
   }
 
-  const student = lesson.students as any
+  const student = one(lesson.students)
   const vocab = (lesson.vocabulary as { word: string; definition: string }[]) ?? []
 
   const prompt = `You are a professional language tutor. Write a concise, friendly lesson summary to send to a student after their lesson.

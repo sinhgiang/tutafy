@@ -1,0 +1,9 @@
+/* The poster of the intro video on a tutor's profile (T-0915). It is the same dark panel in a light and a dark page, like a video player, so these colours
+   are fixed and do not follow prefers-color-scheme. The text on it is far above 4.5:1 (the lightest text is #e6e9f5 on at most #1c2140). */
+.vid-stage { background: #0e1118; }
+.vid-poster { background: linear-gradient(135deg, #1c2140 0%, #121626 55%, #0e1118 100%); color: #f2f4fa; }
+.vid-poster:hover .vid-poster-note { color: #ffffff; }
+.vid-poster-note { color: #e6e9f5; }
+.vid-chip { background: rgba(255, 255, 255, 0.16); color: #f2f4fa; }
+/* the "Video" label on a directory card photo: a solid dark pill, so it reads on any photo */
+.vid-chip-solid { background: rgba(14, 17, 24, 0.82); color: #f2f4fa; }

@@ -19,10 +19,6 @@ function vercelConfigured() {
   return !!(process.env.VERCEL_TOKEN && process.env.VERCEL_PROJECT_ID)
 }
 
-function teamQuery() {
-  const t = process.env.VERCEL_TEAM_ID?.trim()
-  return t ? `?teamId=${t}` : ''
-}
 function withTeam(path: string) {
   const t = process.env.VERCEL_TEAM_ID?.trim()
   if (!t) return path
@@ -57,8 +53,10 @@ function isApexHeuristic(domain: string): boolean {
 }
 
 type DnsRecord = { type: string; name: string; value: string }
+// A verification entry as Vercel returns it for a project domain
+type VerificationRecord = { type?: string; domain?: string; value?: string }
 
-function buildRecords(domain: string, apexName: string, verification: any[]): DnsRecord[] {
+function buildRecords(domain: string, apexName: string, verification: VerificationRecord[]): DnsRecord[] {
   const isApex = domain === apexName
   const records: DnsRecord[] = isApex
     ? [{ type: 'A', name: '@', value: APEX_IP }]
@@ -76,7 +74,7 @@ async function statusFor(domain: string) {
   let verified = false
   let misconfigured = true
   let apexName = isApexHeuristic(domain) ? domain : domain.split('.').slice(-2).join('.')
-  let verification: any[] = []
+  let verification: VerificationRecord[] = []
 
   try {
     const r = await vercel(`/v9/projects/${pid}/domains/${domain}`)
@@ -108,7 +106,7 @@ async function requireProUser() {
   if (!hasPlan(tutor?.subscription_status, 'pro')) {
     return { error: NextResponse.json({ error: 'upgrade_required' }, { status: 403 }) }
   }
-  return { supabase, userId: user.id, current: (tutor as any)?.custom_domain as string | null }
+  return { supabase, userId: user.id, current: tutor?.custom_domain as string | null }
 }
 
 export async function GET() {

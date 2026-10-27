@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { createMailer } from '@/lib/email'
 import { updateCalendarEvent } from '@/lib/google-calendar'
+import { one } from '@/lib/relation'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
 
   if (!lesson) return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
 
-  const tutor = lesson.tutors as any
+  const tutor = one(lesson.tutors)
   const oldStart = new Date(lesson.starts_at)
   const cancellationHours = tutor?.cancellation_hours ?? 24
   const hoursUntil = (oldStart.getTime() - Date.now()) / 3600000
@@ -69,9 +70,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
   }).eq('id', lesson_id)
 
   // Update Google Calendar event (fire-and-forget)
-  const gcalToken = (tutor as any)?.google_calendar_refresh_token
-  const gcalEventId = (lesson as any)?.google_event_id
-  const gcalCalId = (tutor as any)?.google_calendar_id ?? 'primary'
+  const gcalToken = tutor?.google_calendar_refresh_token
+  const gcalEventId = lesson?.google_event_id
+  const gcalCalId = tutor?.google_calendar_id ?? 'primary'
   if (gcalToken && gcalEventId) {
     updateCalendarEvent(gcalToken, gcalCalId, gcalEventId, {
       start: { dateTime: newStart.toISOString() },

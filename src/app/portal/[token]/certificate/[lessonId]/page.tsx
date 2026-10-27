@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import { PrintButton } from './PrintButton'
+import { one } from '@/lib/relation'
+import { BrandLogo } from '@/components/brand/BrandLogo'
 
 export default async function CertificatePage({
   params,
@@ -27,7 +29,7 @@ export default async function CertificatePage({
 
   if (!lesson || lesson.status !== 'completed') notFound()
 
-  const tutor = lesson.tutors as any
+  const tutor = one(lesson.tutors)
   const date = new Date(lesson.starts_at)
   const dateLabel = date.toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -56,13 +58,8 @@ export default async function CertificatePage({
           <div className="absolute inset-2 border border-indigo-100 rounded-sm pointer-events-none" />
 
           {/* Logo */}
-          <div className="flex items-center justify-center gap-2.5 mb-8">
-            <div className="w-9 h-9 bg-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                <path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
-              </svg>
-            </div>
-            <span className="text-[18px] font-black text-gray-900 tracking-tight">Tutafy</span>
+          <div className="flex items-center justify-center mb-8">
+            <BrandLogo height={40} title="Tutafy" />
           </div>
 
           {/* Title row */}

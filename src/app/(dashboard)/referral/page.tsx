@@ -1,123 +1,112 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Copy, Check, Users, Gift, Zap, Share2 } from 'lucide-react'
+// Refer & Earn (T-0826): your link, the figures, how it works, and a table of the tutors you invited (short name, when they joined,
+// whether they pay). Share with the phone's share sheet when there is one, otherwise copy.
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { CircleAlert, Copy, Gift, Share2, Users } from 'lucide-react'
+import { StatRow } from '@/components/lists/StatRow'
+import type { ReferredRow } from '@/lib/referral'
+
+type Data = { referral_code: string; referral_link: string; referral_count: number; credits: number; referred: ReferredRow[] }
 
 export default function ReferralPage() {
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<{
-    referral_code: string
-    referral_link: string
-    referral_count: number
-    credits: number
-  } | null>(null)
-  const [copied, setCopied] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const [data, setData] = useState<Data | null>(null)
 
   useEffect(() => {
     fetch('/api/referral')
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false) })
-      .catch(() => setLoading(false))
+      .then(r => { if (!r.ok) throw new Error('load'); return r.json() })
+      .then((d: Data) => setData(d))
+      .catch(() => setFailed(true))
+      .finally(() => setLoading(false))
   }, [])
 
   function copy(text: string) {
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    toast.success('Link copied!')
-    setTimeout(() => setCopied(false), 2000)
+    void navigator.clipboard.writeText(text).then(() => toast.success('Link copied')).catch(() => toast.error('Could not copy the link'))
   }
 
-  const share = async () => {
+  async function share() {
     if (!data) return
     if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Join me on Tutafy',
-          text: 'I use Tutafy to manage my tutoring business. Try it free!',
-          url: data.referral_link,
-        })
-      } catch { /* user cancelled */ }
-    } else {
-      copy(data.referral_link)
-    }
+      try { await navigator.share({ title: 'Join me on Tutafy', text: 'I use Tutafy to manage my tutoring business. Try it free.', url: data.referral_link }) } catch { /* the person closed the sheet */ }
+    } else copy(data.referral_link)
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-[20px] font-bold text-gray-900">Referral Program</h1>
-        <p className="text-[13px] text-gray-400 mt-0.5">Invite other tutors and earn free months of Pro</p>
+    <div>
+      <div className="dash-head">
+        <div><h1>Refer and earn</h1><p>Invite other tutors and earn a free month of Pro for each one who subscribes.</p></div>
       </div>
 
-      {/* How it works */}
-      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100">
-        <p className="text-[14px] font-bold text-gray-900 mb-4">How it works</p>
-        <div className="space-y-3">
-          {[
-            { icon: Share2, text: 'Share your unique referral link with other tutors' },
-            { icon: Users, text: 'When they sign up and subscribe to Pro, you both get rewarded' },
-            { icon: Gift, text: 'Earn 1 month free Pro for every successful referral' },
-          ].map(({ icon: Icon, text }, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-7 h-7 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Icon className="h-3.5 w-3.5 text-indigo-600" />
-              </div>
-              <p className="text-[13px] text-gray-600">{text}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      {loading && <div role="status" className="dash-sk" style={{ height: 200 }}><span className="sr-only">Loading your referrals</span></div>}
 
-      {/* Stats */}
-      {!loading && data && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center">
-            <p className="text-[36px] font-black text-gray-900">{data.referral_count}</p>
-            <p className="text-[12px] text-gray-400 mt-1">Tutors referred</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <Zap className="h-5 w-5 text-indigo-500" fill="currentColor" />
-              <p className="text-[36px] font-black text-indigo-600">{data.credits}</p>
-            </div>
-            <p className="text-[12px] text-gray-400">Free months earned</p>
-          </div>
+      {failed && (
+        <div className="dash-card dash-state" role="alert" data-testid="referral-error">
+          <div className="dash-state-ico"><CircleAlert className="h-6 w-6" aria-hidden="true" /></div>
+          <h2>We could not load your referrals</h2>
+          <p>Nothing was changed. Reload the page to try again.</p>
         </div>
       )}
 
-      {/* Referral link */}
-      {!loading && data && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-          <p className="text-[14px] font-bold text-gray-900">Your Referral Link</p>
-          <div className="flex items-center gap-2 bg-gray-50 rounded-xl border border-gray-200 px-4 py-3">
-            <p className="text-[12px] text-indigo-600 font-mono flex-1 truncate">{data.referral_link}</p>
-            <button
-              onClick={() => copy(data.referral_link)}
-              className="flex-shrink-0 flex items-center gap-1 text-[11px] font-bold text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? 'Copied!' : 'Copy'}
-            </button>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={share}
-              className="flex-1 flex items-center justify-center gap-2 text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 py-2.5 rounded-xl transition-colors"
-            >
-              <Share2 className="h-4 w-4" /> Share Link
-            </button>
-          </div>
-          <p className="text-[11px] text-gray-400 text-center">
-            Your referral code: <span className="font-mono font-semibold text-gray-600">{data.referral_code}</span>
-          </p>
-        </div>
-      )}
+      {data && (
+        <>
+          <StatRow stats={[
+            { id: 'referred', label: 'Tutors referred', value: String(data.referral_count) },
+            { id: 'paying', label: 'Who subscribed', value: String(data.referred.filter(r => r.paid).length) },
+            { id: 'credits', label: 'Free months earned', value: String(data.credits) },
+          ]} />
 
-      {loading && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 flex items-center justify-center">
-          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        </div>
+          <div className="set-two">
+            <section className="dash-card" aria-labelledby="ref-table-h">
+              <div className="dash-card-h"><h2 id="ref-table-h">Tutors you invited</h2><span>{data.referred.length} shown</span></div>
+              {data.referred.length === 0 ? (
+                <div className="dash-state" data-testid="referral-empty">
+                  <div className="dash-state-ico is-brand"><Users className="h-6 w-6" aria-hidden="true" /></div>
+                  <h2>No one has joined yet</h2>
+                  <p>Share your link with a tutor you know. They show up here when they sign up with it.</p>
+                </div>
+              ) : (
+                <div className="dash-table-wrap overflow-x-auto" style={{ paddingTop: 12 }}>
+                  <table className="dash-table is-cards no-sel" data-testid="referral-table">
+                    <thead><tr><th>Tutor</th><th>Joined</th><th>Plan</th></tr></thead>
+                    <tbody>
+                      {data.referred.map((r, i) => (
+                        <tr key={i}>
+                          <td className="c-main"><b style={{ fontWeight: 650 }}>{r.name}</b></td>
+                          <td className="c-end">{new Date(r.joined).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                          <td className="c-sub"><span className={`dash-chip ${r.paid ? 'is-ok' : ''}`}>{r.paid ? 'Subscribed' : 'Free so far'}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
+            <div style={{ display: 'grid', gap: 16, alignContent: 'start' }}>
+              <section className="dash-card dash-card-b" aria-labelledby="ref-link-h">
+                <h2 id="ref-link-h" style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 650, color: 'var(--d-ink)' }}>Your link</h2>
+                <div className="dash-input" style={{ display: 'flex', alignItems: 'center', maxWidth: 'none', height: 'auto', padding: '10px 12px' }}>
+                  <code style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', fontSize: 13 }} data-testid="referral-link">{data.referral_link}</code>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                  <button type="button" className="dash-btn is-primary" style={{ flex: 1 }} onClick={share}><Share2 className="h-4 w-4" aria-hidden="true" /> Share</button>
+                  <button type="button" className="dash-btn" onClick={() => copy(data.referral_link)}><Copy className="h-4 w-4" aria-hidden="true" /> Copy</button>
+                </div>
+              </section>
+              <section className="dash-card dash-card-b" aria-labelledby="ref-how-h">
+                <h2 id="ref-how-h" style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 650, color: 'var(--d-ink)' }}>How it works</h2>
+                <ol style={{ margin: 0, paddingLeft: 22, display: 'grid', gap: 8, color: 'var(--d-ink-2)', listStyle: 'decimal' }}>
+                  <li>Share your link with another tutor.</li>
+                  <li>They sign up and subscribe to Pro.</li>
+                  <li><Gift className="h-4 w-4" aria-hidden="true" style={{ display: 'inline', verticalAlign: '-3px', marginRight: 4, color: 'var(--d-brand)' }} />You earn one free month of Pro for each one.</li>
+                </ol>
+              </section>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )

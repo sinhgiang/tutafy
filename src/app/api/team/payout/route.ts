@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   if ('error' in gate) return gate.error
   const { supabase, userId: user } = gate
 
-  let body: any
+  let body: Record<string, unknown>
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
   const memberId = (body?.memberId ?? '').toString()
   const amount = Number(body?.amount)
@@ -27,6 +27,6 @@ export async function POST(request: Request) {
     })
     .select('id, amount, period_start, period_end, paid_at')
     .single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Could not record the payout' }, { status: 500 })
   return NextResponse.json({ payout: data }, { status: 201 })
 }

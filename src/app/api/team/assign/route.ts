@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   if ('error' in gate) return gate.error
   const { supabase, userId: user } = gate
 
-  let body: any
+  let body: Record<string, unknown>
   try { body = await request.json() } catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }) }
   const lessonId = (body?.lessonId ?? '').toString()
   const memberId = body?.memberId ? String(body.memberId) : null
@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     .eq('id', lessonId)
     .eq('tutor_id', user)
     .select('id, assigned_to')
-    .single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    .maybeSingle() // a lesson that is not this owner's is a 404 below, not a database error (T-0841)
+  if (error) return NextResponse.json({ error: 'Could not assign the lesson' }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'lesson not found' }, { status: 404 })
   return NextResponse.json({ ok: true, lesson: data })
 }

@@ -12,6 +12,7 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src')
 
@@ -80,7 +81,7 @@ test('Settings: the last ticked length cannot be unticked, and the default follo
   const noNinety = lib.toggleDuration(all, 90)
   assert.deepEqual(noNinety.durations, [30, 45, 60])
   assert.deepEqual(lib.toggleDuration(noNinety, 90).durations, [30, 45, 60, 90], 'ticking it again puts it back in order')
-  let only = lib.toggleDuration(lib.toggleDuration(lib.toggleDuration(all, 30), 45), 90)
+  const only = lib.toggleDuration(lib.toggleDuration(lib.toggleDuration(all, 30), 45), 90)
   assert.deepEqual(only.durations, [60])
   assert.deepEqual(lib.toggleDuration(only, 60), only, 'the last one stays')
   // default follows
@@ -190,20 +191,20 @@ test('POST /api/bookings: the check applies to a team member’s booking too, an
 
 /** The length buttons a student sees: [{ minutes, selected }] in page order. */
 function lengthButtons(html: string) {
-  const start = html.indexOf('Session length')
-  assert.ok(start >= 0, 'the page has the "Session length" block')
-  const block = html.slice(start, html.indexOf('</div></div>', start))
-  return [...block.matchAll(/<button type="button" class="([^"]*)">(\d+) min<\/button>/g)]
-    .map(m => ({ minutes: Number(m[2]), selected: m[1].includes('bg-indigo-500') }))
+  const start = html.indexOf('aria-label="Lesson length"')
+  assert.ok(start >= 0, 'the page has the "Lesson length" group')
+  const block = html.slice(start, html.indexOf('</div>', start))
+  return [...block.matchAll(/<button type="button" aria-pressed="(true|false)" class="[^"]*">(\d+) min<\/button>/g)]
+    .map(m => ({ minutes: Number(m[2]), selected: m[1] === 'true' }))
 }
 type Page = (props: { params: Promise<Record<string, string>> }) => Promise<React.ReactElement>
 const render = async (page: unknown, params: Record<string, string>) =>
   renderToStaticMarkup(await (page as Page)({ params: Promise.resolve(params) }))
 
 test('the button reader itself: it finds buttons, tells the selected one, and is not fooled by an empty block', () => {
-  const html = '<p>Session length</p><div><button type="button" class="a bg-indigo-500 text-white">30 min</button><button type="button" class="a bg-gray-100">60 min</button></div></div>'
+  const html = '<div role="group" aria-label="Lesson length"><button type="button" aria-pressed="true" class="a">30 min</button><button type="button" aria-pressed="false" class="a">60 min</button></div>'
   assert.deepEqual(lengthButtons(html), [{ minutes: 30, selected: true }, { minutes: 60, selected: false }])
-  assert.deepEqual(lengthButtons('<p>Session length</p><div></div></div>'), [])
+  assert.deepEqual(lengthButtons('<div role="group" aria-label="Lesson length"></div>'), [])
 })
 
 test('/book/<slug>: a tutor who ticked 30 and 60 shows exactly those two, 30 selected first, and says so beside the page', async () => {
@@ -255,12 +256,15 @@ test('the pages still open when the database has no such columns (the tutor quer
 // ---- Settings (a client page the test runner cannot run, so this part reads its text; the clicks are checked in a real browser) ----
 
 
-const settings = readFileSync(path.join(SRC, 'app/(dashboard)/settings/page.tsx'), 'utf8').split('\r\n').join('\n')
+const settings = settingsSource()
 
 test('Settings source: the lengths stay out of the main update (their columns may not exist yet) and go through the clean-up and the changed-only rule', () => {
-  assert.match(settings, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, \.\.\.rest \} = form/)
-  assert.match(settings, /durationColumnsToSave\(/)
-  assert.match(settings, /supabase\.from\('tutors'\)\.update\(lengthColumns\)\.eq\('id', user\.id\)/, 'the update names the signed-in tutor’s own row')
+  // the writes moved to src/lib/settings-save.ts (T-0717 follow-up)
+  const save = readFileSync(path.join(SRC, 'lib/settings-save.ts'), 'utf8').split('\r\n').join('\n')
+  assert.match(settings, /saveTutorSettings\(supabase, user\.id, form, savedSnapshot, linkCheck\.value\)/)
+  assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, \.\.\.rest \} = form/)
+  assert.match(save, /durationColumnsToSave\(/)
+  assert.match(save, /db\.from\('tutors'\)\.update\(lengthColumns\)\.eq\('id', userId\)/, 'the update names the signed-in tutor’s own row')
   assert.match(settings, /ALL_DURATIONS\.map\(d =>/, 'one tick for each of the four lengths')
   assert.match(settings, /toggleDuration\(/)
   assert.match(settings, /chooseDefault\(/)

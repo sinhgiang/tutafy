@@ -111,6 +111,7 @@ export function GroupStudentsPanel({
       {showAdd && (
         <div className="bg-indigo-50 rounded-lg p-3 space-y-2">
           <select
+            aria-label="Student to add"
             value={addStudentId}
             onChange={e => setAddStudentId(e.target.value)}
             className="w-full text-[13px] px-3 py-2 rounded-lg border border-indigo-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
@@ -122,6 +123,7 @@ export function GroupStudentsPanel({
           </select>
           <div className="flex gap-2">
             <input
+              aria-label="Price (optional)"
               type="number"
               placeholder="Price (optional)"
               value={addPrice}

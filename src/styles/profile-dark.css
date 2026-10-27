@@ -1,0 +1,16 @@
+/* The tutor profile (/tutors/<slug>) in a dark colour scheme (T-0915). The directory stylesheet (directory-dark.css, T-0863) already remaps the grey, indigo and
+   emerald utility classes the profile shares with the directory; this file adds the few the profile uses that the directory does not, and only inside
+   `.dir-page`, so nothing else is touched. The variables are the directory's own, so a colour is changed in one place. It follows the visitor's system setting. */
+@media (prefers-color-scheme: dark) {
+  .dir-page .text-indigo-800 { color: var(--dir-accent); }
+  .dir-page .text-emerald-700 { color: var(--dir-ok); }
+  .dir-page .text-emerald-600 { color: var(--dir-ok); }
+  .dir-page .text-gray-200 { color: #66708a; } /* an empty star: at least 3 to 1 on the dark surface */
+  .dir-page .text-amber-400 { color: #fbbf24; }
+  .dir-page .border-indigo-300 { border-color: var(--dir-accent-line); }
+  /* the play button of the video poster stays a white disc with an indigo triangle on the dark poster */
+  .dir-page .vid-play { background-color: #ffffff; }
+  .dir-page .vid-play-icon { color: #4338ca; fill: #4338ca; }
+}
+.vid-play { background-color: #ffffff; }
+.vid-play-icon { color: #4338ca; fill: #4338ca; }

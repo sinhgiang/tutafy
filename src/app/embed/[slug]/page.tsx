@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { BookingForm } from '../../book/[slug]/BookingForm'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { loadPublicTutor, loadBlockedDates } from '@/lib/public-tutor'
+import { EMBED_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
+import { BookingForm, type SubscriptionPlan, type LessonPackage } from '../../book/[slug]/BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
 import { loadChosenDurations, resolveDurationConfig } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
@@ -11,19 +13,17 @@ export const metadata = { robots: 'noindex' }
 export default async function EmbedBookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
+  // The tutor and the blocked days are read on the server with the admin client, only the public columns (T-0774).
+  const admin = createAdminClient()
 
-  const { data: tutor } = await supabase
-    .from('tutors')
-    .select('id, name, bio, avatar_url, timezone, languages, cancellation_hours, booking_url_active, buffer_minutes, paypal_link, paddle_checkout_link, stripe_account_id, default_lesson_price, currency, average_rating, review_count, contract_template, trial_enabled, trial_price')
-    .eq('slug', slug)
-    .single()
+  const tutor = await loadPublicTutor(admin, slug, EMBED_PAGE_COLUMNS)
 
   if (!tutor || !tutor.booking_url_active) notFound()
 
   // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
-  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const chosen = await loadChosenDurations(admin, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
-  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
+  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
   const { data: availability } = await supabase
     .from('availability')
@@ -31,7 +31,7 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
     .eq('tutor_id', tutor.id)
     .order('day_of_week')
 
-  let subscriptionPlans: any[] = []
+  let subscriptionPlans: SubscriptionPlan[] = []
   try {
     const { data: plans } = await supabase
       .from('subscription_plans')
@@ -42,18 +42,9 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
     subscriptionPlans = plans ?? []
   } catch { /* table may not exist yet */ }
 
-  let blockedDates: string[] = []
-  try {
-    const today = new Date().toISOString().split('T')[0]
-    const { data: exc } = await supabase
-      .from('availability_exceptions')
-      .select('date')
-      .eq('tutor_id', tutor.id)
-      .gte('date', today)
-    blockedDates = (exc ?? []).map((e: any) => e.date)
-  } catch { /* table may not exist yet */ }
+  const blockedDates = await loadBlockedDates(admin, tutor.id)
 
-  let packages: any[] = []
+  let packages: LessonPackage[] = []
   try {
     const { data: pkgs } = await supabase
       .from('packages')
@@ -71,11 +62,11 @@ export default async function EmbedBookingPage({ params }: { params: Promise<{ s
         cardCheckoutEnabled={isStripeEnabled()}
         availability={availability ?? []}
         subscriptionPlans={subscriptionPlans}
-        contractTemplate={(tutor as any).contract_template ?? null}
+        contractTemplate={tutor.contract_template ?? null}
         blockedDates={blockedDates}
         packages={packages}
-        trialEnabled={(tutor as any).trial_enabled ?? false}
-        trialPrice={(tutor as any).trial_price ?? null}
+        trialEnabled={tutor.trial_enabled ?? false}
+        trialPrice={tutor.trial_price ?? null}
         tutorSlug={slug}
         durations={lengths.durations}
         defaultDuration={lengths.defaultDuration}

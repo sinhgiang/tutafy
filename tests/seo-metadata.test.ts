@@ -243,8 +243,8 @@ test('/register has one h1 in the HTML the server sends, and the form no longer 
   assert.match(layout, /<h1 className="sr-only">Create your free Tutafy account<\/h1>/)
   assert.match(layout, /\{children\}/)
   assert.equal((read('src/app/(auth)/register/page.tsx').match(/<h1 className/g) ?? []).length, 0)
-  // The visible "Tutafy" heading keeps its look: same classes, now a paragraph.
-  assert.match(read('src/app/(auth)/register/page.tsx'), /<p className="text-3xl font-bold text-gray-900">Tutafy<\/p>/)
+  // The visible "Tutafy" heading is a paragraph holding the link to the home page (T-0818), and since T-0969 the link holds the horizontal logo.
+  assert.match(read('src/app/(auth)/register/page.tsx'), /<p className="flex justify-center"><Link href="\/" aria-label="Tutafy home"[^>]*><BrandLogo height=\{48\} \/><\/Link><\/p>/)
 })
 
 // ---- the pages really use the shared metadata --------------------------------
@@ -260,6 +260,7 @@ test('each page file takes its metadata from page-meta and writes no title or ca
     ['src/app/blog/page.tsx', 'blog'],
     ['src/app/updates/page.tsx', 'updates'],
     ['src/app/tutors/(directory)/layout.tsx', 'tutors'],
+    ['src/app/find-a-tutor/layout.tsx', 'findTutor'],
     ['src/app/(auth)/login/layout.tsx', 'login'],
     ['src/app/(auth)/register/layout.tsx', 'register'],
     ['src/app/student/login/layout.tsx', 'studentLogin'],

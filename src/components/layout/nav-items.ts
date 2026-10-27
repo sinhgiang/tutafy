@@ -2,7 +2,7 @@
 // "More" sheet (MobileNav.tsx) both read it, so a page added here shows up in both.
 import {
   LayoutDashboard, Users, Calendar, BookOpen,
-  CreditCard, Clock, Sparkles, Settings, MessageCircle, Package, Upload, Gift, RefreshCw, Tag, ListOrdered, BarChart3, Code2, Wallet,
+  Clock, Sparkles, Settings, MessageCircle, Package, Upload, Gift, RefreshCw, Tag, ListOrdered, BarChart3, Code2, Wallet,
 } from 'lucide-react'
 import type { Plan } from '@/lib/plans'
 
@@ -22,9 +22,8 @@ export const NAV: { group: string; items: NavItem[] }[] = [
   {
     group: 'Business',
     items: [
-      { href: '/reports', label: 'Reports', icon: BarChart3, plan: 'pro' },
+      { href: '/earnings', label: 'Earnings', icon: BarChart3 },
       { href: '/team', label: 'Team & Payroll', icon: Wallet, plan: 'academy' },
-      { href: '/payments', label: 'Payments', icon: CreditCard },
       { href: '/packages', label: 'Packages', icon: Package, plan: 'pro' },
       { href: '/coupons', label: 'Coupons', icon: Tag, plan: 'pro' },
       { href: '/subscriptions', label: 'Subscriptions', icon: RefreshCw, plan: 'pro' },

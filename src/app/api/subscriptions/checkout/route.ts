@@ -2,6 +2,7 @@
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/server'
 import { stripeUnavailableResponse } from '@/lib/stripe/availability'
+import { one } from '@/lib/relation'
 
 // POST /api/subscriptions/checkout
 // Body: { plan_id, student_name, student_email, tutor_slug }
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
     return stripeUnavailableResponse()
   }
 
-  const { plan_id, student_name, student_email, tutor_slug } = await req.json()
+  const { plan_id, student_name, student_email } = await req.json()
   if (!plan_id || !student_name || !student_email) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   if (!plan) return NextResponse.json({ error: 'Plan not found' }, { status: 404 })
 
-  const tutor = plan.tutors as any
+  const tutor = one(plan.tutors)
   if (!tutor?.stripe_account_id) {
     return NextResponse.json({ error: 'Tutor has not connected Stripe yet' }, { status: 400 })
   }

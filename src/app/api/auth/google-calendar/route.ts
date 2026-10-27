@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { originFromRequest } from '@/lib/app-url'
+import { GCAL_STATE_COOKIE, GCAL_STATE_MAX_AGE, GCAL_STATE_PATH, newGcalState } from '@/lib/gcal-state'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -28,7 +29,11 @@ export async function GET(req: NextRequest) {
   url.searchParams.set('scope', SCOPES)
   url.searchParams.set('access_type', 'offline')
   url.searchParams.set('prompt', 'consent')
-  url.searchParams.set('state', user.id)
+  // Not the tutor's id (an address anyone can write): a random value that the browser also holds in a cookie (src/lib/gcal-state.ts).
+  const { state, cookie } = newGcalState(user.id)
+  url.searchParams.set('state', state)
 
-  return NextResponse.redirect(url)
+  const res = NextResponse.redirect(url)
+  res.cookies.set(GCAL_STATE_COOKIE, cookie, { httpOnly: true, secure: true, sameSite: 'lax', path: GCAL_STATE_PATH, maxAge: GCAL_STATE_MAX_AGE })
+  return res
 }

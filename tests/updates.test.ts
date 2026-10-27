@@ -127,7 +127,7 @@ test('/updates renders every entry from the files: version, day, title, summary,
   assert.equal((html.match(/<main[ >]/g) ?? []).length, 1)
   assert.match(html, /<footer class="border-t border-gray-100 py-8 px-6">/, "the site's own footer")
   assert.match(html, /<div class="min-h-screen bg-white">/, 'a white page like the rest of the site')
-  assert.match(html, /bg-indigo-500/)
+  assert.match(html, /data-brand="logo"/, 'the top bar draws the Tutafy logo')
   // the page code names no version and no date: those come from the files
   const pageSrc = read('src/app/updates/page.tsx') + read('src/components/updates/UpdatesBrowser.tsx')
   assert.doesNotMatch(pageSrc, /\b\d+\.\d+\.\d+\b|\b2026-\d\d-\d\d\b/)
@@ -197,7 +197,7 @@ test('with 150 versions the page is still two columns: the list is a box with it
 // ---- the brand: the layout is the owner's pick, the look is Tutafy's -------------------------------------
 
 test("the Updates page looks like the rest of Tutafy: Tutafy's own colours, type, corners and header, no black page", () => {
-  const files = ['src/app/updates/page.tsx', 'src/components/updates/UpdatesBrowser.tsx']
+  const files = ['src/app/updates/page.tsx', 'src/components/updates/UpdatesBrowser.tsx', 'src/components/updates/ImageLightbox.tsx']
   for (const f of files) {
     const src = read(f).replace(/^\s*\/\/.*$/gm, '')
     assert.doesNotMatch(src, /#[0-9a-fA-F]{3,8}\b/, `${f} writes a colour of its own (a hex value); use the site's palette`)
@@ -210,17 +210,16 @@ test("the Updates page looks like the rest of Tutafy: Tutafy's own colours, type
   const blog = read('src/app/blog/page.tsx')
   for (const piece of [
     'className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40"',
-    '<div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">',
-    '<span className="text-[17px] font-bold text-gray-900">Tutafy</span>',
-    'className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">Start free</Link>',
-    '<p className="text-[12px] font-bold text-indigo-500 uppercase tracking-widest mb-3">',
+    '<SiteLogo />', // the shared logo (T-0818): same block and word as before, now one link to the home page
+    'className="text-[13px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-4 py-2 rounded-lg">Start free</Link>',
+    '<p className="text-[12px] font-bold text-indigo-600 uppercase tracking-widest mb-3">',
     'text-[17px] text-gray-500',
   ]) {
     assert.ok(page.includes(piece), `the Updates page does not have: ${piece}`)
     assert.ok(blog.includes(piece), `the blog index no longer has (so this check is out of date): ${piece}`)
   }
   // the cards and pictures use the site's corners, borders and indigo accent
-  const browser = read('src/components/updates/UpdatesBrowser.tsx')
+  const browser = read('src/components/updates/UpdatesBrowser.tsx') + read('src/components/updates/ImageLightbox.tsx') // the picture frame moved into the lightbox (T-0834)
   for (const piece of ['rounded-2xl border border-gray-100', 'bg-indigo-50', 'text-indigo-600', 'border-indigo-500', 'text-gray-900', 'text-gray-500']) assert.ok(browser.includes(piece), piece)
 })
 
@@ -242,7 +241,7 @@ test('MUTATION: a new file in content/updates shows up on the real page with no 
     const { default: UpdatesPage } = await import('@/app/updates/page.tsx')
     const before = renderToStaticMarkup(UpdatesPage())
     assert.ok(!before.includes('v9.9.9'))
-    writeFileSync(path.join(root, 'content', 'updates', '9.9.9.md'), GOOD.replace('2.0.0', '9.9.9').replace('2026-11-02', '2026-12-31').replace('A new thing for tutors', 'Brand new headline'))
+    writeFileSync(path.join(root, 'content', 'updates', '9.9.9.md'), GOOD.replace('2.0.0', '9.9.9').replace('2026-11-02', '2026-12-31').replace('A new thing for tutors', 'Brand new headline\nimage: /updates/lesson-lengths.webp\nimageAlt: A picture for the new entry'))
     const after = renderToStaticMarkup(UpdatesPage())
     assert.ok(after.includes('>v9.9.9<') && after.includes('Brand new headline') && after.includes('December 31, 2026'))
     assert.ok(after.indexOf('href="#v9.9.9"') < after.indexOf('href="#v1.5.0"'), 'the new version is on top of the list')
@@ -380,7 +379,7 @@ test('/updates is in the sitemap, dated by the newest entry, and has its own tit
 
 test('MUTATION: a newer entry moves the sitemap date, and an unreadable folder leaves it out instead of breaking the sitemap', async () => {
   await inScratchProject(async root => {
-    writeFileSync(path.join(root, 'content', 'updates', '1.5.0.md'), GOOD.replace('2.0.0', '1.5.0').replace('2026-11-02', '2026-11-30'))
+    writeFileSync(path.join(root, 'content', 'updates', '9.9.8.md'), GOOD.replace('2.0.0', '9.9.8').replace('2026-11-02', '2026-11-30')) // a version above every real one, so a later real entry never makes this test go stale
     const entry = (await sitemap()).find(e => e.url === `${SITE_URL}/updates`)!
     assert.equal(new Date(entry.lastModified as Date).toISOString().slice(0, 10), '2026-11-30')
     // a deployed function has no public/ folder: the sitemap date must not depend on the pictures
@@ -407,6 +406,7 @@ const PUBLIC_PAGES = [
   'src/app/page.tsx', 'src/app/switch/page.tsx', 'src/app/about/page.tsx', 'src/app/contact/page.tsx',
   'src/app/customers/page.tsx', 'src/app/privacy/page.tsx', 'src/app/terms/page.tsx', 'src/app/updates/page.tsx',
   'src/app/blog/page.tsx', 'src/app/blog/[slug]/page.tsx', 'src/app/tutors/(directory)/page.tsx', 'src/app/tutors/[slug]/page.tsx',
+  'src/app/learn/[language]/page.tsx', 'src/app/find-a-tutor/page.tsx', 'src/app/unsubscribe/page.tsx',
 ]
 
 /** Pages that are public but are not a place to browse, so they have no site footer: the reason is written. */
@@ -443,7 +443,7 @@ test('the shared footer shows Updates next to Privacy and Terms, and the link go
   const labels = [...html.matchAll(/<a [^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)].map(m => [m[2], m[1]])
   assert.ok(labels.some(([label, href]) => label === 'Updates' && href === '/updates'), html)
   for (const l of ['About', 'Blog', 'Customers', 'Contact', 'Privacy', 'Terms']) assert.ok(labels.some(([label]) => label === l), l)
-  assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
+  assert.deepEqual(FOOTER_LINKS.map(l => l.label), ['Find tutors', 'Find me a tutor', 'About', 'Blog', 'Updates', 'Customers', 'Contact', 'Privacy', 'Terms'])
 })
 
 test('every public page has the Updates link in its footer', () => {

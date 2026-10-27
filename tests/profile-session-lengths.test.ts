@@ -12,13 +12,15 @@ import { createFakeDb, type FakeDb } from './support/fake-db.ts'
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src')
 
 let db: FakeDb
+let viewer: string | null = null // the signed-in account that opens the page (T-0774: a page that is off is shown to that tutor only)
 mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
   namedExports: {
     createAdminClient: () => db,
-    createClient: async () => ({ from: (t: string) => db.from(t), auth: { getUser: async () => ({ data: { user: null } }) } }),
+    createClient: async () => ({ from: (t: string) => db.from(t), auth: { getUser: async () => ({ data: { user: viewer ? { id: viewer } : null } }) } }),
   },
 })
-mock.module('next/navigation', { namedExports: { notFound: () => { throw new Error('NEXT_NOT_FOUND') } } })
+// useRouter is for the one-time answer box of the reviews (a client component the profile page imports, T-0898)
+mock.module('next/navigation', { namedExports: { notFound: () => { throw new Error('NEXT_NOT_FOUND') }, useRouter: () => ({ push() {}, refresh() {} }) } })
 
 const profile = (await import('@/app/tutors/[slug]/page.tsx')).default
 type Page = (props: { params: Promise<{ slug: string }> }) => Promise<React.ReactElement>
@@ -34,6 +36,7 @@ const base = { subscription_status: 'free', booking_url_active: true, currency: 
 const T = (n: number) => `10000000-0000-4000-8000-00000000f${String(n).padStart(3, '0')}`
 
 beforeEach(() => {
+  viewer = null
   db = createFakeDb({
     tutors: [
       { id: T(1), name: 'Tutor Nothing', slug: 'tutor-nothing', ...base },
@@ -92,6 +95,8 @@ test('the page still opens when the database has no such columns (migration 018 
 
 test('only the words change: the Book button still goes to /book/<slug>, and an unavailable tutor still shows no button', async () => {
   assert.match(await render('tutor-two'), /href="\/book\/tutor-two"/)
+  await assert.rejects(() => render('tutor-off'), /NEXT_NOT_FOUND/, 'a visitor is told a page that is off does not exist')
+  viewer = T(6) // the tutor, signed in, previews their own page
   const off = await render('tutor-off')
   assert.doesNotMatch(off, /href="\/book\/tutor-off"/)
   assert.match(off, /Booking currently unavailable/)

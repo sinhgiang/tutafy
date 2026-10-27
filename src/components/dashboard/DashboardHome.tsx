@@ -3,10 +3,16 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { FirstStudentCard } from '@/components/dashboard/FirstStudentCard'
+import { NoHoursBanner } from '@/components/dashboard/NoHoursBanner'
+import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard'
+import { ListingCard } from '@/components/dashboard/ListingCard'
+import type { ListingCardData } from '@/lib/listing-status'
+import type { ProfileCompletion } from '@/lib/profile-completion'
+import type { NoHoursBanner as NoHoursData } from '@/lib/no-hours-banner'
 import type { FirstStudentCard as FirstStudentData } from '@/lib/first-student'
 import {
   Search, Play, MoreVertical, Paperclip, FileText, Video, Users, User,
-  ChevronRight, AlertTriangle, Calendar, CreditCard, ListTodo, ArrowUpRight,
+  ChevronRight, AlertTriangle, Calendar, CreditCard, ListTodo,
 } from 'lucide-react'
 
 export type LessonRow = {
@@ -52,6 +58,9 @@ export type DashboardData = {
   currencySymbol: string
   tutorId: string
   firstStudent: FirstStudentData | null // T-0681: null when every step is done
+  noHours: NoHoursData | null // T-0739: the banner for a tutor with no free hours; null when they have some
+  profile?: ProfileCompletion | null // T-0765: the profile-completion card; null when its read failed
+  listing?: ListingCardData | null // T-0769: the "Your listing in the tutor directory" card; null when its read failed
 }
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -75,7 +84,7 @@ function Avatar({ name, url, size = 28 }: { name: string; url: string | null; si
   }
   return (
     <div className="rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 ring-2 ring-white" style={{ width: size, height: size }}>
-      <span aria-hidden="true" className="font-bold text-indigo-600" style={{ fontSize: size * 0.36 }}>{initials(name)}</span>
+      <span aria-hidden="true" className="font-bold text-indigo-600" style={{ fontSize: Math.max(12, size * 0.36) }}>{initials(name)}</span>
     </div>
   )
 }
@@ -337,11 +346,11 @@ function AnalyticsPanel({ data }: { data: DashboardData }) {
         </svg>
         {/* Tooltip bubble on active point */}
         <div
-          className="pointer-events-none absolute -translate-x-1/2 -translate-y-full"
-          style={{ left: `${(xOf(active) / W) * 100}%`, top: `${(yOf(values[active]) / H) * 100}%`, marginTop: -8 }}
+          className={`pointer-events-none absolute -translate-x-1/2 ${yOf(values[active]) / H < 0.22 ? '' : '-translate-y-full'}`}
+          style={{ left: `${(xOf(active) / W) * 100}%`, top: `${(yOf(values[active]) / H) * 100}%`, marginTop: yOf(values[active]) / H < 0.22 ? 10 : -8 }}
         >
-          <div className="bg-indigo-500 text-white text-[11px] font-semibold px-2 py-1 rounded-md whitespace-nowrap shadow-sm">
-            {fmt(values[active])} {metric === 'lessons' ? 'lessons' : ''}
+          <div className="bg-indigo-500 text-white text-[12px] font-semibold px-2 py-1 rounded-md whitespace-nowrap shadow-sm">
+            {fmt(values[active])}{metric === 'lessons' ? (values[active] === 1 ? ' lesson' : ' lessons') : ''}
           </div>
         </div>
       </div>
@@ -427,7 +436,9 @@ export function DashboardHome({ data }: { data: DashboardData }) {
   const startExternal = startHref.startsWith('http')
 
   return (
-    <div className="max-w-[1200px] mx-auto">
+    <div>
+      {data.noHours && <NoHoursBanner banner={data.noHours} />}
+
       {/* Top bar */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">
         <div className="flex-shrink-0">
@@ -439,6 +450,7 @@ export function DashboardHome({ data }: { data: DashboardData }) {
           <div className="relative flex-1 lg:w-[260px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
+              aria-label="Search lessons"
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search lessons"
@@ -466,6 +478,8 @@ export function DashboardHome({ data }: { data: DashboardData }) {
       </div>
 
       {data.firstStudent && <FirstStudentCard card={data.firstStudent} tutorId={data.tutorId} />}
+      {data.profile && <ProfileCompletionCard card={data.profile} />}
+      {data.listing && <ListingCard card={data.listing} />}
 
       {/* Row 1: Lessons + At risk */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">

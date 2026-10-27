@@ -1,29 +1,51 @@
+import { cache } from 'react'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { BookingForm } from './BookingForm'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { loadPublicTutor, loadBlockedDates } from '@/lib/public-tutor'
+import { BOOKING_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
+import { BookingForm, type SubscriptionPlan, type LessonPackage } from './BookingForm'
 import { isStripeEnabled } from '@/lib/stripe/availability'
-import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
+import { loadChosenDurations, resolveDurationConfig } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
 import { MadeWithTutafy } from '@/components/MadeWithTutafy'
-import { GraduationCap, Globe, Clock, Star } from 'lucide-react'
+import { bookingMetadata, tutorNotFoundMetadata } from '@/lib/page-meta'
+import { bookingFaq, cancelHoursOf, faqJsonLd, packageBuyUrl } from '@/lib/booking-page'
+import { jsonLdScript } from '@/lib/seo'
+import { httpsImage } from '@/lib/tutor-seo'
+import { loadFreeTimes, loadReviewLessonCounts, type ReadClient } from '@/lib/profile-data'
+import { hasTrial, joinedLabel, priceLabel, safeZone, usableReviews } from '@/lib/tutor-profile'
+import { About, Faq, Hero, MobileBookBar, Packages, Policy, Reviews, type PackageItem } from '@/components/booking/BookingSections'
+import { SiteLogo } from '@/components/SiteLogo'
+import { planToHighlight } from '@/lib/business-lists'
 
-export default async function BookingPage({ params }: { params: Promise<{ slug: string }> }) {
+// One read of the tutor per request, shared by the page and its metadata. Read on the server with the admin client, only the public
+// columns (T-0774): a visitor's own key cannot read the tutors table. The other tables below (hours, plans, reviews, packages) stay public reads.
+const getTutor = cache(async (slug: string) => loadPublicTutor(createAdminClient(), slug, BOOKING_PAGE_COLUMNS))
+
+// Its own title and description, and the canonical is the tutor's profile (src/lib/page-meta.ts: bookingMetadata says why).
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const supabase = await createClient()
+  let tutor: Awaited<ReturnType<typeof getTutor>> = null
+  try { tutor = await getTutor(slug) } catch {}
+  return tutor && tutor.booking_url_active ? bookingMetadata(slug, tutor) : tutorNotFoundMetadata()
+}
 
-  const { data: tutor } = await supabase
-    .from('tutors')
-    .select('id, name, bio, avatar_url, timezone, languages, cancellation_hours, booking_url_active, buffer_minutes, paypal_link, paddle_checkout_link, stripe_account_id, default_lesson_price, average_rating, review_count, contract_template, trial_enabled, trial_price, currency')
-    .eq('slug', slug)
-    .single()
+export default async function BookingPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams?: Promise<{ plan?: string | string[] }> }) {
+  const { slug } = await params
+  const { plan: planParam } = (await searchParams) ?? {} // a tutor's "Copy link" for one plan (T-0841)
+  const supabase = await createClient()
+  const admin = createAdminClient()
+
+  const tutor = await getTutor(slug)
 
   if (!tutor || !tutor.booking_url_active) notFound()
 
   // The lesson lengths this tutor takes (read apart from the rest, so a database without the columns still works)
-  const chosen = await loadChosenDurations(supabase, tutor.id)
+  const chosen = await loadChosenDurations(admin, tutor.id)
   const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
   // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
-  const showMadeWith = await loadShowMadeWith(supabase, tutor.id)
+  const showMadeWith = await loadShowMadeWith(admin, tutor.id)
 
   // If a student is signed in (e.g. via "Continue with Google"), pre-fill the form
   const { data: { user } } = await supabase.auth.getUser()
@@ -37,7 +59,7 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
     .order('day_of_week')
 
   // Fetch active subscription plans (graceful if table doesn't exist)
-  let subscriptionPlans: any[] = []
+  let subscriptionPlans: SubscriptionPlan[] = []
   try {
     const { data: plans } = await supabase
       .from('subscription_plans')
@@ -48,33 +70,24 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
     subscriptionPlans = plans ?? []
   } catch { /* table may not exist yet */ }
 
-  // Fetch public reviews (graceful if table doesn't exist)
-  let reviews: any[] = []
+  // Fetch public reviews (graceful if table doesn't exist). The student id only counts that student's lessons on the server; it is never sent on.
+  let reviews: { id: string; rating: number; comment: string | null; created_at: string; student_id: string | null }[] = []
   try {
     const { data: r } = await supabase
       .from('reviews')
-      .select('id, rating, comment, created_at')
+      .select('id, rating, comment, created_at, student_id')
       .eq('tutor_id', tutor.id)
       .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(5)
-    reviews = r ?? []
+    reviews = usableReviews(r ?? [])
   } catch { /* table may not exist yet */ }
 
-  // Fetch blocked dates (graceful if table doesn't exist)
-  let blockedDates: string[] = []
-  try {
-    const today = new Date().toISOString().split('T')[0]
-    const { data: exc } = await supabase
-      .from('availability_exceptions')
-      .select('date')
-      .eq('tutor_id', tutor.id)
-      .gte('date', today)
-    blockedDates = (exc ?? []).map((e: any) => e.date)
-  } catch { /* table may not exist yet */ }
+  // Blocked dates: the date only, never the tutor's note for the day (graceful if the table doesn't exist)
+  const blockedDates = await loadBlockedDates(admin, tutor.id)
 
   // Fetch active packages (graceful if table doesn't exist)
-  let packages: any[] = []
+  let packages: LessonPackage[] = []
   try {
     const { data: pkgs } = await supabase
       .from('packages')
@@ -85,119 +98,101 @@ export default async function BookingPage({ params }: { params: Promise<{ slug: 
     packages = pkgs ?? []
   } catch { /* table may not exist yet */ }
 
-  const initials = tutor.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+  // A number only: how many lessons this tutor has completed (a visitor's session cannot read lessons).
+  let lessonCount = 0
+  try {
+    const { count } = await admin.from('lessons').select('id', { count: 'exact', head: true }).eq('tutor_id', tutor.id).eq('status', 'completed')
+    lessonCount = count ?? 0
+  } catch {}
+
+  // The soonest free times (the same read the profile page makes) and how many lessons each reviewing student had with the tutor.
+  const getAdmin = () => admin as unknown as ReadClient
+  const [times, lessonsBy] = await Promise.all([
+    loadFreeTimes(supabase as unknown as ReadClient, getAdmin, tutor, lengths.defaultDuration),
+    loadReviewLessonCounts(getAdmin, tutor.id, reviews.map(r => r.student_id ?? '')),
+  ])
+  const soonest = times.state === 'ok' ? times.slots.slice(0, 3) : []
+
+  const reviewCount = Number(tutor.review_count ?? 0)
+  const rating = reviewCount > 0 ? Number(tutor.average_rating ?? 0) : null
+  const isNew = !(reviewCount > 0 && reviews.length > 0) && lessonCount === 0
+  const price = priceLabel(tutor.default_lesson_price, tutor.currency)
+  const trialPrice = hasTrial(tutor) ? priceLabel(tutor.trial_price, tutor.currency) : null
+  const cancelHours = cancelHoursOf(tutor)
+  const languages: string[] = Array.isArray(tutor.languages) ? tutor.languages.filter((l: unknown): l is string => typeof l === 'string' && l.trim() !== '') : []
+  const faq = bookingFaq({ ...tutor, durations: lengths.durations })
+  const packageItems: PackageItem[] = packages.map(p => ({
+    id: p.id, name: p.name, description: p.description, lessons_count: p.lessons_count, price: p.price, href: packageBuyUrl(tutor, Number(p.price)),
+  }))
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]">
+    <div className="min-h-screen bg-[#F6F7FB] pb-24 lg:pb-0">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(faqJsonLd(faq, slug)) }} />
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 px-6 py-3.5">
-        <div className="max-w-5xl mx-auto flex items-center gap-2">
-          <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center">
-            <GraduationCap className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-[15px] font-bold text-gray-900">Tutafy</span>
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-[1120px] mx-auto px-4 h-14 flex items-center">
+          <SiteLogo size="md" />
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 items-start">
+      <main className="max-w-[1120px] mx-auto px-4 py-4 sm:py-6">
+        <Hero
+          name={tutor.name}
+          photo={httpsImage(tutor.avatar_url)}
+          languages={languages}
+          zone={safeZone(tutor.timezone)}
+          rating={rating}
+          reviewCount={reviewCount}
+          lessonCount={lessonCount}
+          joined={joinedLabel(tutor.created_at)}
+          isNew={isNew}
+          price={price}
+          trialPrice={trialPrice}
+          durations={lengths.durations}
+          cancelHours={cancelHours}
+        />
 
-          {/* Left: Tutor Card */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-7 lg:sticky lg:top-8">
-            {/* Avatar */}
-            <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mb-4 ring-4 ring-indigo-50">
-                {tutor.avatar_url ? (
-                  <img src={tutor.avatar_url} alt={tutor.name} className="w-20 h-20 rounded-full object-cover" />
-                ) : (
-                  <span className="text-2xl font-bold text-indigo-600">{initials}</span>
-                )}
-              </div>
-              <h1 className="text-[20px] font-bold text-gray-900">{tutor.name}</h1>
-              {tutor.languages?.length > 0 && (
-                <p className="text-[13px] text-indigo-600 font-medium mt-1">
-                  Teaches: {tutor.languages.join(', ')}
-                </p>
-              )}
-            </div>
+        <div className="mt-4 sm:mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_420px] gap-4 sm:gap-6 items-start">
+          {/* On a phone the booking card comes straight after the hero; on a wide screen it stays in view at the side */}
+          <aside id="book" aria-label={`Book a lesson with ${tutor.name}`} className="order-1 lg:order-2 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto scroll-mt-4 p-1 -m-1">
+            <BookingForm
+              tutor={tutor}
+              cardCheckoutEnabled={isStripeEnabled()}
+              availability={availability ?? []}
+              subscriptionPlans={subscriptionPlans}
+              highlightPlanId={planToHighlight(planParam, subscriptionPlans)}
+              contractTemplate={tutor.contract_template ?? null}
+              blockedDates={blockedDates}
+              packages={[]}
+              trialEnabled={tutor.trial_enabled ?? false}
+              trialPrice={tutor.trial_price ?? null}
+              tutorSlug={slug}
+              durations={lengths.durations}
+              defaultDuration={lengths.defaultDuration}
+              soonest={soonest}
+              prefillName={prefillName}
+              prefillEmail={prefillEmail}
+            />
+          </aside>
 
-            {tutor.bio && (
-              <p className="text-[13px] text-gray-600 leading-relaxed text-center mb-6 pb-6 border-b border-gray-50">
-                {tutor.bio}
-              </p>
-            )}
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-[13px] text-gray-500">
-                <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Clock className="h-3.5 w-3.5 text-indigo-500" />
-                </div>
-                <span>{describeDurations(lengths.durations)}</span>
-              </div>
-              <div className="flex items-center gap-3 text-[13px] text-gray-500">
-                <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Globe className="h-3.5 w-3.5 text-indigo-500" />
-                </div>
-                <span>{tutor.timezone ?? 'UTC'}</span>
-              </div>
-              {tutor.cancellation_hours > 0 && (
-                <div className="flex items-start gap-3 text-[13px] text-gray-500 pt-2">
-                  <div className="w-7 h-7 flex-shrink-0" />
-                  <span>Cancel up to {tutor.cancellation_hours}h before lesson</span>
-                </div>
-              )}
-            </div>
-
-            {/* Reviews */}
-            {(tutor as any).review_count > 0 && (
-              <div className="mt-5 pt-5 border-t border-gray-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex gap-0.5">
-                    {[1,2,3,4,5].map(s => (
-                      <Star key={s} className={`h-3.5 w-3.5 ${s <= Math.round((tutor as any).average_rating ?? 0) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
-                    ))}
-                  </div>
-                  <span className="text-[12px] font-semibold text-gray-700">{((tutor as any).average_rating ?? 0).toFixed(1)}</span>
-                  <span className="text-[11px] text-gray-500">({(tutor as any).review_count} reviews)</span>
-                </div>
-                <div className="space-y-3">
-                  {reviews.map((r: any) => (
-                    <div key={r.id} className="bg-gray-50 rounded-xl px-4 py-3">
-                      <div className="flex gap-0.5 mb-1.5">
-                        {[1,2,3,4,5].map(s => (
-                          <Star key={s} className={`h-3 w-3 ${s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
-                        ))}
-                      </div>
-                      {r.comment && (
-                        <p className="text-[12px] text-gray-600 leading-relaxed">&quot;{r.comment}&quot;</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="order-2 lg:order-1 space-y-4 sm:space-y-6 min-w-0">
+            <About name={tutor.name} bio={tutor.bio} />
+            <Packages items={packageItems} currency={tutor.currency} />
+            <Reviews
+              name={tutor.name}
+              rating={rating}
+              reviewCount={reviewCount}
+              isNew={isNew}
+              joined={joinedLabel(tutor.created_at)}
+              items={reviews.map(r => ({ id: r.id, rating: r.rating, comment: r.comment, created_at: r.created_at, lessonsWithTutor: r.student_id ? lessonsBy.get(r.student_id) ?? 0 : 0 }))}
+            />
+            <Policy name={tutor.name} cancelHours={cancelHours} durations={lengths.durations} />
+            <Faq items={faq} />
           </div>
-
-          {/* Right: Booking Form */}
-          <BookingForm
-            tutor={tutor}
-            cardCheckoutEnabled={isStripeEnabled()}
-            availability={availability ?? []}
-            subscriptionPlans={subscriptionPlans}
-            contractTemplate={(tutor as any).contract_template ?? null}
-            blockedDates={blockedDates}
-            packages={packages}
-            trialEnabled={(tutor as any).trial_enabled ?? false}
-            trialPrice={(tutor as any).trial_price ?? null}
-            tutorSlug={slug}
-            durations={lengths.durations}
-            defaultDuration={lengths.defaultDuration}
-            prefillName={prefillName}
-            prefillEmail={prefillEmail}
-          />
         </div>
       </main>
       <MadeWithTutafy show={showMadeWith} surface="booking-page" />
+      <MobileBookBar priceText={price} />
     </div>
   )
 }

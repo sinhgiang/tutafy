@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import type { WindowWithWebkitAudio } from '@/types/audio'
 
 type Message = {
   id: string
@@ -34,7 +35,7 @@ export function ChatPanel({
   function getAudioCtx(): AudioContext | null {
     try {
       if (!audioCtxRef.current) {
-        const AC = window.AudioContext || (window as any).webkitAudioContext
+        const AC = window.AudioContext || (window as WindowWithWebkitAudio).webkitAudioContext
         if (!AC) return null
         audioCtxRef.current = new AC()
       }
@@ -143,7 +144,7 @@ export function ChatPanel({
       window.removeEventListener('focus', onFocus)
       document.removeEventListener('visibilitychange', onFocus)
     }
-  }, [studentId])
+  }, [studentId]) // eslint-disable-line react-hooks/exhaustive-deps -- playDing only touches refs, so the copy from the first render is always right; listing it would restart the poll on every render
 
   async function send() {
     const text = input.trim()
@@ -247,6 +248,7 @@ export function ChatPanel({
       {/* Input */}
       <div className="border-t border-gray-100 p-3 flex items-end gap-2 flex-shrink-0">
         <textarea
+          aria-label="Message"
           ref={textareaRef}
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -257,7 +259,7 @@ export function ChatPanel({
           style={{ lineHeight: '1.5' }}
         />
         <button
-          onClick={send}
+          onClick={send} aria-label="Send message"
           disabled={!input.trim() || sending}
           className="w-9 h-9 flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl transition-colors flex-shrink-0"
         >

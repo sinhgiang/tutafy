@@ -1,19 +1,37 @@
 import { cache } from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { tutorMetadata, tutorNotFoundMetadata } from '@/lib/page-meta'
-import { tutorJsonLd } from '@/lib/tutor-seo'
+import { tutorJsonLd, httpsImage } from '@/lib/tutor-seo'
 import { jsonLdScript } from '@/lib/seo'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
+import { loadShowMadeWith } from '@/lib/branding'
+import { loadPublicTutor } from '@/lib/public-tutor'
+import { PROFILE_PAGE_COLUMNS } from '@/lib/public-tutor-columns'
+import { loadFreeTimes, loadReviewLessonCounts, type ReadClient } from '@/lib/profile-data'
+import {
+  bioParagraphs, firstNameOf, hasTrial, initialsOf, joinedLabel, priceLabel, profileNotes, reviewText, safeZone, usableReviews,
+} from '@/lib/tutor-profile'
+import { MadeWithTutafy } from '@/components/MadeWithTutafy'
+import { ReviewsSection } from '@/components/profile/ReviewsSection'
+import { reviewsFlowOn } from '@/lib/reviews-flow'
+import { countLessonsHeld, loadProfileReviews, type FlowClient } from '@/lib/reviews-data'
+import { NextTimes, FreeTimesSection, StickyBookBar } from '@/components/profile/FreeTimes'
+import { IntroVideo } from '@/components/profile/IntroVideo'
+import { EstablishedName } from '@/components/profile/EstablishedBadge'
+import { loadEstablished, loadIntroVideos, type ExtrasClient } from '@/lib/established-data'
+import { profileFaq, profileFaqJsonLd, profileSummary } from '@/lib/profile-answers'
+import { TRIAL_MINUTES, TRIAL_NAME } from '@/lib/trial'
 import Link from 'next/link'
 import { SiteFooter } from '@/components/SiteFooter'
-import { GraduationCap, Globe, Clock, Star, BookOpen, MessageCircle, ArrowRight, CheckCircle } from 'lucide-react'
+import { Globe, Star, Sparkles, Languages, BookOpen, Check, Video, RefreshCw, Zap, Clock, ArrowRight } from 'lucide-react'
+import { SiteLogo } from '@/components/SiteLogo'
 
 function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }) {
   const cls = size === 'md' ? 'h-4 w-4' : 'h-3.5 w-3.5'
   return (
-    <div className="flex gap-0.5">
+    <div className="flex gap-0.5" role="img" aria-label={`Rated ${Number(rating).toFixed(1)} out of 5`}>
       {[1,2,3,4,5].map(s => (
         <Star key={s} className={`${cls} ${s <= Math.round(rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
       ))}
@@ -21,14 +39,13 @@ function StarRow({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' }
   )
 }
 
-// One read of the tutor per request, shared by the page and its metadata.
+// One read of the tutor per request, shared by the page and its metadata. Read on the server with the admin client, only the public
+// columns (T-0774); a tutor whose page is off is found only by that tutor themselves, signed in (their own preview), as the old policy did.
+const getViewerId = cache(async (): Promise<string | null> => {
+  try { return (await (await createClient()).auth.getUser()).data.user?.id ?? null } catch { return null }
+})
 const getTutor = cache(async (slug: string) => {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('tutors')
-    .select('id, name, bio, avatar_url, timezone, languages, slug, average_rating, review_count, default_lesson_price, booking_url_active, cancellation_hours, trial_enabled, trial_price')
-    .eq('slug', slug)
-    .single()
+  const data = await loadPublicTutor(createAdminClient(), slug, PROFILE_PAGE_COLUMNS, await getViewerId())
   return data
 })
 
@@ -41,6 +58,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return tutor ? tutorMetadata(tutor) : tutorNotFoundMetadata()
 }
 
+const CARD = 'bg-white rounded-2xl border border-gray-100 shadow-sm'
+const H2 = 'text-[18px] font-bold text-gray-900'
+
 export default async function TutorProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
@@ -49,54 +69,123 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
 
   if (!tutor) notFound()
 
-  const initials = tutor.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+  const first = firstNameOf(tutor.name)
+  const tutorTz = safeZone(tutor.timezone)
+  const bookHref = `/book/${slug}`
+  const bookable = !!tutor.booking_url_active
+
+  const admin = createAdminClient()
+
+  // The admin client reads what a visitor's key cannot: the tutor (T-0774), the blocked days, the lessons. A failed read there means no times and no lesson counts.
+  const getAdmin = () => admin as unknown as ReadClient
+
+  // Everything below needs only the tutor, so the four chains of reads run together (T-0896: about nine reads one after the other became
+  // a chain of four). Each chain keeps its own order and its own "a failed read is not a failure of the page" rule.
 
   // The lesson lengths this tutor takes (T-0698): the same two columns as the booking page, read apart from the rest so a
-  // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths.
-  const chosen = await loadChosenDurations(supabase, tutor.id)
-  const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
+  // database without them still works; a tutor who chose nothing keeps the old sentence, all four lengths. The free times use the default length.
+  const readLengthsAndTimes = async () => {
+    const chosen = await loadChosenDurations(admin, tutor.id)
+    const lengths = resolveDurationConfig(chosen.lesson_durations, chosen.default_lesson_duration)
+    const times = bookable
+      ? await loadFreeTimes(supabase as unknown as ReadClient, getAdmin, tutor, lengths.defaultDuration)
+      : { slots: [], state: 'unknown' as const }
+    return { lengths, times }
+  }
 
-  let reviews: any[] = []
-  try {
-    const { data } = await supabase
-      .from('reviews')
-      .select('id, rating, comment, created_at')
-      .eq('tutor_id', tutor.id)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false })
-      .limit(6)
-    reviews = data ?? []
-  } catch {}
+  // Public reviews: the newest 100 (the page shows six, the structured data ten), and only rows with a real 1-5 rating.
+  const readReviews = async () => {
+    let reviews: { id: string; rating: number; comment: string | null; created_at: string; student_id: string | null }[] = []
+    try {
+      const { data } = await supabase
+        .from('reviews')
+        .select('id, rating, comment, created_at, student_id')
+        .eq('tutor_id', tutor.id)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(100)
+      reviews = usableReviews(data ?? [])
+    } catch {}
+    const shown = reviews.slice(0, 6)
+    const lessonsBy = await loadReviewLessonCounts(getAdmin, tutor.id, shown.map(r => r.student_id ?? ''))
+    return { shown, lessonsBy }
+  }
 
-  let lessonCount = 0
-  try {
-    const { count } = await supabase
-      .from('lessons')
-      .select('id', { count: 'exact', head: true })
-      .eq('tutor_id', tutor.id)
-      .eq('status', 'completed')
-    lessonCount = count ?? 0
-  } catch {}
+  const readLessonCount = async () => {
+    try {
+      const { count } = await supabase
+        .from('lessons')
+        .select('id', { count: 'exact', head: true })
+        .eq('tutor_id', tutor.id)
+        .eq('status', 'completed')
+      return count ?? 0
+    } catch {
+      return 0
+    }
+  }
+
+  // The intro video and the "Established" badge (T-0915) each need the migration 028, which the owner applies: both reads give "none" on a database
+  // that does not have it, or when a read fails, so a missing extra never takes the profile down and never shows a badge that was not earned.
+  const readExtras = async () => {
+    const [videos, established] = await Promise.all([
+      loadIntroVideos(admin as unknown as ExtrasClient, [tutor.id]),
+      loadEstablished(admin as unknown as ExtrasClient, [tutor], new Date()),
+    ])
+    return { video: videos.get(tutor.id) ?? null, badge: established.get(tutor.id) ?? null }
+  }
+
+  const [{ lengths, times }, { shown, lessonsBy }, lessonCount, showMadeWith, { video, badge }] = await Promise.all([
+    readLengthsAndTimes(),
+    readReviews(),
+    readLessonCount(),
+    // the small "Made with Tutafy" line: Free tutors always, paid tutors unless they turned it off (src/lib/branding.ts)
+    loadShowMadeWith(admin, tutor.id),
+    readExtras(),
+  ])
+
+  // The new review flow (T-0898), only while REVIEWS_FLOW is on: the reviews with names as "Maria K.", the summary card, the lessons that took place and
+  // (for the signed-in tutor of this page) the one-time answer box. Off, none of this is read and the page is what it was.
+  const flowOn = reviewsFlowOn()
+  const flowReviews = flowOn ? await loadProfileReviews(admin as unknown as FlowClient, tutor.id) : null
+  const lessonsTaught = flowOn ? await countLessonsHeld(admin as unknown as FlowClient, tutor.id, new Date()) : 0
+  const canReply = flowOn && (await getViewerId()) === tutor.id
+
+  const photo = httpsImage(tutor.avatar_url)
+  const reviewCount = Number(tutor.review_count ?? 0)
+  const hasReviews = reviewCount > 0 && shown.length > 0
+  const isNew = !hasReviews && lessonCount === 0
+  const joined = joinedLabel(tutor.created_at)
+  const about = bioParagraphs(tutor.bio)
+  const price = priceLabel(tutor.default_lesson_price, tutor.currency)
+  const trial = hasTrial(tutor)
+  const trialPrice = trial ? priceLabel(tutor.trial_price, tutor.currency) : null
+  const notes = profileNotes(tutor, lengths.durations)
+  const cancelHours = Number(tutor.cancellation_hours)
+  const freeCancel = Number.isFinite(cancelHours) && cancelHours > 0
+  const languages: string[] = Array.isArray(tutor.languages) ? tutor.languages.filter((l: unknown): l is string => typeof l === 'string' && l.trim() !== '') : []
+  const timesProps = { slots: times.slots, state: times.state, tutorTz, bookHref, first }
+  const noteIcon = { lessons: Clock, cancel: RefreshCw, trial: Zap, video: Video } as const
+  // The first sentence of the profile and the questions (T-0915): the same list is drawn and put in the FAQPage markup.
+  const summary = profileSummary({ ...tutor, durations: lengths.durations })
+  const faq = profileFaq({ ...tutor, durations: lengths.durations, bookable, established: !!badge, video: video?.provider ?? null })
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]">
-      {tutor.booking_url_active && tutorJsonLd(tutor).map((data, i) => (
+    <div className="min-h-screen bg-[#F7F8FA] pb-24 lg:pb-0 dir-page">
+      {tutor.booking_url_active && tutorJsonLd({ ...tutor, reviews: shown }).map((data, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(data) }} />
       ))}
+      {bookable && faq.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(profileFaqJsonLd(faq, slug)) }} />
+      )}
       {/* Nav */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center">
-              <GraduationCap className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-[15px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo size="md" />
           <div className="flex items-center gap-3">
             <Link href="/tutors" className="text-[13px] text-gray-500 hover:text-gray-800 transition-colors">All tutors</Link>
-            {tutor.booking_url_active && (
-              <Link href={`/book/${slug}`}
-                className="text-[13px] font-semibold text-white bg-indigo-500 hover:bg-indigo-600 transition-colors px-4 py-2 rounded-lg">
+            {bookable && (
+              <Link href={bookHref}
+                className="hidden sm:inline-flex text-[13px] font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors px-4 py-2 rounded-lg">
                 Book a lesson
               </Link>
             )}
@@ -104,147 +193,226 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
+      <div className="max-w-5xl mx-auto px-4 py-6 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start">
 
-          {/* Left — Main profile */}
-          <div className="space-y-6">
+          {/* Left: the profile */}
+          <div className="space-y-5 min-w-0">
+            {/* Intro video first (T-0915, design A): a poster until the visitor presses play */}
+            {video && <IntroVideo embedUrl={video.embedUrl} watchUrl={video.watchUrl} provider={video.provider} name={tutor.name} first={first} />}
             {/* Hero */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row gap-5 items-start">
-                <div className="w-20 h-20 rounded-2xl bg-indigo-100 flex items-center justify-center flex-shrink-0 ring-4 ring-indigo-50">
-                  {tutor.avatar_url ? (
-                    <img src={tutor.avatar_url} alt={tutor.name} className="w-20 h-20 rounded-2xl object-cover" />
-                  ) : (
-                    <span className="text-2xl font-bold text-indigo-600">{initials}</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h1 className="text-[24px] font-bold text-gray-900">{tutor.name}</h1>
-                  {tutor.languages?.length > 0 && (
-                    <p className="text-[14px] text-indigo-600 font-medium mt-1">
-                      Teaches: {tutor.languages.join(' · ')}
-                    </p>
-                  )}
-                  {(tutor.review_count ?? 0) > 0 && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <StarRow rating={tutor.average_rating ?? 0} size="md" />
-                      <span className="text-[14px] font-bold text-gray-800">{Number(tutor.average_rating ?? 0).toFixed(1)}</span>
-                      <span className="text-[13px] text-gray-500">({tutor.review_count} reviews)</span>
-                    </div>
-                  )}
-                  <div className="flex flex-wrap gap-3 mt-3">
-                    {tutor.timezone && (
-                      <span className="flex items-center gap-1.5 text-[12px] text-gray-500">
-                        <Globe className="h-3.5 w-3.5 text-gray-500" /> {tutor.timezone}
-                      </span>
-                    )}
-                    {lessonCount > 0 && (
-                      <span className="flex items-center gap-1.5 text-[12px] text-gray-500">
-                        <BookOpen className="h-3.5 w-3.5 text-gray-500" /> {lessonCount} lessons taught
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {tutor.bio && (
-                <div className="mt-5 pt-5 border-t border-gray-50">
-                  <p className="text-[14px] text-gray-600 leading-relaxed">{tutor.bio}</p>
+            <section className={`${CARD} p-5 sm:p-6 flex flex-col sm:flex-row gap-5`} data-testid="profile-hero">
+              {photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={photo} alt={`Photo of ${tutor.name}`} width={160} height={200} fetchPriority="high" decoding="async" data-testid="profile-photo"
+                  className="w-32 sm:w-40 aspect-[4/5] rounded-2xl object-cover shrink-0 self-start bg-indigo-50" />
+              ) : (
+                <div role="img" aria-label={`${tutor.name} has not added a photo yet`} data-testid="profile-monogram"
+                  className="w-32 sm:w-40 aspect-[4/5] rounded-2xl shrink-0 self-start bg-indigo-100 text-indigo-700 flex items-center justify-center text-[36px] font-bold">
+                  {initialsOf(tutor.name)}
                 </div>
               )}
-            </div>
-
-            {/* What you get */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <h2 className="text-[16px] font-bold text-gray-900 mb-4">What to expect</h2>
-              <div className="space-y-3">
-                {[
-                  'Personalized 1-on-1 lesson tailored to your level',
-                  'Flexible scheduling — book any available slot',
-                  'Video lesson via Jitsi Meet — link generated after booking (no download required)',
-                  tutor.cancellation_hours > 0 ? `Free cancellation up to ${tutor.cancellation_hours}h before lesson` : 'Flexible cancellation policy',
-                  (tutor as any).trial_enabled && (tutor as any).trial_price ? `Trial lesson available at $${Number((tutor as any).trial_price).toFixed(2)}` : null,
-                ].filter(Boolean).map((item, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                    <p className="text-[13px] text-gray-700">{item as string}</p>
+              <div className="min-w-0 flex-1">
+                {badge ? (
+                  <EstablishedName name={tutor.name} checks={badge.checks} />
+                ) : (
+                  <h1 className="text-[28px] sm:text-[32px] leading-tight font-extrabold text-gray-900 tracking-tight break-words">{tutor.name}</h1>
+                )}
+                {hasReviews ? (
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2" data-testid="profile-rating">
+                    <StarRow rating={Number(tutor.average_rating ?? 0)} size="md" />
+                    <span className="text-[14px] font-bold text-gray-900">{Number(tutor.average_rating ?? 0).toFixed(1)}</span>
+                    <span className="text-[13px] text-gray-600">({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})</span>
+                    {lessonCount > 0 && <span className="text-[13px] text-gray-600 sm:before:content-['·'] sm:before:mr-2">{lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'} taught</span>}
                   </div>
-                ))}
+                ) : isNew ? (
+                  <p className="mt-2" data-testid="profile-new">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-[12.5px] font-semibold text-indigo-800">
+                      <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> New on Tutafy{joined ? ` · joined ${joined}` : ''}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="mt-2 text-[13px] text-gray-600 flex items-center gap-1.5"><BookOpen className="h-3.5 w-3.5" aria-hidden="true" /> {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'} taught</p>
+                )}
+                <p className="mt-3 text-[14px] leading-relaxed text-gray-700" data-testid="profile-summary">{summary}</p>
+                <ul className="mt-4 space-y-1.5 text-[13.5px] text-gray-700">
+                  {languages.length > 0 && (
+                    <li className="flex items-center gap-2"><Languages className="h-4 w-4 text-gray-500 shrink-0" aria-hidden="true" /> <span><span className="sr-only">Teaches: </span>Teaches {languages.join(' · ')}</span></li>
+                  )}
+                  <li className="flex items-center gap-2"><Globe className="h-4 w-4 text-gray-500 shrink-0" aria-hidden="true" /> <span>Time zone: {tutorTz}</span></li>
+                </ul>
+                {(trial || freeCancel) && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {trial && trialPrice && <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12.5px] font-semibold text-emerald-800"><Zap className="h-3.5 w-3.5" aria-hidden="true" /> {TRIAL_NAME} {trialPrice}</span>}
+                    {freeCancel && <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-[12.5px] font-semibold text-indigo-800"><RefreshCw className="h-3.5 w-3.5" aria-hidden="true" /> Free cancellation up to {cancelHours}h</span>}
+                  </div>
+                )}
               </div>
-            </div>
+            </section>
+
+            {/* About: only when the tutor wrote something */}
+            {about.length > 0 && (
+              <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="about-title" data-testid="profile-about">
+                <h2 id="about-title" className={H2}>About {first}</h2>
+                <div className="mt-3 space-y-3 text-[15px] leading-relaxed text-gray-700">
+                  {about.map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}
+                </div>
+              </section>
+            )}
+
+            {/* Lessons and prices: only what the tutor has set */}
+            {(price || trialPrice) && (
+              <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="prices-title" data-testid="profile-prices">
+                <h2 id="prices-title" className={H2}>Lessons and prices</h2>
+                <ul className="mt-2 divide-y divide-gray-100">
+                  {trialPrice && (
+                    <li className="flex items-start justify-between gap-4 py-3">
+                      <div>
+                        <p className="text-[15px] font-bold text-gray-900">Trial lesson <span className="ml-1 align-middle rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800">First lesson only</span></p>
+                        <p className="text-[13px] text-gray-600 mt-0.5">{TRIAL_MINUTES} minutes to meet {first} and agree on a plan.</p>
+                      </div>
+                      <p className="text-[18px] font-extrabold text-gray-900 shrink-0">{trialPrice}</p>
+                    </li>
+                  )}
+                  {price && (
+                    <li className="flex items-start justify-between gap-4 py-3">
+                      <div>
+                        <p className="text-[15px] font-bold text-gray-900">Lesson</p>
+                        <p className="text-[13px] text-gray-600 mt-0.5">{describeDurations(lengths.durations)}. One price for every length.</p>
+                      </div>
+                      <p className="text-[18px] font-extrabold text-gray-900 shrink-0">{price}</p>
+                    </li>
+                  )}
+                </ul>
+              </section>
+            )}
 
             {/* Reviews */}
-            {reviews.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <h2 className="text-[16px] font-bold text-gray-900">Student reviews</h2>
-                  <span className="text-[12px] text-gray-500">{tutor.review_count} total</span>
+            <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="reviews-title" id="reviews" data-testid="profile-reviews">
+              <h2 id="reviews-title" className={H2}>Reviews</h2>
+              {flowReviews && flowReviews.summary.count > 0 ? (
+                <ReviewsSection summary={flowReviews.summary} reviews={flowReviews.reviews} lessonsTaught={lessonsTaught} first={first} now={new Date()} canReply={canReply} />
+              ) : hasReviews ? (
+                <div className="mt-4">
+                  <div className="flex items-center gap-4">
+                    <p className="text-[40px] leading-none font-extrabold text-gray-900">{Number(tutor.average_rating ?? 0).toFixed(1)}</p>
+                    <div>
+                      <StarRow rating={Number(tutor.average_rating ?? 0)} size="md" />
+                      <p className="text-[13px] text-gray-600 mt-1">{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</p>
+                    </div>
+                  </div>
+                  <div className="mt-5 grid grid-cols-1 gap-3">
+                    {shown.map(r => {
+                      const text = reviewText(r.comment)
+                      const lessons = r.student_id ? lessonsBy.get(r.student_id) ?? 0 : 0
+                      return (
+                        <article key={r.id} className="rounded-xl bg-gray-50 p-4" data-testid="profile-review">
+                          <StarRow rating={r.rating} />
+                          {text && <p className="mt-2 text-[14px] leading-relaxed text-gray-700">&quot;{text}&quot;</p>}
+                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <p className="text-[12px] text-gray-500">{new Date(r.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' })}</p>
+                            {lessons > 0 && (
+                              <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-800" data-testid="review-lessons">
+                                <Check className="h-3.5 w-3.5" aria-hidden="true" /> {lessons} {lessons === 1 ? 'lesson' : 'lessons'} with {first}
+                              </span>
+                            )}
+                          </div>
+                        </article>
+                      )
+                    })}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {reviews.map(r => (
-                    <div key={r.id} className="bg-gray-50 rounded-xl p-4">
-                      <StarRow rating={r.rating} />
-                      {r.comment && (
-                        <p className="text-[13px] text-gray-600 mt-2 leading-relaxed">&quot;{r.comment}&quot;</p>
-                      )}
-                      <p className="text-[10px] text-gray-500 mt-2">
-                        {new Date(r.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      </p>
+              ) : (
+                <div className="mt-3 flex items-start gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-4" data-testid="profile-no-reviews">
+                  <Star className="h-5 w-5 text-indigo-600 shrink-0 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <p className="text-[14px] font-bold text-gray-900">No reviews yet</p>
+                    <p className="text-[13px] text-gray-700 mt-0.5">{isNew && joined ? `${first} joined Tutafy in ${joined}. ` : ''}Reviews from {first}&apos;s students show up here after their lessons.</p>
+                    {bookable && <Link href={bookHref} className="mt-3 inline-flex items-center h-10 px-4 text-[13px] font-semibold text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-50 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">Book a lesson</Link>}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Free times in the visitor's own time zone */}
+            {bookable && <FreeTimesSection {...timesProps} />}
+
+            {/* How booking works, with this tutor's own terms */}
+            <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="how-title" data-testid="profile-how">
+              <h2 id="how-title" className={H2}>How booking works</h2>
+              <ol className="mt-3 space-y-3">
+                {[['Choose a time', 'Times are shown in your own time zone.'], ['Enter your name and email', 'No account, no password.'], ['Get your confirmation', 'It has the lesson link and a cancel link.']].map(([t, d], i) => (
+                  <li key={t} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-700 text-[12px] font-bold flex items-center justify-center shrink-0" aria-hidden="true">{i + 1}</span>
+                    <p className="text-[14px] text-gray-700"><b className="text-gray-900">{t}.</b> {d}</p>
+                  </li>
+                ))}
+              </ol>
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {notes.map(n => {
+                  const Icon = noteIcon[n.id]
+                  return (
+                    <div key={n.id} className="rounded-xl bg-gray-50 p-4" data-testid={`note-${n.id}`}>
+                      <h3 className="flex items-center gap-1.5 text-[13px] font-bold text-gray-900"><Icon className="h-4 w-4 text-indigo-600" aria-hidden="true" /> {n.title}</h3>
+                      <p className="text-[13px] text-gray-700 mt-1">{n.text}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </section>
+
+            {/* Questions people ask (T-0915): the same list is in the FAQPage markup at the top of the page */}
+            {bookable && faq.length > 0 && (
+              <section className={`${CARD} p-5 sm:p-6`} aria-labelledby="faq-title" data-testid="profile-faq">
+                <h2 id="faq-title" className={H2}>Questions about {first}</h2>
+                <dl className="mt-3 divide-y divide-gray-100">
+                  {faq.map(item => (
+                    <div key={item.q} className="py-3 first:pt-0 last:pb-0">
+                      <dt className="text-[14px] font-bold text-gray-900">{item.q}</dt>
+                      <dd className="mt-1 text-[14px] leading-relaxed text-gray-700">{item.a}</dd>
                     </div>
                   ))}
-                </div>
-              </div>
+                </dl>
+              </section>
             )}
           </div>
 
-          {/* Right — Booking CTA */}
-          <div className="lg:sticky lg:top-24 space-y-4">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              {tutor.default_lesson_price && (
-                <div className="mb-4">
-                  <p className="text-[13px] text-gray-500">Starting from</p>
-                  <p className="text-[28px] font-black text-gray-900">${Number(tutor.default_lesson_price).toFixed(0)}<span className="text-[14px] font-normal text-gray-500">/lesson</span></p>
-                  {(tutor as any).trial_enabled && (tutor as any).trial_price && (
-                    <p className="text-[12px] text-emerald-600 font-medium mt-1">
-                      Trial lesson: ${Number((tutor as any).trial_price).toFixed(0)}
-                    </p>
-                  )}
-                </div>
+          {/* Right: the booking card (wide screens; on a phone the bar at the bottom does this job) */}
+          <aside className="hidden lg:block lg:sticky lg:top-24" aria-label={`Book ${first}`}>
+            <div className={`${CARD} p-6`} data-testid="booking-card">
+              {price && (
+                <p className="text-[32px] leading-none font-extrabold text-gray-900">{price}<span className="ml-1.5 text-[14px] font-normal text-gray-600">/ lesson</span></p>
               )}
-
-              <div className="space-y-2.5 mb-5">
-                <div className="flex items-center gap-2 text-[13px] text-gray-600">
-                  <Clock className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-                  {describeDurations(lengths.durations)}
-                </div>
-                <div className="flex items-center gap-2 text-[13px] text-gray-600">
-                  <MessageCircle className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-                  Free cancellation (policy applies)
-                </div>
-              </div>
-
-              {tutor.booking_url_active ? (
-                <Link href={`/book/${slug}`}
-                  className="flex items-center justify-center gap-2 w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white text-[14px] font-bold rounded-xl transition-colors">
-                  Book a lesson <ArrowRight className="h-4 w-4" />
-                </Link>
+              {trialPrice && (
+                <p className="mt-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12.5px] font-semibold text-emerald-800"><Zap className="h-3.5 w-3.5" aria-hidden="true" /> {TRIAL_NAME} {trialPrice} · first lesson only</span></p>
+              )}
+              <p className="mt-4 flex items-center gap-2 text-[13px] text-gray-700"><Clock className="h-4 w-4 text-gray-500 shrink-0" aria-hidden="true" /><span>{describeDurations(lengths.durations)}</span></p>
+              {bookable ? (
+                <>
+                  <NextTimes {...timesProps} />
+                  <Link href={bookHref} data-testid="book-button"
+                    className="mt-5 flex items-center justify-center gap-2 w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white text-[15px] font-bold rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+                    Book a lesson <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                  <ul className="mt-4 space-y-2 text-[13px] text-gray-700">
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" /> No account needed</li>
+                    {freeCancel && <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" /> Free cancellation up to {cancelHours} hours before</li>}
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-600 shrink-0" aria-hidden="true" /> Video lesson in your browser</li>
+                  </ul>
+                </>
               ) : (
-                <div className="text-center py-3 bg-gray-100 rounded-xl text-[13px] text-gray-500">
-                  Booking currently unavailable
+                <div className="mt-4 rounded-xl bg-gray-100 p-4 text-[13px] text-gray-700" data-testid="booking-closed">
+                  <b className="text-gray-900">Booking currently unavailable.</b> {first} is not taking new bookings right now. You can still read the profile and reviews.
                 </div>
               )}
             </div>
-
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
-              <p className="text-[12px] font-semibold text-indigo-900">No account needed</p>
-              <p className="text-[12px] text-indigo-700 mt-0.5">Book instantly — just your name and email. You&apos;ll get a confirmation with all details.</p>
-            </div>
-          </div>
+          </aside>
         </div>
       </div>
 
+      <MadeWithTutafy show={showMadeWith} surface="profile-page" />
       <SiteFooter />
+      {bookable && <StickyBookBar slots={times.slots} state={times.state} tutorTz={tutorTz} bookHref={bookHref} priceText={price ? `${price} / lesson${trialPrice ? ` · ${TRIAL_MINUTES}-min trial ${trialPrice}` : ''}` : null} buttonText={trialPrice ? 'Book trial' : 'Book a lesson'} />}
     </div>
   )
 }

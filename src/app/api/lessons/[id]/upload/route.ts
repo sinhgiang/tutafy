@@ -60,7 +60,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   if (!lesson) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
   const existing = Array.isArray(lesson.materials) ? lesson.materials : []
-  const updated = existing.filter((m: any) => m.url !== url)
+  const updated = existing.filter((m) => m.url !== url)
   await supabase.from('lessons').update({ materials: updated }).eq('id', lessonId)
 
   return NextResponse.json({ ok: true })

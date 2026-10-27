@@ -7,6 +7,14 @@
     {
       "path": "/api/cron/progress-reports",
       "schedule": "0 8 1 * *"
+    },
+    {
+      "path": "/api/cron/welcome-series",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/review-invites",
+      "schedule": "0 10 * * *"
     }
   ]
 }

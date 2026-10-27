@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -61,7 +62,7 @@ export default function NewLessonPage() {
       setOffered(chosenDurations((await loadChosenDurations(supabase, user.id)).lesson_durations))
     }
     load()
-  }, [])
+  }, [supabase])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -120,9 +121,9 @@ export default function NewLessonPage() {
   const inp = "w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors"
 
   return (
-    <div className="max-w-[660px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
-        <Link href="/lessons" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/lessons" aria-label="Back to lessons" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div>
@@ -161,7 +162,7 @@ export default function NewLessonPage() {
               <div>
                 <label className="block text-[11px] font-medium text-purple-600 mb-1">Max students</label>
                 <input
-                  type="number" min="2" max="20" value={form.group_max_students}
+                  aria-label="Max students" type="number" min="2" max="20" value={form.group_max_students}
                   onChange={e => setForm(f => ({ ...f, group_max_students: e.target.value }))}
                   className="w-24 text-[13px] px-2.5 py-1.5 rounded-lg border border-purple-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400"
                 />
@@ -171,12 +172,12 @@ export default function NewLessonPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Date & Time *</label>
-              <input type="datetime-local" required value={form.starts_at}
+              <input type="datetime-local" aria-label="Date and time" required value={form.starts_at}
                 onChange={e => setForm(f => ({ ...f, starts_at: e.target.value }))} className={inp} />
             </div>
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Price (USD)</label>
-              <input type="number" min="0" step="0.01" placeholder="0.00" value={form.price}
+              <input aria-label="Price (USD)" type="number" min="0" step="0.01" placeholder="0.00" value={form.price}
                 onChange={e => setForm(f => ({ ...f, price: e.target.value }))} className={inp} />
             </div>
           </div>
@@ -199,7 +200,7 @@ export default function NewLessonPage() {
             {form.recurrence !== 'none' && (
               <div>
                 <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Number of lessons</label>
-                <input type="number" min="2" max="52" value={form.occurrences}
+                <input aria-label="Number of lessons" type="number" min="2" max="52" value={form.occurrences}
                   onChange={e => setForm(f => ({ ...f, occurrences: e.target.value }))} className={inp} />
               </div>
             )}
@@ -217,7 +218,7 @@ export default function NewLessonPage() {
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Meeting Link</p>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Zoom link</label>
-            <input placeholder="https://zoom.us/j/..." value={form.zoom_link}
+            <input aria-label="Zoom link" placeholder="https://zoom.us/j/..." value={form.zoom_link}
               onChange={e => setForm(f => ({ ...f, zoom_link: e.target.value }))} className={inp} />
           </div>
           <div>
@@ -228,7 +229,7 @@ export default function NewLessonPage() {
                 <RefreshCw className="h-3 w-3" /> Auto-generate
               </button>
             </div>
-            <input placeholder="https://meet.google.com/..." value={form.meet_link}
+            <input aria-label="Google Meet link" placeholder="https://meet.google.com/..." value={form.meet_link}
               onChange={e => setForm(f => ({ ...f, meet_link: e.target.value }))} className={inp} />
           </div>
         </div>
@@ -237,12 +238,12 @@ export default function NewLessonPage() {
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Content</p>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Lesson notes</label>
-            <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3}
+            <textarea aria-label="Lesson notes" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3}
               placeholder="Topics to cover, lesson plan..." className={`${inp} resize-none`} />
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Homework</label>
-            <textarea value={form.homework} onChange={e => setForm(f => ({ ...f, homework: e.target.value }))} rows={2}
+            <textarea aria-label="Homework" value={form.homework} onChange={e => setForm(f => ({ ...f, homework: e.target.value }))} rows={2}
               placeholder="Assignment for the student..." className={`${inp} resize-none`} />
           </div>
         </div>
@@ -250,10 +251,10 @@ export default function NewLessonPage() {
         <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Materials & Resources</p>
           <div className="flex gap-2">
-            <input value={newMaterial} onChange={e => setNewMaterial(e.target.value)}
+            <input aria-label="Material URL or description" value={newMaterial} onChange={e => setNewMaterial(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addMaterial() } }}
               placeholder="URL or description" className={`flex-1 ${inp}`} />
-            <button type="button" onClick={addMaterial}
+            <button type="button" onClick={addMaterial} aria-label="Add material"
               className="px-3 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
               <Plus className="h-4 w-4" />
             </button>
@@ -271,9 +272,9 @@ export default function NewLessonPage() {
         <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Vocabulary List</p>
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
-            <input value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Word / phrase" className={inp} />
-            <input value={newDef} onChange={e => setNewDef(e.target.value)} placeholder="Definition / translation" className={inp} />
-            <button type="button" onClick={addVocab}
+            <input aria-label="Word or phrase" value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Word / phrase" className={inp} />
+            <input aria-label="Definition or translation" value={newDef} onChange={e => setNewDef(e.target.value)} placeholder="Definition / translation" className={inp} />
+            <button type="button" onClick={addVocab} aria-label="Add word"
               className="px-3 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
               <Plus className="h-4 w-4" />
             </button>
@@ -284,7 +285,7 @@ export default function NewLessonPage() {
                 <div key={i} className="flex items-center px-3 py-2 bg-white">
                   <span className="text-[13px] font-semibold text-gray-900 w-36 flex-shrink-0">{v.word}</span>
                   <span className="text-[12px] text-gray-500 flex-1">{v.def}</span>
-                  <button type="button" onClick={() => setVocab(vs => vs.filter((_, j) => j !== i))}>
+                  <button type="button" aria-label={`Remove ${v.word}`} onClick={() => setVocab(vs => vs.filter((_, j) => j !== i))}>
                     <X className="h-3.5 w-3.5 text-gray-300 hover:text-red-500" />
                   </button>
                 </div>
@@ -304,6 +305,6 @@ export default function NewLessonPage() {
           </button>
         </div>
       </form>
-    </div>
+    </PageColumn>
   )
 }

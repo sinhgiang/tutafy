@@ -56,15 +56,15 @@ const S = (n: number) => `20000000-0000-4000-8000-${String(n).padStart(12, '0')}
 function seed(extraPaidLessons = 0) {
   // every lesson says currency 'USD', as in the real database
   const lessons: Record<string, unknown>[] = [
-    { id: 'l1', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-01T10:00:00Z' },
-    { id: 'l2', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-02T10:00:00Z' },
-    { id: 'l3', tutor_id: T_VND, student_id: S(2), price: 500000, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-03T10:00:00Z' },
-    { id: 'l4', tutor_id: T_USD, student_id: S(3), price: 25, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-04T10:00:00Z' },
-    { id: 'l5', tutor_id: T_NONE, student_id: S(3), price: 10, currency: 'USD', payment_status: 'paid', starts_at: '2026-10-05T10:00:00Z' },
+    { id: 'l1', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-01T10:00:00Z' },
+    { id: 'l2', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-02T10:00:00Z' },
+    { id: 'l3', tutor_id: T_VND, student_id: S(2), price: 500000, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-03T10:00:00Z' },
+    { id: 'l4', tutor_id: T_USD, student_id: S(3), price: 25, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-04T10:00:00Z' },
+    { id: 'l5', tutor_id: T_NONE, student_id: S(3), price: 10, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-10-05T10:00:00Z' },
     { id: 'l6', tutor_id: T_EUR, student_id: S(1), price: 40, currency: 'USD', payment_status: 'pending', starts_at: '2026-10-06T10:00:00Z' },
   ]
   for (let i = 0; i < extraPaidLessons; i++) {
-    lessons.push({ id: `x${String(i).padStart(5, '0')}`, tutor_id: T_VND, student_id: S(2), price: 1000, currency: 'USD', payment_status: 'paid', starts_at: '2026-09-01T10:00:00Z' })
+    lessons.push({ id: `x${String(i).padStart(5, '0')}`, tutor_id: T_VND, student_id: S(2), price: 1000, currency: 'USD', payment_status: 'paid', status: 'completed', starts_at: '2026-09-01T10:00:00Z' })
   }
   return createFakeDb({
     tutors: [
@@ -122,7 +122,7 @@ test('a read error is an error, not an empty revenue page', async () => {
 // ---- every page that shows tutor money -------------------------------------------------------------------------
 
 const PAGES = [
-  'app/(dashboard)/dashboard/page.tsx', 'app/(dashboard)/payments/page.tsx', 'app/(dashboard)/reports/page.tsx',
+  'app/(dashboard)/dashboard/page.tsx', 'app/(dashboard)/earnings/page.tsx',
   'app/(dashboard)/calendar/page.tsx', 'app/(dashboard)/calendar/CalendarView.tsx', 'app/(admin)/admin/revenue/page.tsx',
   'lib/admin-revenue.ts', 'lib/tutor-currency.ts', 'app/book/[slug]/BookingForm.tsx',
 ]
@@ -135,9 +135,8 @@ test('no page reads lessons.currency or invoices.currency (nothing writes them),
     assert.ok(!/`\$\$\{|>\$\{|\{`\$`}|'\$'/.test(src.replace(/\/\*[\s\S]*?\*\//g, '')), `${f} writes a literal dollar sign before an amount`)
   }
   assert.ok(read('app/(dashboard)/dashboard/page.tsx').includes('symbolOf(tutor?.currency)'))
-  assert.ok(read('app/(dashboard)/payments/page.tsx').includes('loadTutorCurrency(supabase, user!.id)'))
-  assert.ok(read('app/(dashboard)/calendar/page.tsx').includes('loadTutorCurrency(supabase, user!.id)'))
-  assert.ok(read('app/(dashboard)/reports/page.tsx').includes("select('name, currency')"))
+  assert.ok(read('app/(dashboard)/earnings/page.tsx').includes('loadTutorCurrency(supabase, user.id)'))
+  assert.ok(read('app/(dashboard)/calendar/page.tsx').includes('loadTutorCurrency(supabase, user.id)'))
   assert.ok(read('app/(admin)/admin/revenue/page.tsx').includes('loadAdminRevenue('))
 })
 
@@ -151,6 +150,9 @@ test('the revenue page checks the admin itself before it creates the service-key
 })
 
 test('the embedded booking widget gets the tutor\'s currency too', () => {
-  assert.ok(/default_lesson_price, currency,/.test(read('app/embed/[slug]/page.tsx')))
-  assert.ok(/currency/.test(read('app/book/[slug]/page.tsx')) && /currency/.test(read('app/book/[slug]/[member]/page.tsx')))
+  // the pages read the tutor with the lists of src/lib/public-tutor-columns.ts (T-0774); the currency is in each of them
+  const cols = read('lib/public-tutor-columns.ts')
+  assert.ok(/EMBED_PAGE_COLUMNS = list\(\[[^\]]*'default_lesson_price', 'currency'/.test(cols), 'the embed list has the currency')
+  assert.ok(/BOOKING_PAGE_COLUMNS = list\(\[[^\]]*'currency'/.test(cols) && /MEMBER_PAGE_COLUMNS = list\(\[[^\]]*'currency'/.test(cols))
+  assert.ok(read('app/embed/[slug]/page.tsx').includes('EMBED_PAGE_COLUMNS') && read('app/book/[slug]/page.tsx').includes('BOOKING_PAGE_COLUMNS') && read('app/book/[slug]/[member]/page.tsx').includes('MEMBER_PAGE_COLUMNS'))
 })

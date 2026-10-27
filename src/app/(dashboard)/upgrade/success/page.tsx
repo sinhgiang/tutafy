@@ -1,3 +1,4 @@
+import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -32,7 +33,7 @@ export default async function UpgradeSuccessPage() {
   const firstName = tutor?.name?.split(' ')[0] ?? 'there'
 
   return (
-    <div className="max-w-lg mx-auto py-16 px-4">
+    <PageColumn size="form" className="py-16 px-4">
       {/* Auto-refresh once after 5s if the webhook hasn't landed yet */}
       {!upgraded && (
         <meta httpEquiv="refresh" content="5" />
@@ -82,8 +83,8 @@ export default async function UpgradeSuccessPage() {
       </div>
 
       <p className="text-[11px] text-gray-400 text-center mt-5">
-        If you still don't see the upgrade after 10 minutes, please email <ContactEmails linkClassName="underline" />
+        If you still don&apos;t see the upgrade after 10 minutes, please email <ContactEmails linkClassName="underline" />
       </p>
-    </div>
+    </PageColumn>
   )
 }

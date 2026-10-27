@@ -1,7 +1,8 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState } from 'react'
-import { Sparkles, BookOpen, FileText, MessageSquare, Wand2, Send, Loader2, TrendingUp, LayoutList, CheckSquare } from 'lucide-react'
+import { Sparkles, BookOpen, FileText, MessageSquare, Wand2, Loader2, TrendingUp, LayoutList, CheckSquare } from 'lucide-react'
 
 const TOOLS = [
   {
@@ -114,7 +115,7 @@ export function AiToolsClient() {
   }
 
   return (
-    <div className="space-y-6 max-w-[900px]">
+    <PageColumn size="list" className="space-y-6">
       <div>
         <h1 className="text-[22px] font-bold text-gray-900 tracking-tight flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-indigo-500" />
@@ -154,6 +155,7 @@ export function AiToolsClient() {
           <div className="p-5 space-y-4">
             {tool.multiline ? (
               <textarea
+                aria-label={tool.title}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 placeholder={tool.placeholder}
@@ -162,6 +164,7 @@ export function AiToolsClient() {
               />
             ) : (
               <input
+                aria-label={tool.title}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 placeholder={tool.placeholder}
@@ -201,6 +204,6 @@ export function AiToolsClient() {
           <p className="text-[12px] text-indigo-600 mt-1">Lesson plans, progress reports, flashcards, essay correction, and more — all in seconds.</p>
         </div>
       )}
-    </div>
+    </PageColumn>
   )
 }

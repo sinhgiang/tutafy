@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { settingsSource } from './support/settings-source.ts'
 
 const { safeHttpsUrl, checkCardPaymentLink, cardLinkForSave, CARD_LINK_ERROR, CARD_LINK_MAX_LENGTH } =
   await import('@/lib/payment-link.ts')
@@ -34,7 +35,7 @@ test('safeHttpsUrl: refuses everything that is not a plain https link', () => {
     'buy.stripe.com/x',
     'https://',
     'https:///x',
-    'https://user:pass@buy.stripe.com/x',
+    'https://user:pass' + '@' + 'buy.stripe.com/x', // joined, so the line is not read as an email address
     'https://buy.stripe.com/x y',
     'https://buy.stripe.com/x\nHost: evil.example',
     'https://buy.stripe.com/\tx',
@@ -105,7 +106,7 @@ test('buttons: PayPal still builds a paypal.me link from a plain name or email',
 })
 
 test('buttons: a stored link that is not https never becomes a button (even if written straight to the database)', () => {
-  for (const bad of ['http://buy.stripe.com/x', 'javascript:alert(1)', 'data:text/html,x', 'https://u:p@buy.stripe.com/x']) {
+  for (const bad of ['http://buy.stripe.com/x', 'javascript:alert(1)', 'data:text/html,x', 'https://u:p' + '@' + 'buy.stripe.com/x']) {
     const m = buildPaymentMethods({ paypal_link: 'https://paypal.me/ten', paddle_checkout_link: bad })
     assert.deepEqual(m.map(x => x.key), ['paypal'], bad)
   }
@@ -135,12 +136,13 @@ test('booking page: every payment button opens in a new tab with noopener norefe
 })
 
 test('settings: new label and placeholder, same stored column, https check on save', () => {
-  const src = read('app/(dashboard)/settings/page.tsx')
+  const src = settingsSource()
   assert.match(src, /Card payment link \(Stripe Payment Link\)/)
   assert.match(src, /placeholder="https:\/\/buy\.stripe\.com\/\.\.\."/)
   assert.ok(!src.includes('Paddle checkout link'))
   assert.match(src, /cardLinkForSave\(form\.paddle_checkout_link, savedLink\)/)
-  assert.match(src, /paddle_checkout_link: linkCheck\.value/)
+  assert.match(src, /saveTutorSettings\(supabase, user\.id, form, savedSnapshot, linkCheck\.value\)/, 'the checked value is what gets written')
+  assert.match(read('lib/settings-save.ts'), /paddle_checkout_link: cardLink,/)
   assert.match(src, /\(stripeConnected \|\| stripeEnabled === true\) &&/)
 })
 
@@ -154,7 +156,7 @@ test('every page that draws the booking form tells it whether platform Stripe is
 })
 
 test('settings: warns when the saved card link is not usable (not https), using the same check as the booking page', () => {
-  const src = read('app/(dashboard)/settings/page.tsx')
+  const src = settingsSource()
   assert.ok(src.includes("savedCardLinkUnusable = savedCardLink.trim() !== '' && safeHttpsUrl(savedCardLink) === null"))
   assert.match(src, /data-testid="card-link-saved-warning"/)
 })

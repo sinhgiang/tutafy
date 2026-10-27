@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -72,7 +73,7 @@ export default function EditLessonPage() {
       setLoading(false)
     }
     load()
-  }, [id])
+  }, [id, supabase])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -116,9 +117,9 @@ export default function EditLessonPage() {
   )
 
   return (
-    <div className="max-w-[660px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
-        <Link href={`/lessons/${id}`} className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href={`/lessons/${id}`} aria-label="Back to lesson" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div>
@@ -133,12 +134,12 @@ export default function EditLessonPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Date & Time</label>
-              <input type="datetime-local" value={form.starts_at}
+              <input type="datetime-local" aria-label="Date and time" value={form.starts_at}
                 onChange={e => setForm(f => ({ ...f, starts_at: e.target.value }))} className={inp} />
             </div>
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Price (USD)</label>
-              <input type="number" min="0" step="0.01" placeholder="0.00" value={form.price}
+              <input aria-label="Price (USD)" type="number" min="0" step="0.01" placeholder="0.00" value={form.price}
                 onChange={e => setForm(f => ({ ...f, price: e.target.value }))} className={inp} />
             </div>
           </div>
@@ -168,7 +169,7 @@ export default function EditLessonPage() {
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Meeting & Recording</p>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Zoom link</label>
-            <input placeholder="https://zoom.us/j/..." value={form.zoom_link}
+            <input aria-label="Zoom link" placeholder="https://zoom.us/j/..." value={form.zoom_link}
               onChange={e => setForm(f => ({ ...f, zoom_link: e.target.value }))} className={inp} />
           </div>
           <div>
@@ -179,12 +180,12 @@ export default function EditLessonPage() {
                 <RefreshCw className="h-3 w-3" /> Auto-generate
               </button>
             </div>
-            <input placeholder="https://meet.google.com/..." value={form.meet_link}
+            <input aria-label="Google Meet link" placeholder="https://meet.google.com/..." value={form.meet_link}
               onChange={e => setForm(f => ({ ...f, meet_link: e.target.value }))} className={inp} />
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Recording URL</label>
-            <input placeholder="https://... (Zoom recording, YouTube, etc.)" value={form.recording_url}
+            <input aria-label="Recording URL" placeholder="https://... (Zoom recording, YouTube, etc.)" value={form.recording_url}
               onChange={e => setForm(f => ({ ...f, recording_url: e.target.value }))} className={inp} />
           </div>
         </div>
@@ -193,12 +194,12 @@ export default function EditLessonPage() {
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Content</p>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Lesson notes</label>
-            <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3}
+            <textarea aria-label="Lesson notes" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3}
               placeholder="What was covered..." className={`${inp} resize-none`} />
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Homework</label>
-            <textarea value={form.homework} onChange={e => setForm(f => ({ ...f, homework: e.target.value }))} rows={2}
+            <textarea aria-label="Homework" value={form.homework} onChange={e => setForm(f => ({ ...f, homework: e.target.value }))} rows={2}
               placeholder="Assignment for the student..." className={`${inp} resize-none`} />
           </div>
         </div>
@@ -206,9 +207,9 @@ export default function EditLessonPage() {
         <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Vocabulary List</p>
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
-            <input value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Word / phrase" className={inp} />
-            <input value={newDef} onChange={e => setNewDef(e.target.value)} placeholder="Definition / translation" className={inp} />
-            <button type="button" onClick={addVocab}
+            <input aria-label="Word or phrase" value={newWord} onChange={e => setNewWord(e.target.value)} placeholder="Word / phrase" className={inp} />
+            <input aria-label="Definition or translation" value={newDef} onChange={e => setNewDef(e.target.value)} placeholder="Definition / translation" className={inp} />
+            <button type="button" onClick={addVocab} aria-label="Add word"
               className="px-3 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
               <Plus className="h-4 w-4" />
             </button>
@@ -219,7 +220,7 @@ export default function EditLessonPage() {
                 <div key={i} className="flex items-center px-3 py-2 bg-white">
                   <span className="text-[13px] font-semibold text-gray-900 w-36 flex-shrink-0">{v.word}</span>
                   <span className="text-[12px] text-gray-500 flex-1">{v.def}</span>
-                  <button type="button" onClick={() => setVocab(vs => vs.filter((_, j) => j !== i))}>
+                  <button type="button" aria-label={`Remove ${v.word}`} onClick={() => setVocab(vs => vs.filter((_, j) => j !== i))}>
                     <X className="h-3.5 w-3.5 text-gray-300 hover:text-red-500" />
                   </button>
                 </div>
@@ -239,6 +240,6 @@ export default function EditLessonPage() {
           </button>
         </div>
       </form>
-    </div>
+    </PageColumn>
   )
 }

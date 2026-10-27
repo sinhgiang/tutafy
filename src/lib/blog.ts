@@ -30,6 +30,8 @@
 //  - how-to-build-a-tutor-referral-program: operations/growth · axis = 5 best moments to ask · statCards + compare + calculator + 2× callout(warn/tip) + 3 inline images, NO prosCons
 //  - how-to-take-card-payments-with-a-stripe-payment-link: how-to · axis = 5 numbered steps (Stripe account → link → copy → paste → check) · statCards + compare + 2× callout(tip/info) + callout(warn) + 1 inline image (own Settings screenshot), NO calculator/prosCons
 
+import { RATES_SOURCE } from '@/lib/marketplace-rates'
+
 export type PostBlock =
   | { type: 'p'; text: string }
   | { type: 'h2'; text: string }
@@ -49,6 +51,8 @@ export type PostBlock =
   // scripts/fetch-inline-images.mjs. `credit` is shown as a small caption when
   // the license requires attribution. Rule: 3–7 relevant inline images per post.
   | { type: 'image'; src: string; alt: string; caption?: string; credit?: string }
+  // A small note under a platform's numbers: the day they were checked and links to the official pages (T-0962).
+  | { type: 'source'; text: string; links: { label: string; href: string }[] }
 
 export interface Post {
   slug: string
@@ -79,7 +83,7 @@ export function readingMinutes(post: Post): number {
   let words = 0
   for (const b of post.content) {
     if ('text' in b && b.text) words += b.text.split(/\s+/).length
-    if ('items' in b && Array.isArray((b as any).items)) words += (b as any).items.join(' ').split(/\s+/).length
+    if ('items' in b && Array.isArray(b.items)) words += b.items.join(' ').split(/\s+/).length
     if (b.type === 'faq') words += b.items.map(i => i.q + ' ' + i.a).join(' ').split(/\s+/).length
   }
   return Math.max(1, Math.round(words / 250))
@@ -230,6 +234,7 @@ export const POSTS: Post[] = [
     title: 'Preply, iTalki, or on your own? The real math for online tutors',
     description: 'Marketplaces bring students but take a commission on every lesson. Here is how to think about the trade-off — with the real numbers — and when going independent pays off.',
     date: '2026-07-07',
+    updated: '2026-10-25',
     category: 'Business',
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
@@ -250,7 +255,7 @@ export const POSTS: Post[] = [
       { type: 'h2', text: 'The three real costs of a marketplace' },
       { type: 'p', text: `Most tutors think of a marketplace as a single fee. It is actually three separate costs stacked on top of each other, and only one of them is obvious. Understanding all three is what makes the "should I stay or go" decision clear.` },
       { type: 'h3', text: 'Cost 1: the commission that grows with you' },
-      { type: 'p', text: `The visible cost is the percentage. Preply's commission typically starts around 33% for newer tutors and slides down toward 18% as you teach more hours; iTalki charges a flatter ~15%. The trap is that a percentage scales with your success — the better you do, the more you pay in absolute terms. A tutor earning $10,000 a year on a 25% platform pays $2,500; one earning $30,000 pays $7,500 for the same service. A flat tool does the opposite: it costs the same whether you bill $5,000 or $50,000, so every extra hour you teach is entirely yours.` },
+      { type: 'p', text: `The visible cost is the percentage. Preply's commission typically starts around 33% for newer tutors and slides down toward 18% as you teach more hours; iTalki charges 15–21% depending on the lesson type, and 0% on trial lessons. The trap is that a percentage scales with your success — the better you do, the more you pay in absolute terms. A tutor earning $10,000 a year on a 25% platform pays $2,500; one earning $30,000 pays $7,500 for the same service. A flat tool does the opposite: it costs the same whether you bill $5,000 or $50,000, so every extra hour you teach is entirely yours.` },
       { type: 'h3', text: 'Cost 2: the trial lessons you never get paid for' },
       { type: 'p', text: `On some marketplaces, your first lesson with a new student — the trial — earns you nothing, because the platform keeps 100% of it to fund its own marketing. If you take a lot of trials that do not convert, you are effectively working for free to feed the platform's funnel. On your own booking link, even a discounted trial is money in your pocket, and you decide whether to offer one at all.` },
       { type: 'h3', text: 'Cost 3: the relationship you do not own' },
@@ -264,16 +269,17 @@ export const POSTS: Post[] = [
       { type: 'h2', text: 'How the major platforms actually work' },
       { type: 'p', text: `The headline commission is not the whole story — trial-lesson rules, payout timing, audience and who controls the relationship all differ. Here is the honest shape of the main options, then a closer look at each.` },
       { type: 'compare', caption: 'Commission and ownership across common options (ranges; check each platform for current terms).', headers: ['', 'Preply', 'iTalki', 'On your own (Tutafy)'], rows: [
-        ['Commission on your income', '~18–33%', '~15%', '0%'],
-        ['First / trial lesson', 'Platform keeps 100%', 'Reduced/limited', 'You keep 100%'],
+        ['Commission on your income', '~18–33%', '15–21%', '0%'],
+        ['First / trial lesson', 'Platform keeps 100%', '0% commission', 'You keep 100%'],
         ['You own the student', false, false, true],
         ['Built-in video classroom', true, true, true],
         ['Flat monthly price', false, false, '$0–$29'],
       ] },
+      RATES_SOURCE,
       { type: 'h3', text: 'Preply' },
-      { type: 'p', text: `The largest language marketplace, with strong search traffic and a big student base. Its commission is the steepest of the mainstream options — starting near 33% and sliding down with hours taught — and it keeps 100% of trial lessons. Great for discovery; expensive to stay on once you have regulars.` },
+      { type: 'p', text: `The largest language marketplace, with strong search traffic and a big student base. Its commission is the steepest of the mainstream options — starting near 33% and sliding down with hours taught — and it keeps 100% of the first (trial) lesson with each new student. Great for discovery; expensive to stay on once you have regulars.` },
       { type: 'h3', text: 'iTalki' },
-      { type: 'p', text: `Popular with language learners, with a flatter ~15% commission that is friendlier than Preply's starting rate. It still takes a percentage of everything you earn indefinitely, and the relationship still lives on the platform, but it is a lower-tax place to find students.` },
+      { type: 'p', text: `Popular with language learners, with a commission that depends on the lesson type — 21% on a single lesson, 19% to 15% on packages of 5 to 20 lessons, 30% on group classes and 0% on trial lessons — which for one-to-one lessons is friendlier than Preply's starting rate. It still takes a percentage of everything you earn indefinitely, and the relationship still lives on the platform, but it is a lower-tax place to find students.` },
       { type: 'h3', text: 'Wyzant, Superprof and others' },
       { type: 'p', text: `Wyzant (strong in the US, broad subjects) charges tutors a flat 25% and adds a fee on the student side too. Superprof uses a student-paid "pass" model rather than a per-lesson tutor commission. Cambly pays tutors per minute for on-demand English. Each has a different audience and economics — but the common thread is the same: they own the discovery and the relationship, and you rent access.` },
       { type: 'h2', text: 'What you give up by going independent (honestly)' },
@@ -341,7 +347,7 @@ export const POSTS: Post[] = [
       { type: 'p', text: `Preply and iTalki are excellent at discovery and expensive at everything else. For a new tutor, that trade can be worth it. For a tutor with loyal regulars, a percentage commission — plus the trial lessons taken and the relationship you do not own — quietly costs thousands a year for work the platform no longer does. The smart path is rarely all-or-nothing: keep a marketplace for finding new students, move your regulars to your own commission-free booking link, and watch your take-home rise without teaching a single extra hour. The students you earn should be yours to keep — and that is exactly what Tutafy is built to make easy, for free.` },
       { type: 'faq', items: [
         { q: 'How much commission does Preply take from tutors?', a: 'Preply keeps 100% of a student\'s first (trial) lesson, then a sliding commission that typically starts around 33% for new tutors and decreases toward roughly 18% as you teach more hours. Always check their current terms, as rates change.' },
-        { q: 'How much does iTalki take?', a: 'iTalki generally charges a flat commission of around 15% on lessons. It is lower than Preply\'s starting rate, but it is still a percentage of everything you earn on the platform, indefinitely.' },
+        { q: 'How much does iTalki take?', a: 'iTalki takes 15–21% of a one-to-one lesson depending on the lesson type (21% for a single lesson, 19% for a 5-lesson package, 17% for 10, 15% for 15 or 20), 30% on group classes and 0% on trial lessons (rates checked 25 Oct 2026). For one-to-one lessons that is lower than Preply\'s starting rate, but it is still a percentage of everything you earn on the platform, indefinitely.' },
         { q: 'Is it cheaper to teach independently?', a: 'Once you have regular students, almost always. A flat tool costs the same whether you teach 5 hours or 40, while a percentage commission grows with your income. At any real volume, independent wins clearly.' },
         { q: 'Do I lose the built-in student traffic if I go independent?', a: 'Yes — that is the real trade-off. Marketplaces provide discovery; on your own you bring the students. That is why many tutors keep a marketplace profile for new leads while running regulars through their own booking link.' },
         { q: 'What do I need to run lessons on my own?', a: 'A booking page, a video classroom, a way to take payment, reminders, and a place to keep student notes. Tutafy bundles all of these for free, so going independent does not mean stitching together five apps.' },
@@ -356,13 +362,14 @@ export const POSTS: Post[] = [
     title: 'The best Preply alternatives for tutors in 2026',
     description: 'Tired of Preply keeping your trial lessons and a third of your income? Here are the best alternatives — from other marketplaces to going fully independent.',
     date: '2026-07-06',
+    updated: '2026-10-25',
     category: 'Comparison',
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
     content: [
       { type: 'takeaways', items: [
         'The best Preply alternative depends on whether you want another marketplace or to keep 100% by going independent.',
-        'iTalki charges a lower flat ~15%, but it is still a percentage of everything you earn, forever.',
+        'iTalki charges 15–21% by lesson type (0% on trials), but it is still a percentage of everything you earn, forever.',
         'Going independent with a tool like Tutafy means 0% commission — you just bring your own students.',
         'Wyzant, Superprof, Verbling and Cambly each suit different subjects and audiences.',
         'Most tutors do best keeping a marketplace for discovery and moving their regulars to their own booking link.',
@@ -370,7 +377,7 @@ export const POSTS: Post[] = [
       { type: 'p', text: `The best Preply alternative for most tutors is not another marketplace at all — it is running your own bookings and keeping 100% of what you earn. Preply is genuinely good at sending you students, but it keeps 100% of each student's first (trial) lesson and then a sliding commission that often starts around 33% for new tutors. If you are looking to leave, you have two real paths: switch to a cheaper or different marketplace such as iTalki, Wyzant, Superprof, Verbling or Cambly, or go independent with tutor software like Tutafy and pay 0% commission. This guide walks through every serious option, honestly — including who each one suits and when Preply is actually still the right call — so you can pick the alternative that fits exactly where you are right now.` },
       { type: 'statCards', cards: [
         { value: '18–33%', label: 'Preply commission on your lessons' },
-        { value: '~15%', label: 'iTalki flat commission' },
+        { value: '15–21%', label: 'iTalki commission by lesson type (0% on trials)' },
         { value: '0%', label: 'independent (Tutafy)' },
       ] },
       { type: 'h2', text: 'Why tutors look for a Preply alternative' },
@@ -379,14 +386,15 @@ export const POSTS: Post[] = [
       { type: 'h2', text: 'Path 1: Another marketplace' },
       { type: 'p', text: `If you still want a platform to bring you students, a different marketplace can lower the cut or better fit your subject. The trade-off is the same across all of them, though: you pay a percentage forever, and the student belongs to the platform, not to you. Here is the shape of the main options, then a closer look at each.` },
       { type: 'compare', caption: 'Common Preply alternatives (ranges/models; verify current terms with each platform).', headers: ['', 'Preply', 'iTalki', 'Wyzant', 'Independent (Tutafy)'], rows: [
-        ['Commission', '~18–33%', '~15%', '~25%', '0%'],
+        ['Commission', '~18–33%', '15–21%', '~25%', '0%'],
         ['Keeps your trial', true, false, false, false],
         ['Brings students', true, true, true, false],
         ['You own the student', false, false, false, true],
         ['Price model', '% of income', '% of income', '% of income', 'Flat $0–$29'],
       ] },
+      RATES_SOURCE,
       { type: 'h3', text: 'iTalki — the lower-commission language marketplace' },
-      { type: 'p', text: `iTalki is the most common step "sideways" from Preply. Its flat ~15% commission is noticeably friendlier than Preply's starting rate, and it does not take 100% of trials the same way. If your only real problem with Preply is the size of the cut and you still want the platform to find students, iTalki is the obvious swap. It remains a percentage of everything you earn, indefinitely, and the relationship still lives on the platform.` },
+      { type: 'p', text: `iTalki is the most common step "sideways" from Preply. Its commission, 15–21% depending on the lesson type, is noticeably friendlier than Preply's starting rate, and it takes 0% of trial lessons rather than 100% of the first one. If your only real problem with Preply is the size of the cut and you still want the platform to find students, iTalki is the obvious swap. It remains a percentage of everything you earn, indefinitely, and the relationship still lives on the platform.` },
       { type: 'h3', text: 'Wyzant — broad subjects, US-focused' },
       { type: 'p', text: `Wyzant covers far more than languages — maths, science, test prep and more — and is strong in the US market. It charges tutors a flat 25% and adds a fee on the student side too. Good if you teach academic subjects to an American audience; similar ownership trade-offs to any marketplace.` },
       { type: 'h3', text: 'Superprof — a lead-generation model' },
@@ -479,8 +487,8 @@ export const POSTS: Post[] = [
       { type: 'h2', text: 'The verdict' },
       { type: 'p', text: `If the commission is your only issue, iTalki is a lower-cut marketplace worth a look, and Wyzant, Superprof, Verbling or Cambly may fit specific subjects or teaching styles. But for most tutors — anyone with loyal regulars — the best Preply alternative is not another platform taking a smaller slice; it is keeping the whole thing. Going independent with a flat, commission-free tool lets you own your students, keep every trial, and stop paying a percentage that grows with your success. Keep a marketplace for discovery if you like, move your regulars to your own link, and watch your take-home rise. That is exactly what Tutafy is built to make easy — free, with 0% commission.` },
       { type: 'faq', items: [
-        { q: 'What is the cheapest Preply alternative?', a: 'Going independent is the cheapest over time, because a flat tool like Tutafy (free, or $12/mo) costs the same no matter how much you teach, while any marketplace takes a percentage of everything you earn. Among marketplaces, iTalki\'s ~15% is lower than Preply\'s starting rate.' },
-        { q: 'Does iTalki take less than Preply?', a: 'Generally yes. iTalki uses a flat commission of around 15%, while Preply keeps 100% of the trial lesson and then a sliding commission that often starts near 33% for new tutors.' },
+        { q: 'What is the cheapest Preply alternative?', a: 'Going independent is the cheapest over time, because a flat tool like Tutafy (free, or $12/mo) costs the same no matter how much you teach, while any marketplace takes a percentage of everything you earn. Among marketplaces, iTalki\'s 15–21% on one-to-one lessons is lower than Preply\'s starting rate.' },
+        { q: 'Does iTalki take less than Preply?', a: 'Generally yes. iTalki takes 15–21% by lesson type and 0% on trial lessons, while Preply keeps 100% of the first trial lesson with each new student and then a sliding commission that starts at 33% for new tutors and falls to 18% (rates checked 25 Oct 2026).' },
         { q: 'What is the best Preply alternative for language tutors?', a: 'For discovery, iTalki is the most common lower-cut swap. For keeping 100% of your income once you have regulars, an independent tool like Tutafy is the best long-term alternative — you own the relationship and pay no commission.' },
         { q: 'Are there Preply alternatives for academic or test-prep tutoring?', a: 'Yes — Wyzant is strong for US academic and test-prep subjects, and Superprof works as a lead directory. For recurring students, moving them to your own booking link keeps far more of your income than any of these.' },
         { q: 'Can I move my Preply students to my own platform?', a: 'You can invite students you already have a genuine relationship with to book you directly, and import your list from a CSV to keep their history. Always follow each platform\'s terms and avoid soliciting students you only met through an unpaid trial.' },
@@ -520,7 +528,7 @@ export const POSTS: Post[] = [
       { type: 'h2', text: 'TutorBird — best for simple solo scheduling' },
       { type: 'p', text: `TutorBird is a clean, affordable tool for solo tutors, with scheduling, invoicing and a student portal. It starts around $16.95/month but charges roughly $4.95 for each additional tutor or staff member, so costs climb for a small team. It has no public API (Zapier only) and no native mobile app — just a web app. A solid pick if you teach alone and want something straightforward.` },
       { type: 'h2', text: 'Tutafy — best value for solo tutors & small teams' },
-      { type: 'p', text: `Tutafy bundles what the others split up — bookings, a free built-in video classroom, payments, 10 AI teaching tools, student and parent portals, and team payroll on the Academy plan — at a flat $0 / $12 / $29, with 0% commission on your income and no per-tutor surcharge. It is newer than the incumbents, so it does not carry their years of brand history, but for independent tutors and small centers who want a modern all-in-one at the lowest flat price, it is the value choice.` },
+      { type: 'p', text: `Tutafy bundles what the others split up — bookings, a free built-in video classroom, payments, 7 AI teaching tools, student and parent portals, and team payroll on the Academy plan — at a flat $0 / $12 / $29, with 0% commission on your income and no per-tutor surcharge. It is newer than the incumbents, so it does not carry their years of brand history, but for independent tutors and small centers who want a modern all-in-one at the lowest flat price, it is the value choice.` },
       { type: 'h2', text: 'What "tutor management software" actually means' },
       { type: 'p', text: `Before comparing tools, it helps to be clear about what this category is supposed to do, because vendors define it differently. At its core, tutor management software is the operating system for a tutoring business: it holds your schedule, your students, your money and your records in one place so you are not stitching together a calendar app, a payment link, a video tool and a spreadsheet by hand. The best tools remove admin so you can spend your time teaching rather than chasing bookings and invoices.` },
       { type: 'p', text: `In practice that breaks into a handful of jobs: taking bookings and managing availability, running the lesson (video and materials), collecting payment and issuing invoices, keeping student records and progress, and — for teams — paying tutors and managing roles. Every tool on this list does some of these well and some less so. The right choice is not the one with the longest feature list; it is the one whose strengths line up with the jobs you actually do every week, at a price that does not quietly grow with your success.` },
@@ -596,7 +604,7 @@ export const POSTS: Post[] = [
         { q: 'Do these tools include video calls?', a: 'Most incumbents expect you to use Zoom or Google Meet separately. Tutafy includes a free built-in video classroom (and can also connect Zoom or Meet if you prefer).' },
         { q: 'Which is best for a tutoring agency?', a: 'For a larger agency with complex payroll and multiple branches, TutorCruncher and Teachworks go deepest. They are more powerful — and more complex and costly — than solo tutors need.' },
         { q: 'Can I migrate from another tool?', a: 'Yes. Tutafy lets you import your students from a CSV, so moving from a spreadsheet or another platform takes a couple of clicks.' },
-        { q: 'Is there tutor software with AI built in?', a: 'Tutafy includes 10 AI teaching tools (lesson plans, homework, feedback, progress reports and more). Most traditional tutor-management tools do not include AI, though some now offer it as a paid add-on.' },
+        { q: 'Is there tutor software with AI built in?', a: 'Tutafy includes 7 AI teaching tools (lesson plans, homework, feedback, progress reports and more). Most traditional tutor-management tools do not include AI, though some now offer it as a paid add-on.' },
         { q: 'What should I look for in tutor management software?', a: 'Prioritise the jobs you do every week: a self-serve booking page, payments and automatic invoicing, video (built-in or Zoom/Meet), reminders to cut no-shows, and student records you own and can export. Add team payroll only if you actually have a team. Favour flat pricing over usage-based or commission models.' },
         { q: 'Are there hidden costs in tutor management tools?', a: 'Often, yes. Watch for payment surcharges added on top of the processor fee (commonly 3–4%), per-tutor or per-staff fees that climb as you add colleagues, and usage-based pricing that grows with your student count. Price your realistic annual setup, not the starting headline.' },
         { q: 'How hard is it to switch tools?', a: 'Usually a CSV and an afternoon. Export your students from your current tool or spreadsheet, import the file, recreate your availability, and share your new booking link. Keep the old system read-only for a month as a safety net and move students in small batches.' },
@@ -701,6 +709,7 @@ export const POSTS: Post[] = [
     title: 'How to teach English online and get paid in 2026',
     description: 'A step-by-step guide to teaching English online — qualifications, tools, finding students, pricing and getting paid — without losing a third of your income to a marketplace.',
     date: '2026-07-08',
+    updated: '2026-10-25',
     category: 'Teaching',
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
@@ -765,11 +774,12 @@ export const POSTS: Post[] = [
       { type: 'h2', text: 'The marketplace question: Preply, iTalki and Cambly compared' },
       { type: 'p', text: `If you do use a marketplace for discovery, it helps to know how the main options differ, because their commission models are not the same. Below is an honest, high-level comparison — verify current terms with each platform, since they change.` },
       { type: 'compare', caption: 'Commission models differ sharply; verify current terms with each platform.', headers: ['', 'Preply', 'iTalki', 'Cambly', 'Your own link'], rows: [
-        ['Commission', '~18–33% sliding', '~15% flat', 'Set hourly pay', '0%'],
-        ['Trial lesson', 'Often kept 100%', 'Reduced rate', 'N/A', 'You keep 100%'],
+        ['Commission', '~18–33% sliding', '15–21% by lesson type', 'Set hourly pay', '0%'],
+        ['Trial lesson', 'Preply keeps 100%', '0% commission', 'N/A', 'You keep 100%'],
         ['You set your rate', true, true, false, true],
         ['You own the student', false, false, false, true],
       ] },
+      RATES_SOURCE,
       { type: 'p', text: `The pattern is consistent: marketplaces trade discovery for a cut and for control of the relationship. That is a fair deal when you are brand new and have no way to find students yourself. It becomes a poor deal once you have regulars — which is exactly the point at which moving them to your own booking link starts recovering thousands a year in commission.` },
       { type: 'h2', text: 'How much can you earn teaching English online?' },
       { type: 'p', text: `Earnings from teaching English online depend on three levers: your rate, how many hours you fill, and how much of each lesson you actually keep. A tutor teaching 20 hours a week at $20 an hour bills roughly $1,600 a month gross — but on a marketplace taking 25%, that is only about $1,200 in their pocket, while the same schedule on a commission-free booking link keeps close to the full $1,600 minus a small processing fee. The commission, not the rate, is often the biggest difference between two tutors with identical calendars.` },
@@ -1042,6 +1052,7 @@ export const POSTS: Post[] = [
     title: 'How much does Preply take from tutors? (2026 commission, explained)',
     description: 'A clear breakdown of Preply\'s tutor commission — the sliding 18–33% cut, the free trial lesson, real take-home examples, how it compares to iTalki and Wyzant, and how to keep more.',
     date: '2026-07-09',
+    updated: '2026-10-25',
     category: 'Pricing',
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
@@ -1049,7 +1060,7 @@ export const POSTS: Post[] = [
       { type: 'takeaways', items: [
         'Preply takes a sliding commission that starts around 33% for new tutors and can fall toward 18% as you teach more hours — plus it keeps 100% of your first (trial) lesson with each student.',
         'A $30 lesson at a 33% cut is about $20 to you; the commission, not the rate, is the biggest hit to your take-home.',
-        'iTalki (~15% flat), Wyzant and Superprof use different models — none is free, all take a slice of what you earn.',
+        'iTalki (15–21% by lesson type, 0% on trials), Wyzant and Superprof use different models — none is free, all take a slice of what you earn.',
         'The only way to keep 100% is your own commission-free booking link; a flat tool like Tutafy costs the same no matter how much you teach.',
         'Marketplace commission is worth it for discovery when you are new; it becomes a poor deal once you have loyal regulars.',
       ] },
@@ -1079,12 +1090,13 @@ export const POSTS: Post[] = [
       { type: 'p', text: `Preply is not the only option, and the platforms charge in genuinely different ways — none is free, but the models vary enough to matter. Below is an honest, high-level comparison; verify current terms with each platform, since they change often.` },
       { type: 'compare', caption: 'How the main marketplaces take their cut (models change — verify).', headers: ['Platform', 'Commission model', 'Trial lesson', 'You own the student'], rows: [
         ['Preply', '~18–33% sliding', 'Keeps 100%', false],
-        ['iTalki', '~15% flat', 'Reduced rate', false],
+        ['iTalki', '15–21% by lesson type', '0% commission', false],
         ['Wyzant', '~25% (reported)', 'N/A', false],
         ['Superprof', 'Student pays for a lead', 'N/A', false],
         ['Your own link', '0% (flat tool fee)', 'You keep 100%', true],
       ] },
-      { type: 'p', text: `iTalki's roughly 15% flat cut is simpler and lower than Preply's starting rate, which is why many language tutors prefer it for discovery. Wyzant, strong for US academic and test-prep, has historically taken around a quarter. Superprof works more as a lead directory. The common thread is that every marketplace trades discovery for a slice of your income and control of the relationship — the differences are only in how big the slice is and how it is dressed up.` },
+      RATES_SOURCE,
+      { type: 'p', text: `iTalki's 15–21% cut, set by lesson type, is lower than Preply's starting rate, which is why many language tutors prefer it for discovery. Wyzant, strong for US academic and test-prep, has historically taken around a quarter. Superprof works more as a lead directory. The common thread is that every marketplace trades discovery for a slice of your income and control of the relationship — the differences are only in how big the slice is and how it is dressed up.` },
       { type: 'h2', text: 'The hidden costs beyond commission' },
       { type: 'p', text: `The headline percentage is not the whole cost of a marketplace. Several quieter costs stack on top, and ignoring them makes the platform look cheaper than it is:` },
       { type: 'ul', items: [
@@ -1098,7 +1110,7 @@ export const POSTS: Post[] = [
       { type: 'p', text: `None of these appears on the commission line, but together they widen the gap between what a student pays and what you keep, and they cap how much of a real business you can build on rented land. A fair comparison of "Preply vs your own link" has to count them, not just the percentage.` },
       { type: 'h2', text: 'What you get for the commission (the honest other side)' },
       { type: 'p', text: `It would be dishonest to frame Preply's commission as pure loss, because you do get something real for it — and when you are starting out, that something is valuable. The platform puts you in front of a large, global stream of students who are actively searching for a tutor right now, which is genuinely hard to replicate when nobody knows your name. It handles booking, payments, video and reminders, so you can teach without assembling any tools. And it offers a low-pressure way to build reviews and confidence before you rely on your own reputation.` },
-      { type: 'prosCons', title: 'Preply commission: what you pay for vs what it costs', pros: ['Students searching for a tutor right now', 'No marketing or tools needed to start', 'A safe way to build early reviews', 'Payments and logistics handled for you'], cons: ['~18–33% of every lesson, forever', '100% of every trial lesson', 'You never own the student or reviews', 'Price competition and a ranking treadmill'] },
+      { type: 'prosCons', title: 'Preply commission: what you pay for vs what it costs', pros: ['Students searching for a tutor right now', 'No marketing or tools needed to start', 'A safe way to build early reviews', 'Payments and logistics handled for you'], cons: ['~18–33% of every lesson, forever', '100% of your first trial lesson with each new student', 'You never own the student or reviews', 'Price competition and a ranking treadmill'] },
       { type: 'p', text: `The honest verdict is that the commission is fair value when you are buying discovery you cannot get otherwise, and poor value when you are paying it on students who already chose you. Knowing which situation you are in is the whole game.` },
       { type: 'h2', text: 'How much you could keep on your own booking link' },
       { type: 'p', text: `On your own commission-free booking link, the maths inverts: you keep the full lesson price minus only the ordinary payment-processor fee of around 2.9% + 30¢. A $30 lesson nets roughly $28.90 to you, versus about $20 on Preply as a new tutor — a difference of nearly $9 on a single lesson. Across a busy schedule that gap becomes serious money. A tutor teaching 20 lessons a week at $30 keeps about $578 a week on their own link, versus around $402 on Preply at the new-tutor rate — a difference of roughly $9,000 a year for the exact same work.` },
@@ -1122,7 +1134,7 @@ export const POSTS: Post[] = [
       { type: 'p', text: `Do this and, month by month, the share of your income that keeps 100% grows while the share taxed by commission shrinks — without ever cutting off the discovery you still want. That is the whole strategy: a marketplace as a launchpad, your own link as the home.` },
       { type: 'callout', variant: 'info', title: 'Make the invisible cost visible', text: 'Once a quarter, multiply your Preply lesson revenue by your commission rate and look at the number as if it were a bill in your inbox. For most working tutors it is the single largest "expense" in their business — and the one they never chose to pay on purpose.' },
       { type: 'h2', text: 'Why Preply\'s commission is so easy to overlook' },
-      { type: 'p', text: `Part of why tutors accept a 20–33% cut for years is that they never write a cheque for it. Preply simply keeps its share before the money reaches you, so there is no monthly bill, no invoice, no moment where you feel the outflow. That invisibility is exactly what makes it dangerous. A $30 subscription you actively pay every month gets scrutinised and cancelled the moment it stops earning its keep; a third skimmed silently off every lesson never gets that scrutiny, even though it costs many times more. The pain of a visible cost is what protects you from waste — and marketplace commission is engineered to avoid that pain entirely.` },
+      { type: 'p', text: `Part of why tutors accept an 18–33% cut for years is that they never write a cheque for it. Preply simply keeps its share before the money reaches you, so there is no monthly bill, no invoice, no moment where you feel the outflow. That invisibility is exactly what makes it dangerous. A $30 subscription you actively pay every month gets scrutinised and cancelled the moment it stops earning its keep; a third skimmed silently off every lesson never gets that scrutiny, even though it costs many times more. The pain of a visible cost is what protects you from waste — and marketplace commission is engineered to avoid that pain entirely.` },
       { type: 'p', text: `The fix is simply to make the invisible visible. Once a quarter, take your Preply lesson revenue, multiply by your commission rate, and look at the result as if it were an expense that landed in your inbox. For most working tutors it is the single largest cost in their business — larger than any tool, subscription or piece of equipment — and it is the one they never chose to pay on purpose. Seeing it plainly, next to a free or flat alternative, is usually all it takes to change the decision.` },
       { type: 'h2', text: 'Does teaching more hours (a lower commission) fix it?' },
       { type: 'p', text: `A reasonable hope is that you can simply teach your way down to Preply's lower commission tier and make the problem go away. It helps, but it does not solve it. Even at the best tier — around 18% — you are still handing the platform close to a fifth of every lesson, forever, on students who may have chosen you years ago. And reaching that tier takes a very large number of hours, during which you are paying the higher rate. So the "just teach more" answer trades a bigger cut now for a smaller-but-permanent cut later, on income you could be keeping in full today.` },
@@ -1148,7 +1160,7 @@ export const POSTS: Post[] = [
         { q: 'How much commission does Preply take from tutors?', a: 'Preply uses a sliding commission that reportedly starts around 33% for new tutors and decreases toward roughly 18% as you teach more hours. It also keeps 100% of your first (trial) lesson with each new student. Check your own Preply dashboard for your exact current rate, as terms change.' },
         { q: 'Does Preply really keep the whole first lesson?', a: 'Yes. The first lesson with each new student is a trial, and Preply keeps 100% of it — you earn nothing for that hour. You then earn your normal post-commission rate on subsequent lessons if the student continues.' },
         { q: 'How do I lower my Preply commission?', a: 'Preply\'s commission decreases as your cumulative teaching hours on the platform rise, so the main way to lower it is to teach more hours there. The percentage and thresholds are set by Preply and shown in your account. To keep 100%, you would teach students on your own booking link instead.' },
-        { q: 'Is iTalki cheaper than Preply for tutors?', a: 'Generally yes on the headline cut. iTalki uses a flat commission of around 15%, lower than Preply\'s starting ~33%, and it does not keep 100% of the trial in the same way. Verify current terms with each platform.' },
+        { q: 'Is iTalki cheaper than Preply for tutors?', a: 'Generally yes on the headline cut. iTalki takes 15–21% by lesson type (21% for a single lesson, 15% for the biggest packages) and 0% on trial lessons, lower than Preply\'s starting 33% (rates checked 25 Oct 2026). Verify current terms with each platform.' },
         { q: 'What is the real take-home on a $30 Preply lesson?', a: 'Roughly $20 as a new tutor (about a 33% cut) and around $24.60 for an experienced tutor (about 18%). On your own commission-free booking link, a $30 lesson nets close to $29 after only the payment-processor fee.' },
         { q: 'Can I move my Preply students to my own platform?', a: 'You can invite students you already have a genuine relationship with to book you directly and keep 100% of those lessons. Always follow Preply\'s terms and avoid soliciting students you only met through an unpaid trial. Many tutors keep a marketplace profile for new discovery while moving regulars to their own link.' },
         { q: 'Are there fees on Preply besides commission?', a: 'Beyond the commission and the free trial lesson, watch for payout timing and withdrawal fees (via PayPal or Payoneer), and the indirect costs of price competition and the ranking treadmill. These do not show on the commission line but widen the gap between what a student pays and what you keep.' },
@@ -1288,6 +1300,7 @@ export const POSTS: Post[] = [
     title: 'Tutafy vs the alternatives: how it compares to Preply, iTalki, TutorCruncher & more',
     description: 'A head-to-head comparison of Tutafy against marketplaces (Preply, iTalki, Wyzant), tutor software (TutorCruncher, Teachworks, TutorBird) and a DIY app stack — with an honest look at when Tutafy is not the right pick.',
     date: '2026-07-10',
+    updated: '2026-10-25',
     category: 'Comparison',
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
@@ -1321,8 +1334,9 @@ export const POSTS: Post[] = [
       { type: 'p', text: `Tutafy inverts that trade: it will not find students for you, but it takes 0% commission, keeps your trial lessons yours, and hands you full ownership of your students, reviews and data. For a brand-new tutor, Preply's discovery is worth the cut; for a tutor with loyal regulars, paying a third of every future lesson to a platform they already chose is an expensive habit. The sane strategy most tutors land on is to use both — Preply for discovery while you have no audience, Tutafy to keep 100% of the regulars who would follow you anywhere.` },
       { type: 'prosCons', title: 'Tutafy vs Preply, in short', pros: ['Tutafy: 0% commission — you keep 100% of what you earn', 'Tutafy: you own the student, reviews and data', 'Tutafy: keep your trial lessons; set your own policies', 'Tutafy: one flat price, no per-lesson cut'], cons: ['Preply finds you students; Tutafy does not', 'Preply is better when you are brand new with no audience', 'Tutafy needs you to bring or build your own discovery'] },
       { type: 'h2', text: 'Tutafy vs iTalki' },
-      { type: 'p', text: `iTalki is the marketplace many language tutors prefer over Preply, mainly because its commission is a simpler, lower flat rate of around 15% rather than Preply's higher sliding cut, and it does not take your whole trial in the same way. If your only question is "which marketplace keeps me more of my money", iTalki generally beats Preply on the headline number. But the fundamental trade is identical to the Preply comparison: iTalki is discovery in exchange for a percentage and platform ownership of the relationship.` },
-      { type: 'p', text: `Against Tutafy, then, iTalki sits in the same category as Preply — a place to be found — and the same logic applies. A 15% cut is lower than 33%, but it is still 15% more than the 0% you pay on a lesson booked through your own Tutafy link, forever, on students who already chose you. Tutafy and iTalki are complements more than rivals: use iTalki to meet new language learners, and move the ones who become regulars onto your own commission-free booking page. The lower iTalki commission simply means the "when to move them" line arrives a little later than it does with Preply.` },
+      { type: 'p', text: `iTalki is the marketplace many language tutors prefer over Preply, mainly because its commission is lower than Preply's starting rate — 15–21% depending on the lesson type, with 0% on trial lessons — rather than Preply's sliding 18–33% and 100% of the first trial lesson. If your only question is "which marketplace keeps me more of my money", iTalki generally beats Preply on the headline number. But the fundamental trade is identical to the Preply comparison: iTalki is discovery in exchange for a percentage and platform ownership of the relationship.` },
+      { type: 'p', text: `Against Tutafy, then, iTalki sits in the same category as Preply — a place to be found — and the same logic applies. A 15–21% cut is lower than 33%, but it is still 15–21% more than the 0% you pay on a lesson booked through your own Tutafy link, forever, on students who already chose you. Tutafy and iTalki are complements more than rivals: use iTalki to meet new language learners, and move the ones who become regulars onto your own commission-free booking page. The lower iTalki commission simply means the "when to move them" line arrives a little later than it does with Preply.` },
+      RATES_SOURCE,
       { type: 'h2', text: 'Tutafy vs Wyzant and Superprof' },
       { type: 'p', text: `Wyzant and Superprof are marketplaces with different flavours. Wyzant is strong in the US for academic and test-prep tutoring and has historically taken a commission of around a quarter of your earnings; like other marketplaces, it trades discovery for a cut and control of the relationship. Superprof works more like a lead directory — it connects students to tutors, with the monetisation built around access to those leads rather than a straightforward per-lesson commission. Both can put you in front of students you would not otherwise reach, which is their real value.` },
       { type: 'p', text: `Compared with Tutafy, the pattern holds: these platforms are discovery engines, not businesses you own. Tutafy gives you the tools to run and keep the students you find — 0% commission, your own booking page, your own data — but leaves the finding to you. For an academic or test-prep tutor, the practical move mirrors the language case: use Wyzant or Superprof to be discovered when you are starting out, and route repeat students to your own Tutafy link so their future lessons are commission-free and the relationship is yours.` },
@@ -1395,7 +1409,7 @@ export const POSTS: Post[] = [
         { q: 'Is Tutafy better than Preply?', a: 'They do different jobs. Preply finds you students but takes 15–33% commission and owns the relationship; Tutafy helps you run your own tutoring at 0% commission but does not find students for you. Preply is better when you are brand new; Tutafy is better once you have regulars. Many tutors use both.' },
         { q: 'What is the cheapest option for tutors?', a: 'Over time, a flat, commission-free tool like Tutafy is cheapest, because it costs the same no matter how much you teach, while marketplaces take a percentage of everything. A DIY stack can be near-free for a couple of students but costs you time and lost bookings as you grow.' },
         { q: 'Tutafy vs TutorCruncher — which should I pick?', a: 'TutorCruncher for a large agency with complex payroll and many tutors; Tutafy for a solo tutor or a small team who wants a simpler, cheaper, all-in-one tool with built-in video and AI and no payment surcharge.' },
-        { q: 'Tutafy vs iTalki — what is the difference?', a: 'iTalki is a marketplace that finds language students for a ~15% flat commission; Tutafy is software you run your own tutoring on at 0% commission. iTalki is for discovery; Tutafy is for keeping 100% of the students you already have.' },
+        { q: 'Tutafy vs iTalki — what is the difference?', a: 'iTalki is a marketplace that finds language students for a commission of 15–21% by lesson type (0% on trial lessons; rates checked 25 Oct 2026); Tutafy is software you run your own tutoring on at 0% commission. iTalki is for discovery; Tutafy is for keeping 100% of the students you already have.' },
         { q: 'Can I use Tutafy alongside a marketplace?', a: 'Yes, and many tutors do. Keep a marketplace profile for finding new students, and use Tutafy for your regulars so their future lessons are commission-free and the relationship is yours.' },
         { q: 'Does Tutafy find students for me?', a: 'No. Tutafy gives you everything to run and grow a tutoring business — bookings, video, payments, portals, AI — but it does not send you students the way a marketplace does. You bring students through your own channels or a marketplace you keep for discovery.' },
         { q: 'Is Tutafy good for a small tutoring team?', a: 'Yes. The Academy plan supports up to five tutors with shared scheduling and automatic payroll at a flat $29/month with no per-tutor surcharge — a sweet spot between solo tools and heavy agency software.' },
@@ -1534,6 +1548,7 @@ export const POSTS: Post[] = [
     title: "How to Write a Tutoring Business Plan (With a Free Template)",
     description: "A one-page tutoring business plan that actually gets used — positioning, pricing, financial projections and the numbers to nail down before you quit your day job.",
     date: '2026-07-08',
+    updated: '2026-10-25',
     category: 'Business',
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
@@ -1569,7 +1584,8 @@ export const POSTS: Post[] = [
       { type: `h2`, text: `Market & competition (marketplaces vs going independent)` },
       { type: `p`, text: `The tutoring market for independent teachers splits into two paths: staying on a marketplace like Preply, iTalki, Cambly, or Verbling where the platform brings you students but keeps 15-33% of every lesson, or going independent with your own booking page and payment setup where you keep the full rate but have to generate your own demand. Neither path is objectively better — a brand-new tutor with zero students often needs a marketplace's built-in traffic to get the first 20-30 lessons under their belt and build a review history, while an established tutor with a referral base is usually leaving significant money on the table by staying on a marketplace out of habit.` },
       { type: `h3`, text: `How the commission math actually works` },
-      { type: `p`, text: `Preply's commission is a sliding scale that starts around 33% on your first lessons with a new student and steps down toward roughly 18% as your total hours with them accumulate — and Preply keeps 100% of the trial lesson itself, which is often the single most time-intensive lesson you teach. iTalki charges a flatter fee, commonly cited around 15%, taken as a transaction fee on the credits students purchase. Wyzant and Varsity Tutors run their own tiered structures in a similar 15-25%+ range depending on lesson volume and how the student was sourced. Superprof and Outschool have different models again — Superprof charges students a subscription rather than commissioning the tutor directly for some tiers, and Outschool takes a cut plus handles group-class logistics. None of these numbers are fixed forever; platforms adjust commission tiers periodically, so treat any specific percentage as directional and check the current schedule before you plan around it.` },
+      { type: `p`, text: `Preply's commission is a sliding scale that starts around 33% on your first lessons with a new student and steps down toward roughly 18% as your total hours with them accumulate — and Preply keeps 100% of the trial lesson itself, which is often the single most time-intensive lesson you teach. iTalki charges 15–21% on a one-to-one lesson depending on the lesson type (21% on a single lesson down to 15% on the biggest packages), 30% on group classes and 0% on trial lessons. Wyzant and Varsity Tutors run their own tiered structures in a similar 15-25%+ range depending on lesson volume and how the student was sourced. Superprof and Outschool have different models again — Superprof charges students a subscription rather than commissioning the tutor directly for some tiers, and Outschool takes a cut plus handles group-class logistics. None of these numbers are fixed forever; platforms adjust commission tiers periodically, so treat any specific percentage as directional and check the current schedule before you plan around it.` },
+      RATES_SOURCE,
       { type: `statCards`, cards: [
         { value: `15-33%`, label: `Typical marketplace commission range (Preply, iTalki, Wyzant, Varsity Tutors)` },
         { value: `2.9% + 30c`, label: `Typical payment-processor fee per transaction (Stripe/PayPal) when going independent` },

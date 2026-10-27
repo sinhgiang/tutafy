@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
-  GraduationCap, ArrowLeft, ArrowRight, Check, X, Lightbulb, AlertTriangle, Info, ListChecks,
+  ArrowLeft, ArrowRight, Check, X, Lightbulb, AlertTriangle, Info, ListChecks,
 } from 'lucide-react'
 import { POSTS, getPost, readingMinutes, postDates, heroFor, type PostBlock } from '@/lib/blog'
 import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
@@ -11,6 +11,7 @@ import { blogPostMetadata } from '@/lib/page-meta'
 import { SiteFooter } from '@/components/SiteFooter'
 import { blogPostJsonLd, formatPostDate } from '@/lib/blog-seo'
 import { jsonLdScript } from '@/lib/seo'
+import { SiteLogo } from '@/components/SiteLogo'
 
 export function generateStaticParams() {
   return POSTS.map(p => ({ slug: p.slug }))
@@ -38,12 +39,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <nav className="border-b border-gray-100 px-6 py-4 sticky top-0 bg-white/90 backdrop-blur z-40">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
-            </div>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo />
           <Link href="/blog" className="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 hover:text-gray-900">
             <ArrowLeft className="h-3.5 w-3.5" /> All posts
           </Link>
@@ -231,6 +227,18 @@ function Block({ b }: { b: PostBlock }) {
           </figcaption>
         )}
       </figure>
+    )
+    case 'source': return (
+      <p className="text-[12px] text-gray-500 leading-relaxed -mt-2" data-testid="rates-note">
+        {b.text} Sources:{' '}
+        {b.links.map((l, i) => (
+          <span key={l.href}>
+            {i > 0 && ' · '}
+            <a href={l.href} target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">{l.label}</a>
+          </span>
+        ))}
+        .
+      </p>
     )
     case 'faq': return (
       <div className="not-prose pt-2">

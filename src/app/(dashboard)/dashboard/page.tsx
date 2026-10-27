@@ -2,8 +2,20 @@ import { createClient } from '@/lib/supabase/server'
 import { DashboardHome, type DashboardData, type LessonRow, type AtRiskRow, type ReminderRow } from '@/components/dashboard/DashboardHome'
 import { currencySymbol as symbolOf } from '@/lib/currency'
 import { loadFirstStudent } from '@/lib/first-student'
+import { loadNoHoursBanner } from '@/lib/no-hours-banner'
+import { loadProfileCompletion } from '@/lib/profile-completion'
+import { loadListingCard, withDirectoryStatus, type ListingClient } from '@/lib/listing-status'
 
-function toLessonRow(l: any): LessonRow {
+type StudentCols = { name: string; level?: string | null; avatar_url?: string | null }
+
+// A lesson row as LESSON_COLS reads it (the to-one embed may come typed as an array)
+type RawLesson = {
+  id: string; starts_at: string; duration_minutes?: number | null; status: LessonRow['status']
+  is_group?: boolean | null; group_max_students?: number | null; vocabulary?: unknown; homework?: unknown
+  meet_link?: string | null; zoom_link?: string | null; students?: StudentCols | StudentCols[] | null
+}
+
+function toLessonRow(l: RawLesson): LessonRow {
   const s = Array.isArray(l.students) ? l.students[0] : l.students
   return {
     id: l.id,
@@ -54,6 +66,9 @@ export default async function DashboardPage() {
     { data: weekLessonsRaw },
     { data: invoicesRaw },
     firstStudent,
+    noHours,
+    profile,
+    listingRaw,
   ] = await Promise.all([
     supabase.from('tutors').select('name, currency').eq('id', user!.id).single(),
     supabase.from('lessons').select(LESSON_COLS).eq('tutor_id', user!.id).eq('status', 'scheduled').gte('starts_at', nowIso).order('starts_at').limit(12),
@@ -64,7 +79,16 @@ export default async function DashboardPage() {
     supabase.from('invoices').select('id, amount, status, due_date, students(name)').eq('tutor_id', user!.id).in('status', ['sent', 'overdue']).order('due_date', { ascending: true, nullsFirst: false }).limit(5),
     // "Get your first student" card: this tutor's own rows only (the session client, every query names the tutor)
     loadFirstStudent(supabase, user!.id),
+    // Banner for a tutor with no free hours (T-0739): a read of this tutor's own rows; nothing is written or sent
+    loadNoHoursBanner(supabase, user!.id),
+    // Profile-completion card (T-0765): a percentage worked out from this tutor's own rows; nothing is stored or sent
+    loadProfileCompletion(supabase, user!.id),
+    // "Your listing" card (T-0769): the same rule as the tutor directory, on this tutor's own rows only; nothing is written or sent
+    loadListingCard(supabase as unknown as ListingClient, user!.id),
   ])
+
+  // The directory shows no card until enough tutors are listed (T-0803): a listed tutor is "Ready" until it opens. Only a listed tutor needs the answer.
+  const listing = listingRaw?.listed ? withDirectoryStatus(listingRaw, (await (await import('@/lib/directory-cache')).getDirectory())?.open ?? null) : listingRaw
 
   const upcoming = (upcomingRaw ?? []).map(toLessonRow)
   const past = (pastRaw ?? []).map(toLessonRow)
@@ -78,12 +102,12 @@ export default async function DashboardPage() {
   const next21 = new Date(now.getTime() + 21 * 86400000).toISOString()
   const { data: bookedRows } = (activeStudentsFull && activeStudentsFull.length > 0)
     ? await supabase.from('lessons').select('student_id').eq('tutor_id', user!.id).eq('status', 'scheduled').gte('starts_at', nowIso).lte('starts_at', next21)
-    : { data: [] as any[] }
-  const bookedIds = new Set((bookedRows ?? []).map((r: any) => r.student_id))
+    : { data: [] as { student_id: string }[] }
+  const bookedIds = new Set((bookedRows ?? []).map((r) => r.student_id))
   const atRisk: AtRiskRow[] = (activeStudentsFull ?? [])
-    .filter((s: any) => !bookedIds.has(s.id))
+    .filter((s) => !bookedIds.has(s.id))
     .slice(0, 3)
-    .map((s: any) => ({
+    .map((s) => ({
       id: s.id,
       name: s.name,
       avatar_url: s.avatar_url ?? null,
@@ -101,7 +125,7 @@ export default async function DashboardPage() {
     tag: l.is_group ? 'Group' : (l.hasVideo ? 'Meeting' : 'Lesson'),
     href: '/lessons',
   }))
-  const paymentReminders: ReminderRow[] = (invoicesRaw ?? []).map((inv: any) => {
+  const paymentReminders: ReminderRow[] = (invoicesRaw ?? []).map((inv) => {
     const st = Array.isArray(inv.students) ? inv.students[0] : inv.students
     const overdue = inv.status === 'overdue' || (inv.due_date && new Date(inv.due_date) < now)
     return {
@@ -110,7 +134,7 @@ export default async function DashboardPage() {
       title: `Payment from ${st?.name ?? 'student'} — ${currencySymbol}${Number(inv.amount ?? 0).toLocaleString('en-US')}`,
       when: overdue ? 'Overdue' : (inv.due_date ? `Due ${new Date(inv.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Awaiting payment'),
       tag: overdue ? 'Overdue' : 'Payment',
-      href: '/payments',
+      href: '/earnings?tab=payments',
     }
   })
   const reminders = [...paymentReminders.filter(r => r.tag === 'Overdue'), ...lessonReminders, ...paymentReminders.filter(r => r.tag !== 'Overdue')].slice(0, 6)
@@ -141,6 +165,9 @@ export default async function DashboardPage() {
     currencySymbol,
     tutorId: user!.id,
     firstStudent,
+    noHours,
+    profile,
+    listing,
   }
 
   return <DashboardHome data={data} />

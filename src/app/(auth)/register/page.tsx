@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { BrandLogo } from '@/components/brand/BrandLogo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,15 +17,11 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState('')
-  const [refCode, setRefCode] = useState('')
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-
-  useEffect(() => {
-    const ref = searchParams.get('ref')
-    if (ref) setRefCode(ref)
-  }, [searchParams])
+  // The invite code from the address (?ref=), read straight from it
+  const refCode = searchParams.get('ref') ?? ''
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
@@ -60,8 +57,8 @@ function RegisterForm() {
 
     // If session exists = email confirmation disabled → go to onboarding
     if (data.session) {
-      const dest = email === 'tubxeebyajtube@gmail.com' ? '/admin' : '/onboarding?signup=1'
-      router.push(dest)
+      // The owner's account is never made here (it exists already), so no address is compared: the admin gate sits on the server.
+      router.push('/onboarding?signup=1')
       router.refresh()
     } else {
       setError('✅ Account created! Check your email to confirm, then sign in.')
@@ -85,7 +82,7 @@ function RegisterForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <p className="text-3xl font-bold text-gray-900">Tutafy</p>
+          <p className="flex justify-center"><Link href="/" aria-label="Tutafy home" className="inline-block rounded-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"><BrandLogo height={48} /></Link></p>
           <p className="text-gray-500 mt-1">{refCode ? `You were invited to join Tutafy! 🎉` : 'Start your free account today'}</p>
         </div>
 

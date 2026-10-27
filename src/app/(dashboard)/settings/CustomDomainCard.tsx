@@ -47,7 +47,7 @@ export function CustomDomainCard() {
     setLoading(false)
   }
 
-  useEffect(() => { loadStatus() }, [])
+  useEffect(() => { loadStatus() }, []) // eslint-disable-line react-hooks/set-state-in-effect -- load once on arrival; the state is set when the answer comes back
 
   async function connect() {
     setConnecting(true)
@@ -125,6 +125,7 @@ export function CustomDomainCard() {
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Your domain</label>
               <div className="flex gap-2">
                 <input
+                  aria-label="Your domain"
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   placeholder="booking.yourdomain.com"
@@ -207,7 +208,7 @@ export function CustomDomainCard() {
                     <p className="text-[11px] text-gray-400 leading-relaxed">
                       Notes: for the root domain (e.g. <span className="font-mono">yourdomain.com</span>) the “Name / Host” is
                       usually <span className="font-mono">@</span>. For a subdomain, use just the prefix (e.g. <span className="font-mono">booking</span>).
-                      Leave TTL as “Automatic”. SSL is issued automatically once DNS is correct — you don't do anything for HTTPS.
+                      Leave TTL as “Automatic”. SSL is issued automatically once DNS is correct — you don&apos;t do anything for HTTPS.
                     </p>
                   </div>
                 )}

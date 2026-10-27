@@ -13,6 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createFakeDb, type FakeDb } from './support/fake-db.ts'
+import { settingsSource } from './support/settings-source.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = path.join(ROOT, 'src')
@@ -255,11 +256,11 @@ test('POST /api/bookings: a cancelled lesson does not block, and a team member h
 
 /** The length buttons a student sees: [{ minutes, selected }] in page order. */
 function lengthButtons(html: string) {
-  const start = html.indexOf('Session length')
-  assert.ok(start >= 0, 'the page has the "Session length" block')
-  const block = html.slice(start, html.indexOf('</div></div>', start))
-  return [...block.matchAll(/<button type="button" class="([^"]*)">(\d+) min<\/button>/g)]
-    .map(m => ({ minutes: Number(m[2]), selected: m[1].includes('bg-indigo-500') }))
+  const start = html.indexOf('aria-label="Lesson length"')
+  assert.ok(start >= 0, 'the page has the "Lesson length" group')
+  const block = html.slice(start, html.indexOf('</div>', start))
+  return [...block.matchAll(/<button type="button" aria-pressed="(true|false)" class="[^"]*">(\d+) min<\/button>/g)]
+    .map(m => ({ minutes: Number(m[2]), selected: m[1] === 'true' }))
 }
 type Page = (props: { params: Promise<Record<string, string>> }) => Promise<React.ReactElement>
 const render = async (page: unknown, params: Record<string, string>) => renderToStaticMarkup(await (page as Page)({ params: Promise.resolve(params) }))
@@ -328,7 +329,7 @@ test('the first-student card counts a custom-only list as "lengths chosen"', () 
 
 // ---- Settings (a client page: its real helpers run above; this part reads its text) --------------------------------------
 
-const settings = read('src/app/(dashboard)/settings/page.tsx')
+const settings = settingsSource()
 
 test('Settings source: the Custom box, the chips with an x, the rule shown, the check before saving', () => {
   assert.match(settings, /label htmlFor="custom-length"[^>]*>Custom length \(minutes\)</)
@@ -337,7 +338,7 @@ test('Settings source: the Custom box, the chips with an x, the rule shown, the 
   assert.match(settings, /\{MIN_DURATION\} to \{MAX_DURATION\} minutes, in steps of \{DURATION_STEP\}\. Up to \{MAX_DURATIONS\} lengths in all\./)
   assert.match(settings, /role="alert"/, 'the sentence for a refused value is announced')
   const save = settings.slice(settings.indexOf('async function handleSave()'))
-  assert.ok(save.indexOf('checkDurations(form.lesson_durations)') > 0 && save.indexOf('checkDurations(form.lesson_durations)') < save.indexOf("supabase.from('tutors').update("), 'the list is checked before anything is written')
+  assert.ok(save.indexOf('checkDurations(form.lesson_durations)') > 0 && save.indexOf('checkDurations(form.lesson_durations)') < save.indexOf('saveTutorSettings('), 'the list is checked before anything is written')
   assert.match(settings, /\{form\.lesson_durations\.map\(d => <SelectItem key=\{d\}/, '"Length selected first" offers every length, custom ones too')
 })
 

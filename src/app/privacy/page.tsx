@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { GraduationCap, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { pageMetadata } from '@/lib/page-meta'
 import { SiteFooter } from '@/components/SiteFooter'
 import { ContactEmails } from '@/components/ContactEmails'
+import { SiteLogo } from '@/components/SiteLogo'
 
 export const metadata = pageMetadata('privacy')
 
@@ -13,12 +14,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-white">
       <nav className="border-b border-gray-100 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: 18, height: 18 }} />
-            </div>
-            <span className="text-[17px] font-bold text-gray-900">Tutafy</span>
-          </Link>
+          <SiteLogo />
           <Link href="/" className="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 hover:text-gray-900">
             <ArrowLeft className="h-3.5 w-3.5" /> Back to home
           </Link>
@@ -77,7 +73,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="International visitors (GDPR / CCPA)">
-            <p>If you're in the EU/UK, we process your data on the lawful bases of performing our contract with you and, for analytics/advertising cookies, your consent. If you're in California, we do not sell your personal information. In both cases you can access, correct, delete or export your data — just ask.</p>
+            <p>If you&apos;re in the EU/UK, we process your data on the lawful bases of performing our contract with you and, for analytics/advertising cookies, your consent. If you&apos;re in California, we do not sell your personal information. In both cases you can access, correct, delete or export your data — just ask.</p>
           </Section>
 
           <Section title="Contact">

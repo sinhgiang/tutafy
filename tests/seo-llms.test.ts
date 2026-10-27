@@ -18,7 +18,7 @@ import { homeJsonLd, jsonLdScript, type JsonLd } from '@/lib/seo'
 import { SITE_URL, PLANS, FAQ, FEATURES, KEY_PAGES } from '@/lib/site-content'
 import { PAGE_SEO, pageMetadata } from '@/lib/page-meta'
 import { PLAN_PRICE } from '@/lib/plans'
-import { POSTS } from '@/lib/blog'
+import { POSTS, postDates as modifiedDates } from '@/lib/blog'
 import { loadUpdates } from '@/lib/updates'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -79,7 +79,8 @@ test('/llms.txt links the six key pages and every blog post, and each link is a 
     if (route.startsWith('/blog/')) {
       assert.ok(slugs.has(route.slice('/blog/'.length)), `no such post: ${route}`)
     } else {
-      assert.ok(hasPage(route), `no page file for ${route}`)
+      // a page file, or a route handler such as /llms-languages.txt (T-0875)
+      assert.ok(hasPage(route) || existsSync(path.join(ROOT, 'src/app', route, 'route.ts')), `no page file for ${route}`)
     }
   }
 })
@@ -145,7 +146,7 @@ test('the FAQPage is exactly the question and answer pairs the page shows, nothi
     mainEntity: { '@type': string; name: string; acceptedAnswer: { '@type': string; text: string } }[]
   }
   assert.equal(faq.mainEntity.length, FAQ.length)
-  assert.equal(FAQ.length, 6)
+  assert.equal(FAQ.length, 9)
   faq.mainEntity.forEach((item, i) => {
     assert.equal(item['@type'], 'Question')
     assert.equal(item.name, FAQ[i].q)
@@ -197,10 +198,10 @@ test('the page check does catch a page that types its own FAQ or price', () => {
 
 // ---- sitemap ----------------------------------------------------------------
 
-test('the sitemap puts no date on static pages and the posts keep their own dates', async () => {
+test('the sitemap puts no date on static pages and the posts carry the day they were last changed (the publish day until a post is edited)', async () => {
   const entries = (await sitemap())
   const prefix = `${SITE_URL}/blog/`
-  const postDates = new Map(POSTS.map(p => [`${prefix}${p.slug}`, new Date(p.date + 'T00:00:00').getTime()]))
+  const postDates = new Map(POSTS.map(p => [`${prefix}${p.slug}`, new Date(modifiedDates(p).modified + 'T00:00:00').getTime()]))
 
   for (const e of entries) {
     if (postDates.has(e.url)) {

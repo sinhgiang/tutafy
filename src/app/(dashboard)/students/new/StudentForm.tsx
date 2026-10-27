@@ -1,5 +1,6 @@
 'use client'
 
+import { PageColumn } from '@/components/layout/PageFrame'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -45,8 +46,9 @@ export function StudentForm() {
 
   const field = (label: string, key: keyof typeof form, opts?: { type?: string; placeholder?: string; required?: boolean }) => (
     <div>
-      <label className="block text-[12px] font-medium text-gray-600 mb-1.5">{label}{opts?.required && ' *'}</label>
+      <label htmlFor={`student-${key}`} className="block text-[12px] font-medium text-gray-600 mb-1.5">{label}{opts?.required && ' *'}</label>
       <input
+        id={`student-${key}`}
         type={opts?.type ?? 'text'}
         required={opts?.required}
         value={form[key]}
@@ -58,9 +60,9 @@ export function StudentForm() {
   )
 
   return (
-    <div className="max-w-[620px] space-y-5">
+    <PageColumn size="form" className="space-y-5">
       <div className="flex items-center gap-3">
-        <Link href="/students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
+        <Link href="/students" aria-label="Back to students" className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-500" />
         </Link>
         <div>
@@ -94,7 +96,7 @@ export function StudentForm() {
           </div>
           <div>
             <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Learning goals</label>
-            <textarea value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} rows={3}
+            <textarea aria-label="Learning goals" value={form.goals} onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} rows={3}
               placeholder="Prepare for IELTS, improve business communication..."
               className="w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
           </div>
@@ -113,7 +115,7 @@ export function StudentForm() {
 
         <div className="bg-white rounded-xl border border-gray-100 p-5">
           <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Private notes</label>
-          <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3}
+          <textarea aria-label="Private notes" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3}
             placeholder="Notes only you can see..."
             className="w-full text-[13px] px-3 py-2.5 rounded-lg border border-gray-200 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors resize-none" />
         </div>
@@ -129,6 +131,6 @@ export function StudentForm() {
           </button>
         </div>
       </form>
-    </div>
+    </PageColumn>
   )
 }

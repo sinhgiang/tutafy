@@ -1,86 +1,54 @@
+// Subscription plans of the signed-in tutor (T-0825). A Pro feature, plan re-read on every call, the tutor id is the session's.
+// A new plan goes through validatePlan; a change may touch only is_active, name and description (pickPlanUpdates): the old route
+// wrote whatever the body held, so a tutor could have rewritten tutor_id or id of their own row.
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireApiPlan } from '@/lib/api-guard'
+import { isUuid } from '@/lib/list-params'
+import { pickPlanUpdates, validatePlan } from '@/lib/business-lists'
 
 export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data, error } = await supabase
-    .from('subscription_plans')
-    .select('*')
-    .eq('tutor_id', user.id)
-    .order('created_at', { ascending: false })
-
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const { data, error } = await gate.supabase.from('subscription_plans').select('*').eq('tutor_id', gate.userId).order('created_at', { ascending: false })
   if (error) {
-    if (error.message.includes('does not exist')) {
-      return NextResponse.json({ plans: [], migrationRequired: true })
-    }
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error.message.includes('does not exist')) return NextResponse.json({ plans: [], migrationRequired: true })
+    return NextResponse.json({ error: 'Could not load your plans' }, { status: 500 })
   }
-
-  return NextResponse.json({ plans: data ?? [] })
+  // the tutor's own booking page address for the "Copy link" button of each plan (T-0841): the slug of the session's own row
+  const { data: me } = await gate.supabase.from('tutors').select('slug').eq('id', gate.userId).maybeSingle()
+  return NextResponse.json({ plans: data ?? [], slug: (me as { slug?: string | null } | null)?.slug ?? null })
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const body = await req.json()
-  const { name, description, price, currency, lessons_per_period, period, duration_minutes } = body
-
-  if (!name || !price || !lessons_per_period || !period) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-  }
-
-  const { data, error } = await supabase
-    .from('subscription_plans')
-    .insert({
-      tutor_id: user.id,
-      name,
-      description: description ?? null,
-      price: Number(price),
-      currency: currency ?? 'usd',
-      lessons_per_period: Number(lessons_per_period),
-      period,
-      duration_minutes: Number(duration_minutes ?? 60),
-    })
-    .select()
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const check = validatePlan(await req.json().catch(() => null))
+  if (!check.ok) return NextResponse.json({ error: check.error }, { status: 400 })
+  const { data, error } = await gate.supabase.from('subscription_plans').insert({ tutor_id: gate.userId, ...check.value }).select().single()
+  if (error) return NextResponse.json({ error: 'Could not save the plan' }, { status: 500 })
   return NextResponse.json({ plan: data })
 }
 
 export async function DELETE(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { id } = await req.json()
-  const { error } = await supabase
-    .from('subscription_plans')
-    .delete()
-    .eq('id', id)
-    .eq('tutor_id', user.id)
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const body = await req.json().catch(() => null) as { id?: unknown } | null
+  if (!isUuid(body?.id)) return NextResponse.json({ error: 'id required' }, { status: 400 })
+  const { data, error } = await gate.supabase.from('subscription_plans').delete().eq('id', body!.id as string).eq('tutor_id', gate.userId).select('id')
+  if (error) return NextResponse.json({ error: 'Could not delete the plan' }, { status: 500 })
+  if (!data || data.length === 0) return NextResponse.json({ error: 'Plan not found' }, { status: 404 })
   return NextResponse.json({ ok: true })
 }
 
 export async function PATCH(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { id, ...updates } = await req.json()
-  const { error } = await supabase
-    .from('subscription_plans')
-    .update(updates)
-    .eq('id', id)
-    .eq('tutor_id', user.id)
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  const gate = await requireApiPlan('pro')
+  if ('error' in gate) return gate.error
+  const body = await req.json().catch(() => null) as Record<string, unknown> | null
+  if (!isUuid(body?.id)) return NextResponse.json({ error: 'id required' }, { status: 400 })
+  const updates = pickPlanUpdates(body)
+  if (!updates.ok) return NextResponse.json({ error: updates.error }, { status: 400 })
+  const { data, error } = await gate.supabase.from('subscription_plans').update(updates.value).eq('id', body!.id as string).eq('tutor_id', gate.userId).select('id')
+  if (error) return NextResponse.json({ error: 'Could not update the plan' }, { status: 500 })
+  if (!data || data.length === 0) return NextResponse.json({ error: 'Plan not found' }, { status: 404 })
   return NextResponse.json({ ok: true })
 }

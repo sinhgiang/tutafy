@@ -2,6 +2,7 @@
 // the page renders (src/lib/site-content.ts), so the markup never says anything
 // the visible page does not.
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, PLANS, FAQ } from '@/lib/site-content'
+import { absoluteUrl } from '@/lib/site-url'
 
 export type JsonLd = Record<string, unknown>
 
@@ -16,6 +17,49 @@ export function jsonLdScript(data: JsonLd): string {
   json = escape(json, String.fromCharCode(0x2028), 'u2028')
   json = escape(json, String.fromCharCode(0x2029), 'u2029')
   return json
+}
+
+/**
+ * Structured data of a public page that is not the home page or a post (T-0843): what kind of page it is, where it sits
+ * (a breadcrumb back to the home page) and, for a list page, the items the page really draws. The name and description are
+ * the page's own title and description from PAGE_SEO, so the markup says what the page says. It never carries an e-mail
+ * address or a phone number.
+ */
+export function pageJsonLd(
+  page: { path: string; title: string; description: string },
+  crumb: string,
+  type: 'AboutPage' | 'ContactPage' | 'CollectionPage',
+  items: { name: string; path: string }[] = [],
+): JsonLd[] {
+  const url = absoluteUrl(page.path)
+  const webPage: JsonLd = {
+    '@context': 'https://schema.org',
+    '@type': type,
+    '@id': `${url}#webpage`,
+    name: page.title,
+    description: page.description,
+    url,
+    inLanguage: 'en',
+    isPartOf: { '@id': `${SITE_URL}/#website` },
+  }
+  if (items.length > 0) {
+    webPage.mainEntity = {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.name, url: absoluteUrl(it.path) })),
+    }
+  }
+  return [
+    webPage,
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: crumb, item: url },
+      ],
+    },
+  ]
 }
 
 export function homeJsonLd(): JsonLd[] {
@@ -55,4 +99,13 @@ export function homeJsonLd(): JsonLd[] {
       mainEntity: FAQ.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
     },
   ]
+}
+
+/** FAQPage data for a list of questions a page prints in full (T-0850): the same pairs, in the same order, nothing added. */
+export function faqPageJsonLd(items: { q: string; a: string }[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  }
 }

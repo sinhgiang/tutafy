@@ -1,11 +1,14 @@
 import { Shield, Mail, Globe, Key } from 'lucide-react'
 import { requireAdminPage } from '@/lib/admin-guard'
 import { getAdminT } from '@/lib/admin-lang'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function AdminSettingsPage() {
   // Own check (the layout alone is not a safe gate): this page names the admin account.
   await requireAdminPage()
   const { t } = await getAdminT()
+  // The page is for the admin only (checked above), so the signed-in account is the admin account.
+  const { data: { user } } = await (await createClient()).auth.getUser()
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
@@ -20,7 +23,7 @@ export default async function AdminSettingsPage() {
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-900">{t('settings.account')}</p>
-            <p className="text-xs text-gray-500 mt-0.5">tubxeebyajtube@gmail.com</p>
+            <p className="text-xs text-gray-500 mt-0.5">{user?.email}</p>
           </div>
           <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">{t('settings.owner')}</span>
         </div>

@@ -1,9 +1,23 @@
-# Welcome series for new tutors (T-0724): DRAFT for the owner's approval
+# Welcome series for new tutors (T-0724 the words, T-0737 the sending)
 
-Status: **a draft. Nothing is sent, nothing in the app calls it, nothing was run against the real mail service or the real database.**
-The code that exists is `src/lib/welcome-series.ts` (the three mails and the rule for who is due which one) and
-`tests/welcome-series.test.ts` (15 tests of that rule and of the mails). No route, no table, no cron, no unsubscribe page is built yet:
-they come after the owner approves the copy, the recipient rule and the decisions at the end of this file.
+Status: **built, and OFF. Nothing is sent to anybody, and nothing was run against the real mail service or the real database.**
+The owner approved the copy, the recipient rule and the decisions below (W-2225). What exists:
+
+- `src/lib/welcome-series.ts` (the three mails and the rule for who is due which one) and `tests/welcome-series.test.ts`;
+- `src/lib/welcome-send.ts` (the two switches, the daily run, the day-0 mail at sign-up), `src/app/api/cron/welcome-series/route.ts`
+  (09:00 UTC in `vercel.json`), `src/app/unsubscribe/page.tsx`, `src/app/api/unsubscribe/route.ts`, `src/lib/unsubscribe-token.ts`;
+- `supabase/migrations/023_welcome_emails.sql` (the two tables), **written but NOT applied: the owner runs it**;
+- `tests/welcome-send.test.ts` and `tests/welcome-emails-migration.test.ts`, which run the real code on a throwaway Postgres (PGlite)
+  with the mail service replaced by a recorder.
+
+Two things differ from the draft below, on purpose:
+
+1. **While the series is off (or in dry run, or before the start date), the OLD welcome mail of each sign-up place still goes**, exactly as
+   before. Replacing it with a switch that is off would leave every new tutor with no welcome mail at all. Once the series is live, the new
+   day-0 mail goes INSTEAD of the old one (one mail, not two).
+2. **The day-0 mail is sent from the two sign-up places, never from the daily run**; the daily run does only the day-2 nudge and the day-7 check-in.
+
+The sections "How it would send" and "Rollout" below describe the design as it is built.
 
 ## Why
 
@@ -18,7 +32,7 @@ only thing that reaches them is one welcome mail at sign-up. This series adds tw
 - There is **no unsubscribe anywhere** (no opt-out column, table or page) and **no record of which mail went to whom**.
 - A tutor's booking link name (`tutafy.com/book/<name>`) is made at sign-up (`name-xxxx`) and **cannot be changed in the product**
   (Settings, Booking page tab, shows it read-only). So "name your link" cannot be a day-0 job today; see decision 1.
-- Mail goes through `createMailer` (`src/lib/email.ts`): sender "Tutafy <booking@tutafy.com>", Reply-To the company mailbox, a plain-text
+- Mail goes through `createMailer` (`src/lib/email.ts`): sender "Tutafy <booking@ on the site's domain>", Reply-To the company mailbox, a plain-text
   copy beside the HTML, and the domain is already verified at Resend. A daily Vercel cron already exists for lesson reminders
   (`/api/cron/reminders`, closed unless `CRON_SECRET` is sent), so the same pattern fits.
 
@@ -84,7 +98,7 @@ A tutor is due a mail only when ALL of these are true (this is exactly what `due
 1. **The series is switched on, and the tutor signed up on or after the day it was switched on.** There is a start date, set by the owner
    when switching on. Without one the series is off and nobody is due anything. Every tutor who signed up before it (the 723) is never due
    anything from this series, on any day. Mailing them is a separate decision (decision 5).
-2. The address is a real, plain address (not a made-up `example.com` or `.test` address) and has **not unsubscribed**.
+2. The address is a real, plain address and has **not unsubscribed**. A made-up address is left out only when it ends in one of the endings of `TEST_DOMAIN` in `src/lib/welcome-series.ts`: example.com, example.org, example.net, .test, .invalid, .localhost. Other example endings (for instance .example and .local) are NOT filtered and would be mailed; `tests/absolute-claims.test.ts` keeps this sentence and the pattern in step.
 3. The mail was **not already sent** to this tutor (each of the three goes at most once).
 4. It is **inside its window**: welcome on day 0 (the first 24 hours), nudge from day 2 for two days, check-in from day 7 for three days.
    A cron that was down for a week does not send a "day 2" mail on day 6.
@@ -100,7 +114,7 @@ At most one mail per tutor per run.
 
 Each run: read the tutors who signed up in the last ten days and after the start date; read the two small tables below; for each, call
 `dueWelcomeSteps`; for the first due step, **claim it first** (insert the row; the unique key makes a double run harmless), then send one
-mail with `createMailer(key, 'general')` (sender "Tutafy <booking@tutafy.com>", Reply-To the company mailbox, plain-text copy added by the
+mail with `createMailer(key, 'general')` (sender "Tutafy <booking@ on the site's domain>", Reply-To the company mailbox, plain-text copy added by the
 mailer); if Resend refuses, remove the claim so the next run can try again inside the window.
 
 Safeguards, all on by default:

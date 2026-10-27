@@ -8,9 +8,14 @@ import { readFile } from 'node:fs/promises'
 import ts from 'typescript'
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'src')
+const NEXT_CONFIG = path.resolve(SRC, '..', 'next.config.ts')
 const CANDIDATES = ['', '.ts', '.tsx', '/index.ts', '/index.tsx']
 
 export async function resolve(specifier, context, nextResolve) {
+  // A stylesheet imported by a layout (src/styles/dashboard-shell.css): the bundler handles it, a test just needs it to exist.
+  if (specifier.startsWith('@/') && specifier.endsWith('.css') && existsSync(path.join(SRC, specifier.slice(2)))) {
+    return { url: pathToFileURL(path.join(SRC, specifier.slice(2))).href, shortCircuit: true }
+  }
   if (specifier.startsWith('@/')) {
     const base = path.join(SRC, specifier.slice(2))
     for (const ext of CANDIDATES) {
@@ -23,7 +28,8 @@ export async function resolve(specifier, context, nextResolve) {
   // A relative import inside src/ with no extension ('./BookingForm'): bundlers add .ts or .tsx, node does not.
   if (specifier.startsWith('.') && !/\.[a-z]+$/.test(specifier) && context.parentURL?.startsWith('file:')) {
     const parent = fileURLToPath(context.parentURL)
-    if (parent.startsWith(SRC)) {
+    // next.config.ts (T-0915) imports the one file that names the video frame origins, so the header and the page cannot disagree
+    if (parent.startsWith(SRC) || parent === NEXT_CONFIG) {
       const base = path.resolve(path.dirname(parent), specifier)
       for (const ext of CANDIDATES) {
         if (existsSync(base + ext) && /\.(ts|tsx)$/.test(base + ext)) return nextResolve(pathToFileURL(base + ext).href, context)
@@ -38,6 +44,7 @@ export async function resolve(specifier, context, nextResolve) {
 // node strips types from .ts by itself but cannot read JSX, so .tsx goes through the TypeScript compiler
 // (already installed for the build). Nothing else is changed: no bundling, no extra transform.
 export async function load(url, context, nextLoad) {
+  if (url.startsWith('file:') && url.endsWith('.css')) return { format: 'module', source: 'export {}', shortCircuit: true }
   if (url.startsWith('file:') && url.endsWith('.tsx')) {
     const source = await readFile(fileURLToPath(url), 'utf8')
     const { outputText } = ts.transpileModule(source, {
