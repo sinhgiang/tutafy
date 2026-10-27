@@ -110,7 +110,7 @@ test('the directory card link has no aria-label that could disagree with what it
   assert.doesNotMatch(link[0], /aria-label/, 'a label on the link is what the audit "label-content-name-mismatch" failed on')
   assert.match(link[1], /<span class="sr-only">View Ana Torres(&#x27;|')s profile<\/span>/, 'the profile sentence is part of the content')
   assert.match(link[1], /<div aria-hidden="true" data-testid="card-monogram"/, 'the initials are decoration')
-  assert.match(link[1], /data-testid="card-trial"[^>]*>.*Trial \$5/, 'the trial badge is visible and read')
+  assert.match(link[1], /data-testid="card-trial"[^>]*>.*30-min trial \$5/, 'the trial badge is visible and read')
 })
 
 test('the profile photo is asked for with high priority', () => {

@@ -44,7 +44,7 @@ export const FAQ: { q: string; a: string }[] = [
 export const TUTORS_FAQ: { q: string; a: string }[] = [
   { q: 'How do I book a lesson with a tutor?', a: 'Open a tutor, choose one of their free times and book with just your name and email. You do not need an account.' },
   { q: 'Which tutors are listed here?', a: 'Only tutors who have free times in the next 14 days, so every tutor you see can be booked today.' },
-  { q: 'Who sets the price of a lesson?', a: 'Each tutor sets their own price, in their own currency, and some offer a cheaper first lesson. Use the trial lesson filter to see them.' },
+  { q: 'Who sets the price of a lesson?', a: 'Each tutor sets their own price, in their own currency, and some offer a 30-minute trial lesson at a lower price. Use the trial lesson filter to see them.' },
   { q: 'How do I list myself as a tutor?', a: 'Create your free page and set your free hours, and students can book you here. It is free to start and Tutafy takes no commission on your lessons.' },
 ]
 

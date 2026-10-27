@@ -8,6 +8,7 @@ import { stripeErrorMessage } from '@/lib/stripe/availability'
 import { buildPaymentMethods, cardPaymentUrl, paypalUrl, showBuiltInCardCheckout } from '@/lib/payment-methods'
 import { formatMoney } from '@/lib/currency'
 import { ALL_DURATIONS, FALLBACK_DEFAULT } from '@/lib/lesson-durations'
+import { TRIAL_MINUTES, TRIAL_NAME } from '@/lib/trial'
 import { DEFAULT_FROM_ADDRESS, spamHintFor } from '@/lib/email-config'
 import { getSlots } from '@/lib/booking-slots'
 import { dayLabel, formatClock, safeZone, firstNameOf, priceLabel } from '@/lib/tutor-profile'
@@ -357,7 +358,7 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
   const [month, setMonth] = useState(today.getMonth())
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
-  const [duration, setDuration] = useState(defaultDuration)
+  const [chosenDuration, setChosenDuration] = useState(defaultDuration)
   const [name, setName] = useState(prefillName)
   const [email, setEmail] = useState(prefillEmail)
   const [note, setNote] = useState('')
@@ -373,6 +374,8 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [signatureName, setSignatureName] = useState('')
   const [isTrial, setIsTrial] = useState(false)
+  // A trial lesson is always 30 minutes, whatever lengths the tutor offers (T-1007); every length below is read from this one.
+  const duration = isTrial ? TRIAL_MINUTES : chosenDuration
   const [couponOpen, setCouponOpen] = useState(false)
   const [couponCode, setCouponCode] = useState('')
   const [couponApplied, setCouponApplied] = useState<{ code: string; type: string; value: number } | null>(null)
@@ -513,7 +516,7 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
 
   const priceText = trialPrice && isTrial ? formatMoney(trialPrice, tutor.currency) : priceLabel(tutor.default_lesson_price, tutor.currency)
   const buttonText = loading ? 'Confirming...'
-    : canBook ? `Book ${duration} min lesson`
+    : canBook ? `Book ${duration} min ${isTrial ? 'trial lesson' : 'lesson'}`
     : !date || !time ? 'Choose a day and time'
     : !detailsOk ? 'Enter your name and email to book'
     : 'Agree to the lesson agreement to book'
@@ -523,17 +526,19 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
     <form onSubmit={submit} className={`${CARD_BOX} overflow-hidden`} id="booking-form" aria-label={`Book a lesson with ${first}`}>
       <div className="flex items-baseline justify-between gap-3 px-4 sm:px-5 pt-5 pb-4">
         <h2 className="text-[20px] font-bold text-gray-900">Book a lesson</h2>
-        {tutor.default_lesson_price ? (
-          <p className="text-[13px] text-gray-600"><b className="text-[20px] text-gray-900">{priceLabel(tutor.default_lesson_price, tutor.currency)}</b> / lesson</p>
+        {isTrial && trialPrice ? (
+          <p className="text-[13px] text-gray-600" data-testid="booking-price"><b className="text-[20px] text-gray-900">{priceLabel(trialPrice, tutor.currency)}</b> / {TRIAL_MINUTES}-min trial</p>
+        ) : tutor.default_lesson_price ? (
+          <p className="text-[13px] text-gray-600" data-testid="booking-price"><b className="text-[20px] text-gray-900">{priceLabel(tutor.default_lesson_price, tutor.currency)}</b> / lesson</p>
         ) : <p className="text-[13px] text-gray-600">Price: ask the tutor</p>}
       </div>
 
       {/* 1 — Lesson length, and the trial lesson */}
       <Step n={1} title="Lesson length">
         <div className="grid grid-flow-col auto-cols-fr gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1" role="group" aria-label="Lesson length">
-          {durations.map(v => (
-            <button type="button" key={v} aria-pressed={duration === v}
-              onClick={() => { setDuration(v); setTime('') }}
+          {(isTrial ? [TRIAL_MINUTES] : durations).map(v => (
+            <button type="button" key={v} aria-pressed={duration === v} disabled={isTrial}
+              onClick={() => { setChosenDuration(v); setTime('') }}
               className={`min-h-10 rounded-[9px] text-[14px] font-semibold transition-colors ${FOCUS} ${
                 duration === v ? 'bg-white text-indigo-700 shadow-sm ring-1 ring-indigo-600' : 'text-gray-700 hover:bg-white/60'
               }`}>
@@ -542,12 +547,12 @@ export function BookingForm({ highlightPlanId = null, tutor, availability, subsc
           ))}
         </div>
         {trialEnabled && trialPrice && (
-          <button type="button" role="switch" aria-checked={isTrial} onClick={() => setIsTrial(v => !v)}
+          <button type="button" role="switch" aria-checked={isTrial} data-testid="trial-switch" onClick={() => { setIsTrial(v => !v); setTime('') }}
             className={`mt-3 flex w-full items-center gap-3 rounded-xl border border-dashed border-indigo-300 bg-indigo-50 px-3 py-2.5 text-left ${FOCUS}`}>
             <Gift className="h-[18px] w-[18px] shrink-0 text-indigo-600" aria-hidden="true" />
             <span className="block min-w-0 flex-1 whitespace-normal text-[14px]">
-              <b className="block text-gray-900">Trial lesson {priceLabel(trialPrice, tutor.currency)}</b>
-              <span className="block text-[13px] leading-snug text-gray-600">Your first lesson, at an introductory price</span>
+              <b className="block text-gray-900">{TRIAL_NAME} {priceLabel(trialPrice, tutor.currency)}</b>
+              <span className="block text-[13px] leading-snug text-gray-600">For your first lesson with {first}. Always {TRIAL_MINUTES} minutes.</span>
             </span>
             <span className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${isTrial ? 'bg-indigo-600' : 'bg-gray-400'}`} aria-hidden="true">
               <span className={`absolute top-[3px] h-[18px] w-[18px] rounded-full bg-white shadow transition-all ${isTrial ? 'left-[19px]' : 'left-[3px]'}`} />

@@ -119,7 +119,7 @@ test('whyThisTutor names only what is true of the tutor, at most three reasons',
   const plain = find.whyThisTutor(c, find.formFilters(dir.NO_FILTERS), CTX)
   assert.ok(plain.length >= 1 && plain.length <= 3)
   assert.ok(plain.includes('Teaches Spanish and English'))
-  assert.ok(plain.includes('Trial lesson for $8'))
+  assert.ok(plain.includes('30-minute trial for $8'))
   const asked = find.whyThisTutor(c, find.formFilters({ ...dir.NO_FILTERS, lang: 'Spanish', level: 'beginner', price: '15-30' }), CTX)
   assert.deepEqual(asked.slice(0, 3), ['Teaches Spanish', 'Teaches beginner students', '$22 a lesson, in your $15 to $30 range'])
   // a level the tutor did not choose is never claimed

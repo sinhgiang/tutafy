@@ -5,6 +5,7 @@
 import { cleanText } from '@/lib/tutor-seo'
 import { describeDurations } from '@/lib/lesson-durations'
 import { firstNameOf, hasTrial, priceLabel, safeZone, zoneCity } from '@/lib/tutor-profile'
+import { TRIAL_MINUTES, TRIAL_NAME } from '@/lib/trial'
 import { cardPaymentUrl, paypalUrl } from '@/lib/payment-methods'
 import { SITE_URL } from '@/lib/site-url'
 
@@ -58,7 +59,7 @@ export function bookingSeoText(t: BookingTutor): { title: string; description: s
   const trial = hasTrial({ trial_enabled: t.trial_enabled ?? null, trial_price: t.trial_price }) ? priceLabel(t.trial_price, t.currency) : null
   const cancel = cancelHoursOf(t)
   const lessons = langs.length ? `online ${langs.join(', ').replace(/, ([^,]*)$/, ' & $1')} lessons` : 'online lessons'
-  const facts = [price ? `${price} per lesson` : '', trial ? `trial lesson ${trial}` : '', cancel ? `free cancellation up to ${cancel}h` : ''].filter(Boolean)
+  const facts = [price ? `${price} per lesson` : '', trial ? `${TRIAL_MINUTES}-minute trial ${trial}` : '', cancel ? `free cancellation up to ${cancel}h` : ''].filter(Boolean)
   const lead = `Book 1-on-1 ${lessons} with ${name}.`
   const tail = 'Pick a time and book, no account needed.'
   // drop facts from the end until it fits, so the sentence stays whole
@@ -86,7 +87,7 @@ export function bookingFaq(t: BookingTutor & { durations: number[] }): FaqItem[]
     { q: 'What time zone are the times in?', a: `The calendar uses ${first}'s time zone, ${zoneCity(tz)} (${tz}). When your own time zone is different, each time also shows the time for you.` },
   ]
   if (price) items.push({ q: `How much does a lesson with ${first} cost?`, a: `A lesson costs ${price}, whichever length you choose (${describeDurations(t.durations)}).` })
-  if (trial) items.push({ q: 'How does the trial lesson work?', a: `Your first lesson with ${first} costs ${trial}. Switch on “Trial lesson” when you book. It is for a first lesson only.` })
+  if (trial) items.push({ q: 'How does the trial lesson work?', a: `Your first lesson with ${first} is a ${TRIAL_MINUTES}-minute trial and costs ${trial}. Switch on “${TRIAL_NAME}” when you book. It is for a first lesson only.` })
   items.push({
     q: 'What if I need to cancel?',
     a: cancel

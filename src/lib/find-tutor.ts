@@ -9,6 +9,7 @@ import {
 } from '@/lib/directory'
 import { LEVEL_OPTIONS } from '@/lib/tutor-levels'
 import { priceLabel } from '@/lib/tutor-profile'
+import { TRIAL_NAME } from '@/lib/trial'
 
 /** How many tutors the finder suggests. */
 export const SUGGESTED = 3
@@ -58,7 +59,7 @@ export function whyThisTutor(card: DirectoryCard, filters: Filters, ctx: ViewCon
   if (bucket && price) add(`${price} a lesson, in your ${bucket.label} range`)
 
   const trial = card.trialPrice !== null ? priceLabel(card.trialPrice, card.currency) : null
-  if (trial) add(`Trial lesson for ${trial}`)
+  if (trial) add(`${TRIAL_NAME} for ${trial}`)
 
   if (card.rating !== null && card.reviews > 0) add(`Rated ${card.rating.toFixed(1)} from ${card.reviews} ${card.reviews === 1 ? 'review' : 'reviews'}`)
   add(`Next free time: ${nextAvailableText(card, ctx.zone ?? card.tz, ctx.now)}`)

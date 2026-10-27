@@ -2,6 +2,7 @@
 // see before pressing Save. It shows the same facts the booking page shows (name, introduction, time zone, price, free trial, lesson
 // lengths, cancellation and buffer); it reads nothing from the server and sends nothing.
 import { formatMoney } from '@/lib/currency'
+import { TRIAL_NAME } from '@/lib/trial'
 
 export type PreviewForm = {
   name: string; bio: string; timezone: string; cancellation_hours: number; buffer_minutes: number
@@ -39,7 +40,7 @@ export function BookingPreview({ form, slug, avatarUrl }: { form: PreviewForm; s
         </p>
         <dl>
           <div><dt>Lesson price</dt><dd data-testid="preview-price">{price > 0 ? `${formatMoney(price, form.currency)} per lesson` : 'No price set'}</dd></div>
-          {form.trial_enabled && <div><dt>Free trial</dt><dd data-testid="preview-trial">{trial > 0 ? `Trial lesson ${formatMoney(trial, form.currency)}` : 'Free trial lesson'}</dd></div>}
+          {form.trial_enabled && <div><dt>Free trial</dt><dd data-testid="preview-trial">{trial > 0 ? `${TRIAL_NAME} ${formatMoney(trial, form.currency)}` : 'Free trial lesson'}</dd></div>}
           <div><dt>Lesson lengths</dt><dd><span className="set-pills" data-testid="preview-lengths">{[...form.lesson_durations].sort((a, b) => a - b).map(d => (
             <span key={d} className={`dash-chip ${d === form.default_lesson_duration ? 'is-brand-chip' : ''}`}>{d} min</span>
           ))}</span></dd></div>

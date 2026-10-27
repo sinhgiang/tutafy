@@ -5,6 +5,7 @@
 import { FileText, Star } from 'lucide-react'
 import { SectionHead } from '@/components/settings/sections/SectionHead'
 import type { SettingsCtx } from '@/components/settings/sections/context'
+import { TRIAL_NAME, TRIAL_RULE } from '@/lib/trial'
 
 export default function ExtrasSection({ ctx }: { ctx: SettingsCtx }) {
   const { form, setForm } = ctx
@@ -22,7 +23,7 @@ export default function ExtrasSection({ ctx }: { ctx: SettingsCtx }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[13px] font-medium text-gray-900">Offer trial lesson</p>
-                <p className="text-[11px] text-gray-400 mt-0.5">Show a discounted first-lesson option on your booking page</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">Show a {TRIAL_NAME} option for first-time students on your booking page</p>
               </div>
               <button type="button" role="switch" aria-checked={form.trial_enabled} aria-label="Offer trial lesson" onClick={() => setForm(f => ({ ...f, trial_enabled: !f.trial_enabled }))}
                 className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
@@ -39,7 +40,7 @@ export default function ExtrasSection({ ctx }: { ctx: SettingsCtx }) {
                 <input id="settings-trial-price" type="number" min="0" step="0.01" placeholder="e.g. 10.00" value={form.trial_price}
                   onChange={e => setForm(f => ({ ...f, trial_price: e.target.value }))}
                   className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
-                <p className="text-[11px] text-gray-400 mt-1">Set lower than your regular price to encourage first bookings</p>
+                <p className="text-[11px] text-gray-400 mt-1" data-testid="trial-rule">{TRIAL_RULE} You set the price: lower than your regular price encourages first bookings.</p>
               </div>
             )}
           </div>
