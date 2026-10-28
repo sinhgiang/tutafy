@@ -159,7 +159,7 @@ test('the read is read only and selects only these columns of tutors: no email, 
   await loadDirectory(guarded as unknown as DirectoryClient)
   const tutorCols = selects.filter(s => s.table === 'tutors').flatMap(s => s.cols.split(',').map(c => c.trim()))
   assert.ok(tutorCols.length > 0)
-  const allowed = new Set([...TUTOR_COLUMNS.split(',').map(c => c.trim()), 'lesson_durations', 'default_lesson_duration', 'levels_taught', 'intro_video_url'])
+  const allowed = new Set([...TUTOR_COLUMNS.split(',').map(c => c.trim()), 'lesson_durations', 'default_lesson_duration', 'levels_taught', 'learning_groups', 'intro_video_url'])
   for (const col of tutorCols) assert.ok(allowed.has(col), `column ${col} is not on the list`)
   for (const col of tutorCols) assert.ok(!/email|phone|address|stripe|paypal|payment|referral|portal|token|secret|key|password/i.test(col), `column ${col} looks private`)
   assert.deepEqual([...new Set(selects.map(s => s.table))].sort(), ['availability', 'availability_exceptions', 'lessons', 'tutors'])

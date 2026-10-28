@@ -4,6 +4,7 @@
 // A part that fails never stops the parts after it, and the saved copy only takes the values that were really written.
 import { lengthSaveErrorMessage, durationColumnsToSave } from '@/lib/lesson-durations'
 import { cleanLevels } from '@/lib/tutor-levels'
+import { cleanGroups } from '@/lib/tutor-groups'
 
 export type SettingsForm = {
   name: string
@@ -23,6 +24,8 @@ export type SettingsForm = {
   default_lesson_duration: number
   hide_branding: boolean
   levels_taught: string[]
+  /** the kinds of student the tutor likes to teach ("Learning for", migration 029) */
+  learning_groups: string[]
 }
 
 type DbError = { message: string; code?: string } | null
@@ -33,6 +36,9 @@ export type SettingsDb = {
 export const BRANDING_NOT_AVAILABLE = 'This option is not available yet. Your other settings are saved.'
 export const LEVELS_NOT_AVAILABLE = 'The levels you teach cannot be saved yet. Your other settings are saved.'
 const LEVELS_NOT_AVAILABLE_ALONE = 'The levels you teach cannot be saved yet.'
+export const GROUPS_NOT_AVAILABLE = 'The kinds of student you teach cannot be saved yet. Your other settings are saved.'
+const GROUPS_NOT_AVAILABLE_ALONE = 'The kinds of student you teach cannot be saved yet.'
+export const LEVELS_AND_GROUPS_NOT_AVAILABLE = 'The levels and kinds of student you teach cannot be saved yet. Your other settings are saved.'
 const BRANDING_NOT_AVAILABLE_ALONE = 'The "Made with Tutafy" option is not available yet.'
 
 export type SettingsSaveResult =
@@ -48,7 +54,7 @@ export type SettingsSaveResult =
  * @param cardLink      the checked card payment link (cardLinkForSave decides it before this runs)
  */
 export async function saveTutorSettings(db: SettingsDb, userId: string, form: SettingsForm, savedSnapshot: string, cardLink: string): Promise<SettingsSaveResult> {
-  const { currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, ...rest } = form
+  const { currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, learning_groups, ...rest } = form
   const { error } = await db.from('tutors').update({
     ...rest,
     paddle_checkout_link: cardLink,
@@ -68,6 +74,7 @@ export async function saveTutorSettings(db: SettingsDb, userId: string, form: Se
   let brandingFailed = false
   let lengthMessage = ''
   let levelsFailed = false
+  let groupsFailed = false
 
   // "Made with Tutafy": its own column may not exist yet (migration 021), so it is written apart, and only when the tutor changed it.
   // The pages decide by the PLAN first (src/lib/branding.ts), so a Free tutor writing true here changes nothing on their page.
@@ -84,6 +91,14 @@ export async function saveTutorSettings(db: SettingsDb, userId: string, form: Se
   if (wantedLevels.join() !== savedLevels.join()) {
     const { error: levelsError } = await db.from('tutors').update({ levels_taught: wantedLevels }).eq('id', userId)
     if (levelsError) { levelsFailed = true; saved.levels_taught = savedLevels }
+  }
+
+  // Kinds of student taught (migration 029, T-1033): the same way, its own write so a missing column loses nothing else.
+  const wantedGroups = cleanGroups(learning_groups)
+  const savedGroups = cleanGroups(before?.learning_groups)
+  if (wantedGroups.join() !== savedGroups.join()) {
+    const { error: groupsError } = await db.from('tutors').update({ learning_groups: wantedGroups }).eq('id', userId)
+    if (groupsError) { groupsFailed = true; saved.learning_groups = savedGroups }
   }
 
   // Lesson lengths: only when the tutor changed them. The update names this signed-in tutor's own row
@@ -103,13 +118,17 @@ export async function saveTutorSettings(db: SettingsDb, userId: string, form: Se
   }
 
   const snapshot = JSON.stringify(saved)
-  if (!brandingFailed && !lengthMessage && !levelsFailed) return { ok: true, snapshot }
-  if (levelsFailed && !brandingFailed && !lengthMessage) return { ok: false, stage: 'optional', snapshot, message: LEVELS_NOT_AVAILABLE }
+  if (!brandingFailed && !lengthMessage && !levelsFailed && !groupsFailed) return { ok: true, snapshot }
+  if ((levelsFailed || groupsFailed) && !brandingFailed && !lengthMessage) {
+    const message = levelsFailed && groupsFailed ? LEVELS_AND_GROUPS_NOT_AVAILABLE : levelsFailed ? LEVELS_NOT_AVAILABLE : GROUPS_NOT_AVAILABLE
+    return { ok: false, stage: 'optional', snapshot, message }
+  }
   // Several failed: the sentence about the lengths already says "your other settings are saved", which is only true for the main
   // columns now, so every other part that failed is named instead of hidden.
   const first = lengthMessage
     ? (brandingFailed ? `${lengthMessage} ${BRANDING_NOT_AVAILABLE_ALONE}` : lengthMessage)
     : BRANDING_NOT_AVAILABLE
-  const message = levelsFailed ? `${first} ${LEVELS_NOT_AVAILABLE_ALONE}` : first
+  const withLevels = levelsFailed ? `${first} ${LEVELS_NOT_AVAILABLE_ALONE}` : first
+  const message = groupsFailed ? `${withLevels} ${GROUPS_NOT_AVAILABLE_ALONE}` : withLevels
   return { ok: false, stage: 'optional', snapshot, message }
 }

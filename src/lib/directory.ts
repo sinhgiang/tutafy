@@ -16,6 +16,7 @@ import { resolveDurationConfig } from '@/lib/lesson-durations'
 import { normalizeCurrency } from '@/lib/currency'
 import { cleanText, httpsImage } from '@/lib/tutor-seo'
 import { LEVEL_OPTIONS, cleanLevels, type LevelId } from '@/lib/tutor-levels'
+import { GROUP_OPTIONS, cleanGroups, type GroupId } from '@/lib/tutor-groups'
 import { introVideoFromStored } from '@/lib/intro-video'
 
 // ---- the rule ------------------------------------------------------------------------------------------------------------------------
@@ -112,11 +113,13 @@ export function listingSlots(i: SlotInput): FreeSlot[] {
 
 // The levels a tutor says they teach live in src/lib/tutor-levels.ts (Settings uses them too); re-exported here for the directory.
 export { LEVEL_OPTIONS, cleanLevels, type LevelId } from '@/lib/tutor-levels'
+// The kinds of student a tutor likes to teach ("Learning for", T-1033) live in src/lib/tutor-groups.ts for the same reason.
+export { GROUP_OPTIONS, cleanGroups, type GroupId } from '@/lib/tutor-groups'
 
 // ---- the card ------------------------------------------------------------------------------------------------------------------------
 
 /** What one card carries to the browser. A test fixes this list of keys: nothing else of a tutor row (never an email, phone or payment field) is sent. */
-export const CARD_KEYS = ['slug', 'name', 'photo', 'languages', 'headline', 'rating', 'reviews', 'price', 'currency', 'trialPrice', 'tz', 'levels', 'complete', 'slots', 'established', 'video'] as const
+export const CARD_KEYS = ['slug', 'name', 'photo', 'languages', 'headline', 'rating', 'reviews', 'price', 'currency', 'trialPrice', 'tz', 'levels', 'groups', 'complete', 'slots', 'established', 'video'] as const
 
 export type DirectoryCard = {
   slug: string
@@ -134,6 +137,8 @@ export type DirectoryCard = {
   tz: string
   /** The student levels the tutor says they teach; empty when the tutor has not said (T-0863). */
   levels: LevelId[]
+  /** The kinds of student ("Learning for") the tutor says they like to teach; empty when the tutor has not said (T-1033). */
+  groups: GroupId[]
   /** 0 to 4: photo, an introduction of 200+ characters, a price, a trial lesson. Only used to rank. */
   complete: number
   /** Free times as minutes since 1970 (UTC), soonest first, at most MAX_CARD_SLOTS. */
@@ -149,6 +154,8 @@ export type CardSource = {
   average_rating: unknown; review_count: unknown; default_lesson_price: unknown; currency: unknown; trial_enabled: unknown; trial_price: unknown
   /** tutors.levels_taught (migration 026); absent on a database that does not have it yet. */
   levels_taught?: unknown
+  /** tutors.learning_groups (migration 029); absent on a database that does not have it yet. */
+  learning_groups?: unknown
   /** The "Established" badge, worked out by the loader (T-0915). */
   established?: unknown
   /** tutors.intro_video_url (migration 028); absent on a database that does not have it yet. */
@@ -218,6 +225,7 @@ export function buildCard(t: CardSource, slots: FreeSlot[]): DirectoryCard | nul
     trialPrice,
     tz: realZone(t.timezone) ?? 'UTC',
     levels: cleanLevels(t.levels_taught),
+    groups: cleanGroups(t.learning_groups),
     complete: (photo ? 1 : 0) + (chars(t.bio) >= 200 ? 1 : 0) + (price ? 1 : 0) + (trialPrice ? 1 : 0),
     slots: thin,
     established: t.established === true,
@@ -299,8 +307,14 @@ export const ZONE_CHOICES = [
 export type Filters = {
   q: string; lang: string | null; price: PriceBucketId | null; when: WhenId | null; tod: TodId | null; trial: boolean
   level: LevelId | null; near: boolean; tz: string | null; sort: SortId
+  /** "Learning for" (T-1033): the kind of student, from the groups tutors ticked in Settings. */
+  group: GroupId | null
+  /** A price range in approximate dollars an hour (T-1033), either end optional; the four ready-made price groups stay beside it as shortcuts. */
+  min: number | null; max: number | null
 }
-export const NO_FILTERS: Filters = { q: '', lang: null, price: null, when: null, tod: null, trial: false, level: null, near: false, tz: null, sort: 'recommended' }
+export const NO_FILTERS: Filters = { q: '', lang: null, price: null, when: null, tod: null, trial: false, level: null, near: false, tz: null, sort: 'recommended', group: null, min: null, max: null }
+/** The highest price a range can name; anything above in an address is cut to it. */
+export const MAX_RANGE_USD = 500
 /** "Clear all": every filter off, the time zone and the sort the visitor chose kept. */
 export const clearedFilters = (f: Filters): Filters => ({ ...NO_FILTERS, tz: f.tz, sort: f.sort })
 
@@ -314,8 +328,16 @@ export function parseZone(raw: string): string | null {
   return v.length <= 40 && /^[A-Za-z]+(?:[_-][A-Za-z]+)*(?:\/[A-Za-z0-9_+-]+){1,2}$|^UTC$/.test(v) ? realZone(v) : null
 }
 
+/** A whole number of dollars from an address (0 to MAX_RANGE_USD), or null: letters, decimals, signs and an empty box give null. */
+export function parseDollars(raw: string): number | null {
+  const v = raw.trim()
+  return /^\d{1,4}$/.test(v) ? Math.min(MAX_RANGE_USD, Number(v)) : null
+}
+
 /** The filters in an address. Every value is checked against a fixed list (or cut to a short length), so an address typed by hand only ever gives a valid state. */
 export function parseFilters(p: Params): Filters {
+  let min = parseDollars(one(p, 'min')), max = parseDollars(one(p, 'max'))
+  if (min !== null && max !== null && min > max) [min, max] = [max, min]
   return {
     q: cleanText(one(p, 'q'), 60),
     lang: cleanLanguage(one(p, 'lang')) || null,
@@ -327,6 +349,8 @@ export function parseFilters(p: Params): Filters {
     near: one(p, 'near') === '1',
     tz: parseZone(one(p, 'tz')),
     sort: pick(one(p, 'sort'), SORT_OPTIONS) ?? 'recommended',
+    group: pick(one(p, 'for'), GROUP_OPTIONS),
+    min, max,
   }
 }
 
@@ -340,6 +364,9 @@ export function filtersToQuery(f: Filters): string {
   if (f.tod) q.set('tod', f.tod)
   if (f.trial) q.set('trial', '1')
   if (f.level) q.set('level', f.level)
+  if (f.group) q.set('for', f.group)
+  if (f.min !== null) q.set('min', String(f.min))
+  if (f.max !== null) q.set('max', String(f.max))
   if (f.near) q.set('near', '1')
   if (f.tz) q.set('tz', f.tz)
   if (f.sort !== 'recommended') q.set('sort', f.sort)
@@ -347,12 +374,21 @@ export function filtersToQuery(f: Filters): string {
   return s ? `?${s}` : ''
 }
 
-export type FilterKey = 'q' | 'lang' | 'price' | 'when' | 'tod' | 'trial' | 'level' | 'near'
+export type FilterKey = 'q' | 'lang' | 'price' | 'range' | 'when' | 'tod' | 'trial' | 'level' | 'group' | 'near'
 export function activeFilters(f: Filters): FilterKey[] {
-  return (['lang', 'level', 'price', 'when', 'tod', 'near', 'trial', 'q'] as const).filter(k => (k === 'trial' || k === 'near' ? f[k] : Boolean(f[k])))
+  return (['lang', 'level', 'group', 'price', 'range', 'when', 'tod', 'near', 'trial', 'q'] as const).filter(k => {
+    if (k === 'range') return f.min !== null || f.max !== null
+    return k === 'trial' || k === 'near' ? f[k] : Boolean(f[k])
+  })
 }
 export function withoutFilter(f: Filters, key: FilterKey): Filters {
+  if (key === 'range') return { ...f, min: null, max: null }
   return { ...f, [key]: key === 'trial' || key === 'near' ? false : key === 'q' ? '' : null }
+}
+/** "$20 to $40", "From $20" or "Up to $40" for a price range. */
+export function rangeLabel(min: number | null, max: number | null): string {
+  if (min !== null && max !== null) return `$${min} to $${max}`
+  return min !== null ? `From $${min}` : `Up to $${max ?? 0}`
 }
 export function filterLabel(f: Filters, key: FilterKey): string {
   switch (key) {
@@ -361,6 +397,8 @@ export function filterLabel(f: Filters, key: FilterKey): string {
     case 'when': return WHEN_OPTIONS.find(o => o.id === f.when)?.label ?? ''
     case 'tod': return TOD_OPTIONS.find(o => o.id === f.tod)?.label ?? ''
     case 'level': return LEVEL_OPTIONS.find(o => o.id === f.level)?.label ?? ''
+    case 'group': return GROUP_OPTIONS.find(o => o.id === f.group)?.label ?? ''
+    case 'range': return rangeLabel(f.min, f.max)
     case 'near': return `Within ${NEAR_HOURS} hours of you`
     case 'trial': return 'Trial lesson'
     case 'q': return `“${f.q}”`
@@ -448,8 +486,13 @@ export function applyFilters(cards: DirectoryCard[], f: Filters, ctx: ViewContex
       const usd = approxUsd(c)
       if (usd === null || !bucket.test(usd)) return false
     }
+    if (f.min !== null || f.max !== null) {
+      const usd = approxUsd(c)
+      if (usd === null || (f.min !== null && usd < f.min) || (f.max !== null && usd > f.max)) return false
+    }
     if (f.trial && c.trialPrice === null) return false
     if (f.level && !c.levels.includes(f.level)) return false
+    if (f.group && !c.groups.includes(f.group)) return false
     if (f.near && ctx.zone && !isNear(c.tz, ctx.zone, ctx.now)) return false
     if ((f.when || f.tod) && ctx.zone) {
       if (!c.slots.some(m => slotFits(m, f, ctx.zone!, ctx.now))) return false
@@ -511,6 +554,11 @@ export function languageCounts(cards: DirectoryCard[]): { language: string; coun
 /** The levels tutors say they teach, with how many listed tutors say each (only levels somebody chose). */
 export function levelCounts(cards: DirectoryCard[]): { level: LevelId; label: string; hint: string; count: number }[] {
   return LEVEL_OPTIONS.map(o => ({ level: o.id, label: o.label, hint: o.hint, count: cards.filter(c => c.levels.includes(o.id)).length })).filter(l => l.count > 0)
+}
+
+/** The kinds of student tutors say they like to teach, with how many listed tutors say each (only groups somebody ticked). */
+export function groupCounts(cards: DirectoryCard[]): { group: GroupId; label: string; hint: string; count: number }[] {
+  return GROUP_OPTIONS.map(o => ({ group: o.id, label: o.label, hint: o.hint, count: cards.filter(c => c.groups.includes(o.id)).length })).filter(g => g.count > 0)
 }
 
 export type DirectoryState = 'many' | 'few' | 'empty'

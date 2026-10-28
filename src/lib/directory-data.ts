@@ -93,11 +93,13 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
     // The intro video and the "Established" badge (T-0915) are optional reads too (migration 028): none on a database without it, never a failure.
     const extrasDb = db as unknown as ExtrasClient
     const withRpc = typeof db.rpc === 'function'
-    const [chosenRows, levelRows, blockedRows, lessonRows, videos, badges] = await Promise.all([
+    const [chosenRows, levelRows, groupRows, blockedRows, lessonRows, videos, badges] = await Promise.all([
       // lesson lengths: a database without the two columns (migration 018) means "chose nothing", like the booking page
       all(() => db.from('tutors').select('id, lesson_durations, default_lesson_duration').in('id', ids).order('id'), 'tutors', true),
       // levels the tutor says they teach (migration 026, T-0863): a database without the column means "said nothing", never a failure
       all(() => db.from('tutors').select('id, levels_taught').in('id', ids).order('id'), 'tutors', true),
+      // the kinds of student the tutor likes to teach (migration 029, T-1033): its own read for the same reason, a missing column is "said nothing"
+      all(() => db.from('tutors').select('id, learning_groups').in('id', ids).order('id'), 'tutors', true),
       all(() => db.from('availability_exceptions').select('tutor_id, date').in('tutor_id', ids).gte('date', yesterdayDate).order('tutor_id').order('date'), 'availability_exceptions', true),
       // the tutor's own calendar (assigned_to is null), lessons that are not cancelled: the same read the booking route and the public profile do
       all(() => db.from('lessons').select('tutor_id, starts_at, ends_at, duration_minutes').in('tutor_id', ids)
@@ -109,6 +111,8 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
     for (const r of chosenRows) chosen.set(String(r.id), r)
     const levelsOf = new Map<string, unknown>()
     for (const r of levelRows) levelsOf.set(String(r.id), r.levels_taught)
+    const groupsOf = new Map<string, unknown>()
+    for (const r of groupRows) groupsOf.set(String(r.id), r.learning_groups)
 
     for (const t of tutors) {
       const id = String(t.id)
@@ -124,7 +128,7 @@ export async function loadDirectory(db: DirectoryClient, now: Date = new Date())
       })
       if (!checkListing(t as { booking_url_active: unknown; name: unknown; bio: unknown; timezone: unknown }, slots.length).listed) continue
       listed += 1
-      const card = buildCard({ ...t, levels_taught: levelsOf.get(id), established: badges.has(id), intro_video_url: videos.get(id)?.canonical } as Parameters<typeof buildCard>[0], slots)
+      const card = buildCard({ ...t, levels_taught: levelsOf.get(id), learning_groups: groupsOf.get(id), established: badges.has(id), intro_video_url: videos.get(id)?.canonical } as Parameters<typeof buildCard>[0], slots)
       if (card) cards.push(card)
     }
   }

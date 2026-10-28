@@ -22,6 +22,8 @@ export type SettingsForm = {
   hide_branding: boolean
   /** the student levels the tutor teaches (ids of LEVEL_OPTIONS); migration 026 */
   levels_taught: string[]
+  /** the kinds of student the tutor likes to teach (ids of GROUP_OPTIONS); migration 029 */
+  learning_groups: string[]
 }
 
 export type SettingsCtx = {

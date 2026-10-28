@@ -104,7 +104,7 @@ test('loadDirectory still throws when one of the four reads fails', async () => 
 })
 
 test('the directory card link has no aria-label that could disagree with what it shows: its name is its own content', () => {
-  const card = { slug: 'ana', name: 'Ana Torres', photo: null, languages: ['English'], headline: 'Hello', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: 5, tz: 'UTC', levels: [], complete: 1, slots: [Math.floor((NOW.getTime() + 86400000) / 60000)] } as unknown as DirectoryCard
+  const card = { slug: 'ana', name: 'Ana Torres', photo: null, languages: ['English'], headline: 'Hello', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: 5, tz: 'UTC', levels: [], groups: [], complete: 1, slots: [Math.floor((NOW.getTime() + 86400000) / 60000)] } as unknown as DirectoryCard
   const html = renderToStaticMarkup(createElement(TutorCard, { card, zone: 'UTC', viewerZone: null, now: NOW }))
   const link = html.match(/<a [^>]*href="\/tutors\/ana"[^>]*>([\s\S]*?)<\/a>/)!
   assert.doesNotMatch(link[0], /aria-label/, 'a label on the link is what the audit "label-content-name-mismatch" failed on')

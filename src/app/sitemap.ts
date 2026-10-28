@@ -8,6 +8,7 @@ import { tutorProfileUrl } from '@/lib/tutor-seo'
 import { getDirectory } from '@/lib/directory-cache'
 import { refreshCards } from '@/lib/directory'
 import { pickLanguagePages, languagePagePath } from '@/lib/language-pages'
+import { pairGuidePath, pickPairPages } from '@/lib/niche-pages'
 
 // The tutor profiles are read from the database, so the list is rebuilt about every hour
 // instead of on every request.
@@ -62,5 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // A language page is listed only while it exists (src/lib/language-pages.ts): a language with too few tutors has no page and no entry.
   const directory = await getDirectory()
   const languageUrls = pickLanguagePages(directory?.open ? refreshCards(directory.cards, new Date()) : []).map(p => ({ url: `${SITE}${languagePagePath(p.guide.slug)}`, changeFrequency: 'weekly' as const, priority: 0.7 }))
-  return [...staticUrls, ...languageUrls, ...postUrls, ...tutorUrls]
+  // A niche page (T-1033) the same way: listed only while at least 3 tutors who can be booked teach the language and ticked the group.
+  const pairUrls = pickPairPages(directory?.open ? refreshCards(directory.cards, new Date()) : []).map(p => ({ url: `${SITE}${pairGuidePath(p.guide)}`, changeFrequency: 'weekly' as const, priority: 0.7 }))
+  return [...staticUrls, ...languageUrls, ...pairUrls, ...postUrls, ...tutorUrls]
 }

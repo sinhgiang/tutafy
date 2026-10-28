@@ -83,7 +83,7 @@ const text = (h: string) => h.replace(/<[^>]+>/g, ' ').replace(/&#x27;/g, "'").r
 
 function card(o: Partial<import('@/lib/directory.ts').DirectoryCard> = {}): import('@/lib/directory.ts').DirectoryCard {
   const now = Date.now()
-  return { slug: 'x', name: 'X Y', photo: null, languages: ['Spanish'], headline: 'Hi', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: null, tz: 'UTC', levels: [], complete: 1, slots: [Math.floor(now / 60000) + 600], ...o }
+  return { slug: 'x', name: 'X Y', photo: null, languages: ['Spanish'], headline: 'Hi', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: null, tz: 'UTC', levels: [], groups: [], complete: 1, slots: [Math.floor(now / 60000) + 600], ...o }
 }
 const NOW = new Date()
 const CTX = { zone: 'UTC' as string | null, now: NOW }

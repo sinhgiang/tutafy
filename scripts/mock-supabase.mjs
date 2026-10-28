@@ -270,10 +270,12 @@ if (process.env.MOCK_DIRECTORY === 'many') {
     ['Aisha Rahman', ['English', 'Arabic'], 'Asia/Dubai', 28, 'USD', 7, 5, 11, 'Relaxed English conversation for people who understand more than they can say. No pressure, just practice.', week('16:00', '22:00', [0, 1, 2, 3, 4])],
     ['Alexandra Konstantinopoulou-Papadakis', ['Greek', 'English'], 'Europe/Athens', 40, 'EUR', 0, 4.7, 14, 'Greek for heritage learners and for people moving to Greece, from the alphabet to a first real conversation.', week('09:00', '15:00')],
   ]
+  // The kinds of student each sample likes to teach (T-1033): English for work has four tutors, English for exams three, Spanish for travel three, so three niche pages exist.
+  const GROUPS = [['work', 'exams', 'travel'], ['work'], ['conversation'], ['travel', 'conversation'], ['work', 'travel'], ['conversation', 'kids'], ['work'], ['travel'], ['exams', 'university'], ['travel', 'exams'], ['conversation', 'work'], ['exams']]
   SAMPLES.forEach(([name, languages, timezone, price, currency, trial, rating, reviewCount, bio, hours], i) => {
     const tid = id(300 + i, 'b')
     tutors.push({ id: tid, email: `directory${i}@example.com`, name, slug: name.toLowerCase().replace(/[^a-z]+/g, '-').replace(/^-|-$/g, ''), subscription_status: 'free', languages, timezone,
-      created_at: iso(-20 - i), booking_url_active: true, default_lesson_price: price, currency, trial_enabled: trial > 0, trial_price: trial || null, average_rating: rating, review_count: reviewCount, bio, avatar_url: null, buffer_minutes: 0, levels_taught: [['beginner', 'intermediate'], ['advanced'], [], ['beginner'], ['intermediate', 'advanced']][i % 5] })
+      created_at: iso(-20 - i), booking_url_active: true, default_lesson_price: price, currency, trial_enabled: trial > 0, trial_price: trial || null, average_rating: rating, review_count: reviewCount, bio, avatar_url: null, buffer_minutes: 0, levels_taught: [['beginner', 'intermediate'], ['advanced'], [], ['beginner'], ['intermediate', 'advanced']][i % 5], learning_groups: GROUPS[i] })
     if (name === 'Tomás Ruiz') tutors[tutors.length - 1].intro_video_url = 'https://vimeo.com/76979871' // the design sample's tutor has a video
     hours.forEach((h, k) => availability.push({ id: id(3000 + i * 10 + k, 'f'), tutor_id: tid, day_of_week: h.d, start_time: `${h.from}:00`, end_time: `${h.to}:00`, created_at: iso(-20) }))
   })

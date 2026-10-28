@@ -1,11 +1,11 @@
 // One tutor card of the directory (T-0769, design: docs/directory-design/card.html). Plain markup with no browser state: the page passes
 // the zone to read the time in, so the server draw and the tests render the same thing.
 import Link from 'next/link'
-import { Star, Zap, Languages, Clock, Signal, Video } from 'lucide-react'
+import { Star, Zap, Languages, Clock, Signal, Target, Video } from 'lucide-react'
 import { EstablishedChip } from '@/components/profile/EstablishedBadge'
 import { priceLabel, initialsOf, zoneCity } from '@/lib/tutor-profile'
 import { TRIAL_BADGE } from '@/lib/trial'
-import { nextAvailableText, LEVEL_OPTIONS, type DirectoryCard } from '@/lib/directory'
+import { nextAvailableText, GROUP_OPTIONS, LEVEL_OPTIONS, type DirectoryCard } from '@/lib/directory'
 
 // Soft tints for the "no photo" tile, picked from the name so a grid is not one flat colour (never a grey silhouette).
 const TILES = [
@@ -67,6 +67,12 @@ export function TutorCard({ card, zone, viewerZone, now }: { card: DirectoryCard
           <p className="text-[13px] text-gray-600 flex items-center gap-1.5" data-testid="card-levels">
             <Signal className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span className="min-w-0 break-words"><span className="sr-only">Levels taught: </span>{LEVEL_OPTIONS.filter(o => card.levels.includes(o.id)).map(o => o.label).join(' · ')}</span>
+          </p>
+        )}
+        {card.groups.length > 0 && (
+          <p className="text-[13px] text-gray-600 flex items-center gap-1.5" data-testid="card-groups">
+            <Target className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 break-words"><span className="sr-only">Likes to teach: </span>{GROUP_OPTIONS.filter(o => card.groups.includes(o.id)).slice(0, 3).map(o => o.label).join(' · ')}</span>
           </p>
         )}
       </div>

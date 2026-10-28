@@ -209,7 +209,7 @@ test('Settings: a switch in the Booking page tab, switchable only on a paid plan
   assert.match(src, /hide_branding: data\.hide_branding === true/, 'read from the loaded row; a missing column reads as false')
   // the writes live in src/lib/settings-save.ts; their ORDER and what the saved copy takes are run for real in tests/settings-save.test.ts
   const save = read('src/lib/settings-save.ts')
-  assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, \.\.\.rest \} = form/, 'left out of the main update, because its column may not exist yet')
+  assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, learning_groups, \.\.\.rest \} = form/, 'left out of the main update, because its column may not exist yet')
   assert.match(save, /if \(hide_branding !== savedBranding\) \{\s*const \{ error: brandingError \} = await db\.from\('tutors'\)\.update\(\{ hide_branding \}\)\.eq\('id', userId\)/, 'written alone, only when changed, on the signed-in tutor\'s own row')
   assert.match(save, /This option is not available yet\. Your other settings are saved\./)
 })

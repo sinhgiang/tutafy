@@ -8,12 +8,12 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import {
-  Search, SlidersHorizontal, ChevronDown, Languages, Wallet, CalendarClock, Zap, X, Globe, Sprout, SearchX, CalendarX, AlertCircle, GraduationCap, Check, Lightbulb, Signal,
+  Search, SlidersHorizontal, ChevronDown, Languages, Wallet, CalendarClock, Zap, X, Globe, Sprout, SearchX, CalendarX, AlertCircle, GraduationCap, Check, Lightbulb, Signal, Target,
 } from 'lucide-react'
 import { safeZone, zoneCity } from '@/lib/tutor-profile'
 import {
   APPROX_RATES_NOTE, DIRECTORY_OPENS_AT, FEW_TUTORS_BELOW, NEAR_HOURS, PAGE_SIZE, PRICE_BUCKETS, SORT_OPTIONS, TOD_OPTIONS, WHEN_OPTIONS, ZONE_CHOICES,
-  activeFilters, applyFilters, clearedFilters, filterLabel, filtersToQuery, languageCounts, levelCounts, relaxations, sortCards, stateOf, withoutFilter,
+  MAX_RANGE_USD, activeFilters, applyFilters, clearedFilters, filterLabel, filtersToQuery, groupCounts, languageCounts, levelCounts, parseDollars, relaxations, sortCards, stateOf, withoutFilter,
   type DirectoryCard, type Filters, type SortId,
 } from '@/lib/directory'
 import { TutorCard } from '@/components/directory/TutorCard'
@@ -23,7 +23,7 @@ const browserZone = (): string | null => {
   try { return safeZone(Intl.DateTimeFormat().resolvedOptions().timeZone) } catch { return null }
 }
 
-type Panel = 'lang' | 'level' | 'price' | 'time' | 'zone' | 'sheet' | null
+type Panel = 'lang' | 'level' | 'group' | 'price' | 'time' | 'zone' | 'sheet' | null
 
 const BTN = 'inline-flex items-center justify-center gap-2 min-h-11 px-5 text-[14px] font-bold rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2'
 const PRIMARY = `${BTN} text-white bg-indigo-600 hover:bg-indigo-700`
@@ -73,6 +73,19 @@ function LevelGroup({ levels, filters, set }: { levels: ReturnType<typeof levelC
   )
 }
 
+function KindGroup({ kinds, filters, set }: { kinds: ReturnType<typeof groupCounts>; filters: Filters; set: (f: Filters) => void }) {
+  return (
+    <Group title="Learning for" note="Only kinds of student that a tutor who can be booked has ticked are listed. A tutor who has not ticked any is not matched.">
+      <Option on={!filters.group} onClick={() => set({ ...filters, group: null })}>Any</Option>
+      {kinds.map(k => (
+        <Option key={k.group} on={filters.group === k.group} onClick={() => set({ ...filters, group: k.group })}>
+          {k.label} <span className="text-[12.5px] opacity-80">{k.count}</span>
+        </Option>
+      ))}
+    </Group>
+  )
+}
+
 /** The zone the visitor reads times in (kept in the address as ?tz=) and the "near me" filter, which compares each tutor's clock with that zone. */
 function ZoneGroup({ filters, set, browser }: { filters: Filters; set: (f: Filters) => void; browser: string | null }) {
   const options = filters.tz && !(ZONE_CHOICES as readonly string[]).includes(filters.tz) ? [filters.tz, ...ZONE_CHOICES] : [...ZONE_CHOICES]
@@ -95,11 +108,27 @@ function ZoneGroup({ filters, set, browser }: { filters: Filters; set: (f: Filte
 }
 
 function PriceGroup({ filters, set }: { filters: Filters; set: (f: Filters) => void }) {
+  const BOX = 'w-full min-h-11 rounded-xl border border-gray-300 bg-white px-3 text-[14px] text-gray-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
   return (
-    <Group title="Price per lesson" note={APPROX_RATES_NOTE}>
-      <Option on={!filters.price} onClick={() => set({ ...filters, price: null })}>Any</Option>
-      {PRICE_BUCKETS.map(b => <Option key={b.id} on={filters.price === b.id} onClick={() => set({ ...filters, price: b.id })}>{b.label}</Option>)}
-    </Group>
+    <>
+      <Group title="Price per lesson" note={APPROX_RATES_NOTE}>
+        <Option on={!filters.price} onClick={() => set({ ...filters, price: null })}>Any</Option>
+        {PRICE_BUCKETS.map(b => <Option key={b.id} on={filters.price === b.id} onClick={() => set({ ...filters, price: b.id })}>{b.label}</Option>)}
+      </Group>
+      <div className="[&+&]:mt-4" data-testid="price-range">
+        <h3 className="text-[13px] font-bold text-gray-700 mb-2">Or name a range (dollars an hour)</h3>
+        <div className="grid grid-cols-2 gap-2.5">
+          <label className="grid gap-1 text-[12.5px] text-gray-600">From
+            <input type="text" inputMode="numeric" autoComplete="off" maxLength={4} placeholder="0" aria-label="Lowest price in dollars" className={BOX}
+              value={filters.min ?? ''} onChange={e => set({ ...filters, min: parseDollars(e.target.value) })} />
+          </label>
+          <label className="grid gap-1 text-[12.5px] text-gray-600">Up to
+            <input type="text" inputMode="numeric" autoComplete="off" maxLength={4} placeholder={String(MAX_RANGE_USD)} aria-label="Highest price in dollars" className={BOX}
+              value={filters.max ?? ''} onChange={e => set({ ...filters, max: parseDollars(e.target.value) })} />
+          </label>
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -185,6 +214,9 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
   const languages = useMemo(() => languageCounts(cards), [cards])
   const levels = useMemo(() => levelCounts(cards), [cards])
   const showLevels = levels.length > 0 || Boolean(filters.level)
+  const kinds = useMemo(() => groupCounts(cards), [cards])
+  const showKinds = kinds.length > 0 || Boolean(filters.group)
+  const priceOn = Boolean(filters.price) || filters.min !== null || filters.max !== null
   const active = activeFilters(filters)
   const relax = useMemo(() => (matching.length < FEW_TUTORS_BELOW && active.length > 0 ? relaxations(cards, filters, ctx) : []), [cards, filters, matching.length, viewerZone, now]) // eslint-disable-line react-hooks/exhaustive-deps -- ctx is built from viewerZone and now
   const rows = matching.slice(0, shown)
@@ -257,11 +289,19 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
                     {panel === 'level' && <Dialog label="Student level" onClose={() => setPanel(null)}><LevelGroup levels={levels} filters={filters} set={set} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set(withoutFilter(filters, 'level'))} /></Dialog>}
                   </div>
                 )}
+                {showKinds && (
+                  <div className="relative">
+                    <button type="button" className={pillClass(Boolean(filters.group))} aria-haspopup="dialog" aria-expanded={panel === 'group'} onClick={() => setPanel(panel === 'group' ? null : 'group')}>
+                      <Target className="h-4 w-4 text-gray-500" aria-hidden="true" /> Learning for <ChevronDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
+                    </button>
+                    {panel === 'group' && <Dialog label="Learning for" onClose={() => setPanel(null)}><KindGroup kinds={kinds} filters={filters} set={set} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set(withoutFilter(filters, 'group'))} /></Dialog>}
+                  </div>
+                )}
                 <div className="relative">
-                  <button type="button" className={pillClass(Boolean(filters.price))} aria-haspopup="dialog" aria-expanded={panel === 'price'} onClick={() => setPanel(panel === 'price' ? null : 'price')}>
+                  <button type="button" className={pillClass(priceOn)} aria-haspopup="dialog" aria-expanded={panel === 'price'} onClick={() => setPanel(panel === 'price' ? null : 'price')}>
                     <Wallet className="h-4 w-4 text-gray-500" aria-hidden="true" /> Price <ChevronDown className="h-4 w-4 text-gray-500" aria-hidden="true" />
                   </button>
-                  {panel === 'price' && <Dialog label="Price per lesson" onClose={() => setPanel(null)}><PriceGroup filters={filters} set={set} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set(withoutFilter(filters, 'price'))} /></Dialog>}
+                  {panel === 'price' && <Dialog label="Price per lesson" onClose={() => setPanel(null)}><PriceGroup filters={filters} set={set} /><Done count={matching.length} onClose={() => setPanel(null)} onClear={() => set(withoutFilter(withoutFilter(filters, 'price'), 'range'))} /></Dialog>}
                 </div>
                 <div className="relative">
                   <button type="button" className={pillClass(Boolean(filters.when || filters.tod))} aria-haspopup="dialog" aria-expanded={panel === 'time'} onClick={() => setPanel(panel === 'time' ? null : 'time')}>
@@ -361,6 +401,7 @@ export function DirectoryView({ cards, listed, truncated, initial, nowIso, error
           </div>
           <LanguageGroup languages={languages} filters={filters} set={set} />
           {showLevels && <LevelGroup levels={levels} filters={filters} set={set} />}
+          {showKinds && <KindGroup kinds={kinds} filters={filters} set={set} />}
           <PriceGroup filters={filters} set={set} />
           <TimeGroups filters={filters} set={set} zoneKnown={zoneKnown} />
           <div className="mt-4"><ZoneGroup filters={filters} set={set} browser={browser} /></div>
