@@ -56,6 +56,9 @@ export type ListingResult = {
 
 const chars = (v: unknown): number => (typeof v === 'string' ? Array.from(v.trim()).length : 0)
 
+/** Characters of an introduction as the rule counts them (the ends trimmed), so the setup card on the dashboard counts the same way. */
+export const introLength = chars
+
 /** The tutor's time zone when the runtime knows it, else null: a made-up zone is NOT quietly turned into UTC here (a card must not promise times in a wrong zone). */
 export function realZone(tz: unknown): string | null {
   if (typeof tz !== 'string' || !tz.trim()) return null

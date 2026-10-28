@@ -129,13 +129,16 @@ async function renderFor(id: string, d: FakeDb): Promise<{ html: string; page: P
   return { html: renderToStaticMarkup(createElement(DashboardHome, { data: page.props.data as never })), page }
 }
 
-test('the real dashboard: a tutor with no hours sees the banner above the greeting; a tutor with hours does not', async () => {
+test('the real dashboard: a tutor with no hours sees the hours prompt above the greeting; a tutor with hours does not', async () => {
   const d = world()
   const mine = await renderFor(ME, d)
   assert.equal(mine.page.props.data.tutorId, ME)
-  assert.ok(mine.html.includes(TESTID), 'I have no hours: the banner')
-  assert.match(mine.html, /<a [^>]*href="\/availability"[^>]*>Add your hours<\/a>/)
-  assert.ok(mine.html.indexOf(TESTID) < mine.html.indexOf('Hello,'), 'the banner is the first thing on the page')
+  // T-1043: the "Get ready for the tutor directory" card carries the same prompt as its first step, so the banner gives way to it
+  assert.ok(mine.html.includes('data-testid="directory-setup"'), 'I have no hours: the setup card')
+  assert.equal(mine.html.includes(TESTID), false, 'the banner is not drawn twice beside the setup card')
+  assert.match(mine.html, /<a [^>]*href="\/availability"[^>]*>Choose free hours/)
+  assert.ok(mine.html.indexOf('data-testid="directory-setup"') < mine.html.indexOf('Hello,'), 'the prompt is the first thing on the page')
+  assert.notEqual(mine.page.props.data.noHours, null, 'the banner data is still read, for the fallback when the setup read fails')
 
   const theirs = await renderFor(OTHER, d)
   assert.equal(theirs.html.includes(TESTID), false, 'the other tutor has hours: no banner, and mine is not shown to them')
@@ -168,5 +171,15 @@ test('the page asks with the signed-in tutor\'s id, never an id from the request
   assert.equal(queries.length, 1)
   for (const q of queries) assert.match(q, /\.eq\('tutor_id', tutorId\)/, q)
   // drawn from the one place the dashboard data comes in, and nowhere on a request-controlled value
-  assert.match(read('components/dashboard/DashboardHome.tsx'), /data\.noHours && <NoHoursBanner banner=\{data\.noHours\} \/>/)
+  assert.match(read('components/dashboard/DashboardHome.tsx'), /data\.noHours && !data\.setup && <NoHoursBanner banner=\{data\.noHours\} \/>/)
+})
+
+test('when the setup read fails (no setup card) the banner still shows, so a tutor with no hours is never left without a prompt', () => {
+  const html = renderToStaticMarkup(createElement(DashboardHome, { data: {
+    firstName: 'Mia', dateLabel: 'Today', nextLessonHref: null, lessons: { upcoming: [], past: [], cancelled: [] }, atRisk: [], reminders: [],
+    week: { labels: [], lessons: [], revenue: [] }, weekTotalLessons: 0, currencySymbol: '$', tutorId: ME, firstStudent: null,
+    noHours: lib.NO_HOURS_BANNER, setup: null,
+  } as never }))
+  assert.ok(html.includes(TESTID))
+  assert.equal(html.includes('data-testid="directory-setup"'), false)
 })

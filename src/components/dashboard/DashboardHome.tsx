@@ -6,6 +6,8 @@ import { FirstStudentCard } from '@/components/dashboard/FirstStudentCard'
 import { NoHoursBanner } from '@/components/dashboard/NoHoursBanner'
 import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard'
 import { ListingCard } from '@/components/dashboard/ListingCard'
+import { DirectorySetupCard } from '@/components/dashboard/DirectorySetupCard'
+import type { DirectorySetup } from '@/lib/directory-setup'
 import type { ListingCardData } from '@/lib/listing-status'
 import type { ProfileCompletion } from '@/lib/profile-completion'
 import type { NoHoursBanner as NoHoursData } from '@/lib/no-hours-banner'
@@ -60,6 +62,7 @@ export type DashboardData = {
   firstStudent: FirstStudentData | null // T-0681: null when every step is done
   noHours: NoHoursData | null // T-0739: the banner for a tutor with no free hours; null when they have some
   profile?: ProfileCompletion | null // T-0765: the profile-completion card; null when its read failed
+  setup?: DirectorySetup | null // T-1043: the "Get ready for the tutor directory" steps; null when the tutor finished them or the read failed
   listing?: ListingCardData | null // T-0769: the "Your listing in the tutor directory" card; null when its read failed
 }
 
@@ -437,7 +440,9 @@ export function DashboardHome({ data }: { data: DashboardData }) {
 
   return (
     <div>
-      {data.noHours && <NoHoursBanner banner={data.noHours} />}
+      {/* the setup card's first step says the same thing as the no-hours banner, so the banner gives way to it (a failed setup read keeps the banner) */}
+      {data.setup && <DirectorySetupCard setup={data.setup} />}
+      {data.noHours && !data.setup && <NoHoursBanner banner={data.noHours} />}
 
       {/* Top bar */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-6">

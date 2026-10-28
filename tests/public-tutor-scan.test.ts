@@ -61,6 +61,7 @@ const TAKES_A_CLIENT: Record<string, { reads: number; helpers: string[]; reason:
   'src/lib/branding.ts': { reads: 2, helpers: ['loadShowMadeWith'], reason: 'turns the plan and a switch into a yes/no; public pages call it with the admin client' },
   'src/lib/directory-data.ts': { reads: 5, helpers: ['loadDirectory'], reason: 'src/lib/directory-cache.ts calls it with the admin client' },
   'src/lib/established-data.ts': { reads: 1, helpers: ['loadIntroVideos', 'loadEstablished'], reason: 'T-0915: the profile and the directory hand in the admin client; it reads the intro video link of the tutors it is given and turns it into a checked video, and asks the server-only function for the badge facts (a date and two numbers)' },
+  'src/lib/directory-setup.ts': { reads: 1, helpers: ['loadDirectorySetup'], reason: 'T-1043: the signed-in tutor\'s own dashboard card; it reads the bio and languages of the one tutor id the session gives it, and only the dashboard page calls it' },
   'src/lib/first-student.ts': { reads: 2, helpers: ['loadFirstStudent'], reason: 'the signed-in tutor\'s own dashboard card' },
   'src/lib/lesson-durations.ts': { reads: 1, helpers: ['loadChosenDurations'], reason: 'the lengths a tutor takes; public pages call it with the admin client' },
   'src/lib/listing-status.ts': { reads: 2, helpers: ['loadListingCard'], reason: 'the signed-in tutor\'s own dashboard card' },
