@@ -115,6 +115,8 @@ export const TUTOR_SAFE_COLUMNS = [
   'default_lesson_price', 'subscription_status', 'subscription_expires_at', 'notify_new_booking', 'notify_new_message', 'referral_code',
   'referral_credits', 'custom_domain', 'contract_template', 'average_rating', 'review_count', 'currency', 'lesson_durations',
   'default_lesson_duration', 'hide_branding', 'trial_enabled', 'trial_price', 'intro_video_url', 'levels_taught',
+  // T-1033: the kinds of student a tutor likes to teach (work, exams, travel...), shown on the public directory card like levels_taught
+  'learning_groups',
 ] as const
 
 /** A field name that looks like a secret is dropped wherever it is, in any table and in any embedded row. */
