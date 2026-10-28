@@ -66,6 +66,7 @@ const TAKES_A_CLIENT: Record<string, { reads: number; helpers: string[]; reason:
   'src/lib/lesson-durations.ts': { reads: 1, helpers: ['loadChosenDurations'], reason: 'the lengths a tutor takes; public pages call it with the admin client' },
   'src/lib/listing-status.ts': { reads: 2, helpers: ['loadListingCard'], reason: 'the signed-in tutor\'s own dashboard card' },
   'src/lib/profile-completion.ts': { reads: 1, helpers: ['loadProfileCompletion'], reason: 'the signed-in tutor\'s own dashboard card' },
+  'src/lib/tutor-announcement-run.ts': { reads: 1, helpers: ['loadAnnouncementRecipients', 'loadAnnouncementStatus', 'sendTestMail', 'startAnnouncement', 'stopAnnouncement'], reason: 'T-1064: the tutor email page of the platform admin; only the three admin routes and the admin page call it, each after the admin check, and each hands in the admin client' },
   'src/lib/settings-save.ts': { reads: 6, helpers: ['saveTutorSettings'], reason: 'writes the signed-in tutor own row (userId); called only by the Settings page with that tutor session client' },
   'src/lib/review-invites.ts': { reads: 1, helpers: ['runReviewInvites'], reason: 'the daily invitation run; its only caller is the cron route, which hands in the admin client' },
   'src/lib/reviews-data.ts': { reads: 2, helpers: ['loadProfileReviews', 'loadReviewPageState', 'countLessonsHeld'], reason: 'the reviews flow; the profile and the review page hand in the admin client, and the routes that write it check who asks first' },

@@ -26,3 +26,15 @@ export async function adminApiGate(): Promise<Response | null> {
   if (!isAdminEmail(user.email)) return Response.json({ error: 'Forbidden' }, { status: 403 })
   return null
 }
+
+/**
+ * For an admin API that changes something: the request must come from this site's own pages (the Origin header, when the browser sends one,
+ * must be our own host). null when it may go on, a 403 otherwise. Used after adminApiGate(), never instead of it.
+ */
+export function sameOriginGate(request: Request): Response | null {
+  const origin = request.headers.get('origin')
+  if (!origin) return null
+  let host = ''
+  try { host = new URL(origin).host } catch { /* not a URL: refused below */ }
+  return host === request.headers.get('host') ? null : Response.json({ error: 'Forbidden' }, { status: 403 })
+}

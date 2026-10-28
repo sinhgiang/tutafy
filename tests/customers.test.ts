@@ -424,7 +424,7 @@ test('Super admin is in the same menu as the rest of /admin, and every admin pag
   const adminRoot = path.join(SRC, 'app/(admin)')
   const routes = pagesUnder(adminRoot).map(f => path.relative(adminRoot, path.dirname(f)).replace(/\\/g, '/'))
     .map(r => '/' + r.replace(/^admin$/, 'admin').replace(/^$/, ''))
-  const HIDDEN = ['/admin/migrate'] // opened by link from Settings, not part of the daily menu
+  const HIDDEN = ['/admin/migrate', '/super-admin/announcement'] // opened by a link (from Settings, and from the Super admin page), not part of the daily menu
   const hrefs = ADMIN_NAV.map(n => n.href)
   assert.ok(hrefs.includes('/super-admin'), 'Super admin is in the menu')
   for (const r of routes) {

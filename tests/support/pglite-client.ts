@@ -44,7 +44,7 @@ class Query implements PromiseLike<DbAnswer> {
   single() { this.one = 'single'; return this }
   maybeSingle() { this.one = 'maybe'; return this }
 
-  select(cols = '*') { if (this.op === 'insert') this.returning = cols; else { this.op = 'select'; this.cols = cols } return this }
+  select(cols = '*') { if (this.op === 'insert' || this.op === 'update') this.returning = cols; else { this.op = 'select'; this.cols = cols } return this }
   insert(rows: Record<string, unknown> | Record<string, unknown>[]) { this.op = 'insert'; this.rows = Array.isArray(rows) ? rows : [rows]; return this }
   update(values: Record<string, unknown>) { this.op = 'update'; this.sets = values; return this }
   upsert(rows: Record<string, unknown> | Record<string, unknown>[], opts: { onConflict: string; ignoreDuplicates?: boolean }) {
@@ -77,7 +77,7 @@ class Query implements PromiseLike<DbAnswer> {
       return `insert into ${t} (${keys.map(ident).join(', ')}) values ${values}${conflict}${ret}`
     }
     if (this.op === 'delete') return `delete from ${t}${where}`
-    if (this.op === 'update') return `update ${t} set ${Object.entries(this.sets).map(([k, v]) => `${ident(k)} = ${lit(v)}`).join(', ')}${where}`
+    if (this.op === 'update') return `update ${t} set ${Object.entries(this.sets).map(([k, v]) => `${ident(k)} = ${lit(v)}`).join(', ')}${where}${this.returning ? ` returning ${this.returning.split(',').map(c => ident(c.trim())).join(', ')}` : ''}`
     const order = this.orders.length ? ` order by ${this.orders.join(', ')}` : ''
     const limit = (this.max === null ? '' : ` limit ${Math.floor(this.max)}`) + (this.skip > 0 ? ` offset ${Math.floor(this.skip)}` : '')
     return `select ${this.cols === '*' ? '*' : this.cols.split(',').map(c => ident(c.trim())).join(', ')} from ${t}${where}${order}${limit}`
@@ -108,7 +108,7 @@ class Query implements PromiseLike<DbAnswer> {
         if (rows.length === 0 && this.one === 'maybe') return { data: null, error: null }
         return { data: null, error: { code: 'PGRST116', message: `${rows.length} rows, but one was expected` } }
       }
-      return { data: this.op === 'delete' || this.op === 'update' || ((this.op === 'insert' || this.op === 'upsert') && !this.returning) ? null : rows, error: null }
+      return { data: this.op === 'delete' || (this.op === 'update' && !this.returning) || ((this.op === 'insert' || this.op === 'upsert') && !this.returning) ? null : rows, error: null }
     } catch (e) {
       return { data: null, error: { code: (e as { code?: string }).code, message: (e as Error).message } }
     }

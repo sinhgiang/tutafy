@@ -55,6 +55,7 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t('sa.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('sa.subtitle')}</p>
+          <Link href="/super-admin/announcement" className="inline-block mt-2 text-sm text-indigo-600 hover:underline" data-testid="announcement-link">{t('ann.title')} →</Link>
         </div>
         <form method="get" className="flex items-end gap-2 text-sm flex-wrap" data-testid="filters">
           <label className="text-xs text-gray-500">{t('sa.filterPlan')}

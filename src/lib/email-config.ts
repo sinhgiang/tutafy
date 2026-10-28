@@ -169,6 +169,8 @@ export type MailInput = {
   bcc?: string | string[]
   /** Extra mail headers, for example List-Unsubscribe on the tips mail. */
   headers?: Record<string, string>
+  /** An ISO time: the mail service holds the mail and sends it then (up to 30 days ahead). */
+  scheduledAt?: string
 }
 
 /**
