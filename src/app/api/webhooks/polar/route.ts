@@ -3,7 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { recordOrderPaid } from '@/lib/visitor-tracking'
 import { readSecret, safeEqual } from '@/lib/secrets'
-import { decideCancel, isPaidNow, paidUntil } from '@/lib/polar-subscription'
+import { decideCancel, eventTime, ignoreReason, isCanceling, isPaidNow, paidUntil } from '@/lib/polar-subscription'
+import { noticeOwner, readState, writeState, type StoredState } from '@/lib/polar-state'
 
 function createAdminClient() {
   return createClient(
@@ -106,6 +107,40 @@ async function ownsSubscription(
   return !current || current === subId
 }
 
+type SubscriptionData = {
+  id: string
+  status?: string
+  customer?: { email?: string; external_id?: string }
+  metadata?: Record<string, unknown>
+  current_period_end?: string | null
+  ends_at?: string | null
+  ended_at?: string | null
+  cancel_at_period_end?: boolean | null
+  modified_at?: string | null
+  product?: { name?: string }
+}
+
+/** The time to remember as "newest event seen": the later of the old one and this event's `modified_at`. */
+function newestEventAt(prev: StoredState | null, eventAt: number | null): string | null {
+  const old = prev?.last_event_at ? Date.parse(prev.last_event_at) : null
+  const t = eventAt !== null && (old === null || !Number.isFinite(old) || eventAt > old) ? eventAt : old
+  return t !== null && Number.isFinite(t) ? new Date(t).toISOString() : null
+}
+
+/**
+ * Tells the owner once for each subscription that a tutor really cancelled (the first cancel is the first time this runs against Polar's
+ * real events). The tutor is named by id only. Remembered in the state row so a repeated event does not send it again.
+ */
+async function noticeCancel(prev: StoredState | null, base: { subscription_id: string; tutor_id: string }, how: string, plan: string): Promise<string | undefined> {
+  if (prev?.cancel_noticed_at) return undefined
+  const sent = await noticeOwner('Tutafy: a tutor cancelled their plan', [
+    `A tutor cancelled their ${plan} plan (${how}).`,
+    `Tutor id: ${base.tutor_id}`,
+    'This is the notice for each cancelled subscription, once. Open the tutor from the admin Tutors page to look.',
+  ])
+  return sent ? new Date().toISOString() : undefined
+}
+
 export async function POST(req: NextRequest) {
   // Closed when the signing secret is missing: a 5xx, so Polar tries again once it is set, and nothing is processed.
   if (!readSecret('POLAR_WEBHOOK_SECRET')) return NextResponse.json({ error: 'Unavailable' }, { status: 503 })
@@ -129,25 +164,31 @@ export async function POST(req: NextRequest) {
   // Lightweight audit line — enough to trace a delivery without dumping PII.
   console.log('[polar-webhook] received type=%s', event.type)
 
-  if (event.type === 'subscription.created' || event.type === 'subscription.updated') {
-    const sub = event.data as {
-      id: string; status: string;
-      customer?: { email?: string; external_id?: string }
-      metadata?: Record<string, unknown>
-      current_period_end?: string
-      ends_at?: string | null
-      product?: { name?: string }
-    }
+  // `uncanceled` is the customer taking the cancel back: the subscription is paid and renewing again, like `updated`.
+  if (event.type === 'subscription.created' || event.type === 'subscription.updated' || event.type === 'subscription.uncanceled') {
+    const sub = event.data as SubscriptionData
 
     const tutorId = await resolveTutorId(supabase, sub)
     if (!tutorId) {
-      console.warn('[polar-webhook] NO TUTOR MATCHED — email=%s external_id=%s metadata=%s',
-        sub.customer?.email, sub.customer?.external_id, JSON.stringify(sub.metadata))
+      // Which fields the event carried, never their values: a customer address is personal data and does not belong in a log.
+      console.warn('[polar-webhook] NO TUTOR MATCHED — has_email=%s has_external_id=%s has_metadata_user_id=%s',
+        !!sub.customer?.email, !!sub.customer?.external_id, !!sub.metadata?.user_id)
+      return NextResponse.json({ ok: true })
+    }
+
+    // Events can come twice, late or in the wrong order: one that follows `revoked` of the same subscription, or that is older than one
+    // already applied, must not give the plan back (T-1074).
+    const prev = await readState(supabase, sub.id)
+    const eventAt = eventTime(sub)
+    const skip = ignoreReason(event.type, prev, eventAt)
+    if (skip) {
+      console.log('[polar-webhook] IGNORED %s (%s) tutor=%s', event.type, skip === 'ended' ? 'the subscription already ended' : 'older than one already applied', tutorId)
       return NextResponse.json({ ok: true })
     }
 
     // Paid now: active or trialing, or canceled with the paid period not over yet (T-1052).
-    const isActive = isPaidNow(sub, Date.now())
+    const now = Date.now()
+    const isActive = isPaidNow(sub, now)
 
     // An old subscription of the same tutor ending (they bought another since) must not take the plan away: only the
     // subscription the tutor is on now can set them back to Free.
@@ -164,16 +205,24 @@ export async function POST(req: NextRequest) {
       else plan = 'pro'
     }
 
+    // The customer has asked to cancel but the paid period is not over: keep the plan and record when it ends.
+    const canceling = isCanceling(sub, now)
     const { error: updErr } = await supabase.from('tutors').update({
       subscription_status: plan,
       polar_subscription_id: sub.id,
-      // A canceled subscription still inside its paid period keeps the plan and records when it ends.
-      subscription_expires_at: sub.status === 'canceled' && isActive
-        ? new Date(paidUntil(sub)!).toISOString()
-        : sub.current_period_end ?? null,
+      subscription_expires_at: canceling ? new Date(paidUntil(sub)!).toISOString() : sub.current_period_end ?? null,
     }).eq('id', tutorId)
     console.log('[polar-webhook] UPGRADED tutor=%s plan=%s product=%s status=%s err=%s',
       tutorId, plan, productName, sub.status, updErr?.message ?? 'none')
+
+    if (!updErr) {
+      // What the safety net and the ordering rules need: "canceling until ...", "active", or "ended". A status that is neither paid nor
+      // `canceled` (past_due, unpaid, paused) leaves what was remembered as it is.
+      const base = { subscription_id: sub.id, tutor_id: tutorId, last_event_at: newestEventAt(prev, eventAt) }
+      if (canceling) await writeState(supabase, { ...base, state: 'canceling', ends_at: new Date(paidUntil(sub)!).toISOString() })
+      else if (isActive) await writeState(supabase, { ...base, state: 'active', ends_at: null })
+      else if (sub.status === 'canceled') await writeState(supabase, { ...base, state: 'ended', ends_at: null, ended_by: 'canceled' })
+    }
 
     // Visitor journey (only exists for tutors who accepted cookies). Never lets a tracking
     // problem change the answer Polar gets.
@@ -187,13 +236,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (event.type === 'subscription.canceled' || event.type === 'subscription.revoked') {
-    const sub = event.data as {
-      id: string
-      customer?: { email?: string; external_id?: string }
-      metadata?: Record<string, unknown>
-      current_period_end?: string
-      ends_at?: string | null
-    }
+    const sub = event.data as SubscriptionData
 
     const tutorId = await resolveTutorId(supabase, sub)
     if (!tutorId) return NextResponse.json({ ok: true })
@@ -204,20 +247,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
+    const prev = await readState(supabase, sub.id)
+    const eventAt = eventTime(sub)
+    const skip = ignoreReason(event.type, prev, eventAt)
+    if (skip) {
+      console.log('[polar-webhook] IGNORED %s (%s) tutor=%s', event.type, skip === 'ended' ? 'the subscription already ended' : 'older than one already applied', tutorId)
+      return NextResponse.json({ ok: true })
+    }
+
+    // The plan the tutor has now, for the notice to the owner.
+    const { data: tutorNow } = await supabase.from('tutors').select('subscription_status').eq('id', tutorId).maybeSingle()
+    const planNow = (tutorNow as { subscription_status?: string | null } | null)?.subscription_status ?? 'paid'
+
     // `revoked` takes the plan away. `canceled` only does when the paid period is over: while time is left the tutor
     // keeps Pro or Academy until `subscription_expires_at`, and Polar's `revoked` ends it (T-1052).
     const decision = event.type === 'subscription.revoked' ? { action: 'drop' as const } : decideCancel(sub, Date.now())
+    const base = { subscription_id: sub.id, tutor_id: tutorId, last_event_at: newestEventAt(prev, eventAt) }
     if (decision.action === 'keep_until') {
       await supabase.from('tutors').update({ subscription_expires_at: decision.until }).eq('id', tutorId)
       console.log('[polar-webhook] CANCELED tutor=%s keeps the plan until %s', tutorId, decision.until)
+      const noticed = await noticeCancel(prev, base, `it stays active until ${decision.until}`, planNow)
+      await writeState(supabase, { ...base, state: 'canceling', ends_at: decision.until, ...(noticed ? { cancel_noticed_at: noticed } : {}) })
     } else if (decision.action === 'drop') {
       await supabase.from('tutors').update({
         subscription_status: 'free',
         subscription_expires_at: null,
       }).eq('id', tutorId)
       console.log('[polar-webhook] DOWNGRADED tutor=%s event=%s', tutorId, event.type)
+      const noticed = await noticeCancel(prev, base, 'it ended at once', planNow)
+      await writeState(supabase, { ...base, state: 'ended', ends_at: null, ended_by: event.type === 'subscription.revoked' ? 'revoked' : 'canceled', ...(noticed ? { cancel_noticed_at: noticed } : {}) })
     } else {
       console.warn('[polar-webhook] CANCELED without an end date tutor=%s: plan left as it is until Polar sends revoked', tutorId)
+      const noticed = await noticeCancel(prev, base, 'Polar sent no end date', planNow)
+      await writeState(supabase, { ...base, state: 'canceling', ends_at: prev?.ends_at ?? null, ...(noticed ? { cancel_noticed_at: noticed } : {}) })
     }
   }
 

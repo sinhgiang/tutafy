@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/review-invites",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/polar-expiry",
+      "schedule": "0 6 * * *"
     }
   ]
 }
