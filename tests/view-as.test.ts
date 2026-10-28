@@ -120,6 +120,8 @@ test('scrub: secrets are dropped wherever they are, tutors are cut down to the s
   const lesson = { id: 'l', price: 30, students: { name: 'Kid', portal_token: 'tok_secret' }, tutors: { name: 'Ann', stripe_account_id: 'acct_secret', email: 'ann@example.com' } }
   assert.deepEqual(scrub(lesson, 'lessons'), { id: 'l', price: 30, students: { name: 'Kid' }, tutors: { name: 'Ann', email: 'ann@example.com' } })
   assert.deepEqual([scrub(null), scrub(5), scrub('x'), scrub([])], [null, 5, 'x', []])
+  // T-1056: the groups a tutor teaches are public (directory card), so a view shows them in Settings like the levels
+  assert.deepEqual(scrub({ id: T, learning_groups: ['work', 'travel'], levels_taught: ['beginner'], stripe_account_id: 'acct_secret' }, 'tutors'), { id: T, learning_groups: ['work', 'travel'], levels_taught: ['beginner'] })
   assert.doesNotMatch(JSON.stringify(scrub([tutor, student, lesson], 'tutors')), /acct_secret|sub_secret|rt_secret|tok_secret|4242|p256dh/)
 })
 
