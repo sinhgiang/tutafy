@@ -9,6 +9,7 @@ import { SiteLogo } from '@/components/SiteLogo'
 import { MarketplaceRatesNote } from '@/components/MarketplaceRatesNote'
 import { ITALKI_RANGE, PREPLY_RANGE } from '@/lib/marketplace-rates'
 import { SOCIAL_IMAGE } from '@/lib/page-meta'
+import { PLANS } from '@/lib/site-content'
 
 // Dedicated, distraction-free landing page for Google Ads "switching / alternative"
 // keywords (preply alternative, italki alternative, commission free tutoring platform...).
@@ -68,12 +69,7 @@ const FEATURES = [
   { icon: Sparkles, title: 'AI teaching tools included', desc: 'Lesson plans, homework and progress reports drafted in seconds, included free on every plan.' },
 ]
 
-const PLANS = [
-  { name: 'Free', price: '$0', per: '', tagline: 'Everything you need to start', features: ['Up to 10 students', 'Booking page', 'Built-in video classroom', 'Email & SMS reminders'], cta: 'Start free', href: '/register', highlight: false },
-  { name: 'Pro', price: '$12', per: '/mo', tagline: 'For serious independent tutors', features: ['Unlimited students', 'All 7 AI teaching tools', 'Payments (PayPal / card)', 'Full analytics & reports'], cta: 'Go Pro', href: '/register', highlight: true, badge: 'Most popular' },
-  { name: 'Academy', price: '$29', per: '/mo', tagline: 'For small teams & centers', features: ['Everything in Pro', 'Up to 5 tutors', 'Team payroll & split pay', 'Booking page per tutor'], cta: 'Start Academy', href: '/register', highlight: false },
-]
-
+// The pricing cards print the one plan list (src/lib/plan-list.ts), the same lines as the landing page, /upgrade and /llms.txt.
 export default async function SwitchLandingPage({ searchParams }: { searchParams: Promise<{ from?: string }> }) {
   const { from } = await searchParams
   const comp = competitorFrom(from)

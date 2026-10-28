@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { createAdminClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
+import { onboardingHref, planOfUpgradeHref } from '@/lib/plan-list'
 
 function generateSlug(name: string) {
   return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-' + Math.random().toString(36).slice(2, 6)
@@ -146,7 +147,8 @@ export async function GET(request: NextRequest) {
       }
     } catch { /* non-critical */ }
 
-    return NextResponse.redirect(`${origin}/onboarding?signup=1`)
+    // T-1052: a plan picked before sign-up (the register page left "/upgrade?plan=pro" in the hand-off cookie) rides through onboarding.
+    return NextResponse.redirect(`${origin}${onboardingHref(planOfUpgradeHref(next))}`)
   }
 
   return NextResponse.redirect(`${origin}${next}`)

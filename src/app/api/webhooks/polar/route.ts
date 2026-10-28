@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { recordOrderPaid } from '@/lib/visitor-tracking'
 import { readSecret, safeEqual } from '@/lib/secrets'
+import { decideCancel, isPaidNow, paidUntil } from '@/lib/polar-subscription'
 
 function createAdminClient() {
   return createClient(
@@ -93,6 +94,18 @@ async function resolveTutorId(
   return null
 }
 
+// True when `subId` is the subscription this tutor is on now, or when no subscription is recorded for them yet
+// (rows made before polar_subscription_id was kept). A different recorded id means an older subscription.
+async function ownsSubscription(
+  supabase: ReturnType<typeof createAdminClient>,
+  tutorId: string,
+  subId: string,
+): Promise<boolean> {
+  const { data } = await supabase.from('tutors').select('polar_subscription_id').eq('id', tutorId).maybeSingle()
+  const current = (data as { polar_subscription_id?: string | null } | null)?.polar_subscription_id
+  return !current || current === subId
+}
+
 export async function POST(req: NextRequest) {
   // Closed when the signing secret is missing: a 5xx, so Polar tries again once it is set, and nothing is processed.
   if (!readSecret('POLAR_WEBHOOK_SECRET')) return NextResponse.json({ error: 'Unavailable' }, { status: 503 })
@@ -122,6 +135,7 @@ export async function POST(req: NextRequest) {
       customer?: { email?: string; external_id?: string }
       metadata?: Record<string, unknown>
       current_period_end?: string
+      ends_at?: string | null
       product?: { name?: string }
     }
 
@@ -132,7 +146,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    const isActive = ['active', 'trialing'].includes(sub.status ?? '')
+    // Paid now: active or trialing, or canceled with the paid period not over yet (T-1052).
+    const isActive = isPaidNow(sub, Date.now())
+
+    // An old subscription of the same tutor ending (they bought another since) must not take the plan away: only the
+    // subscription the tutor is on now can set them back to Free.
+    if (!isActive && !(await ownsSubscription(supabase, tutorId, sub.id))) {
+      console.log('[polar-webhook] IGNORED non-current subscription tutor=%s status=%s', tutorId, sub.status)
+      return NextResponse.json({ ok: true })
+    }
 
     // Detect plan from product name
     const productName = (sub.product?.name ?? '').toLowerCase()
@@ -145,7 +167,10 @@ export async function POST(req: NextRequest) {
     const { error: updErr } = await supabase.from('tutors').update({
       subscription_status: plan,
       polar_subscription_id: sub.id,
-      subscription_expires_at: sub.current_period_end ?? null,
+      // A canceled subscription still inside its paid period keeps the plan and records when it ends.
+      subscription_expires_at: sub.status === 'canceled' && isActive
+        ? new Date(paidUntil(sub)!).toISOString()
+        : sub.current_period_end ?? null,
     }).eq('id', tutorId)
     console.log('[polar-webhook] UPGRADED tutor=%s plan=%s product=%s status=%s err=%s',
       tutorId, plan, productName, sub.status, updErr?.message ?? 'none')
@@ -166,15 +191,34 @@ export async function POST(req: NextRequest) {
       id: string
       customer?: { email?: string; external_id?: string }
       metadata?: Record<string, unknown>
+      current_period_end?: string
+      ends_at?: string | null
     }
 
     const tutorId = await resolveTutorId(supabase, sub)
     if (!tutorId) return NextResponse.json({ ok: true })
 
-    await supabase.from('tutors').update({
-      subscription_status: 'free',
-      subscription_expires_at: null,
-    }).eq('id', tutorId)
+    // Only the subscription the tutor is on now can change their plan (an older one ending is not a cancellation).
+    if (!(await ownsSubscription(supabase, tutorId, sub.id))) {
+      console.log('[polar-webhook] IGNORED %s for a non-current subscription tutor=%s', event.type, tutorId)
+      return NextResponse.json({ ok: true })
+    }
+
+    // `revoked` takes the plan away. `canceled` only does when the paid period is over: while time is left the tutor
+    // keeps Pro or Academy until `subscription_expires_at`, and Polar's `revoked` ends it (T-1052).
+    const decision = event.type === 'subscription.revoked' ? { action: 'drop' as const } : decideCancel(sub, Date.now())
+    if (decision.action === 'keep_until') {
+      await supabase.from('tutors').update({ subscription_expires_at: decision.until }).eq('id', tutorId)
+      console.log('[polar-webhook] CANCELED tutor=%s keeps the plan until %s', tutorId, decision.until)
+    } else if (decision.action === 'drop') {
+      await supabase.from('tutors').update({
+        subscription_status: 'free',
+        subscription_expires_at: null,
+      }).eq('id', tutorId)
+      console.log('[polar-webhook] DOWNGRADED tutor=%s event=%s', tutorId, event.type)
+    } else {
+      console.warn('[polar-webhook] CANCELED without an end date tutor=%s: plan left as it is until Polar sends revoked', tutorId)
+    }
   }
 
   return NextResponse.json({ ok: true })

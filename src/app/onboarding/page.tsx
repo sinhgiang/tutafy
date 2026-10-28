@@ -8,6 +8,7 @@ import { getConsent } from '@/components/CookieConsent'
 import { sendGaEvent, sendAdsSignupConversion } from '@/lib/google-tag'
 import { saveOnboardingAvailability, checkAvailabilityInput, ONBOARDING_DAYS } from '@/lib/onboarding-availability'
 import { BrandMark } from '@/components/brand/BrandMark'
+import { parsePaidPlan, upgradeHref, planById, type PaidPlanId } from '@/lib/plan-list'
 import { User, Clock, Share2, Check, ChevronRight, Copy } from 'lucide-react'
 
 const TIMEZONES = [
@@ -27,6 +28,8 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
+  // The plan picked before sign-up (T-1052, "?plan=pro" or "?plan=academy" from the register page); the last step leads to it.
+  const [plan, setPlan] = useState<PaidPlanId | null>(null)
   const [slug, setSlug] = useState('')
   const [form, setForm] = useState({ name: '', bio: '', timezone: 'America/New_York' })
   const [availDays, setAvailDays] = useState<string[]>(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'])
@@ -61,6 +64,8 @@ export default function OnboardingPage() {
   // queued, unless the visitor accepted cookies; the call carries the label only.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
+    const picked = parsePaidPlan(params.get('plan'))
+    if (picked) setPlan(picked) // eslint-disable-line react-hooks/set-state-in-effect -- the address is read once, after the page is on screen
     if (params.get('signup') === '1') {
       sendAdsSignupConversion(window, getConsent())
       // GA4 sign_up: no name, no email, no parameters; only after cookies were accepted.
@@ -244,9 +249,17 @@ export default function OnboardingPage() {
               </div>
             )}
             <div className="grid grid-cols-1 gap-2">
+              {plan && (
+                <button onClick={() => router.push(upgradeHref(plan))} data-testid="continue-to-plan"
+                  className="w-full text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 py-2.5 rounded-xl transition-colors">
+                  Continue to {planById(plan).name} →
+                </button>
+              )}
               <button onClick={() => router.push('/dashboard')}
-                className="w-full text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 py-2.5 rounded-xl transition-colors">
-                Go to Dashboard →
+                className={plan
+                  ? 'w-full text-[13px] font-medium text-gray-600 hover:text-gray-800 py-2 transition-colors'
+                  : 'w-full text-[13px] font-bold text-white bg-indigo-500 hover:bg-indigo-600 py-2.5 rounded-xl transition-colors'}>
+                {plan ? 'Go to Dashboard' : 'Go to Dashboard →'}
               </button>
               <button onClick={() => router.push('/availability')}
                 className="w-full text-[13px] font-medium text-gray-500 hover:text-gray-700 py-2 transition-colors">

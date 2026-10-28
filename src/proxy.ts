@@ -4,6 +4,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { isAdminEmail } from '@/lib/admin'
 import { viewBlock } from '@/lib/view-proxy'
 import { findViewSession } from '@/lib/view-session'
+import { parsePaidPlan, registerHref, upgradeHref } from '@/lib/plan-list'
 
 export async function proxy(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -104,7 +105,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!user && (isDashboardPage || isAdminPage)) {
-    return redirect('/login')
+    // T-1052: somebody who pressed "Go Pro" or "Start Academy" while signed out goes to SIGN-UP with that plan kept
+    // (never to a blank sign-in); only the exact words "pro" and "academy" are kept, anything else is a plain sign-in.
+    const picked = path === '/upgrade' ? parsePaidPlan(request.nextUrl.searchParams.get('plan')) : null
+    return redirect(picked ? registerHref(picked) : '/login')
   }
 
   // Admin bypass — the admin account can reach everything.
@@ -141,7 +145,9 @@ export async function proxy(request: NextRequest) {
 
   // Only bounce real tutors away from the login/register pages.
   if (user && isAuthPage && isTutor) {
-    return redirect('/dashboard')
+    // An account that is already signed in and arrives with a plan picked (a sign-up link with ?plan=) goes on to that plan.
+    const picked = parsePaidPlan(request.nextUrl.searchParams.get('plan'))
+    return redirect(picked ? upgradeHref(picked) : '/dashboard')
   }
 
   return supabaseResponse
