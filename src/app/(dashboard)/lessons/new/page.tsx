@@ -10,6 +10,8 @@ import { toast } from 'sonner'
 import { ArrowLeft, RefreshCw, Plus, X, Users } from 'lucide-react'
 import { DurationPicker } from '@/components/lessons/DurationPicker'
 import { loadChosenDurations, chosenDurations } from '@/lib/lesson-durations'
+import { loadStudentChoices, type StudentChoices } from '@/lib/schedule-students'
+import { StudentChoiceNotice } from '@/components/lessons/StudentChoiceNotice'
 
 const RECURRENCE = [
   { v: 'none', l: 'Does not repeat' },
@@ -28,7 +30,9 @@ export default function NewLessonPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-  const [students, setStudents] = useState<{ id: string; name: string }[]>([])
+  // null until the first read is back; then the students, or the reason there are none (T-1061)
+  const [choices, setChoices] = useState<StudentChoices | null>(null)
+  const students = choices?.kind === 'ready' ? choices.students : []
   const [loading, setLoading] = useState(false)
   const [materials, setMaterials] = useState<string[]>([])
   const [newMaterial, setNewMaterial] = useState('')
@@ -56,9 +60,8 @@ export default function NewLessonPage() {
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data } = await supabase.from('students').select('id, name').eq('tutor_id', user.id).eq('status', 'active').order('name')
-      setStudents(data ?? [])
+      if (!user) { setChoices({ kind: 'error' }); return }
+      setChoices(await loadStudentChoices(supabase, user.id))
       setOffered(chosenDurations((await loadChosenDurations(supabase, user.id)).lesson_durations))
     }
     load()
@@ -150,10 +153,12 @@ export default function NewLessonPage() {
           {!form.is_group ? (
             <div>
               <label className="block text-[12px] font-medium text-gray-600 mb-1.5">Student *</label>
+              {choices && choices.kind !== 'ready' ? <StudentChoiceNotice choices={choices} /> : (
               <Select value={form.student_id} onValueChange={v => setForm(f => ({ ...f, student_id: v ?? '' }))}>
                 <SelectTrigger className="text-[13px] border-gray-200"><SelectValue placeholder="Select student" /></SelectTrigger>
                 <SelectContent>{students.map(s => <SelectItem key={s.id} value={s.id} className="text-[13px]">{s.name}</SelectItem>)}</SelectContent>
               </Select>
+              )}
             </div>
           ) : (
             <div className="bg-purple-50 rounded-lg p-3 space-y-2">
