@@ -16,6 +16,7 @@ import { absoluteUrl } from '@/lib/site-url'
 import { tutorSeoText, type TutorSeoInput } from '@/lib/tutor-seo'
 import { bookingSeoText, type BookingTutor } from '@/lib/booking-page'
 import { languagePagePath, type LanguageGuide } from '@/lib/language-pages'
+import { pairGuidePath, type PairGuide } from '@/lib/niche-pages'
 
 export const TITLE_MAX = 60
 export const TITLE_MIN = 20
@@ -248,6 +249,11 @@ function build(path: string, title: string, description: string, opts: { noindex
 /** The metadata of a language page (/learn/<language>, T-0875): its own title and description from the guide, canonical on the main site. */
 export function languagePageMetadata(guide: Pick<LanguageGuide, 'slug' | 'title' | 'description'>): Metadata {
   return build(languagePagePath(guide.slug), guide.title, guide.description)
+}
+
+/** The metadata of a niche page, /learn/<language>/<group> (T-1033): the guide's own title and description, canonical on the main site. */
+export function pairPageMetadata(guide: Pick<PairGuide, 'languageSlug' | 'group' | 'title' | 'description'>): Metadata {
+  return build(pairGuidePath(guide), guide.title, guide.description)
 }
 
 /** The metadata of a fixed page. */

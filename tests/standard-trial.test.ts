@@ -164,7 +164,7 @@ test('a coupon still comes off the trial price', async () => {
 
 const card = (o: Record<string, unknown> = {}) => ({
   slug: 'ana-torres', name: 'Ana Torres', photo: null, languages: ['Spanish'], headline: 'Spanish for travel', rating: null, reviews: 0, price: 20, currency: 'USD',
-  trialPrice: 10, tz: 'UTC', levels: [], complete: 2, slots: [Math.floor(Date.parse('2026-10-27T12:00:00Z') / 60000) + 600], established: false, video: false, ...o,
+  trialPrice: 10, tz: 'UTC', levels: [], groups: [], complete: 2, slots: [Math.floor(Date.parse('2026-10-27T12:00:00Z') / 60000) + 600], established: false, video: false, ...o,
 })
 const draw = (c: ReturnType<typeof card>) => renderToStaticMarkup(createElement(TutorCard, { card: c as never, zone: 'UTC', viewerZone: null, now: new Date('2026-10-27T12:00:00Z') }))
 

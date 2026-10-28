@@ -9,7 +9,8 @@ export const DIRECTORY_REVALIDATE_SECONDS = 300
 
 const cached = unstable_cache(
   async (): Promise<DirectoryList> => loadDirectory(createAdminClient() as unknown as DirectoryClient),
-  ['tutor-directory-v1'],
+  // v2 (T-1033): a card now carries `groups`. A new key means no copy cached by an earlier deploy, without that field, is ever read by this code.
+  ['tutor-directory-v2'],
   { revalidate: DIRECTORY_REVALIDATE_SECONDS, tags: ['tutor-directory'] },
 )
 

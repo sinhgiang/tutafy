@@ -262,7 +262,7 @@ test('Settings source: the lengths stay out of the main update (their columns ma
   // the writes moved to src/lib/settings-save.ts (T-0717 follow-up)
   const save = readFileSync(path.join(SRC, 'lib/settings-save.ts'), 'utf8').split('\r\n').join('\n')
   assert.match(settings, /saveTutorSettings\(supabase, user\.id, form, savedSnapshot, linkCheck\.value\)/)
-  assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, \.\.\.rest \} = form/)
+  assert.match(save, /const \{ currency, lesson_durations, default_lesson_duration, hide_branding, levels_taught, learning_groups, \.\.\.rest \} = form/)
   assert.match(save, /durationColumnsToSave\(/)
   assert.match(save, /db\.from\('tutors'\)\.update\(lengthColumns\)\.eq\('id', userId\)/, 'the update names the signed-in tutor’s own row')
   assert.match(settings, /ALL_DURATIONS\.map\(d =>/, 'one tick for each of the four lengths')

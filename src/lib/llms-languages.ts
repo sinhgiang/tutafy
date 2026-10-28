@@ -5,8 +5,9 @@ import { SITE_URL, SITE_NAME } from '@/lib/site-content'
 import { absoluteUrl } from '@/lib/site-url'
 import { languagePagePath, tutorsOf, type NichePage, NICHE_MIN_TUTORS } from '@/lib/language-pages'
 import type { DirectoryCard } from '@/lib/directory'
+import { PAIR_MIN_TUTORS, groupLabelOf, pairGuidePath, tutorsOfPair, type PairPage } from '@/lib/niche-pages'
 
-export function buildLlmsLanguagesTxt(pages: NichePage[], cards: DirectoryCard[], asOf: string | null): string {
+export function buildLlmsLanguagesTxt(pages: NichePage[], cards: DirectoryCard[], asOf: string | null, pairs: PairPage[] = []): string {
   const lines = [
     `# ${SITE_NAME}: language guides`,
     '',
@@ -24,6 +25,14 @@ export function buildLlmsLanguagesTxt(pages: NichePage[], cards: DirectoryCard[]
   for (const p of pages) {
     lines.push(`## ${p.guide.name}`, '', p.guide.answer, '')
     for (const c of tutorsOf(cards, p.guide).slice(0, 12)) lines.push(`- [${c.name}](${absoluteUrl(`/tutors/${c.slug}`)})`)
+    lines.push('')
+  }
+  if (pairs.length > 0) {
+    lines.push('## Guides for a specific reason', '', `One guide for each language and reason that at least ${PAIR_MIN_TUTORS} tutors who can be booked today teach and have ticked.`, '')
+    for (const p of pairs) {
+      lines.push(`- [${p.guide.language} for ${groupLabelOf(p.guide.group).toLowerCase()}](${absoluteUrl(pairGuidePath(p.guide))}): ${p.guide.description} ${p.count} tutors can be booked today.`)
+      for (const c of tutorsOfPair(cards, p.guide).slice(0, 12)) lines.push(`  - [${c.name}](${absoluteUrl(`/tutors/${c.slug}`)})`)
+    }
     lines.push('')
   }
   return lines.join('\n')

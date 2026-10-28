@@ -406,7 +406,7 @@ const PUBLIC_PAGES = [
   'src/app/page.tsx', 'src/app/switch/page.tsx', 'src/app/about/page.tsx', 'src/app/contact/page.tsx',
   'src/app/customers/page.tsx', 'src/app/privacy/page.tsx', 'src/app/terms/page.tsx', 'src/app/updates/page.tsx',
   'src/app/blog/page.tsx', 'src/app/blog/[slug]/page.tsx', 'src/app/tutors/(directory)/page.tsx', 'src/app/tutors/[slug]/page.tsx',
-  'src/app/learn/[language]/page.tsx', 'src/app/find-a-tutor/page.tsx', 'src/app/unsubscribe/page.tsx',
+  'src/app/learn/[language]/page.tsx', 'src/app/learn/[language]/[group]/page.tsx', 'src/app/find-a-tutor/page.tsx', 'src/app/unsubscribe/page.tsx',
 ]
 
 /** Pages that are public but are not a place to browse, so they have no site footer: the reason is written. */

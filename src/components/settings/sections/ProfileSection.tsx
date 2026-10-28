@@ -7,6 +7,7 @@ import { IntroEditor } from '@/components/IntroEditor'
 import { AvatarUploader } from '@/components/settings/AvatarUploader'
 import { IntroVideoField } from '@/components/settings/IntroVideoField'
 import { LEVEL_OPTIONS, cleanLevels } from '@/lib/tutor-levels'
+import { GROUP_OPTIONS, cleanGroups } from '@/lib/tutor-groups'
 import { SectionHead } from '@/components/settings/sections/SectionHead'
 import type { SettingsCtx } from '@/components/settings/sections/context'
 
@@ -39,6 +40,22 @@ export default function ProfileSection({ ctx }: { ctx: SettingsCtx }) {
                     <label key={o.id} className={`inline-flex items-center gap-2 min-h-9 px-3 rounded-full border text-[13px] cursor-pointer focus-within:ring-2 focus-within:ring-indigo-500/40 ${on ? 'bg-indigo-50 border-indigo-400 text-indigo-700 font-semibold' : 'bg-white border-gray-200 text-gray-700'}`}>
                       <input type="checkbox" className="h-4 w-4 accent-indigo-600" checked={on}
                         onChange={() => setForm(f => ({ ...f, levels_taught: on ? cleanLevels(f.levels_taught).filter(l => l !== o.id) : cleanLevels([...f.levels_taught, o.id]) }))} />
+                      {o.label} <span className="text-[12px] opacity-75">{o.hint}</span>
+                    </label>
+                  )
+                })}
+              </div>
+            </fieldset>
+            <fieldset data-testid="learning-groups">
+              <legend className="block text-[12px] font-medium text-gray-600 mb-1.5">Students you like to teach</legend>
+              <p className="text-[12px] text-gray-500 mb-2">Students can find you by what they are learning for, and you can appear on pages such as English for working professionals. Leave all unticked if you would rather not say.</p>
+              <div className="set-pills">
+                {GROUP_OPTIONS.map(o => {
+                  const on = cleanGroups(form.learning_groups).includes(o.id)
+                  return (
+                    <label key={o.id} className={`inline-flex items-center gap-2 min-h-9 px-3 rounded-full border text-[13px] cursor-pointer focus-within:ring-2 focus-within:ring-indigo-500/40 ${on ? 'bg-indigo-50 border-indigo-400 text-indigo-700 font-semibold' : 'bg-white border-gray-200 text-gray-700'}`}>
+                      <input type="checkbox" className="h-4 w-4 accent-indigo-600" checked={on}
+                        onChange={() => setForm(f => ({ ...f, learning_groups: on ? cleanGroups(f.learning_groups).filter(g => g !== o.id) : cleanGroups([...f.learning_groups, o.id]) }))} />
                       {o.label} <span className="text-[12px] opacity-75">{o.hint}</span>
                     </label>
                   )

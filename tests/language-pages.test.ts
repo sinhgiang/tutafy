@@ -76,7 +76,7 @@ function standardSeed() {
 // ---- the rule --------------------------------------------------------------------------------------------------------------------------
 
 function card(slug: string, languages: string[]): DirectoryCard {
-  return { slug, name: slug, photo: null, languages, headline: 'A tutor.', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: null, tz: 'UTC', levels: [], complete: 0, slots: [1] }
+  return { slug, name: slug, photo: null, languages, headline: 'A tutor.', rating: null, reviews: 0, price: 20, currency: 'USD', trialPrice: null, tz: 'UTC', levels: [], groups: [], complete: 0, slots: [1] }
 }
 const many = (n: number, languages: string[], prefix: string) => Array.from({ length: n }, (_, i) => card(`${prefix}${i}`, languages))
 

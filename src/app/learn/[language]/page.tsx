@@ -7,6 +7,7 @@ import { TutorCard } from '@/components/directory/TutorCard'
 import { getDirectory } from '@/lib/directory-cache'
 import { refreshCards } from '@/lib/directory'
 import { guideFor, pickLanguagePages, tutorsOf, languagePagePath, NICHE_MIN_TUTORS } from '@/lib/language-pages'
+import { groupLabelOf, pairGuidePath, pickPairPages } from '@/lib/niche-pages'
 import { languagePageMetadata } from '@/lib/page-meta'
 import { faqPageJsonLd, jsonLdScript, pageJsonLd } from '@/lib/seo'
 
@@ -51,6 +52,7 @@ export default async function LanguagePage({ params }: Props) {
   const tutors = tutorsOf(cards, guide)
   const shown = tutors.slice(0, SHOWN)
   const others = pages.filter(p => p.guide.slug !== guide.slug)
+  const niches = pickPairPages(cards).filter(p => p.guide.languageSlug === guide.slug)
   const filterLink = (query: string) => `/tutors?lang=${guide.name}${query}`
   const seo = { path: languagePagePath(guide.slug), title: guide.title, description: guide.description }
 
@@ -97,6 +99,15 @@ export default async function LanguagePage({ params }: Props) {
             ))}
           </ol>
         </section>
+
+        {niches.length > 0 && (
+          <section aria-labelledby="niche-h" className="mt-10" data-testid="language-niches">
+            <h2 id="niche-h" className="text-[22px] font-extrabold text-gray-900">{guide.name} for a specific reason</h2>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {niches.map(n => <li key={pairGuidePath(n.guide)}><Link href={pairGuidePath(n.guide)} className="inline-flex items-center min-h-11 px-4 rounded-full border border-gray-300 bg-white text-[14px] font-semibold text-gray-800 hover:border-indigo-300">{guide.name} for {groupLabelOf(n.guide.group).toLowerCase()} <span className="ml-1.5 text-[12.5px] text-gray-600">{n.count}</span></Link></li>)}
+            </ul>
+          </section>
+        )}
 
         <section aria-labelledby="refine-h" className="mt-10">
           <h2 id="refine-h" className="text-[22px] font-extrabold text-gray-900">Narrow the list</h2>
