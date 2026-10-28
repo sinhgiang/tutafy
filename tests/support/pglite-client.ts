@@ -1,7 +1,8 @@
 // A small stand-in for the part of the Supabase client that the onboarding code uses, written over a REAL Postgres (PGlite), so code that
 // talks to the database can be run against the schema the migrations make, with the database's own type checks and constraints.
 // Supports: from(t).select(cols).eq(col, v) / .neq / .is / .ilike / .in(col, [v]) / .gte(col, v) / .lt / .lte(col, v) / .order(col, { ascending }) / .limit(n) / .range(a, b),
-// from(t).insert(rows).select(cols), from(t).upsert(rows, { onConflict, ignoreDuplicates }), from(t).delete().in(col, [v]) / .eq(col, v).
+// from(t).insert(rows).select(cols), from(t).upsert(rows, { onConflict, ignoreDuplicates }), from(t).update(values).eq(col, v), from(t).delete().in(col, [v]) / .eq(col, v),
+// and .single() / .maybeSingle() on a select or an insert with .select() (T-0708).
 // Every answer is { data, error } like the real client; a database error is { code, message } and never thrown.
 // .single() / .maybeSingle() give one row like the real client (single: an error unless there is exactly one row).
 // With { role } every query runs as that database role (`set local role`, inside its own transaction), so row level security and the
@@ -19,9 +20,11 @@ const lit = (v: unknown): string => {
 }
 
 export type DbAnswer = { data: Record<string, unknown>[] | null; error: { code?: string; message: string } | null }
+export type DbOneAnswer = { data: Record<string, unknown> | null; error: { code?: string; message: string } | null }
 
 class Query implements PromiseLike<DbAnswer> {
-  private op: 'select' | 'insert' | 'delete' | 'upsert' = 'select'
+  private op: 'select' | 'insert' | 'update' | 'delete' | 'upsert' = 'select'
+  private sets: Record<string, unknown> = {}
   private conflict: { onConflict: string; ignoreDuplicates: boolean } | null = null
   private orders: string[] = []
   private max: number | null = null
@@ -43,6 +46,7 @@ class Query implements PromiseLike<DbAnswer> {
 
   select(cols = '*') { if (this.op === 'insert') this.returning = cols; else { this.op = 'select'; this.cols = cols } return this }
   insert(rows: Record<string, unknown> | Record<string, unknown>[]) { this.op = 'insert'; this.rows = Array.isArray(rows) ? rows : [rows]; return this }
+  update(values: Record<string, unknown>) { this.op = 'update'; this.sets = values; return this }
   upsert(rows: Record<string, unknown> | Record<string, unknown>[], opts: { onConflict: string; ignoreDuplicates?: boolean }) {
     this.op = 'upsert'; this.rows = Array.isArray(rows) ? rows : [rows]
     this.conflict = { onConflict: opts.onConflict, ignoreDuplicates: opts.ignoreDuplicates === true }
@@ -73,15 +77,16 @@ class Query implements PromiseLike<DbAnswer> {
       return `insert into ${t} (${keys.map(ident).join(', ')}) values ${values}${conflict}${ret}`
     }
     if (this.op === 'delete') return `delete from ${t}${where}`
+    if (this.op === 'update') return `update ${t} set ${Object.entries(this.sets).map(([k, v]) => `${ident(k)} = ${lit(v)}`).join(', ')}${where}`
     const order = this.orders.length ? ` order by ${this.orders.join(', ')}` : ''
     const limit = (this.max === null ? '' : ` limit ${Math.floor(this.max)}`) + (this.skip > 0 ? ` offset ${Math.floor(this.skip)}` : '')
     return `select ${this.cols === '*' ? '*' : this.cols.split(',').map(c => ident(c.trim())).join(', ')} from ${t}${where}${order}${limit}`
   }
 
-  then<R1 = DbAnswer, R2 = never>(onfulfilled?: ((v: DbAnswer) => R1 | PromiseLike<R1>) | null, onrejected?: ((r: unknown) => R2 | PromiseLike<R2>) | null): PromiseLike<R1 | R2> {
+  then<R1 = DbAnswer & DbOneAnswer, R2 = never>(onfulfilled?: ((v: DbAnswer & DbOneAnswer) => R1 | PromiseLike<R1>) | null, onrejected?: ((r: unknown) => R2 | PromiseLike<R2>) | null): PromiseLike<R1 | R2> {
     return this.run().then(onfulfilled, onrejected)
   }
-  private async run(): Promise<DbAnswer> {
+  private async run(): Promise<DbAnswer & DbOneAnswer> {
     try {
       const sql = this.sql()
       const role = this.role
@@ -98,12 +103,12 @@ class Query implements PromiseLike<DbAnswer> {
         const kind = new Map(res.fields.map(f => [f.name, f.dataTypeID]))
         rows = rows.map(r => Object.fromEntries(Object.entries(r).map(([k, v]) => [k, v instanceof Date ? (kind.get(k) === 1082 ? v.toISOString().slice(0, 10) : v.toISOString()) : kind.get(k) === 1700 && typeof v === 'string' ? Number(v) : v])))
       }
-      if (this.one && this.op === 'select') {
+      if (this.one && (this.op === 'select' || this.returning)) {
         if (rows.length === 1) return { data: rows[0] as never, error: null }
         if (rows.length === 0 && this.one === 'maybe') return { data: null, error: null }
         return { data: null, error: { code: 'PGRST116', message: `${rows.length} rows, but one was expected` } }
       }
-      return { data: this.op === 'delete' || ((this.op === 'insert' || this.op === 'upsert') && !this.returning) ? null : rows, error: null }
+      return { data: this.op === 'delete' || this.op === 'update' || ((this.op === 'insert' || this.op === 'upsert') && !this.returning) ? null : rows, error: null }
     } catch (e) {
       return { data: null, error: { code: (e as { code?: string }).code, message: (e as Error).message } }
     }

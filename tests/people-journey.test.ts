@@ -340,5 +340,6 @@ test('both pages check the admin themselves before any query, and the journey pa
   assert.ok(detail.indexOf('isTutorId(id)') > 0 && detail.indexOf('isTutorId(id)') < detail.indexOf('loadJourney('))
   const list = readFileSync(path.join(SRC, 'app/(admin)/super-admin/page.tsx'), 'utf8')
   assert.ok(list.includes('/super-admin/people/${p.id}'))
+  assert.ok(list.includes('/admin/tutors/${p.id}'), 'the name opens the tutor page (T-1030)')
   assert.ok(list.includes('name="plan"') && list.includes('name="stage"'))
 })

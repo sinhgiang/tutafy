@@ -28,7 +28,7 @@ mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
 mock.module('next/navigation', {
   exports: { redirect: (to: string) => { redirects.push(to); throw new Error(`NEXT_REDIRECT:${to}`) }, notFound: () => { throw new Error('NEXT_NOT_FOUND') }, usePathname: () => '/admin', useRouter: () => ({ push() {}, refresh() {} }) },
 })
-mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/client.ts')).href, { exports: { createClient: () => ({ auth: { signOut: async () => {} } }) } })
+mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/client.ts')).href, { exports: { createClient: () => ({ auth: { signOut: async () => {} } }), createRealClient: () => ({ auth: { signOut: async () => {} } }) } })
 
 const { ADMIN_EMAIL } = await import('./support/admin-account.ts')
 type Page = (props?: unknown) => Promise<React.ReactElement>
@@ -286,7 +286,8 @@ for (const name of Object.keys(Pages) as (keyof typeof Pages)[]) {
 
 test('the one Sign out signs out and goes to the login page, and the admin frame has no sign-in anywhere in its source', () => {
   const button = readFileSync(path.join(SRC, 'components/admin/SignOutButton.tsx'), 'utf8')
-  assert.match(button, /await createClient\(\)\.auth\.signOut\(\)\s*router\.push\('\/login'\)/)
+  // the admin's own client, whatever view is open (T-0708): signing out must never be read by a "View as this tutor"
+  assert.match(button, /await createRealClient\(\)\.auth\.signOut\(\)\s*router\.push\('\/login'\)/)
   for (const f of ['components/admin/AdminSidebar.tsx', 'components/admin/AdminMobileNav.tsx', 'components/admin/SignOutButton.tsx']) {
     const src = readFileSync(path.join(SRC, f), 'utf8')
     assert.doesNotMatch(src, /signIn|signInWith|Sign in/i, f)

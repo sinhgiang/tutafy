@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
 import { getAdminT } from '@/lib/admin-lang'
@@ -55,7 +56,7 @@ export default async function AdminTutorsPage() {
               }) => (
                 <tr key={tu.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3">
-                    <p className="font-medium text-gray-900">{tu.name}</p>
+                    <Link href={`/admin/tutors/${tu.id}`} className="font-medium text-gray-900 hover:text-indigo-700">{tu.name}</Link>
                     <p className="text-xs text-gray-400">{tu.email}</p>
                   </td>
                   <td className="px-5 py-3 text-gray-500 font-mono text-xs">{tu.slug}</td>

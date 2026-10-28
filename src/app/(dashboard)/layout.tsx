@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient, activeViewTutor } from '@/lib/supabase/server'
 import { canViewAsStudent } from '@/lib/role-switch'
 import { THEME_INIT_SCRIPT } from '@/lib/dashboard-theme'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { ViewAsBanner } from '@/components/admin/ViewAsBanner'
 import { PageFrame } from '@/components/layout/PageFrame'
 import { NoticeBar } from '@/components/layout/NoticeBar'
 import { CommandPalette } from '@/components/layout/CommandPalette'
@@ -33,11 +34,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('sender_type', 'student')
     .is('read_at', null)
 
+  // The platform admin looking at this tutor's dashboard read-only (T-0708): a strip on every page says so and has the Exit button.
+  const view = await activeViewTutor()
+
   return (
+    <>
+    {view && <ViewAsBanner tutorName={view.name || view.email} />}
     <div className="dash" data-theme="light" suppressHydrationWarning>
       {/* Sets the theme before the first paint, so a tutor who chose dark never sees a light flash */}
       <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       <ThemeSync />
+
       <Sidebar plan={plan} unreadMessages={unreadMessages ?? 0} />
       <div className="dash-main">
         <Header tutor={tutor} canViewAsStudent={viewAsStudent} />
@@ -49,5 +56,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <MobileNav plan={plan} unreadMessages={unreadMessages ?? 0} />
       <CommandPalette slug={tutor.slug as string | null} />
     </div>
+    </>
   )
 }

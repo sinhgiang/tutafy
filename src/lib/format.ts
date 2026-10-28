@@ -21,3 +21,10 @@ export function formatWhen(iso: string | null | undefined): string {
 export function formatDay(iso: string | null | undefined): string {
   return formatWhen(iso).slice(0, 10)
 }
+
+/** A day as "9 Mar 2027" (UTC), or a dash when there is none or it is not a date. */
+export function formatDayLabel(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  const t = Date.parse(iso)
+  return Number.isNaN(t) ? '—' : new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+}

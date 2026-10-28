@@ -109,7 +109,7 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
 
       {/* People */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <h2 className="text-sm font-semibold text-gray-900">{t('sa.tutors')} <span className="text-gray-400 font-normal">{t('sa.matching', { n: people.matching })}</span></h2>
           <p className="text-xs text-gray-400">{t('sa.clickName')}</p>
         </div>
@@ -135,8 +135,9 @@ export default async function SuperAdminPage({ searchParams }: { searchParams: P
               {people.rows.map(p => (
                 <tr key={p.id} className="align-top hover:bg-gray-50 transition-colors" data-person={p.id}>
                   <td className="px-5 py-3">
-                    <Link href={`/super-admin/people/${p.id}${query({ page: page > 1 ? page : null })}`} className="font-medium text-indigo-700 hover:underline">{p.name || p.email}</Link>
+                    <Link href={`/admin/tutors/${p.id}`} className="font-medium text-indigo-700 hover:underline" data-testid="person-link">{p.name || p.email}</Link>
                     <p className="text-xs text-gray-400">{p.email}</p>
+                    <Link href={`/super-admin/people/${p.id}${query({ page: page > 1 ? page : null })}`} className="text-xs text-gray-500 hover:text-indigo-700 hover:underline">{t('sa.journeyLink')}</Link>
                   </td>
                   <td className="px-5 py-3 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${planBadgeClass(p.plan)}`}>{planLabel(p.plan)}</span>

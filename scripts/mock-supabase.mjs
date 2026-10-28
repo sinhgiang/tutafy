@@ -83,6 +83,14 @@ const team_members = [
 ]
 const visitors = Array.from({ length: 12 }, (_, i) => ({ id: id(i + 1, '7'), visitor_id: `v${i}`, first_seen: iso(-i), first_source: ['Direct', 'Google Search', 'Facebook'][i % 3], country: ['US', 'GB', 'VN'][i % 3], created_at: iso(-i) }))
 const visitor_events = visitors.slice(0, 8).map((v, i) => ({ id: id(i + 1, '8'), visitor_id: v.id, path: ['/', '/blog', '/register', '/upgrade'][i % 4], event: 'page_view', created_at: iso(-i) }))
+// One recorded journey for the sample tutor (the owner's page for a tutor shows it): came from ChatGPT, read two pages, signed up, upgraded.
+visitors.push({ id: id(90, '7'), tutor_id: TUTOR_ID, first_seen_at: iso(-31, 9), country: 'DE', first_source: 'ai_chatgpt', first_path: '/', first_referrer_host: 'chatgpt.com', utm_source: null, utm_medium: null, utm_campaign: null })
+visitor_events.push(
+  { id: id(90, '8'), visitor_id: id(90, '7'), kind: 'page_view', path: '/', plan: null, created_at: iso(-31, 9) },
+  { id: id(91, '8'), visitor_id: id(90, '7'), kind: 'page_view', path: '/upgrade', plan: null, created_at: iso(-31, 10) },
+  { id: id(92, '8'), visitor_id: id(90, '7'), kind: 'checkout_click', path: null, plan: 'pro', created_at: iso(-30, 9) },
+  { id: id(93, '8'), visitor_id: id(90, '7'), kind: 'order_paid', path: null, plan: 'pro', created_at: iso(-30, 10) },
+)
 const subscription_plans = [
   { id: id(1, '9'), tutor_id: TUTOR_ID, name: 'Monthly 4 lessons', price: 140, currency: 'usd', period: 'month', duration_minutes: 60, lessons_per_period: 4, is_active: true, created_at: iso(-20) },
 ]
@@ -121,6 +129,11 @@ if (process.env.MOCK_BUYERS) {
   const set = (tid, sid) => { tutors.find(t => t.id === tid).polar_subscription_id = sid }
   set(TUTOR_ID, 'sub_mock_1'); set(id(3, 'b'), 'sub_mock_2'); set(ADMIN_ID, 'sub_mock_3')
   tutors.push({ id: id(150, 'b'), email: 'hana@example.com', name: 'Hana Ejemplo', slug: 'hana-ejemplo', subscription_status: 'academy', polar_subscription_id: 'sub_mock_4', languages: ['German'], timezone: 'Europe/Berlin', created_at: iso(-45), booking_url_active: true })
+  // a journey for Sarah (the Pro tutor) so her page at /admin/tutors/<id> has a first source, pages, a sign-up and an upgrade; the others have none
+  visitors.push({ id: id(1, 'f'), tutor_id: TUTOR_ID, first_seen_at: iso(-93, 8), country: 'DE', first_source: 'ai_chatgpt', first_path: '/', first_referrer_host: null, utm_source: null, utm_medium: null, utm_campaign: null })
+  for (const [n, kind, p, plan, day, hour] of [[1, 'page_view', '/', null, -93, 8], [2, 'page_view', '/blog/how-to-take-card-payments-with-a-stripe-payment-link', null, -93, 9], [3, 'page_view', '/upgrade', null, -92, 10], [4, 'checkout_click', null, 'pro', -92, 11], [5, 'order_paid', null, 'pro', -90, 12]]) {
+    visitor_events.push({ id: id(n, 'f'), visitor_id: id(1, 'f'), kind, path: p, plan, created_at: iso(day, hour) })
+  }
   tutors.push({ id: id(151, 'b'), email: 'noor@example.com', name: 'Noor Prueba', slug: 'noor-prueba', subscription_status: 'pro', polar_subscription_id: null, languages: ['Arabic'], timezone: 'Asia/Dubai', created_at: iso(-20), booking_url_active: true })
 }
 
@@ -131,7 +144,9 @@ const feedback = [
   { id: id(3, 'e'), created_at: iso(-2, 11), author_role: 'tutor', tutor_id: id(2, 'b'), author_email: 'tutor2@example.com', kind: 'idea', message: 'Please let me send one reminder to the whole class at once.' },
   { id: id(4, 'e'), created_at: iso(-4, 8), author_role: 'student', tutor_id: null, author_email: 'student2@example.com', kind: 'idea', message: 'A dark mode for the lesson page would help in the evening.' },
 ]
-const DB = { feedback, tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
+// the log of "View as this tutor" (supabase/migrations/022_admin_view_log.sql): empty; the start route writes a row here
+const admin_view_log = []
+const DB = { admin_view_log, feedback, tutors, students, lessons, messages, availability, packages, coupons, reviews, invoices, homework_submissions, team_members, visitors, visitor_events,
   subscription_plans, student_subscriptions, waitlist, referrals, api_keys, webhook_subscriptions, lesson_card_payments, availability_exceptions, lesson_students }
 
 // ---------- query engine ----------

@@ -1,10 +1,29 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { isAdminEmail } from '@/lib/admin'
+import { viewBlock } from '@/lib/view-proxy'
+import { findViewSession } from '@/lib/view-session'
 
 export async function proxy(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // "View as this tutor" (T-0708): while a valid view is open the whole app is read-only. Needs no work at all when there is no view cookie.
+  const blocked = await viewBlock(request, async sessionId => {
+    if (!supabaseUrl || !supabaseKey) return { valid: false }
+    const probe = createServerClient(supabaseUrl, supabaseKey, { cookies: { getAll: () => request.cookies.getAll(), setAll: () => {} } })
+    const { data: { user } } = await probe.auth.getUser()
+    if (!user || !isAdminEmail(user.email)) return { valid: false }
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) return { valid: false }
+    const admin = createSupabaseClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
+    return { valid: Boolean(await findViewSession(admin, sessionId, user.id)) }
+  })
+  if (blocked) return blocked
+  // API routes are in the matcher only for the check above; they have no other work here.
+  if (request.nextUrl.pathname === '/api' || request.nextUrl.pathname.startsWith('/api/')) return NextResponse.next({ request })
+
 
   if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your_')) {
     return NextResponse.next({ request })
@@ -129,5 +148,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|book|api|portal|onboarding|sw.js|manifest.webmanifest|offline|icon-|icon\\.svg|apple-icon|brand/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|book|api|portal|onboarding|sw.js|manifest.webmanifest|offline|icon-|icon\\.svg|apple-icon|brand/).*)', '/api/:path*'],
 }
