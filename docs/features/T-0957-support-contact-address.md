@@ -15,7 +15,7 @@ outgoing mail already names as Reply-To (`DEFAULT_REPLY_TO` in `src/lib/email-co
 
 ## Not changed on purpose
 
-- The blog author's name (a real person), the "Email & SMS reminders" and "Public API & Zapier" lines, and the commission numbers.
+- The blog author's name (a real person), the "Email & SMS reminders" and "Public API & Zapier" lines (both were later replaced by the one plan list, T-1052), and the commission numbers.
 - The admin sign-in account (`ADMIN_EMAIL`), never shown to a customer.
 
 ## Tests

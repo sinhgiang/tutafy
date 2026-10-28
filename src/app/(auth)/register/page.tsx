@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { PLAN_LIST, parsePaidPlan, loginHref, upgradeHref, onboardingHref, planById } from '@/lib/plan-list'
 
 function RegisterForm() {
   const [name, setName] = useState('')
@@ -22,6 +23,10 @@ function RegisterForm() {
   const supabase = createClient()
   // The invite code from the address (?ref=), read straight from it
   const refCode = searchParams.get('ref') ?? ''
+  // The plan picked on the landing page or /switch (T-1052): only "pro" or "academy". It is carried through sign-up and
+  // onboarding to the upgrade page.
+  const plan = parsePaidPlan(searchParams.get('plan'))
+  const planItem = plan ? PLAN_LIST.find(p => p.id === plan) : null
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
@@ -58,7 +63,7 @@ function RegisterForm() {
     // If session exists = email confirmation disabled → go to onboarding
     if (data.session) {
       // The owner's account is never made here (it exists already), so no address is compared: the admin gate sits on the server.
-      router.push('/onboarding?signup=1')
+      router.push(onboardingHref(plan))
       router.refresh()
     } else {
       setError('✅ Account created! Check your email to confirm, then sign in.')
@@ -70,6 +75,8 @@ function RegisterForm() {
     setGoogleLoading(true)
     setError('')
     document.cookie = `tutafy_oauth_role=tutor; path=/; max-age=600; samesite=lax`
+    // The callback reads this after Google answers: a plan picked before sign-up goes on to its upgrade page (src/app/auth/callback/route.ts).
+    if (plan) document.cookie = `tutafy_oauth_next=${encodeURIComponent(upgradeHref(plan))}; path=/; max-age=600; samesite=lax`
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -89,9 +96,14 @@ function RegisterForm() {
         <Card>
           <CardHeader>
             <CardTitle>Create your account</CardTitle>
-            <CardDescription>Free forever for up to 5 students</CardDescription>
+            <CardDescription>{planItem ? `Next step: pay for ${planItem.name} ($${planItem.monthlyUsd}/month)` : `Free forever. ${planById('free').features[0]}.`}</CardDescription>
           </CardHeader>
           <CardContent>
+            {planItem && (
+              <p data-testid="plan-note" className="text-[13px] text-indigo-900 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2.5 mb-4">
+                You picked <b>{planItem.name}</b>. Create your account, set up your booking page, then pay for {planItem.name} on the next page.
+              </p>
+            )}
             <button
               onClick={handleGoogleRegister}
               disabled={googleLoading}
@@ -137,7 +149,7 @@ function RegisterForm() {
             </form>
             <p className="text-center text-sm text-gray-500 mt-4">
               Already have an account?{' '}
-              <Link href="/login" className="text-blue-600 hover:underline font-medium">Sign in</Link>
+              <Link href={loginHref(plan)} className="text-blue-600 hover:underline font-medium">Sign in</Link>
             </p>
           </CardContent>
         </Card>

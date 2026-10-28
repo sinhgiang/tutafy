@@ -41,13 +41,14 @@ export function requiredPlanFor(pathname: string): Plan | null {
  * Build a Polar hosted-checkout URL prefilled with the tutor's identity so a
  * returning customer can upgrade in as few clicks as Polar allows. The webhook
  * matches the payment back to this tutor via email / external id.
+ * Returns null when the checkout address is not set on the server: the upgrade page then says so instead of showing a dead link.
  */
-export function polarCheckoutUrl(required: Plan, email: string, tutorId: string): string {
+export function polarCheckoutLink(required: Plan, email: string, tutorId: string): string | null {
   const raw = required === 'academy'
     ? process.env.NEXT_PUBLIC_POLAR_CHECKOUT_ACADEMY
     : process.env.NEXT_PUBLIC_POLAR_CHECKOUT_PRO
   const url = (raw ?? '').trim()
-  if (!url) return '/upgrade' // env not configured → fall back to the pricing page
+  if (!url) return null
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com').replace(/[﻿​\s]/g, '').replace(/\/+$/, '')
   const sep = url.includes('?') ? '&' : '?'
   const params = new URLSearchParams({
@@ -56,4 +57,8 @@ export function polarCheckoutUrl(required: Plan, email: string, tutorId: string)
     success_url: `${appUrl}/upgrade/success`,
   })
   return `${url}${sep}${params.toString()}`
+}
+
+export function polarCheckoutUrl(required: Plan, email: string, tutorId: string): string {
+  return polarCheckoutLink(required, email, tutorId) ?? '/upgrade' // env not configured → fall back to the pricing page
 }

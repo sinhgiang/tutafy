@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { BrandLogo } from '@/components/brand/BrandLogo'
@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { parsePaidPlan, registerHref, upgradeHref } from '@/lib/plan-list'
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -18,6 +19,8 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
+  // The plan picked before sign-in (T-1052): only "pro" or "academy"; after sign-in the tutor goes to that plan's upgrade page.
+  const plan = parsePaidPlan(useSearchParams().get('plan'))
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -32,7 +35,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/dashboard')
+    router.push(plan ? upgradeHref(plan) : '/dashboard')
     router.refresh()
   }
 
@@ -40,6 +43,7 @@ export default function LoginPage() {
     setGoogleLoading(true)
     setError('')
     document.cookie = `tutafy_oauth_role=tutor; path=/; max-age=600; samesite=lax`
+    if (plan) document.cookie = `tutafy_oauth_next=${encodeURIComponent(upgradeHref(plan))}; path=/; max-age=600; samesite=lax`
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -119,7 +123,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-gray-500 mt-4">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-blue-600 hover:underline font-medium">
+              <Link href={registerHref(plan)} className="text-blue-600 hover:underline font-medium">
                 Create one free
               </Link>
             </p>
@@ -133,5 +137,17 @@ export default function LoginPage() {
         </Card>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

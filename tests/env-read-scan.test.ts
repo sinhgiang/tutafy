@@ -29,7 +29,6 @@ const NEXT_PUBLIC_APP_URL_READERS: ReadAllowList = {
   'src/app/(dashboard)/developers/page.tsx': { lines: 1, reason: 'the API base address shown to a signed-in tutor on the developers page' },
   'src/app/(dashboard)/messages/[studentId]/page.tsx': { lines: 1, reason: 'the student portal link a signed-in tutor copies from the messages page' },
   'src/app/(dashboard)/students/[id]/page.tsx': { lines: 1, reason: 'the student portal link a signed-in tutor copies from the student page' },
-  'src/app/(dashboard)/upgrade/page.tsx': { lines: 1, reason: 'the success address of the plan checkout started from the upgrade page' },
   'src/app/api/bookings/route.ts': { lines: 1, reason: 'the base of the links in the booking emails (BOM and spaces removed, see the comment above it)' },
   'src/app/api/referral/route.ts': { lines: 1, reason: 'the referral link a signed-in tutor shares' },
   'src/app/api/stripe/connect/onboard/route.ts': { lines: 1, reason: 'the return address of Stripe Connect onboarding when the request has no host' },

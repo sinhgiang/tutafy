@@ -1,125 +1,27 @@
 import { PageColumn } from '@/components/layout/PageFrame'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Check, X, Zap, Users } from 'lucide-react'
+import { Check, Zap, Users } from 'lucide-react'
 import Link from 'next/link'
 import { ContactEmails } from '@/components/ContactEmails'
 import { TrackedCheckoutLink } from '@/components/plan/TrackedCheckoutLink'
+import { polarCheckoutLink, PLAN_RANK, PLAN_LABEL, type Plan } from '@/lib/plans'
+import { PLAN_LIST, parsePaidPlan, registerHref } from '@/lib/plan-list'
 
-const PRO_URL = process.env.NEXT_PUBLIC_POLAR_CHECKOUT_PRO ?? '#'
-const ACADEMY_URL = process.env.NEXT_PUBLIC_POLAR_CHECKOUT_ACADEMY ?? '#'
-const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://tutafy.com').replace(/[﻿​\s]/g, '').replace(/\/+$/, '')
-// Where to manage/cancel an existing paid plan (downgrade). Polar's customer
-// portal handles this; fall back to Settings if the portal URL isn't configured.
-const MANAGE_URL = process.env.NEXT_PUBLIC_POLAR_PORTAL_URL || '/settings'
+// The cards print the one plan list (src/lib/plan-list.ts), the same lines as the landing page, /switch and /llms.txt.
+const ICON: Record<string, typeof Zap | null> = { free: null, pro: Zap, academy: Users }
 
-// Plan hierarchy so we can label each card as an upgrade or a downgrade relative
-// to the tutor's current plan (never show "Upgrade to Pro" to an Academy user).
-const RANK: Record<string, number> = { free: 0, pro: 1, academy: 2 }
+export const dynamic = 'force-dynamic'
 
-// Attach the logged-in tutor's identity to the Polar checkout link. Prefilling
-// customer_email means they pay with their Tutafy account email by default (so
-// the webhook's email match succeeds), and customer_external_id lets the webhook
-// tie the payment to this exact tutor even if they change the email at checkout.
-// success_url brings them back INTO Tutafy (a congrats page) after paying instead
-// of landing on a Polar-hosted page.
-function withTutorRef(url: string, email: string, tutorId: string): string {
-  if (!url || url === '#') return url
-  const sep = url.includes('?') ? '&' : '?'
-  const params = new URLSearchParams({
-    customer_email: email,
-    customer_external_id: tutorId,
-    success_url: `${APP_URL}/upgrade/success`,
-  })
-  return `${url}${sep}${params.toString()}`
-}
+export default async function UpgradePage({ searchParams }: { searchParams: Promise<{ plan?: string | string[] }> }) {
+  const { plan: planParam } = await searchParams
+  // The plan somebody picked on the landing page or /switch; only "pro" or "academy" count (src/lib/plan-list.ts).
+  const chosen = parsePaidPlan(planParam)
 
-const PLANS = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    per: '',
-    desc: 'To get started',
-    color: 'bg-white border-gray-200',
-    headerColor: 'text-gray-900',
-    priceColor: 'text-gray-900',
-    icon: null,
-    cta: null,
-    ctaStyle: '',
-    features: [
-      { text: 'Up to 10 students', ok: true },
-      { text: '1 tutor', ok: true },
-      { text: 'Booking page', ok: true },
-      { text: 'Scheduling & reminders', ok: true },
-      { text: 'Basic analytics', ok: true },
-      { text: 'AI Tools', ok: false },
-      { text: 'Payment links (PayPal/Paddle)', ok: false },
-      { text: 'More than 10 students', ok: false },
-      { text: 'Multiple tutors (team)', ok: false },
-      { text: 'Priority support', ok: false },
-    ],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 12,
-    per: '/month',
-    desc: 'For professional tutors',
-    color: 'bg-indigo-600 border-indigo-600',
-    headerColor: 'text-indigo-100',
-    priceColor: 'text-white',
-    icon: Zap,
-    badge: 'Most popular',
-    badgeColor: 'bg-indigo-800 text-white',
-    cta: 'Upgrade to Pro',
-    ctaStyle: 'bg-white text-indigo-600 hover:bg-indigo-50',
-    checkoutUrl: PRO_URL,
-    features: [
-      { text: 'Unlimited students', ok: true },
-      { text: '1 tutor', ok: true },
-      { text: 'Booking page', ok: true },
-      { text: 'Scheduling & reminders', ok: true },
-      { text: 'Full analytics', ok: true },
-      { text: 'AI Tools (lesson plans, content)', ok: true },
-      { text: 'Payment links (PayPal/Paddle/Stripe)', ok: true },
-      { text: 'Unlimited students', ok: true },
-      { text: 'Multiple tutors (team)', ok: false },
-      { text: 'Priority support', ok: false },
-    ],
-  },
-  {
-    id: 'academy',
-    name: 'Academy',
-    price: 29,
-    per: '/month',
-    desc: 'For centers & tutor teams',
-    color: 'bg-white border-gray-200',
-    headerColor: 'text-gray-500',
-    priceColor: 'text-gray-900',
-    icon: Users,
-    cta: 'Upgrade to Academy',
-    ctaStyle: 'bg-gray-900 text-white hover:bg-gray-800',
-    checkoutUrl: ACADEMY_URL,
-    features: [
-      { text: 'Unlimited students', ok: true },
-      { text: 'Up to 5 tutors (team)', ok: true },
-      { text: 'Booking page per tutor', ok: true },
-      { text: 'Scheduling & reminders', ok: true },
-      { text: 'Full analytics + team report', ok: true },
-      { text: 'AI Tools', ok: true },
-      { text: 'Payment links (PayPal/Paddle/Stripe)', ok: true },
-      { text: 'Unlimited students', ok: true },
-      { text: 'Up to 5 tutors (team)', ok: true },
-      { text: 'Priority support', ok: true },
-    ],
-  },
-]
-
-export default async function UpgradePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  // The proxy sends a signed-out visitor to sign-up before this page runs; this is the same rule for a direct render.
+  if (!user) redirect(chosen ? registerHref(chosen) : '/login')
 
   const { data: tutor } = await supabase
     .from('tutors')
@@ -127,8 +29,14 @@ export default async function UpgradePage() {
     .eq('id', user.id)
     .single()
 
-  const currentPlan = tutor?.subscription_status ?? 'free'
-  const currentRank = RANK[currentPlan] ?? 0
+  const currentPlan = (tutor?.subscription_status ?? 'free') as Plan
+  const currentRank = PLAN_RANK[currentPlan] ?? 0
+  const chosenItem = chosen ? PLAN_LIST.find(p => p.id === chosen) : null
+  const chosenRank = chosen ? PLAN_RANK[chosen] : 0
+  const alreadyThere = !!chosen && currentRank >= chosenRank
+  // Where to manage/cancel an existing paid plan (downgrade): Polar's customer portal. With no portal address the page says to
+  // write to support, because Settings has no way to change a plan.
+  const manageUrl = process.env.NEXT_PUBLIC_POLAR_PORTAL_URL || ''
 
   return (
     <PageColumn size="list">
@@ -142,24 +50,48 @@ export default async function UpgradePage() {
         <div className="dash-head-actions"><Link href="/settings" className="dash-btn">Back to Settings</Link></div>
       </div>
 
+      {/* The plan picked before sign-up (T-1052): said once, above the cards, with what to press next */}
+      {chosenItem && (
+        <div className="mb-6 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-5" data-testid="chosen-plan">
+          <p className="text-[14px] font-bold text-gray-900">
+            {alreadyThere
+              ? (currentPlan === chosen
+                ? `You are already on ${chosenItem.name}.`
+                : `You are on ${PLAN_LABEL[currentPlan]}, which already includes everything in ${chosenItem.name}.`)
+              : `You picked ${chosenItem.name}: ${chosenItem.monthlyUsd === 0 ? '$0' : `$${chosenItem.monthlyUsd}`}/month.`}
+          </p>
+          {!alreadyThere && (
+            <p className="text-[13px] text-gray-600 mt-1">Check the list below, then press <b>Upgrade to {chosenItem.name}</b> to pay on Polar. Your account is upgraded as soon as the payment goes through.</p>
+          )}
+        </div>
+      )}
+
       {/* Plan cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-12">
-        {PLANS.map(plan => {
+        {PLAN_LIST.map(plan => {
           const isActive = currentPlan === plan.id
-          const planRank = RANK[plan.id] ?? 0
+          const planRank = PLAN_RANK[plan.id] ?? 0
           const isUpgrade = planRank > currentRank
           const isDowngrade = planRank < currentRank
-          const onPro = plan.id === 'pro'
-          const Icon = plan.icon
+          const onPro = plan.highlight
+          const Icon = ICON[plan.id]
+          const isChosen = chosen === plan.id
+          const checkout = isUpgrade && plan.id !== 'free' ? polarCheckoutLink(plan.id, user.email ?? '', user.id) : null
 
           return (
-            <div key={plan.id}
-              className={`relative rounded-2xl border-2 overflow-hidden ${plan.color} ${isActive ? 'ring-4 ring-indigo-300' : ''}`}>
+            <div key={plan.id} data-testid={`plan-${plan.id}`}
+              className={`relative rounded-2xl border-2 overflow-hidden ${onPro ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-gray-200'} ${isActive ? 'ring-4 ring-indigo-300' : ''} ${isChosen && !isActive ? 'ring-4 ring-amber-300' : ''}`}>
 
               {/* Badge */}
-              {'badge' in plan && (
-                <div className={`absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded-full ${plan.badgeColor}`}>
+              {plan.badge && !isChosen && !isActive && (
+                <div className="absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-800 text-white">
                   {plan.badge}
+                </div>
+              )}
+
+              {isChosen && !isActive && (
+                <div className="absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
+                  Your pick
                 </div>
               )}
 
@@ -172,25 +104,25 @@ export default async function UpgradePage() {
               <div className="p-6">
                 {/* Plan name */}
                 <div className="flex items-center gap-2 mb-1">
-                  {Icon && <Icon className={`h-4 w-4 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-500'}`} />}
-                  <p className={`text-[12px] font-bold uppercase tracking-widest ${plan.headerColor}`}>
+                  {Icon && <Icon className={`h-4 w-4 ${onPro ? 'text-indigo-100' : 'text-gray-500'}`} />}
+                  <p className={`text-[12px] font-bold uppercase tracking-widest ${onPro ? 'text-indigo-100' : 'text-gray-500'}`}>
                     {plan.name}
                   </p>
                 </div>
 
                 {/* Price */}
                 <div className="flex items-end gap-1 mb-1">
-                  <span className={`text-[36px] font-black leading-none ${plan.priceColor}`}>
-                    {plan.price === 0 ? '$0' : `$${plan.price}`}
+                  <span className={`text-[36px] font-black leading-none ${onPro ? 'text-white' : 'text-gray-900'}`}>
+                    {`$${plan.monthlyUsd}`}
                   </span>
-                  {plan.per && (
-                    <span className={`text-[13px] pb-1 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400'}`}>
-                      {plan.per}
+                  {plan.monthlyUsd > 0 && (
+                    <span className={`text-[13px] pb-1 ${onPro ? 'text-indigo-100' : 'text-gray-500'}`}>
+                      /month
                     </span>
                   )}
                 </div>
-                <p className={`text-[12px] mb-6 ${plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400'}`}>
-                  {plan.desc}
+                <p className={`text-[12px] mb-6 ${onPro ? 'text-indigo-100' : 'text-gray-500'}`}>
+                  {plan.tagline}
                 </p>
 
                 {/* CTA button — labelled relative to the tutor's current plan */}
@@ -200,46 +132,50 @@ export default async function UpgradePage() {
                   }`}>
                     ✓ Your current plan
                   </div>
-                ) : isUpgrade && plan.checkoutUrl ? (
-                  <TrackedCheckoutLink href={withTutorRef(plan.checkoutUrl, user.email ?? '', user.id)} plan={plan.name === 'Academy' ? 'academy' : 'pro'}
-                    className={`block w-full py-2.5 rounded-xl text-[13px] font-bold text-center transition-colors ${plan.ctaStyle}`}>
-                    Upgrade to {plan.name} →
-                  </TrackedCheckoutLink>
+                ) : isUpgrade && plan.id !== 'free' ? (
+                  checkout ? (
+                    <TrackedCheckoutLink href={checkout} plan={plan.id as 'pro' | 'academy'}
+                      className={`block w-full py-2.5 rounded-xl text-[13px] font-bold text-center transition-colors ${
+                        onPro ? 'bg-white text-indigo-600 hover:bg-indigo-50' : 'bg-gray-900 text-white hover:bg-gray-800'
+                      }`}>
+                      Upgrade to {plan.name} →
+                    </TrackedCheckoutLink>
+                  ) : (
+                    <p data-testid="checkout-unavailable" className={`text-[12px] text-center rounded-xl px-3 py-2.5 ${onPro ? 'bg-indigo-800 text-white' : 'bg-gray-100 text-gray-700'}`}>
+                      Checkout is not available right now. Email <strong><ContactEmails /></strong> and we will upgrade you.
+                    </p>
+                  )
                 ) : isDowngrade ? (
-                  <a href={MANAGE_URL} target={MANAGE_URL.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
-                    className={`block w-full py-2.5 rounded-xl text-[13px] font-semibold text-center transition-colors ${
-                      onPro ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}>
-                    Downgrade to {plan.name}
-                  </a>
+                  manageUrl ? (
+                    <a href={manageUrl} target="_blank" rel="noopener noreferrer"
+                      className={`block w-full py-2.5 rounded-xl text-[13px] font-semibold text-center transition-colors ${
+                        onPro ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}>
+                      Downgrade to {plan.name}
+                    </a>
+                  ) : (
+                    <p className={`text-[12px] text-center rounded-xl px-3 py-2.5 ${onPro ? 'bg-indigo-800 text-white' : 'bg-gray-100 text-gray-700'}`}>
+                      To move to {plan.name}, email <strong><ContactEmails /></strong>.
+                    </p>
+                  )
                 ) : (
-                  <div className="w-full py-2.5 rounded-xl text-[13px] font-bold text-center bg-gray-100 text-gray-400">
+                  <div className="w-full py-2.5 rounded-xl text-[13px] font-bold text-center bg-gray-100 text-gray-600">
                     Free
                   </div>
                 )}
               </div>
 
               {/* Feature list */}
-              <div className={`px-6 pb-6 space-y-2.5 border-t pt-5 ${plan.id === 'pro' ? 'border-indigo-400' : 'border-gray-100'}`}>
-                {plan.features.map((f, i) => (
-                  <div key={i} className="flex items-center gap-2.5">
-                    {f.ok ? (
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        plan.id === 'pro' ? 'bg-white/20' : 'bg-emerald-100'
-                      }`}>
-                        <Check className={`h-2.5 w-2.5 ${plan.id === 'pro' ? 'text-white' : 'text-emerald-600'}`} />
-                      </div>
-                    ) : (
-                      <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100">
-                        <X className="h-2.5 w-2.5 text-gray-300" />
-                      </div>
-                    )}
-                    <span className={`text-[12px] ${
-                      f.ok
-                        ? (plan.id === 'pro' ? 'text-white' : 'text-gray-700')
-                        : (plan.id === 'pro' ? 'text-indigo-100' : 'text-gray-400')
+              <div className={`px-6 pb-6 space-y-2.5 border-t pt-5 ${onPro ? 'border-indigo-400' : 'border-gray-100'}`}>
+                {plan.features.map(f => (
+                  <div key={f} className="flex items-center gap-2.5">
+                    <div className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      onPro ? 'bg-white/20' : 'bg-emerald-100'
                     }`}>
-                      {f.text}
+                      <Check className={`h-2.5 w-2.5 ${onPro ? 'text-white' : 'text-emerald-600'}`} />
+                    </div>
+                    <span className={`text-[12px] ${onPro ? 'text-white' : 'text-gray-700'}`}>
+                      {f}
                     </span>
                   </div>
                 ))}
@@ -252,10 +188,10 @@ export default async function UpgradePage() {
       {/* Payment note */}
       <div className="bg-gray-50 rounded-2xl p-6 text-center mb-6">
         <p className="text-[13px] text-gray-600 font-medium mb-1">Secure payment via Polar.sh</p>
-        <p className="text-[12px] text-gray-400">
+        <p className="text-[12px] text-gray-500">
           Visa, Mastercard, PayPal supported · Cancel anytime · No hidden fees
         </p>
-        <p className="text-[11px] text-gray-400 mt-3">
+        <p className="text-[11px] text-gray-500 mt-3">
           After payment, your account is upgraded automatically within a few minutes.
           If you don&apos;t see the change after 10 minutes, email <strong><ContactEmails /></strong>
         </p>
@@ -264,7 +200,7 @@ export default async function UpgradePage() {
       {/* FAQ mini */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         {[
-          { q: 'Can I cancel anytime?', a: 'Yes. Cancel in Polar.sh and you won\'t be charged next month.' },
+          { q: 'Can I cancel anytime?', a: 'Yes. Cancel in Polar.sh and you keep your plan until the end of the period you already paid for. You are not charged again.' },
           { q: 'Will upgrading lose my data?', a: 'No. All your students and lessons stay exactly as they are.' },
           { q: 'Can I change plans?', a: 'Yes. Upgrade or downgrade anytime, billed pro-rata by day.' },
           { q: 'Which payment methods are supported?', a: 'Visa, Mastercard, PayPal, and many local methods.' },
@@ -277,7 +213,7 @@ export default async function UpgradePage() {
       </div>
 
       <div className="text-center">
-        <Link href="/settings" className="text-[13px] text-gray-400 hover:text-gray-600 transition-colors max-lg:inline-flex max-lg:items-center max-lg:min-h-[44px]">
+        <Link href="/settings" className="text-[13px] text-gray-500 hover:text-gray-700 transition-colors max-lg:inline-flex max-lg:items-center max-lg:min-h-[44px]">
           ← Back to Settings
         </Link>
       </div>

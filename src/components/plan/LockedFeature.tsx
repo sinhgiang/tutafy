@@ -7,21 +7,13 @@ import Link from 'next/link'
 import { Sparkles, Users, Check, ArrowRight, Loader2, Zap } from 'lucide-react'
 import { polarCheckoutUrl, PLAN_LABEL, PLAN_PRICE, type Plan } from '@/lib/plans'
 import { trackCheckoutClick } from '@/lib/track-client'
+import { planById, LOCKED_SHEET_LINES } from '@/lib/plan-list'
 
+// What the sheet lists is the top of the one plan list (src/lib/plan-list.ts), never its own copy (T-1052).
 const BENEFITS: Record<Plan, string[]> = {
   free: [],
-  pro: [
-    'Unlimited students',
-    '7 AI teaching tools',
-    'Payment links & online payments',
-    'Full reports & analytics',
-  ],
-  academy: [
-    'Everything in Pro',
-    'Up to 5 tutors on your team',
-    'Automatic payroll & pay runs',
-    'Priority support',
-  ],
+  pro: planById('pro').features.slice(0, LOCKED_SHEET_LINES),
+  academy: planById('academy').features.slice(0, LOCKED_SHEET_LINES),
 }
 
 export function LockedFeature({

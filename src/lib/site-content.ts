@@ -2,6 +2,7 @@
 // structured data (JSON-LD) and /llms.txt. Edit them here and every place follows;
 // never copy these texts by hand into another file.
 import { PAGE_SEO } from '@/lib/page-meta'
+import { PLAN_LIST } from '@/lib/plan-list'
 
 // The main address (www) lives once in site-url.ts; it is not read from the environment.
 export { SITE_URL } from '@/lib/site-url'
@@ -59,36 +60,8 @@ export const FIND_TUTOR_FAQ: { q: string; a: string }[] = [
   { q: 'Are the times shown in my time zone?', a: 'Yes, once your browser tells us your time zone. You can change the time zone on the form, and it is kept in the page address so a shared link shows the same times.' },
 ]
 
-interface PlanSource {
-  name: string
-  monthlyUsd: number
-  tagline: string
-  features: string[]
-  cta: string
-  href: string
-  highlight: boolean
-  badge: string
-}
-
-const PLAN_SOURCES: PlanSource[] = [
-  {
-    name: 'Free', monthlyUsd: 0, tagline: 'Everything you need to start',
-    features: ['Up to 10 students', 'Booking page', 'Built-in video classroom', 'Email & SMS reminders', 'Scheduling'],
-    cta: 'Start for free', href: '/register', highlight: false, badge: '',
-  },
-  {
-    name: 'Pro', monthlyUsd: 12, tagline: 'For serious independent tutors',
-    features: ['Unlimited students', 'All 7 AI teaching tools', 'Payments (PayPal / card)', 'Full analytics & reports', 'Public API & Zapier'],
-    cta: 'Go Pro', href: '/upgrade', highlight: true, badge: 'Most popular',
-  },
-  {
-    name: 'Academy', monthlyUsd: 29, tagline: 'For small teams & centers',
-    features: ['Everything in Pro', 'Up to 5 tutors', 'Team payroll & split pay', 'Booking page per tutor', 'Priority support'],
-    cta: 'Start Academy', href: '/upgrade', highlight: false, badge: '',
-  },
-]
-
-export const PLANS = PLAN_SOURCES.map(p => ({
+// The plans come from the one list in plan-list.ts (T-1052); /upgrade, /switch and the locked-feature sheet print from it too.
+export const PLANS = PLAN_LIST.map(p => ({
   ...p,
   /** Shown on the pricing card, e.g. "$12". */
   price: `$${p.monthlyUsd}`,
