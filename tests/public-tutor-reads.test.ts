@@ -121,7 +121,7 @@ const embedPage = (await import('@/app/embed/[slug]/page.tsx')).default
 const profilePage = (await import('@/app/tutors/[slug]/page.tsx')).default
 const studentPage = (await import('@/app/student/dashboard/page.tsx')).default
 const { signStudentToken } = await import('@/lib/student-auth.ts')
-const { listPublicTutorSlugs } = await import('@/lib/tutor-sitemap.ts')
+const { listBookableTutors, INDEX_COLUMNS } = await import('@/lib/tutor-sitemap.ts')
 
 type Props = { params?: Promise<Record<string, string>>; searchParams?: Promise<Record<string, string>> }
 type Page = (props: Props) => Promise<unknown>
@@ -262,12 +262,13 @@ test('a slug that does not exist is not found', async () => {
 
 // ---- the sitemap -----------------------------------------------------------------------------------------------------------------------
 
-test('the sitemap list: the server reads the slug column only, of the tutors whose page is on', async () => {
+test('the sitemap list: the server reads the five columns the rule needs (no email, no payment field), of the tutors whose page is on (T-1032)', async () => {
   adminReads.length = 0
   const client = watch(pgliteClient(pg, { role: 'service_role' }), adminReads) as never
-  const slugs = await listPublicTutorSlugs(client)
-  assert.deepEqual(slugs, ['tutor-a', 'tutor-b'], 'the hidden tutor is not listed')
-  assert.deepEqual(adminReads, [{ table: 'tutors', cols: 'slug' }])
+  const rows = await listBookableTutors(client)
+  assert.deepEqual((rows ?? []).map(r => r.slug), ['tutor-a', 'tutor-b'], 'the hidden tutor is not listed')
+  assert.deepEqual(adminReads, [{ table: 'tutors', cols: INDEX_COLUMNS }])
+  for (const r of rows ?? []) assert.deepEqual(Object.keys(r).sort(), ['avatar_url', 'bio', 'created_at', 'name', 'slug'], 'nothing else of the row is carried')
   // and a visitor's key gets nothing from the same read, so a sitemap built with it would be empty
-  assert.deepEqual(await listPublicTutorSlugs(pgliteClient(pg, { role: 'anon' }) as never), [])
+  assert.equal(await listBookableTutors(pgliteClient(pg, { role: 'anon' }) as never), null)
 })

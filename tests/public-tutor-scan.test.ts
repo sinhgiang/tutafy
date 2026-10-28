@@ -31,6 +31,7 @@ const load = (): Map<string, string> => new Map(sourceFiles(path.join(ROOT, 'src
 /** Reads with the signed-in user's own session client. Each file: how many reads, how many of them are not narrowed to the user's own row in the query itself, and why that is safe. */
 const OWN_SESSION: Record<string, { reads: number; unscoped?: number; reason: string }> = {
   'src/app/api/tutors/avatar/route.ts': { reads: 4, reason: 'T-0766 (pull request #67): a signed-in tutor reads and changes their own photo address (.eq id, user.id); the route answers 401 without a session' },
+  'src/app/api/tutors/languages/route.ts': { reads: 2, reason: 'T-1032: a signed-in tutor reads and saves the list of languages of their own row (.eq id, user.id, with their own session so row level security keeps it to their row); the route answers 401 without a session and 403 for another site' },
   'src/app/api/tutors/intro-video/route.ts': { reads: 2, reason: 'T-0915: a signed-in tutor saves or removes the link of their own intro video (.eq id, user.id, with their own session so row level security keeps it to their row); the route answers 401 without a session and 403 for another site' },
   'src/app/api/ai/lesson-summary/route.ts': { reads: 1, reason: 'a signed-in tutor reads their own name; the route answers 401 without a session' },
   'src/app/api/custom-domain/route.ts': { reads: 3, reason: 'a signed-in tutor reads and writes their own domain; the route answers 401 without a session' },
@@ -69,7 +70,7 @@ const TAKES_A_CLIENT: Record<string, { reads: number; helpers: string[]; reason:
   'src/lib/reviews-data.ts': { reads: 2, helpers: ['loadProfileReviews', 'loadReviewPageState', 'countLessonsHeld'], reason: 'the reviews flow; the profile and the review page hand in the admin client, and the routes that write it check who asks first' },
   'src/lib/role-switch.ts': { reads: 1, helpers: ['canBackToTutor'], reason: 'asks whether the signed-in account is a tutor; the student page gives it the admin client' },
   'src/lib/tutor-currency.ts': { reads: 1, helpers: ['loadTutorCurrency'], reason: 'the currency of a tutor, for the tutor\'s own pages and the owner\'s admin pages' },
-  'src/lib/tutor-sitemap.ts': { reads: 1, helpers: ['listPublicTutorSlugs'], reason: 'the sitemap gives it a client built with the server\'s key' },
+  'src/lib/tutor-sitemap.ts': { reads: 1, helpers: ['listBookableTutors', 'listIndexableTutorSlugs'], reason: 'the sitemap gives it a client built with the server\'s key' },
   'src/lib/welcome-send.ts': { reads: 1, helpers: [], reason: 'the welcome-mail job: its callers are the scheduled job and the sign-up route, which hand in the admin client; no page calls it' },
 }
 /** Reads by a plain REST request (fetch), which the scan of client calls does not see. Each: how many, and which key they use. */

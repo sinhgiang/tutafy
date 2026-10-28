@@ -1,20 +1,18 @@
 import Link from 'next/link'
-import { ArrowRight, ArrowLeft, TrendingUp, Quote } from 'lucide-react'
+import { ArrowRight, ArrowLeft, TrendingUp } from 'lucide-react'
 import { pageMetadata, PAGE_SEO } from '@/lib/page-meta'
 import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteLogo } from '@/components/SiteLogo'
+import { TestimonialCards } from '@/components/customers/TestimonialCards'
+import { TESTIMONIALS, publishable } from '@/lib/testimonials'
 
 export const metadata = pageMetadata('customers')
 
-// Add a real case study here once a tutor agrees to be featured. Keep it honest —
-// only publish stories from actual customers (with their permission).
-const CASE_STUDIES: {
-  slug: string; name: string; role: string; summary: string; quote: string
-  metrics: { label: string; value: string }[]
-}[] = []
-
+// The stories come from src/lib/testimonials.ts (T-1032): a tutor appears only with their written consent, and the list is empty until the owner adds a real one
+// (docs/testimonials.md). While it is empty this page says so honestly and invites tutors to be the first.
 export default function CustomersPage() {
+  const stories = publishable(TESTIMONIALS)
   return (
     <div className="min-h-screen bg-white">
       {pageJsonLd(PAGE_SEO.customers, 'Customer stories', 'CollectionPage').map((d, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(d) }} />)}
@@ -37,29 +35,10 @@ export default function CustomersPage() {
           </p>
         </div>
 
-        {CASE_STUDIES.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {CASE_STUDIES.map(c => (
-              <div key={c.slug} className="bg-white rounded-2xl border border-gray-100 p-7">
-                <Quote className="h-6 w-6 text-indigo-200 mb-3" />
-                <p className="text-[15px] text-gray-700 leading-relaxed">{c.quote}</p>
-                <div className="flex gap-6 mt-6 mb-5">
-                  {c.metrics.map(m => (
-                    <div key={m.label}>
-                      <p className="text-[22px] font-bold text-indigo-600">{m.value}</p>
-                      <p className="text-[11px] text-gray-500">{m.label}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t border-gray-50 pt-4">
-                  <p className="text-[13px] font-semibold text-gray-900">{c.name}</p>
-                  <p className="text-[12px] text-gray-500">{c.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        {stories.length > 0 ? (
+          <TestimonialCards items={stories} />
         ) : (
-          <div className="bg-gray-50 rounded-3xl p-10 md:p-14 text-center">
+          <div className="bg-gray-50 rounded-3xl p-10 md:p-14 text-center" data-testid="customers-empty">
             <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-5">
               <TrendingUp className="h-6 w-6 text-indigo-500" />
             </div>

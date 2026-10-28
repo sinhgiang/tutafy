@@ -275,11 +275,12 @@ export function blogPostMetadata(slug: string, hero?: { webp: string; alt: strin
 /**
  * The metadata of a tutor's public profile (/tutors/<slug>): a title and description of its own
  * (src/lib/tutor-seo.ts) and the canonical on the main site. A profile whose tutor has not turned the
- * public page on is noindex; it is not in the sitemap either (src/lib/tutor-sitemap.ts).
+ * public page on is noindex; it is not in the sitemap either (src/lib/tutor-sitemap.ts). So is a profile that is not worth listing
+ * (`indexable` false: no real introduction, a test account or a copy of another profile of the same name, src/lib/profile-index.ts, T-1032).
  */
-export function tutorMetadata(t: TutorSeoInput): Metadata {
+export function tutorMetadata(t: TutorSeoInput, indexable = true): Metadata {
   const seo = tutorSeoText(t)
-  return build(`/tutors/${t.slug}`, seo.title, seo.description, { noindex: t.booking_url_active !== true })
+  return build(`/tutors/${t.slug}`, seo.title, seo.description, { noindex: t.booking_url_active !== true || !indexable })
 }
 
 /**

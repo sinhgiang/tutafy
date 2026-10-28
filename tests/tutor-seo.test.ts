@@ -19,7 +19,7 @@ import {
 import {
   tutorSeoText, tutorJsonLd, tutorProfileUrl, cleanText, isPublicSlug, TUTOR_TITLE_MAX, TUTOR_DESCRIPTION_MAX, type TutorSeoInput,
 } from '@/lib/tutor-seo'
-import { listPublicTutorSlugs, MAX_TUTOR_URLS, type TutorSlugClient } from '@/lib/tutor-sitemap'
+import { listIndexableTutorSlugs, MAX_TUTOR_URLS, type TutorSlugClient } from '@/lib/tutor-sitemap'
 import { jsonLdScript } from '@/lib/seo'
 import { POSTS, postDates, type Post } from '@/lib/blog'
 import { blogPostJsonLd, formatPostDate } from '@/lib/blog-seo'
@@ -181,7 +181,7 @@ test('slugs: only plain ones are put in an address or a sitemap', () => {
 
 // ---- (4) the sitemap -----------------------------------------------------------------
 
-test('listPublicTutorSlugs asks for the slug column of the tutors who turned the public page on, and nothing else', async () => {
+test('listIndexableTutorSlugs asks for the five columns the rule needs, of the tutors who turned the public page on, and nothing else (T-1032)', async () => {
   const calls: string[] = []
   const client = {
     from(table: string) {
@@ -198,7 +198,7 @@ test('listPublicTutorSlugs asks for the slug column of the tutors who turned the
                   return {
                     limit: async (n: number) => {
                       calls.push(`limit ${n}`)
-                      return { data: [{ slug: 'sarah-test' }, { slug: 'sarah-test' }, { slug: 'Bad Slug' }, { slug: '../x' }, { slug: 'diego-prueba' }, { slug: null }], error: null }
+                      return { data: [{ slug: 'sarah-lee', name: 'Sarah Lee', bio: INTRO }, { slug: 'sarah-lee', name: 'Sarah Lee', bio: INTRO }, { slug: 'Bad Slug', name: 'Bad Slug', bio: INTRO }, { slug: '../x', name: 'X', bio: INTRO }, { slug: 'diego-prueba', name: 'Diego Prueba', bio: INTRO }, { slug: null }], error: null }
                     },
                   }
                 },
@@ -209,20 +209,20 @@ test('listPublicTutorSlugs asks for the slug column of the tutors who turned the
       }
     },
   } as unknown as TutorSlugClient
-  assert.deepEqual(await listPublicTutorSlugs(client), ['sarah-test', 'diego-prueba'], 'duplicates and odd slugs are dropped')
-  assert.deepEqual(calls, ['from tutors', 'select slug', 'eq booking_url_active=true', 'order slug', `limit ${MAX_TUTOR_URLS}`])
+  assert.deepEqual(await listIndexableTutorSlugs(client), ['diego-prueba', 'sarah-lee'], 'duplicates and odd slugs are dropped, the list is by address')
+  assert.deepEqual(calls, ['from tutors', 'select slug, name, bio, avatar_url, created_at', 'eq booking_url_active=true', 'order slug', `limit ${MAX_TUTOR_URLS}`])
 })
 
 test('a database that is missing, fails or answers with an error gives an empty list, never a broken sitemap', async () => {
-  assert.deepEqual(await listPublicTutorSlugs(null), [])
+  assert.deepEqual(await listIndexableTutorSlugs(null), [])
   const failing = { from: () => { throw new Error('down') } } as unknown as TutorSlugClient
-  assert.deepEqual(await listPublicTutorSlugs(failing), [])
+  assert.deepEqual(await listIndexableTutorSlugs(failing), [])
   const errored = { from: () => ({ select: () => ({ eq: () => ({ order: () => ({ limit: async () => ({ data: null, error: { message: 'x' } }) }) }) }) }) } as unknown as TutorSlugClient
-  assert.deepEqual(await listPublicTutorSlugs(errored), [])
+  assert.deepEqual(await listIndexableTutorSlugs(errored), [])
 })
 
 /** A stand-in for Supabase's REST service that, like the database policy, only returns tutors where booking_url_active is true when the request says so. */
-function fakeDatabase(rows: { slug: string; email: string; booking_url_active: boolean }[]) {
+function fakeDatabase(rows: { slug: string; email: string; booking_url_active: boolean; name?: string; bio?: string; avatar_url?: string | null; created_at?: string }[]) {
   const requests: string[] = []
   const keys: string[] = [] // the key each request was made with
   const server = http.createServer((req, res) => {
@@ -244,11 +244,15 @@ function fakeDatabase(rows: { slug: string; email: string; booking_url_active: b
   })
 }
 
-test('the real sitemap lists a profile only for a tutor who turned the public page on, with the www address and no other field', async () => {
+const INTRO = 'I teach languages to adults and children, one to one, with a plan for every lesson and clear homework.'
+
+test('the real sitemap lists a profile only for a tutor who turned the public page on and has a profile worth listing, with the www address and no other field', async () => {
   const db = await fakeDatabase([
-    { slug: 'sarah-test', email: 'sarah@example.com', booking_url_active: true },
-    { slug: 'hidden-hana', email: 'hana@example.com', booking_url_active: false },
-    { slug: 'diego-prueba', email: 'diego@example.com', booking_url_active: true },
+    { slug: 'sarah-lee', email: 'sarah@example.com', booking_url_active: true, name: 'Sarah Lee', bio: INTRO },
+    { slug: 'hidden-hana', email: 'hana@example.com', booking_url_active: false, name: 'Hana Sato', bio: INTRO },
+    { slug: 'diego-prueba', email: 'diego@example.com', booking_url_active: true, name: 'Diego Prueba', bio: INTRO },
+    { slug: 'empty-eve-1a2b', email: 'eve@example.com', booking_url_active: true, name: 'Eve Empty', bio: '' },
+    { slug: 'sarah-test-9xyz', email: 'st@example.com', booking_url_active: true, name: 'Sarah Test', bio: INTRO },
   ])
   const before = { url: process.env.NEXT_PUBLIC_SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY, anon: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY }
   process.env.NEXT_PUBLIC_SUPABASE_URL = db.url
@@ -257,18 +261,20 @@ test('the real sitemap lists a profile only for a tutor who turned the public pa
   try {
     const entries = await sitemap()
     const urls = entries.map(e => e.url)
-    assert.ok(urls.includes(`${SITE_URL}/tutors/sarah-test`))
+    assert.ok(urls.includes(`${SITE_URL}/tutors/sarah-lee`))
     assert.ok(urls.includes(`${SITE_URL}/tutors/diego-prueba`))
     assert.ok(!urls.some(u => u.includes('hidden-hana')), 'a profile that is switched off is in the sitemap')
+    assert.ok(!urls.some(u => u.includes('empty-eve')), 'a profile with no introduction is in the sitemap (T-1032)')
+    assert.ok(!urls.some(u => u.includes('sarah-test')), 'a test account is in the sitemap (T-1032)')
     assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/tutors/`)).length, 2)
     assert.equal(new Set(urls).size, urls.length)
     assert.doesNotMatch(JSON.stringify(entries), EMAIL_IN_TEXT)
-    // exactly one request, for the slug column only, filtered on the flag
+    // exactly one request, for the five columns the rule needs (no email, no phone), filtered on the flag
     assert.equal(db.requests.length, 1, db.requests.join('\n'))
     // T-0774: the read is made on the server with the server's key; the visitor's (public) key is not used for the tutors table
     assert.deepEqual(db.keys, ['server-key-for-test'])
     const q = new URL(db.requests[0], 'http://localhost').searchParams
-    assert.equal(q.get('select'), 'slug')
+    assert.equal(q.get('select'), 'slug,name,bio,avatar_url,created_at')
     assert.equal(q.get('booking_url_active'), 'eq.true')
     // the static pages and the posts are still there
     assert.ok(urls.includes(`${SITE_URL}/tutors`))
@@ -303,7 +309,7 @@ test('with no database configured, or one that is down, the sitemap still lists 
 test('the profile page file uses the shared metadata and structured data, reads no email or phone, and marks up only a public profile', () => {
   const src = read('src/app/tutors/[slug]/page.tsx').replace(/^\s*\/\/.*$/gm, '')
   assert.match(src, /export async function generateMetadata/)
-  assert.match(src, /tutorMetadata\(tutor\)/)
+  assert.match(src, /tutorMetadata\(tutor, listed \? listed\.has\(slug\) : ownReason\(\{ slug, \.\.\.tutor \}\) === null\)/) // T-1032: only a profile worth listing is indexed
   assert.match(src, /tutorNotFoundMetadata\(\)/)
   assert.doesNotMatch(src, /\bcanonical\b|\balternates\b|title:\s*['"`]/, 'the page writes no title or canonical of its own')
   assert.match(src, /tutor\.booking_url_active && tutorJsonLd\(\{ \.\.\.tutor, reviews: shown \}\)/) // T-0765: the Person also carries the real public reviews

@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { POSTS, postDates } from '@/lib/blog'
 import { SITE_URL as SITE } from '@/lib/site-url'
 import { newestUpdateDate } from '@/lib/updates'
-import { listPublicTutorSlugs, type TutorSlugClient } from '@/lib/tutor-sitemap'
+import { listIndexableTutorSlugs, type TutorSlugClient } from '@/lib/tutor-sitemap'
 import { tutorProfileUrl } from '@/lib/tutor-seo'
 import { getDirectory } from '@/lib/directory-cache'
 import { refreshCards } from '@/lib/directory'
@@ -33,7 +33,7 @@ function serverClient(): TutorSlugClient | null {
 // stamping "today" on every build would tell crawlers a false date. Blog posts use
 // their own publish date, and the blog index the date of its newest post; /updates takes the date of its
 // newest entry (content/updates/).
-// A tutor profile is listed only when the tutor turned the public page on (src/lib/tutor-sitemap.ts);
+// A tutor profile is listed only when the tutor turned the public page on and the profile is worth listing (src/lib/tutor-sitemap.ts, src/lib/profile-index.ts);
 // it carries no lastModified, because nothing records when a profile last changed.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: { path: string; priority: number; freq: MetadataRoute.Sitemap[number]['changeFrequency'] }[] = [
@@ -59,7 +59,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: p.priority,
   }))
   const postUrls = POSTS.map(p => ({ url: `${SITE}/blog/${p.slug}`, lastModified: postDate(postDates(p).modified), changeFrequency: 'monthly' as const, priority: 0.6 }))
-  const tutorUrls = (await listPublicTutorSlugs(serverClient())).map(slug => ({ url: tutorProfileUrl(slug), changeFrequency: 'weekly' as const, priority: 0.5 }))
+  // Only profiles worth listing (src/lib/profile-index.ts, T-1032): a real introduction, not a test account, one profile for each name.
+  const tutorUrls = (await listIndexableTutorSlugs(serverClient())).map(slug => ({ url: tutorProfileUrl(slug), changeFrequency: 'weekly' as const, priority: 0.5 }))
   // A language page is listed only while it exists (src/lib/language-pages.ts): a language with too few tutors has no page and no entry.
   const directory = await getDirectory()
   const languageUrls = pickLanguagePages(directory?.open ? refreshCards(directory.cards, new Date()) : []).map(p => ({ url: `${SITE}${languagePagePath(p.guide.slug)}`, changeFrequency: 'weekly' as const, priority: 0.7 }))
