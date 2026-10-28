@@ -7,6 +7,7 @@ import { IntroEditor } from '@/components/IntroEditor'
 import { AvatarUploader } from '@/components/settings/AvatarUploader'
 import { IntroVideoField } from '@/components/settings/IntroVideoField'
 import { LanguagesField } from '@/components/settings/LanguagesField'
+import { focusAnchorId } from '@/components/settings/focusField'
 import { LEVEL_OPTIONS, cleanLevels } from '@/lib/tutor-levels'
 import { GROUP_OPTIONS, cleanGroups } from '@/lib/tutor-groups'
 import { SectionHead } from '@/components/settings/sections/SectionHead'
@@ -30,8 +31,8 @@ export default function ProfileSection({ ctx }: { ctx: SettingsCtx }) {
               <input id="settings-full-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 className="w-full text-[13px] px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors" />
             </div>
-            <LanguagesField />
-            <IntroEditor value={form.bio} onChange={bio => setForm(f => ({ ...f, bio }))} />
+            <div id={focusAnchorId('languages')}><LanguagesField /></div>
+            <div id={focusAnchorId('intro')}><IntroEditor value={form.bio} onChange={bio => setForm(f => ({ ...f, bio }))} /></div>
             <fieldset data-testid="levels-taught">
               <legend className="block text-[12px] font-medium text-gray-600 mb-1.5">Student levels you teach</legend>
               <p className="text-[12px] text-gray-500 mb-2">Students can filter the tutor directory by level. Leave all unticked if you would rather not say.</p>

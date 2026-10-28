@@ -4,6 +4,7 @@ import { currencySymbol as symbolOf } from '@/lib/currency'
 import { loadFirstStudent } from '@/lib/first-student'
 import { loadNoHoursBanner } from '@/lib/no-hours-banner'
 import { loadProfileCompletion } from '@/lib/profile-completion'
+import { loadDirectorySetup } from '@/lib/directory-setup'
 import { loadListingCard, withDirectoryStatus, type ListingClient } from '@/lib/listing-status'
 
 type StudentCols = { name: string; level?: string | null; avatar_url?: string | null }
@@ -68,6 +69,7 @@ export default async function DashboardPage() {
     firstStudent,
     noHours,
     profile,
+    setup,
     listingRaw,
   ] = await Promise.all([
     supabase.from('tutors').select('name, currency').eq('id', user!.id).single(),
@@ -83,6 +85,8 @@ export default async function DashboardPage() {
     loadNoHoursBanner(supabase, user!.id),
     // Profile-completion card (T-0765): a percentage worked out from this tutor's own rows; nothing is stored or sent
     loadProfileCompletion(supabase, user!.id),
+    // "Get ready for the tutor directory" steps (T-1043): the signed-in tutor's own hours, introduction and languages; read only, nothing is written or sent
+    loadDirectorySetup(supabase, user!.id),
     // "Your listing" card (T-0769): the same rule as the tutor directory, on this tutor's own rows only; nothing is written or sent
     loadListingCard(supabase as unknown as ListingClient, user!.id),
   ])
@@ -167,6 +171,7 @@ export default async function DashboardPage() {
     firstStudent,
     noHours,
     profile,
+    setup,
     listing,
   }
 

@@ -14,6 +14,8 @@ import { BookingPreview } from '@/components/settings/BookingPreview'
 import { unfilledParts } from '@/lib/intro-templates'
 import { ALL_DURATIONS, resolveDurationConfig, checkDurations } from '@/lib/lesson-durations'
 import { introVideoFromStored } from '@/lib/intro-video'
+import { parseSettingsFocus } from '@/lib/directory-setup'
+import { focusSettingsField } from '@/components/settings/focusField'
 import dynamic from 'next/dynamic'
 import type { SettingsCtx } from '@/components/settings/sections/context'
 
@@ -90,6 +92,13 @@ export default function SettingsPage() {
     const t = searchParams.get('tab') as TabId | null
     if (t && SECTIONS.some(s => s.id === t)) setTab(t) // eslint-disable-line react-hooks/set-state-in-effect -- the tab named in the address is applied once, on arrival
   }, []) // eslint-disable-line react-hooks/exhaustive-deps -- runs once: the messages and the tab answer the address the page was opened with
+
+  // "?focus=intro" or "?focus=languages" (from the dashboard's directory steps) scrolls to that field once its section has loaded; only on the Profile tab
+  useEffect(() => {
+    const field = parseSettingsFocus(searchParams.get('focus'))
+    if (!field || searchParams.get('tab') !== 'profile') return
+    return focusSettingsField(field)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps -- runs once: it answers the address the page was opened with
 
   // Ask the server whether card payments are switched on, so the Stripe button is
   // replaced by a plain sentence instead of failing on click. Failure keeps the button.
