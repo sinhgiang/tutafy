@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { tutorMetadata, tutorNotFoundMetadata } from '@/lib/page-meta'
 import { tutorJsonLd, httpsImage } from '@/lib/tutor-seo'
+import { ownReason } from '@/lib/profile-index'
+import { getIndexableSlugs } from '@/lib/profile-index-data'
 import { jsonLdScript } from '@/lib/seo'
 import { loadChosenDurations, resolveDurationConfig, describeDurations } from '@/lib/lesson-durations'
 import { loadShowMadeWith } from '@/lib/branding'
@@ -55,7 +57,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   let tutor: Awaited<ReturnType<typeof getTutor>> = null
   try { tutor = await getTutor(slug) } catch {}
-  return tutor ? tutorMetadata(tutor) : tutorNotFoundMetadata()
+  if (!tutor) return tutorNotFoundMetadata()
+  // Worth listing (T-1032): the same list the sitemap uses; when it cannot be read, the rules that look at this row alone decide.
+  const listed = await getIndexableSlugs()
+  return tutorMetadata(tutor, listed ? listed.has(slug) : ownReason({ slug, ...tutor }) === null)
 }
 
 const CARD = 'bg-white rounded-2xl border border-gray-100 shadow-sm'

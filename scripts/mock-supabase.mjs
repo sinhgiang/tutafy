@@ -285,6 +285,19 @@ if (process.env.MOCK_DIRECTORY === 'many') {
     tutors.push({ id: tid, email: `unlisted${i}@example.com`, name, slug: name.toLowerCase().replace(/ /g, '-'), subscription_status: 'free', languages: ['English'], timezone: 'UTC', created_at: iso(-5), booking_url_active: true, default_lesson_price: 20, currency: 'USD', bio: INTRO, ...o })
     if (hasHours) availability.push({ id: id(4000 + i, 'f'), tutor_id: tid, day_of_week: 2, start_time: '09:00:00', end_time: '17:00:00', created_at: iso(-5) })
   })
+  // A dense profile (T-1032): a photo, an intro video, a long introduction in paragraphs, price, trial lesson, three languages and five public reviews.
+  // The photo is only drawn when MOCK_AVATAR_BASE names where a picture called sample-lucia.png is served (a photo must be an https address on the real site).
+  {
+    const tid = id(500, 'b')
+    const base = (process.env.MOCK_AVATAR_BASE ?? '').replace(/\/+$/, '')
+    tutors.push({ id: tid, email: 'dense@example.com', name: 'Lucía Fernández', slug: 'lucia-fernandez', subscription_status: 'pro', languages: ['Spanish', 'English', 'Portuguese'], timezone: 'Europe/Madrid',
+      created_at: iso(-60), booking_url_active: true, default_lesson_price: 28, currency: 'EUR', trial_enabled: true, trial_price: 9, average_rating: 4.8, review_count: 5, buffer_minutes: 10, cancellation_hours: 24,
+      avatar_url: base ? `${base}/sample-lucia.png` : null, intro_video_url: 'https://vimeo.com/76979871', levels_taught: ['beginner', 'intermediate'],
+      bio: 'I teach Spanish to adults who want to speak, not to fill in tables. Most of my students are professionals moving to Spain or Latin America, and parents who want to follow their children.\n\nEvery lesson has one goal you can name in a sentence, a short piece of real conversation, and homework that takes twenty minutes. I record the last five minutes so you can hear your own progress.\n\nI grew up in Madrid, lived in Lisbon for six years and teach in English or Portuguese when a new word needs explaining. Book a trial lesson and tell me what you need Spanish for.' })
+    for (const d of [1, 2, 3, 4, 5, 6]) availability.push({ id: id(5000 + d, 'f'), tutor_id: tid, day_of_week: d, start_time: '09:00:00', end_time: '19:00:00', created_at: iso(-60) })
+    for (const [i, [rating, comment]] of [[5, 'Lucía fixed my pronunciation in two lessons. I finally order food without pointing at the menu.'], [5, 'Clear plans, kind corrections, and the recordings are a great idea.'], [5, 'I moved to Valencia last month and my landlord now understands me.'], [5, 'Patient with a complete beginner. Every lesson ends with something I can use that day.'], [4, 'Very good teacher. I would like slightly longer lessons on weekends.']].entries())
+      reviews.push({ id: id(500 + i, '3'), tutor_id: tid, student_id: id(30), rating, comment, is_public: true, created_at: iso(-3 - i * 4), students: undefined })
+  }
 }
 
 // The seven lessons of the Revenue report (T-0741), with made-up tutors and students: four cancelled lessons marked paid (30 each), one lesson

@@ -22,7 +22,11 @@ mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
       from: (t: string) => db.from(t),
       auth: { admin: { getUserById: async () => ({ data: { user: null }, error: null }) } },
     }),
-    createClient: async () => ({ auth: { getUser: async () => ({ data: { user: sessionUser } }) } }),
+    createClient: async () => ({
+      auth: { getUser: async () => ({ data: { user: sessionUser } }) },
+      // a save that is let through (the languages route, T-1032): the answer of a database that changed the tutor's one row
+      from: () => ({ update: () => ({ eq: () => ({ select: async () => ({ data: [{ id: 'x' }], error: null }) }) }) }),
+    }),
   },
 })
 mock.module('resend', { exports: { Resend: class { emails = { send: async () => {} } } } })
@@ -32,6 +36,7 @@ const register = await import('@/app/api/auth/register/route.ts')
 const feedback = await import('@/app/api/feedback/route.ts')
 const avatar = await import('@/app/api/tutors/avatar/route.ts')
 const introVideo = await import('@/app/api/tutors/intro-video/route.ts')
+const languages = await import('@/app/api/tutors/languages/route.ts')
 const waitlist = await import('@/app/api/waitlist/route.ts')
 const { signStudentToken } = await import('@/lib/student-auth.ts')
 const { createLimiter } = await import('@/lib/rate-limit-memory.ts')
@@ -516,6 +521,28 @@ test('/api/tutors/avatar: at most 10 photo uploads in 10 minutes for one signed-
     })),
   })
   assert.equal(r.limit, 10)
+  sessionUser = null
+})
+
+// ---- /api/tutors/languages (T-1032) ----------------------------------------------------------------------------
+
+test('/api/tutors/languages: at most 30 saves in 10 minutes for one signed-in tutor, whatever list the body carries', async () => {
+  db = createFakeDb({ tutors: [{ id: A_SESSION, email: 'a@example.com', name: 'A', slug: 'a', languages: [] }] })
+  sessionUser = { id: A_SESSION, email: 'a@example.com' }
+  const r = await assertRateLimitHolds({
+    routeFile: 'app/api/tutors/languages/route.ts',
+    limiter: 'perTutor',
+    fixed: [
+      ...feedbackFixed,
+      { kind: 'header', name: 'content-length', reason: 'only a ceiling on the size of the body; the limit is counted on the account of the session, not on a size' },
+    ],
+    call: v => languages.POST(v.request({
+      url: `${ORIGIN}/api/tutors/languages`,
+      headers: { origin: ORIGIN, host: 'www.tutafy.test' },
+      body: { languages: v.text() },
+    })),
+  })
+  assert.equal(r.limit, 30)
   sessionUser = null
 })
 
