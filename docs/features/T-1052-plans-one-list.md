@@ -69,10 +69,10 @@ proxy and `/auth/callback`, the sign-up and sign-in pages).
 
 ## Not done
 
-- **Not tried against Polar.** The owner has to test cancel, and the end of the period, in Polar's sandbox: see the hand-over for the steps.
+- **Not tried against Polar.** Since T-1074 the owner does not test in Polar's sandbox: the code was checked against Polar's documented events instead (`docs/features/T-1074-polar-cancel-safety.md`).
   Polar's documentation is not clear about when `revoked` arrives, which is why a canceled subscription that Polar already marks as ended is
   also dropped.
-- **No safety net if `revoked` never comes.** The plan would then stay until a later event. A scheduled check would need a column that says
+- **(Done in T-1074: a daily safety check now covers a `revoked` that never comes.)** Before it: the plan would stay until a later event. A scheduled check would need a column that says
   "cancelled, ends on" (today `subscription_expires_at` is also written for active subscriptions), which is a migration the owner decides.
 - `past_due` and `unpaid` still drop the plan at once (unchanged): whether to give a grace period is the owner's call.
 - The environment variables on Vercel (`NEXT_PUBLIC_POLAR_CHECKOUT_PRO`, `NEXT_PUBLIC_POLAR_CHECKOUT_ACADEMY`, `NEXT_PUBLIC_POLAR_PORTAL_URL`,

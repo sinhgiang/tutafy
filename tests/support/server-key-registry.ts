@@ -36,6 +36,7 @@ export const SERVER_KEY_FILES: Record<string, string> = {
   'src/app/api/auth/register/route.ts': 'Sign-up: the account is the session\'s, or a body id that must exist, be under 15 minutes old and carry the same email; an existing profile is never overwritten',
   'src/app/api/bookings/route.ts': 'Public booking: a visitor books the tutor of the public page; nothing of another person is read back; length, slot and coupon are checked on the server',
   'src/app/api/coupons/validate/route.ts': 'Public: answers only whether a code of that tutor is valid and its discount',
+  'src/app/api/cron/polar-expiry/route.ts': CRON + '; the daily safety check for cancelled plans (T-1074); the answer holds only counts',
   'src/app/api/cron/progress-reports/route.ts': CRON,
   'src/app/api/cron/reminders/route.ts': CRON,
   'src/app/api/cron/review-invites/route.ts': CRON + '; off unless REVIEWS_FLOW is on; the answer holds only counts (T-0898)',
