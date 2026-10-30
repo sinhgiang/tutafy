@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { requireAdminPage } from '@/lib/admin-guard'
 import { getAdminT } from '@/lib/admin-lang'
 import { loadAnnouncementStatus, type StatusRow } from '@/lib/tutor-announcement-run'
+import { AVAILABILITY_CAMPAIGN, AVAILABILITY_SUBJECT, CAMPAIGN, SUBJECT, parseCampaign, DEFAULT_CAMPAIGN, type CampaignId } from '@/lib/tutor-announcement'
 import { formatWhen } from '@/lib/format'
 import type { AdminKey } from '@/lib/admin-i18n'
 import { AnnouncementControls } from './AnnouncementControls'
@@ -25,15 +26,25 @@ const STATE_STYLE: Record<StatusRow['state'], string> = {
 }
 const stamp = (iso: string) => `${formatWhen(iso)} UTC`
 
+// The letters this page can send (T-1115): the id, the name on its tab, and who it goes to. The subject line is shown as the letter's own name.
+const LETTERS: { id: CampaignId; tab: AdminKey; who: AdminKey; subject: string }[] = [
+  { id: CAMPAIGN, tab: 'ann.letterProfile', who: 'ann.whoProfile', subject: SUBJECT },
+  { id: AVAILABILITY_CAMPAIGN, tab: 'ann.letterHours', who: 'ann.whoHours', subject: AVAILABILITY_SUBJECT },
+]
+
 /**
  * The page of the one-off tutor email (T-1064): setup checks, the test and start and stop buttons, and the numbers. Tutors appear only as
  * numbers: this page reads no name and no address for display. The buttons call admin APIs that check the admin again on the server.
  */
-export default async function AnnouncementPage() {
+export default async function AnnouncementPage({ searchParams }: { searchParams?: Promise<{ campaign?: string | string[] }> } = {}) {
   // Own check, before any query: this page reads the tutor list with the service-role key.
   await requireAdminPage()
   const { t } = await getAdminT()
-  const status = await loadAnnouncementStatus(createAdminClient())
+  // Which letter is on screen: ?campaign=<id>, from the fixed list only; anything else (or nothing) is the first letter.
+  const asked = (await searchParams)?.campaign
+  const campaign = parseCampaign(Array.isArray(asked) ? asked[0] : asked) ?? DEFAULT_CAMPAIGN
+  const letter = LETTERS.find(l => l.id === campaign) ?? LETTERS[0]
+  const status = await loadAnnouncementStatus(createAdminClient(), process.env, new Date(), campaign)
 
   const setup: [AdminKey, boolean][] = [
     ['ann.setupAdmin', status.setup.adminEmail],
@@ -58,6 +69,23 @@ export default async function AnnouncementPage() {
         <p className="text-sm text-gray-500 mt-1">{t('ann.subtitle')}</p>
       </div>
 
+      <section className="bg-white rounded-xl p-5 shadow-sm border border-gray-100" aria-labelledby="ann-letter">
+        <h2 id="ann-letter" className="text-sm font-semibold text-gray-900">{t('ann.letterTitle')}</h2>
+        <nav className="mt-2 flex flex-wrap gap-2" aria-label={t('ann.letterTitle')} data-testid="letters">
+          {LETTERS.map(l => (
+            <Link
+              key={l.id}
+              href={l.id === DEFAULT_CAMPAIGN ? '/super-admin/announcement' : `/super-admin/announcement?campaign=${l.id}`}
+              aria-current={l.id === campaign ? 'page' : undefined}
+              data-letter={l.id}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${l.id === campaign ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+            >{t(l.tab)}</Link>
+          ))}
+        </nav>
+        <p className="text-sm text-gray-700 mt-3" data-testid="letter-subject">{t('ann.subjectLabel')}: <span className="font-medium">{letter.subject}</span></p>
+        <p className="text-sm text-gray-500 mt-1" data-testid="letter-who">{t(letter.who)}</p>
+      </section>
+
       <section className="bg-white rounded-xl p-5 shadow-sm border border-gray-100" aria-labelledby="ann-setup">
         <h2 id="ann-setup" className="text-sm font-semibold text-gray-900">{t('ann.setupTitle')}</h2>
         <ul className="mt-2 space-y-1.5 text-sm" data-testid="setup">
@@ -71,7 +99,7 @@ export default async function AnnouncementPage() {
         {status.readFailed && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{t('ann.readFailed')}</p>}
       </section>
 
-      <AnnouncementControls toQueue={status.toQueue} ready={ready} testSentAt={status.testSentAt} inFlight={status.counts.waiting + status.counts.queued} />
+      <AnnouncementControls key={campaign} campaign={campaign} toQueue={status.toQueue} ready={ready} testSentAt={status.testSentAt} inFlight={status.counts.waiting + status.counts.queued} />
 
       <section className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" aria-labelledby="ann-status">
         <div className="px-5 py-3 border-b border-gray-100">

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { adminApiGate, sameOriginGate } from '@/lib/admin-guard'
 import { createAdminClient } from '@/lib/supabase/server'
 import { realMailer, startAnnouncement, type StartResult } from '@/lib/tutor-announcement-run'
-import { MAX_RECIPIENTS } from '@/lib/tutor-announcement'
+import { MAX_RECIPIENTS, campaignOf } from '@/lib/tutor-announcement'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -15,9 +15,10 @@ const STATUS: Record<Extract<StartResult, { ok: false }>['why'], number> = {
 }
 
 /**
- * POST /api/admin/announcement/start  { expected: <the number the confirm box showed> } (T-1064). Queues the tutor letter for every eligible
- * tutor who has not had it, one every three minutes. Only the platform admin may call it (checked here, on the server). Nothing is queued unless
- * the test mail went out in the last seven days and `expected` is the real number; a tutor already queued is never queued again.
+ * POST /api/admin/announcement/start  { expected: <the number the confirm box showed>, campaign?: <the letter> } (T-1064, T-1115). Queues the chosen
+ * letter (the profile letter when none is named) for every eligible tutor who has not had THAT letter, one every three minutes. Only the platform
+ * admin may call it (checked here, on the server). Nothing is queued unless the test mail of that letter went out in the last seven days and `expected`
+ * is the real number; a tutor already queued for that letter is never queued again.
  */
 export async function POST(request: Request) {
   const denied = await adminApiGate()
@@ -25,13 +26,15 @@ export async function POST(request: Request) {
   const crossSite = sameOriginGate(request)
   if (crossSite) return crossSite
 
-  const body = await request.json().catch(() => null) as { expected?: unknown } | null
+  const body = await request.json().catch(() => null) as { expected?: unknown; campaign?: unknown } | null
   const expected = body?.expected
   if (typeof expected !== 'number' || !Number.isInteger(expected) || expected < 1 || expected > MAX_RECIPIENTS) {
     return NextResponse.json({ error: 'expected must be a whole number from 1 to ' + MAX_RECIPIENTS }, { status: 400 })
   }
+  const campaign = campaignOf(body)
+  if (!campaign) return NextResponse.json({ error: 'unknown campaign' }, { status: 400 })
 
-  const result = await startAnnouncement({ db: createAdminClient(), mailer: realMailer(), expected })
+  const result = await startAnnouncement({ db: createAdminClient(), mailer: realMailer(), expected, campaign })
   if (!result.ok) return NextResponse.json({ error: 'start_refused', reason: result.why, actual: result.actual ?? null }, { status: STATUS[result.why] })
   return NextResponse.json(result)
 }

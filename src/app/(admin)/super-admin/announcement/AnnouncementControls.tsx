@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation'
 import { useAdminT } from '@/components/admin/AdminLang'
 import type { AdminKey } from '@/lib/admin-i18n'
 import { formatWhen } from '@/lib/format'
-import { SPACING_MS } from '@/lib/tutor-announcement'
+import { SPACING_MS, type CampaignId } from '@/lib/tutor-announcement'
 
 // The three buttons of the tutor email page (T-1064). Each one is a POST to an admin API that checks, on the server, that the caller is the platform
 // admin; nothing in this file decides who may send. No address or name is ever in the page: the routes answer with numbers, times and a reason.
-type Props = { toQueue: number | null; ready: boolean; testSentAt: string | null; inFlight: number }
+type Props = { campaign: CampaignId; toQueue: number | null; ready: boolean; testSentAt: string | null; inFlight: number }
 type Busy = 'test' | 'start' | 'stop' | null
 type Note = { kind: 'ok' | 'error'; text: string } | null
 
@@ -28,7 +28,7 @@ const REASONS: Record<string, AdminKey> = {
 const btn = 'px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed'
 const stamp = (iso: string) => `${formatWhen(iso)} UTC`
 
-export function AnnouncementControls({ toQueue, ready, testSentAt, inFlight }: Props) {
+export function AnnouncementControls({ campaign, toQueue, ready, testSentAt, inFlight }: Props) {
   const t = useAdminT()
   const router = useRouter()
   const [busy, setBusy] = useState<Busy>(null)
@@ -51,7 +51,7 @@ export function AnnouncementControls({ toQueue, ready, testSentAt, inFlight }: P
   async function sendTest() {
     setBusy('test'); setNote(null)
     try {
-      const { status, data } = await post('/api/admin/announcement/test')
+      const { status, data } = await post('/api/admin/announcement/test', { campaign })
       setNote(status === 200 ? { kind: 'ok', text: t('ann.testDone') } : { kind: 'error', text: failure(status, data) })
     } catch { setNote({ kind: 'error', text: t('ann.errGeneric') }) }
     setBusy(null); router.refresh()
@@ -61,7 +61,7 @@ export function AnnouncementControls({ toQueue, ready, testSentAt, inFlight }: P
     if (toQueue === null) return
     setConfirming(false); setBusy('start'); setNote({ kind: 'ok', text: t('ann.starting') })
     try {
-      const { status, data } = await post('/api/admin/announcement/start', { expected: toQueue })
+      const { status, data } = await post('/api/admin/announcement/start', { expected: toQueue, campaign })
       if (status === 200) {
         const failed = Number(data.failed ?? 0)
         const text = t('ann.started', { n: Number(data.queued ?? 0), when: stamp(String(data.firstAt)), last: stamp(String(data.lastAt)) })
@@ -74,7 +74,7 @@ export function AnnouncementControls({ toQueue, ready, testSentAt, inFlight }: P
   async function stop() {
     setBusy('stop'); setNote({ kind: 'ok', text: t('ann.stopping') })
     try {
-      const { status, data } = await post('/api/admin/announcement/stop')
+      const { status, data } = await post('/api/admin/announcement/stop', { campaign })
       if (status === 200) {
         const left = Number(data.notCancelled ?? 0)
         const text = t('ann.stopped', { cancelled: Number(data.cancelled ?? 0), gone: Number(data.alreadyGone ?? 0), failed: left })

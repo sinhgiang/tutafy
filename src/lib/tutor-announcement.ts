@@ -10,8 +10,31 @@
 // WHEN: one tutor at a time, SPACING_MS apart, the first one FIRST_DELAY_MS after the admin presses Start (and never closer than SPACING_MS to a mail already waiting to go).
 import { pickIndexable, type IndexFacts } from '@/lib/profile-index'
 
+// T-1115: the tool sends more than one letter. Each letter is a CAMPAIGN with its own id: "who got it" (tutor_announcement_sends) and "when the test
+// went / Stop was pressed" (tutor_announcement_control) are kept per campaign id, so a tutor who got one letter can still get the other, once.
+// CAMPAIGN and SUBJECT stay the first letter (the profile letter) and everything that does not name a campaign keeps working on it.
 export const CAMPAIGN = 'tutor-profile-2026-10'
 export const SUBJECT = 'Two minutes to get your Tutafy profile ready for students'
+export const AVAILABILITY_CAMPAIGN = 'tutor-availability-2026-10'
+export const AVAILABILITY_SUBJECT = 'Your Tutafy page is live, but students cannot book you yet'
+export const CAMPAIGN_IDS = [CAMPAIGN, AVAILABILITY_CAMPAIGN] as const
+export type CampaignId = (typeof CAMPAIGN_IDS)[number]
+export const DEFAULT_CAMPAIGN: CampaignId = CAMPAIGN
+
+/** The campaign with exactly this id, or null: the id comes from the admin's request, so it is looked up in the fixed list and nothing else is accepted. */
+export function parseCampaign(value: unknown): CampaignId | null {
+  return typeof value === 'string' ? CAMPAIGN_IDS.find(c => c === value) ?? null : null
+}
+
+/** The campaign a request body names: none named is the first letter (so the old calls work as they did); one named that is not in the list is null. */
+export function campaignOf(body: unknown): CampaignId | null {
+  const named = body && typeof body === 'object' ? (body as { campaign?: unknown }).campaign : undefined
+  return named === undefined ? DEFAULT_CAMPAIGN : parseCampaign(named)
+}
+
+/** Whether the letter goes only to tutors who have no free hours yet. */
+export const needsNoHours = (campaign: CampaignId): boolean => campaign === AVAILABILITY_CAMPAIGN
+
 export const TEST_SUBJECT_PREFIX = '[Test] '
 export const SPACING_MS = 3 * 60 * 1000
 export const FIRST_DELAY_MS = 90 * 1000
@@ -40,6 +63,11 @@ export function pickRecipients(rows: TutorRow[]): Recipient[] {
     out.push({ id: r.id, email, name: typeof r.name === 'string' ? r.name : null })
   }
   return out
+}
+
+/** The letter about free hours goes only to the tutors who have none: those whose id is in `withHours` are taken out. */
+export function withoutHours(recipients: Recipient[], withHours: ReadonlySet<string>): Recipient[] {
+  return recipients.filter(r => !withHours.has(r.id))
 }
 
 /** When the first mail of a run goes: FIRST_DELAY_MS after now, and never closer than SPACING_MS after a mail already waiting to go. */
@@ -79,7 +107,35 @@ export type AnnouncementInput = {
   test?: boolean
 }
 
-/** The mail for one tutor. */
+/** The letter about free hours (T-1115): the owner-approved draft, word for word. It is about the "Pick a week in one tap" box (src/components/availability/QuickHours.tsx). */
+export function renderAvailabilityReminder(input: AnnouncementInput): { subject: string; html: string } {
+  const hi = escapeHtml(greetingName(input.name))
+  const footer = input.unsubscribeUrl
+    ? `<p style="margin:24px 0 0;color:#6b7280;font-size:12px;line-height:1.5;">You are getting this because you have a Tutafy tutor account. <a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#6b7280;">Unsubscribe from these emails</a>.</p>`
+    : ''
+  const html = `<div style="${WRAP}">`
+    + p(`Hi ${hi},`)
+    + p('You set up your Tutafy booking page, and the introduction you wrote is a good one. One thing is missing: free hours. Until you add some, a student who opens your link has no time to pick, so nobody can book you.')
+    + p('It now takes one tap:')
+    + ol([
+      li('Sign in at tutafy.com and open your dashboard.'),
+      li('In the box at the top, press one of four ready-made weeks: weekday evenings, weekday mornings, weekdays 9 to 5, or weekends.'),
+      li('Check the time zone named in that box. If it is not yours, change it in Settings first.'),
+    ])
+    + p('You can change the hours any time under Availability. Free hours are also one of the three things your profile needs before your card can show in the tutor directory, which opens once six tutors are ready.')
+    + p('Reply to this mail if anything is unclear.')
+    + p('The Tutafy team')
+    + footer
+    + '</div>'
+  return { subject: `${input.test ? TEST_SUBJECT_PREFIX : ''}${AVAILABILITY_SUBJECT}`, html }
+}
+
+/** The mail of a campaign for one tutor. */
+export function renderCampaign(campaign: CampaignId, input: AnnouncementInput): { subject: string; html: string } {
+  return campaign === AVAILABILITY_CAMPAIGN ? renderAvailabilityReminder(input) : renderAnnouncement(input)
+}
+
+/** The mail for one tutor (the profile letter). */
 export function renderAnnouncement(input: AnnouncementInput): { subject: string; html: string } {
   const hi = escapeHtml(greetingName(input.name))
   const footer = input.unsubscribeUrl

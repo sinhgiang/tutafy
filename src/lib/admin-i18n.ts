@@ -424,7 +424,7 @@ const EN = {
 
   // ---- Tutor email (T-1064) ----
   'ann.title': 'Tutor email',
-  'ann.subtitle': 'Send the profile letter to tutors with a listed profile, one tutor every 3 minutes. Nobody gets it twice.',
+  'ann.subtitle': 'Send a one-off letter to tutors, one tutor every 3 minutes. Nobody gets the same letter twice.',
   'ann.setupTitle': 'Before you can send',
   'ann.setupAdmin': 'ADMIN_EMAIL is set on the server',
   'ann.setupMail': 'RESEND_API_KEY is set on the server',
@@ -489,6 +489,12 @@ const EN = {
   'ann.errRefused': 'The mail service refused the test mail.',
   'ann.errTooFast': 'Too many tests in a minute. Wait a moment.',
   'ann.errGeneric': 'Something went wrong. Nothing was sent.',
+  'ann.letterTitle': 'Which letter',
+  'ann.letterProfile': 'Profile letter',
+  'ann.letterHours': 'Free hours reminder',
+  'ann.subjectLabel': 'Subject',
+  'ann.whoProfile': 'Goes to tutors with a listed profile (page on, a real introduction, not a test account). Anyone who unsubscribed is left out.',
+  'ann.whoHours': 'Goes only to tutors with a listed profile who have no free hours yet. Tutors who already have hours, and anyone who unsubscribed, are left out. It tells them about the one-tap hours box on their dashboard, which is part of this version of the site. Wait a few days after the profile letter before sending it to the same tutors.',
 } as const
 
 export type AdminKey = keyof typeof EN
@@ -892,7 +898,7 @@ const VI: Record<AdminKey, string> = {
 
   // ---- Tutor email (T-1064) ----
   'ann.title': 'Email cho gia sư',
-  'ann.subtitle': 'Gửi thư về hồ sơ cho các gia sư có hồ sơ đủ điều kiện, mỗi 3 phút một người. Không ai nhận hai lần.',
+  'ann.subtitle': 'Gửi một lá thư cho gia sư, mỗi 3 phút một người. Không ai nhận cùng một lá thư hai lần.',
   'ann.setupTitle': 'Cần có trước khi gửi',
   'ann.setupAdmin': 'ADMIN_EMAIL đã đặt trên máy chủ',
   'ann.setupMail': 'RESEND_API_KEY đã đặt trên máy chủ',
@@ -957,6 +963,12 @@ const VI: Record<AdminKey, string> = {
   'ann.errRefused': 'Dịch vụ thư từ chối thư thử.',
   'ann.errTooFast': 'Gửi thư thử quá nhanh. Chờ một chút.',
   'ann.errGeneric': 'Có lỗi. Chưa gửi gì.',
+  'ann.letterTitle': 'Chọn lá thư',
+  'ann.letterProfile': 'Thư về hồ sơ',
+  'ann.letterHours': 'Thư nhắc điền giờ rảnh',
+  'ann.subjectLabel': 'Tiêu đề',
+  'ann.whoProfile': 'Gửi cho gia sư có hồ sơ đủ điều kiện (bật trang đặt lịch, có giới thiệu thật, không phải tài khoản thử). Ai đã hủy đăng ký thì không gửi.',
+  'ann.whoHours': 'Chỉ gửi cho gia sư có hồ sơ đủ điều kiện mà CHƯA có giờ rảnh. Gia sư đã có giờ rảnh và ai đã hủy đăng ký thì không gửi. Thư nói về hộp chọn giờ rảnh một chạm trên bảng điều khiển, hộp này đã có trong bản này của trang. Nên chờ vài ngày sau thư về hồ sơ rồi mới gửi cho cùng những người đó.',
 }
 
 export const ADMIN_DICTIONARIES: Record<AdminLang, Record<AdminKey, string>> = { en: EN, vi: VI }
