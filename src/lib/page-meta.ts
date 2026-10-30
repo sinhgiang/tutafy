@@ -219,6 +219,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Schedule Tutoring Lessons Across Time Zones',
     description: 'Fix each lesson in one anchor time zone, show both times in every message, and plan for clock changes that hit the US and Europe on different dates.',
   },
+  'tutoring-lesson-packages-explained': {
+    title: 'Tutoring Lesson Packages, Explained',
+    description: 'A tutoring lesson package is a set of lessons paid for up front. See how packages work, how to price one, and the four terms to write down before you sell.',
+  },
 }
 
 /**
