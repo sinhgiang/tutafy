@@ -8,6 +8,7 @@ import { SiteLogo } from '@/components/SiteLogo'
 import { PAGE_SEO } from '@/lib/page-meta'
 import { jsonLdScript, pageJsonLd } from '@/lib/seo'
 import { languagePagePath, pickLanguagePages } from '@/lib/language-pages'
+import { groupLabelOf, pairGuidePath, pickPairPages } from '@/lib/niche-pages'
 
 // The tutor directory (T-0769): only tutors a student can book today. The list comes from the server (src/lib/directory-cache.ts, kept a few
 // minutes), is drawn into the page itself so search engines see real tutors, and DirectoryView does the filters in the browser. The filters
@@ -18,6 +19,8 @@ export default async function TutorsPage({ searchParams }: { searchParams: Promi
   const now = new Date()
   const cards = directory ? refreshCards(directory.cards, now) : []
   const languagePages = pickLanguagePages(cards)
+  // the niche pages (/learn/<language>/<group>) that exist right now: the same rule as the sitemap and the language pages (src/lib/niche-pages.ts), so no empty page is linked
+  const nichePages = pickPairPages(cards)
 
   return (
     <div className="dir-page min-h-screen bg-[#F7F8FA]">
@@ -42,6 +45,14 @@ export default async function TutorsPage({ searchParams }: { searchParams: Promi
             <h2 className="text-[18px] font-extrabold text-gray-900">Browse tutors by language</h2>
             <ul className="mt-3 flex flex-wrap gap-2">
               {languagePages.map(p => <li key={p.guide.slug}><Link href={languagePagePath(p.guide.slug)} className="inline-flex items-center min-h-11 px-4 rounded-full border border-gray-300 bg-white text-[14px] font-semibold text-gray-800 hover:border-indigo-300">{p.guide.name} tutors <span className="ml-1.5 text-[12.5px] text-gray-600">{p.count}</span></Link></li>)}
+            </ul>
+          </nav>
+        )}
+        {nichePages.length > 0 && (
+          <nav aria-label="Tutors by reason for learning" className="max-w-[1120px] mx-auto px-4 pb-10" data-testid="niche-links">
+            <h2 className="text-[18px] font-extrabold text-gray-900">Browse tutors by reason for learning</h2>
+            <ul className="mt-3 flex flex-wrap gap-2">
+              {nichePages.map(n => <li key={pairGuidePath(n.guide)}><Link href={pairGuidePath(n.guide)} className="inline-flex items-center min-h-11 px-4 rounded-full border border-gray-300 bg-white text-[14px] font-semibold text-gray-800 hover:border-indigo-300">{n.guide.language} for {groupLabelOf(n.guide.group).toLowerCase()} <span className="ml-1.5 text-[12.5px] text-gray-600">{n.count}</span></Link></li>)}
             </ul>
           </nav>
         )}

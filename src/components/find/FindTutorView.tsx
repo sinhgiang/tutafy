@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { AlertCircle, ArrowRight, CalendarX, Check, Clock, Globe, SearchX, Star } from 'lucide-react'
 import { initialsOf, priceLabel, safeZone, zoneCity } from '@/lib/tutor-profile'
 import {
-  DIRECTORY_OPENS_AT, LEVEL_OPTIONS, PRICE_BUCKETS, TOD_OPTIONS, ZONE_CHOICES, filterLabel, filtersToQuery, languageCounts, nextAvailableText, withoutFilter,
+  DIRECTORY_OPENS_AT, GROUP_OPTIONS, LEVEL_OPTIONS, PRICE_BUCKETS, TOD_OPTIONS, ZONE_CHOICES, filterLabel, filtersToQuery, languageCounts, nextAvailableText, withoutFilter,
   type DirectoryCard, type Filters,
 } from '@/lib/directory'
 import { SUGGESTED, findTutors, formFilters, whyThisTutor } from '@/lib/find-tutor'
@@ -115,11 +115,13 @@ export function FindTutorView({ cards, initial, nowIso, error, listed }: { cards
   const more = languages.slice(TOP_LANGUAGES)
   const chosenInMore = filters.lang !== null && more.some(l => l.language.toLowerCase() === filters.lang!.toLowerCase())
   const open = !error && cards.length > 0
+  // "What it is for" is asked only once some tutor who can be booked has said who they like to teach (the directory hides its filter the same way), or when the address already carries it
+  const askGroup = filters.group !== null || cards.some(c => c.groups.length > 0)
   const same = (a: string | null, b: string) => a !== null && a.toLowerCase() === b.toLowerCase()
   const tzLine = filters.tz ? `Times shown in: ${zoneCity(filters.tz)}` : viewerZone ? `Times shown in your time zone: ${zoneCity(viewerZone)}` : 'Times shown in each tutor’s own time zone, until we know yours'
   const zoneOptions = filters.tz && !(ZONE_CHOICES as readonly string[]).includes(filters.tz) ? [filters.tz, ...ZONE_CHOICES] : [...ZONE_CHOICES]
   const count = result.picks.length
-  const active = (['lang', 'level', 'price', 'tod', 'trial'] as const).filter(k => (k === 'trial' ? filters.trial : Boolean(filters[k])))
+  const active = (['lang', 'level', 'group', 'price', 'tod', 'trial'] as const).filter(k => (k === 'trial' ? filters.trial : Boolean(filters[k])))
 
   const show = (e: React.FormEvent) => {
     e.preventDefault()
@@ -156,7 +158,7 @@ export function FindTutorView({ cards, initial, nowIso, error, listed }: { cards
         <div className="mt-6 grid gap-6 items-start min-[900px]:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
           <form method="get" action="/find-a-tutor" onSubmit={show} className="bg-white border border-gray-100 rounded-[20px] shadow-sm p-5 min-[721px]:p-6" data-testid="find-form">
             <h2 className="text-[20px] font-extrabold text-gray-900">Tell us what you need</h2>
-            <p className="text-[14px] text-gray-600 mt-1">Five quick answers. No account, no email yet.</p>
+            <p className="text-[14px] text-gray-600 mt-1">A few quick answers. No account, no email yet.</p>
 
             <Question legend="I want to learn">
               <Choice name="lang" value="" checked={filters.lang === null} onChange={() => set({ lang: null })}>Any language</Choice>
@@ -174,6 +176,13 @@ export function FindTutorView({ cards, initial, nowIso, error, listed }: { cards
               <Choice name="level" value="" checked={filters.level === null} onChange={() => set({ level: null })}>Any</Choice>
               {LEVEL_OPTIONS.map(o => <Choice key={o.id} name="level" value={o.id} checked={filters.level === o.id} onChange={() => set({ level: o.id })}>{o.label}</Choice>)}
             </Question>
+
+            {askGroup && (
+              <Question legend="What it is for">
+                <Choice name="for" value="" checked={filters.group === null} onChange={() => set({ group: null })}>Any</Choice>
+                {GROUP_OPTIONS.map(o => <Choice key={o.id} name="for" value={o.id} checked={filters.group === o.id} onChange={() => set({ group: o.id })}>{o.label}</Choice>)}
+              </Question>
+            )}
 
             <Question legend="Price per lesson">
               <Choice name="price" value="" checked={filters.price === null} onChange={() => set({ price: null })}>Any</Choice>
@@ -232,7 +241,7 @@ export function FindTutorView({ cards, initial, nowIso, error, listed }: { cards
                   ))}.</p>
                 )}
                 <div className="flex flex-wrap gap-2.5 justify-center mt-1.5">
-                  <button type="button" onClick={() => setFilters(f => formFilters({ ...f, lang: null, level: null, price: null, tod: null, trial: false }))} className={PRIMARY}>Start again</button>
+                  <button type="button" onClick={() => setFilters(f => formFilters({ ...f, lang: null, level: null, group: null, price: null, tod: null, trial: false }))} className={PRIMARY}>Start again</button>
                   <Link href="/tutors" className={SECONDARY}>See all tutors</Link>
                 </div>
               </div>
