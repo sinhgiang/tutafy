@@ -4,7 +4,7 @@
 // the order is the directory's "Recommended" order. This file only picks the top three and writes, for each, the reasons that are TRUE of that
 // tutor (a reason is printed only when the card really has it). Plain .ts with no browser, React or database imports, so the node tests can load it.
 import {
-  NO_FILTERS, PRICE_BUCKETS, TOD_OPTIONS, activeFilters, applyFilters, nextAvailableText, relaxations, slotFits, sortCards,
+  GROUP_OPTIONS, NO_FILTERS, PRICE_BUCKETS, TOD_OPTIONS, activeFilters, applyFilters, nextAvailableText, relaxations, slotFits, sortCards,
   type DirectoryCard, type Filters, type ViewContext,
 } from '@/lib/directory'
 import { LEVEL_OPTIONS } from '@/lib/tutor-levels'
@@ -14,9 +14,12 @@ import { TRIAL_NAME } from '@/lib/trial'
 /** How many tutors the finder suggests. */
 export const SUGGESTED = 3
 
-/** The questions the form asks. Every other filter of the directory (search words, day, "near me", sort) is not asked here, so an address cannot set it silently. */
+/**
+ * The questions the form asks. Every other filter of the directory (search words, day, "near me", sort, a price range) is not asked here, so an address
+ * cannot set it silently. "What it is for" (T-1006) is the directory's own "Learning for" filter, read from `?for=` with the same fixed list.
+ */
 export function formFilters(f: Filters): Filters {
-  return { ...NO_FILTERS, lang: f.lang, level: f.level, price: f.price, tod: f.tod, trial: f.trial, tz: f.tz }
+  return { ...NO_FILTERS, lang: f.lang, level: f.level, group: f.group, price: f.price, tod: f.tod, trial: f.trial, tz: f.tz }
 }
 
 export type FindResult = {
@@ -50,6 +53,9 @@ export function whyThisTutor(card: DirectoryCard, filters: Filters, ctx: ViewCon
 
   const level = LEVEL_OPTIONS.find(o => o.id === filters.level)
   if (level && card.levels.includes(level.id)) add(`Teaches ${lower(level.label)} students`)
+
+  const group = GROUP_OPTIONS.find(o => o.id === filters.group)
+  if (group && card.groups.includes(group.id)) add(`Teaches students learning for ${group.label.toLowerCase()}`)
 
   const tod = TOD_OPTIONS.find(o => o.id === filters.tod)
   if (tod && ctx.zone && card.slots.some(m => slotFits(m, { when: null, tod: tod.id }, ctx.zone!, ctx.now))) add(`Free this ${tod.id} in your time`)
