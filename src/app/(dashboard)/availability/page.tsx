@@ -11,6 +11,7 @@ import { Ban, CalendarClock, Copy, Plus, Trash2 } from 'lucide-react'
 import { DAYS, checkEditedSlot, checkNewSlot, copyPlan, weeklyHours, type NewSlot, type Slot } from '@/lib/availability-grid'
 import { WeekGrid, type GridOpen } from '@/components/availability/WeekGrid'
 import { SlotDialog } from '@/components/availability/SlotDialog'
+import { QuickHours } from '@/components/availability/QuickHours'
 
 const TIMES = Array.from({ length: 48 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, '0')}:${i % 2 === 0 ? '00' : '30'}`)
 interface Exception { id: string; date: string; reason: string | null }
@@ -165,9 +166,10 @@ export default function AvailabilityPage() {
           {slots.length === 0 && (
             <div className="av-empty" data-testid="availability-empty">
               <CalendarClock className="h-5 w-5" aria-hidden="true" />
-              <div><b>No hours yet.</b> Drag on a day below to draw your first free hours, press a day name, or use the form on the right. Students can only book inside the hours you set.</div>
+              <div><b>No hours yet.</b> Pick a ready-made week below, or drag on a day to draw your own. Students can only book inside the hours you set.</div>
             </div>
           )}
+          {slots.length === 0 && <div style={{ marginBottom: 12 }}><QuickHours onSaved={() => { void load() }} /></div>}
           <WeekGrid
             slots={slots}
             busy={saving}
