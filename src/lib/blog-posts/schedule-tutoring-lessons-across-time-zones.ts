@@ -1,0 +1,92 @@
+// T-1141. Article body for /blog/schedule-tutoring-lessons-across-time-zones (title, date and author are in the POSTS list in src/lib/blog.ts).
+// The clock-change dates were checked against timeanddate.com on 30 Oct 2026 (US: Sun 8 Mar and Sun 1 Nov; EU and UK: Sun 29 Mar and Sun 25 Oct;
+// southeastern Australia: Sun 5 Apr and Sun 4 Oct by the "first Sunday" rule). The clock times in the first diagram are worked out from the
+// offsets named in the article. What the article says about Tutafy comes from the code: src/app/book/[slug]/BookingForm.tsx (both times shown)
+// and src/app/(dashboard)/lessons/new/page.tsx (a repeating lesson is a fixed number of 24-hour days after the first one).
+import type { PostBlock } from '@/lib/blog'
+
+export const TIME_ZONES_CONTENT: PostBlock[] = [
+  { type: 'takeaways', items: [
+    'Fix every lesson in one anchor time zone, the clock of whoever has the least flexibility, and treat every other time as a translation of it.',
+    'Write each time with a city and an offset, for example "6:00 pm London (GMT)", never with a bare "GMT+1", which does not follow clock changes.',
+    'The US and Europe change their clocks on different Sundays, so the gap between New York and London shrinks by an hour for about three weeks in spring and one week in autumn (8 to 28 March and 25 to 31 October in 2026).',
+    'If a lesson is fixed on the clock of a country that changes, a tutor in Vietnam or India, which never change, sees it move an hour on their own clock twice a year.',
+    'Check your repeating lessons before each change and tell students the date a week ahead.',
+  ] },
+  { type: 'p', text: `To schedule tutoring lessons across time zones without missing a class, fix each lesson in one anchor time zone, the clock of the person who cannot move their day (a child at school, a student with a shift), and show everyone else the converted time with a city name and a UTC offset in the booking page, the confirmation and the reminder. Do that and a 6 pm lesson stays a 6 pm lesson for the person who needs it to be.` },
+  { type: 'p', text: `The part that catches tutors out is not the offset, which anyone can look up, but the clock changes. The United States and Europe do not move their clocks on the same day, and many countries never move them at all. So a lesson you set once in September can arrive an hour early or late in November for one person and not the other. This guide gives you the anchor rule, the dates that matter in 2026, a five-step routine, wording you can paste into a confirmation, and an honest note on where Tutafy helps and where it does not yet.` },
+  { type: 'statCards', cards: [
+    { value: '1 hour', label: 'shift on a student\'s clock when only one side changes' },
+    { value: '2 weeks', label: 'around each change worth double-checking every lesson' },
+    { value: '1 anchor', label: 'time zone per lesson, everything else is converted' },
+  ] },
+  { type: 'h2', text: 'Why a lesson "at 6 pm" drifts' },
+  { type: 'p', text: `A lesson drifts when the two sides of it follow different clock rules. Take a Tuesday lesson fixed at 6 pm in London. In the week of 19 October 2026 London is on British Summer Time (UTC+1), so 6 pm there is 5 pm UTC, which is 1 pm in New York (UTC-4) and midnight in Ho Chi Minh City (UTC+7). On 25 October the UK goes back to Greenwich Mean Time (UTC+0). The London lesson is still at 6 pm, but it is now 6 pm UTC, 2 pm in New York, which is still on summer time for another week, and 1 am in Ho Chi Minh City. On 1 November New York goes back too, and its student is on 1 pm again.` },
+  { type: 'image', src: '/blog/inline/time-zones-one-lesson-three-weeks', alt: 'A grid of the same Tuesday lesson fixed at 6 pm in London over three weeks. New York sees 1 pm, then 2 pm, then 1 pm. Ho Chi Minh City sees midnight, then 1 am, then 1 am. Only the middle week differs for New York.', caption: 'One lesson, fixed at 18:00 in London, as three people see it (clock times worked out from the offsets in the text).' },
+  { type: 'p', text: `Nobody did anything wrong in that example, and every calendar app converted the times correctly. The trouble is that a human agreed "6 pm" and a different human is holding a clock that now says 2 pm. This is where most late arrivals and no-shows from a time zone mix-up come from, and it is why a cancellation policy alone does not fix them. The cause is a rule, not a person.` },
+  { type: 'h2', text: 'The 2026 clock-change calendar for tutors' },
+  { type: 'p', text: `These are the changes that move most online tutoring lessons. Check your own country's official source for the exact hour, and check the dates again each year, because a few governments change their rules.` },
+  { type: 'compare', caption: 'Dates for 2026, read from timeanddate.com on 30 Oct 2026. Countries not listed may follow a different rule.', headers: ['Where', 'Clocks go forward', 'Clocks go back', 'Effect on a lesson with a partner who does not change'], rows: [
+    ['United States and most of Canada', 'Sun 8 Mar', 'Sun 1 Nov', 'Moves one hour on the other side'],
+    ['United Kingdom and the EU', 'Sun 29 Mar', 'Sun 25 Oct', 'Moves one hour on the other side'],
+    ['Southeastern Australia (NSW, Victoria, SA, Tasmania, ACT)', 'Sun 4 Oct', 'Sun 5 Apr (already happened this year)', 'Moves one hour, in the opposite season to the north'],
+    ['Vietnam, Japan, China, India, Singapore, Brazil', 'No change', 'No change', 'The other side moves, this side does not'],
+  ] },
+  { type: 'source', text: 'Dates checked on 30 Oct 2026.', links: [
+    { label: 'timeanddate.com, first half of 2026', href: 'https://www.timeanddate.com/time/dst/2026a.html' },
+    { label: 'timeanddate.com, second half of 2026', href: 'https://www.timeanddate.com/time/dst/2026b.html' },
+  ] },
+  { type: 'callout', variant: 'warn', title: 'The two awkward windows', text: 'Between 8 and 28 March 2026 the US is on summer time and Europe is not, and the same is true again between 25 and 31 October, when Europe has gone back and the US has not. In those weeks New York is four hours behind London instead of the usual five. A student who books by "the usual gap" is an hour out, and these are the weeks to send a reminder that names both times.' },
+  { type: 'h2', text: 'Five steps that stop a repeating lesson drifting' },
+  { type: 'p', text: `Each step answers one way a lesson goes wrong. Do them in order when you start with a student, and repeat the last one twice a year.` },
+  { type: 'image', src: '/blog/inline/time-zones-anchor-steps', alt: 'Five numbered cards in a row: pick the anchor, fix the slot, show both times, name the dates, re-check twice a year.', caption: 'The routine in one line: decide whose clock the lesson lives on, then translate.' },
+  { type: 'h3', text: '1. Pick the anchor: the clock that cannot move' },
+  { type: 'p', text: `Ask whose day is least flexible. A ten-year-old who has a lesson at 5 pm after school, or an adult with a fixed shift, anchors to their own clock. A tutor with a full week of back-to-back students may do better anchoring to their own. When both sides can bend, anchor to your own, because you are the one person in every lesson and your calendar then keeps the same shape all year. Write the anchor in the student's profile so it is not remembered, it is recorded.` },
+  { type: 'h3', text: '2. Fix the slot in that zone, by city' },
+  { type: 'p', text: `Store the time as "Tuesday 6:00 pm Europe/London", not as "Tuesday, 7 hours behind me". The Europe/London style names come from the IANA time zone database that calendars and phones use, and they carry the clock-change rules with them. A label like "GMT+1" does not: it stays at plus one hour all year while London does not. In Google Calendar you can set the event's own time zone, and show a second time zone down the side of your week, which turns the translation into something you can see.` },
+  { type: 'h3', text: '3. Show both times in every message' },
+  { type: 'p', text: `A reader checks the number that belongs to their own clock and ignores the other. So give them both, in the same sentence, with the city. Use this shape for a confirmation, a reminder and a reschedule:` },
+  { type: 'ul', items: [
+    'Tuesday 3 November, 6:00 pm London (GMT) / 1:00 pm New York (EST). The lesson is fixed on London time.',
+    'Moved to Thursday 5 November, 7:30 pm Sydney (AEDT) / 8:30 am London (GMT), same day for both of us.',
+    'Reminder: your lesson starts in 24 hours, tomorrow at 9:00 am Ho Chi Minh City (UTC+7). Your calendar shows it in your own time zone.',
+  ] },
+  { type: 'h3', text: '4. Name the dates when a clock changes' },
+  { type: 'p', text: `Two weeks before a change that affects a student, send one message with the date and what moves: "Europe goes back on 25 October. Your lesson stays at 6 pm London time, so it is 1 am for me and 2 pm for you in New York that week." It takes one minute per student and removes the most common argument in this part of the job, the one that starts with "but you said 2 pm".` },
+  { type: 'h3', text: '5. Re-check twice a year, not when it breaks' },
+  { type: 'p', text: `Put two reminders in your own calendar: the week before the first clock change of spring and the week before the last one in autumn. On each date, open next week's lessons, read the times in your own zone and the student's, and fix any that landed on the wrong side of the change. The whole check takes ten minutes for twenty students.` },
+  { type: 'cta', title: 'Show students your times in their time zone', text: 'The free plan has a booking page that shows each free time in your time zone with the student\'s time under it, a built-in video classroom and email reminders, for up to 10 students. Pro is $12 a month, Academy $29. 0% commission on every plan.', button: 'Start free — no credit card', href: '/register' },
+  { type: 'h2', text: 'Group classes across three zones' },
+  { type: 'p', text: `A group class on Zoom or Google Meet with learners in London, New York and Hanoi has no single "usual" time, and the anchor rule still works: pick one zone, publish the class time in all three, and say which one is fixed. Pick the anchor that suits the most people. With a London anchor the class moves on the Hanoi clock twice a year and on the New York clock four times (8 March, 29 March, 25 October and 1 November in 2026). With a Hanoi anchor the Hanoi clock never moves, and London and New York each move twice, on their own change days. Say which one you chose on the class page in one sentence, because someone will always ask.` },
+  { type: 'h2', text: 'What Tutafy does with time zones, and what it does not' },
+  { type: 'p', text: `Tutafy's booking page shows each free time in the tutor's time zone with the visitor's own time under it, worked out from the browser, so a student in London booking a tutor in Ho Chi Minh City sees "8:00 PM" with "1:00 PM yours" under it rather than doing the sum. In your Settings, check that your own time zone is right before you share your link, because every time on the page is read from it. The Find me a tutor form also shows times in the visitor's zone once the browser reports it, and lets the visitor change it.` },
+  { type: 'p', text: `Here is an honest limit as of this writing. When you create a repeating lesson in Tutafy (weekly, every two weeks or monthly), each lesson is placed a fixed number of 24-hour days after the first, 7, 14 or 30. That is exact elapsed time, not the same clock time, so if your own clock changes inside the series, the lessons after the change move by an hour on the wall clock. Monthly means every 30 days, not the same date each month. The fix is simple: create a series in blocks that end before the next clock change, or check and edit the first lesson after the change. We would rather say so than let you find out in November.` },
+  { type: 'callout', variant: 'info', title: 'Test any tool with a series that crosses a change', text: 'Whatever you use, schedule a weekly lesson across a clock change in a test and read the times afterwards. Some tools keep the clock time, some keep the elapsed time, and the manual rarely says which. You want to know before a real student does.' },
+  { type: 'h2', text: 'Mistakes that cause most time zone no-shows' },
+  { type: 'ul', items: [
+    'Writing "GMT+1" instead of a city, so the label stays the same while the clock changes.',
+    'Converting only your own side. The student reads the number meant for you.',
+    'Sending the reminder in the tutor\'s time zone when the student lives in another.',
+    'Assuming everyone in a country changes the same day. Arizona, Saskatchewan and parts of Australia follow different rules from their neighbours.',
+    'Moving a lesson "one hour earlier" by hand after a change, then forgetting which side moved.',
+    'Leaving the anchor unrecorded, so after three months nobody remembers whose clock the lesson follows.',
+  ] },
+  { type: 'p', text: `If you are also tightening your cancellation rules, the sensible place to say "times are fixed on the anchor clock and I will name the dates when it changes" is the same short policy document. We cover that in the guide to cancellation policies, and the reminder habits in the guide to stopping no-shows, both linked below.` },
+  { type: 'links', title: 'Related guides', items: [
+    { label: 'How to stop tutoring no-shows and late cancellations', href: '/blog/stop-tutoring-no-shows', text: 'reminders, policies and prepaid lessons that cut empty slots.' },
+    { label: 'Tutoring cancellation policies and contracts', href: '/blog/tutoring-cancellation-policy-and-contracts', text: 'where to write the anchor rule down.' },
+    { label: 'How to teach English online and get paid', href: '/blog/how-to-teach-english-online', text: 'a six-step guide for tutors whose students live in several countries.' },
+    { label: 'Calendly alternatives for tutors', href: '/blog/calendly-alternatives-for-tutors', text: 'what to look for in a booking tool beyond showing times.' },
+  ] },
+  { type: 'cta', title: 'One booking link for students in every time zone', text: 'Free for up to 10 students, with 0% commission on your lessons on every plan. Upgrade to Pro ($12) or Academy ($29) only when you need unlimited students, payments by card or a team.', button: 'See the plans', href: '/upgrade' },
+  { type: 'faq', items: [
+    { q: 'How do I schedule tutoring lessons across time zones?', a: 'Pick one anchor time zone for each lesson, the clock of whoever has the least flexible day, store the slot in that zone by city name, and show every other person the converted time in the same message. Re-check your repeating lessons twice a year, around the clock changes.' },
+    { q: 'Which time zone should I use for my tutoring business?', a: 'Use your own time zone for your availability and the booking page, and record per student which clock their repeating lesson is fixed on. If you teach many countries, a tool that shows each free time in the visitor\'s zone saves you from doing the sums.' },
+    { q: 'What happens to my lessons when the clocks change?', a: 'It depends on who changes. If both sides change on the same day, nothing moves. If only one side changes, which is common between the US, Europe and countries with no changes, the lesson moves by an hour for one person. Name the date in a message two weeks ahead.' },
+    { q: 'When do the clocks change in 2026?', a: 'In the United States and most of Canada, clocks go forward on Sunday 8 March and back on Sunday 1 November. In the UK and the EU they go forward on Sunday 29 March and back on Sunday 25 October. Southeastern Australia goes forward on Sunday 4 October.' },
+    { q: 'Why is "GMT+1" a bad way to write a lesson time?', a: 'Because it is a fixed offset. London is on GMT+0 in winter and GMT+1 in summer, so the label is right half the year. A city name such as London, or a time zone name such as Europe/London, follows the clock change automatically.' },
+    { q: 'Does Tutafy show students the time in their own time zone?', a: 'Yes. The booking page shows each free time in the tutor\'s time zone and the visitor\'s own time under it, using the browser\'s time zone. Check that your own time zone is right in Settings first.' },
+    { q: 'Do repeating lessons in Tutafy keep the same clock time across a clock change?', a: 'Not at the moment. A weekly, two-weekly or monthly series is placed a fixed 7, 14 or 30 days after the first lesson, so after a clock change on your side the later lessons shift by an hour. Create the series in blocks that end before a change, or edit the first lesson after it.' },
+    { q: 'How do I avoid no-shows caused by time zone confusion?', a: 'Send the confirmation and the reminder with both times and the city, say which clock the lesson is fixed on, and warn students of any clock change two weeks ahead. These steps remove the most common reason a student arrives an hour out.' },
+  ] },
+]

@@ -114,7 +114,7 @@ D['time-zones-anchor-steps'] = frame(
   'Decide whose clock the lesson lives on, then show each person their own time.',
   (() => {
     const steps = [
-      ['1', 'Pick the anchor', 'One time zone owns', 'the lesson: yours'],
+      ['1', 'Pick the anchor', 'The least flexible', 'clock owns the lesson'],
       ['2', 'Fix the slot', 'in that zone, not as', 'a number of hours apart'],
       ['3', 'Show both times', 'every confirmation says', 'tutor and student time'],
       ['4', 'Name the dates', 'when a clock changes', 'tell students early'],

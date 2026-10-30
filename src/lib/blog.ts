@@ -30,9 +30,11 @@
 //  - how-to-build-a-tutor-referral-program: operations/growth · axis = 5 best moments to ask · statCards + compare + calculator + 2× callout(warn/tip) + 3 inline images, NO prosCons
 //  - how-to-take-card-payments-with-a-stripe-payment-link: how-to · axis = 5 numbered steps (Stripe account → link → copy → paste → check) · statCards + compare + 2× callout(tip/info) + callout(warn) + 1 inline image (own Settings screenshot), NO calculator/prosCons
 //  - calendly-alternatives-for-tutors: comparison · axis = what is left after the booking (5 jobs → options → 4 questions) · statCards + 2× own SVG diagram + compare(6 tools) + 2× cta + calculator late + callout(tip/warn) + links, NO prosCons. Body in src/lib/blog-posts/ (T-1141)
+//  - schedule-tutoring-lessons-across-time-zones: how-to · axis = problem → 2026 clock-change dates → 5 steps (anchor, slot, both times, name the dates, re-check) · statCards + 2× own SVG diagram (grid, step flow) + compare(clock-change dates) + source + callout(warn/info) + ul(wording, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1141)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
+import { TIME_ZONES_CONTENT } from '@/lib/blog-posts/schedule-tutoring-lessons-across-time-zones'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3813,6 +3815,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: CALENDLY_ALTERNATIVES_CONTENT,
   },
+  {
+    slug: 'schedule-tutoring-lessons-across-time-zones',
+    title: 'How to Schedule Tutoring Lessons Across Time Zones (Without Missing a Class)',
+    description: 'Fix each lesson in one anchor time zone, show both times in every message, and plan for clock changes that hit the US and Europe on different dates.',
+    date: '2026-10-31',
+    category: 'How-to',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TIME_ZONES_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3848,6 +3860,7 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-build-a-tutor-referral-program': "Illustration of a tutor referral program growing through word of mouth",
   'how-to-take-card-payments-with-a-stripe-payment-link': "Illustration of a payment card and a link, for taking card payments from students",
   'calendly-alternatives-for-tutors': "Illustration of a booking calendar with one time slot picked and three loose tool pieces beside it",
+  'schedule-tutoring-lessons-across-time-zones': "Illustration of two clocks showing different times, for scheduling lessons across time zones",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
