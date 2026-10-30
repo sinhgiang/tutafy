@@ -39,6 +39,8 @@ const cronRoute = await import('@/app/api/cron/review-invites/route.ts')
 const reviewPage = (await import('@/app/portal/[token]/review/[lessonId]/page.tsx')).default as (p: { params: Promise<{ token: string; lessonId: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>
 
 const NOW = new Date('2026-10-24T09:00:00.000Z')
+// The review page reads the real clock, not NOW, so a test of its seven-day window dates the review from the real clock (it started failing once the real day passed NOW + 7).
+const daysAgoNow = (days: number) => new Date(Date.now() - days * 86400000).toISOString()
 const iso = (daysAgo: number, hours = 0) => new Date(NOW.getTime() - daysAgo * 86400000 - hours * 3600000).toISOString()
 /** The inputs of a page as attribute maps (a bare attribute such as checked reads as ""). */
 const inputsOf = (h: string) => (h.match(/<input [^>]*>/g) ?? []).map(t => Object.fromEntries([...t.matchAll(/([a-z-]+)(?:="([^"]*)")?/g)].map(m => [m[1], m[2] ?? ''])))
@@ -393,9 +395,9 @@ test('the review page: only for the student\'s own completed lesson; the form wi
   assert.match(form, /Tutors cannot edit or remove a review/)
   assert.deepEqual(inputsOf(await open(TOKEN_JAMES, 'l-j1', { stars: '9' })).filter(i => i.name === 'rating' && 'checked' in i), [], 'a made-up star count chooses nothing')
 
-  reviews().push({ id: 'r1', flow: true, student_id: 's-james', tutor_id: TA, lesson_id: 'l-j1', rating: 4, tags: ['fun'], comment: 'good', is_public: true, created_at: iso(1) })
+  reviews().push({ id: 'r1', flow: true, student_id: 's-james', tutor_id: TA, lesson_id: 'l-j1', rating: 4, tags: ['fun'], comment: 'good', is_public: true, created_at: daysAgoNow(1) })
   assert.match(await open(TOKEN_JAMES, 'l-j1'), /Edit your review of Tomás Ruiz[\s\S]*Save changes/)
-  reviews()[0].created_at = iso(9)
+  reviews()[0].created_at = daysAgoNow(9)
   assert.match(await open(TOKEN_JAMES, 'l-j1'), /data-testid="review-closed"[\s\S]*can no longer be edited/)
   reviews()[0].flow = false
   assert.match(await open(TOKEN_JAMES, 'l-j1'), /You have already reviewed Tomás Ruiz/)

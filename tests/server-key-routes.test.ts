@@ -114,7 +114,8 @@ function seed() {
     ],
     students: [{ id: SA, tutor_id: A, name: 'Student A' }, { id: SB, tutor_id: B, name: 'Student B' }],
     lessons: [
-      { id: LA, tutor_id: A, student_id: SA, status: 'scheduled', starts_at: '2026-10-30T10:00:00Z', ends_at: '2026-10-30T11:00:00Z', duration_minutes: 60, notes: null, zoom_link: null, google_event_id: null },
+      // a lesson in the future by the real clock (a fixed date went stale and made the no-show tests fail once it had passed)
+      { id: LA, tutor_id: A, student_id: SA, status: 'scheduled', starts_at: new Date(Date.now() + 30 * 86400000).toISOString(), ends_at: new Date(Date.now() + 30 * 86400000 + 3600000).toISOString(), duration_minutes: 60, notes: null, zoom_link: null, google_event_id: null },
       { id: LB, tutor_id: B, student_id: SB, status: 'scheduled', starts_at: '2026-10-30T12:00:00Z', ends_at: '2026-10-30T13:00:00Z', duration_minutes: 60, notes: null, zoom_link: null, google_event_id: null },
     ],
     lesson_students: [
