@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import { SETUP_TITLE, type DirectorySetup } from '@/lib/directory-setup'
+import { QuickHours } from '@/components/availability/QuickHours'
 
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2'
 
@@ -52,6 +53,12 @@ export function DirectorySetupCard({ setup }: { setup: DirectorySetup }) {
                 className={`col-start-2 sm:col-start-auto inline-flex items-center justify-center min-h-11 px-4 text-[13px] font-bold text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-50 rounded-xl justify-self-start ${FOCUS}`}>
                 {s.action}
               </Link>
+            )}
+            {/* the hours step is the one that keeps tutors out of the directory: a ready-made week, one press, right here (T-1105) */}
+            {s.id === 'hours' && !s.done && (
+              <div className="col-span-full sm:col-start-2">
+                <QuickHours timezone={setup.timezone} />
+              </div>
             )}
           </li>
         ))}

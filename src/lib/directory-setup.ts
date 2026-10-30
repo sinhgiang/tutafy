@@ -31,9 +31,11 @@ export type DirectorySetup = {
   total: number
   /** The first step still to do: the big button goes here. */
   next: SetupStep
+  /** The tutor's own time zone, named beside the one-tap hours (T-1105); null when none is saved. */
+  timezone: string | null
 }
 
-export type SetupFacts = { availabilityRows: number; bio: unknown; languages: unknown }
+export type SetupFacts = { availabilityRows: number; bio: unknown; languages: unknown; timezone?: unknown }
 
 export const SETUP_TITLE = 'Get ready for the tutor directory'
 
@@ -42,7 +44,7 @@ export function buildDirectorySetup(f: SetupFacts): DirectorySetup | null {
   const steps: SetupStep[] = [
     {
       id: 'hours', title: 'Choose your free hours', done: f.availabilityRows > 0,
-      hint: 'Students can only book you in the hours you choose. Pick the days and times you teach each week.',
+      hint: 'Students can only book you in the hours you choose. Pick a ready-made week below, or set your own.',
       href: '/availability', action: 'Choose free hours',
     },
     {
@@ -60,7 +62,8 @@ export function buildDirectorySetup(f: SetupFacts): DirectorySetup | null {
   ]
   const next = steps.find(s => !s.done)
   if (!next) return null
-  return { steps, doneCount: steps.filter(s => s.done).length, total: steps.length, next }
+  const timezone = typeof f.timezone === 'string' && f.timezone.trim() ? f.timezone.trim() : null
+  return { steps, doneCount: steps.filter(s => s.done).length, total: steps.length, next, timezone }
 }
 
 /**
@@ -68,11 +71,11 @@ export function buildDirectorySetup(f: SetupFacts): DirectorySetup | null {
  */
 export async function loadDirectorySetup(db: BuyersClient, tutorId: string): Promise<DirectorySetup | null> {
   const [tutor, hours] = await Promise.all([
-    db.from('tutors').select('bio, languages').eq('id', tutorId).maybeSingle(),
+    db.from('tutors').select('bio, languages, timezone').eq('id', tutorId).maybeSingle(),
     db.from('availability').select('id', { count: 'exact', head: true }).eq('tutor_id', tutorId),
   ])
   if (tutor.error || !tutor.data || hours.error || hours.count == null) return null
-  return buildDirectorySetup({ availabilityRows: hours.count, bio: tutor.data.bio ?? null, languages: tutor.data.languages ?? null })
+  return buildDirectorySetup({ availabilityRows: hours.count, bio: tutor.data.bio ?? null, languages: tutor.data.languages ?? null, timezone: tutor.data.timezone ?? null })
 }
 
 /** The Settings fields the buttons point at (`?focus=`): a fixed list, so an address cannot name anything else. */
