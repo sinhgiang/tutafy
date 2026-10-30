@@ -44,16 +44,16 @@ D['calendly-scheduler-scope'] = frame(
       const y = 176 + i * 54
       const own = i < 2
       return box(70, y, 440, 44, { fill: own ? '#ecfdf5' : '#ffffff', stroke: own ? '#6ee7b7' : LINE, dash: !own, r: 10 }) +
-        text(92, y + 29, r, { size: 19, weight: 600 }) +
-        (own ? check(470, y + 22) : text(488, y + 29, '+ tool', { size: 15, fill: AMBER, weight: 700, anchor: 'end' }))
+        text(92, y + 30, r, { size: 21, weight: 600 }) +
+        (own ? check(470, y + 22) : text(488, y + 29, '+ tool', { size: 18, fill: AMBER, weight: 700, anchor: 'end' }))
     }).join('')
     const right = rows.map((r, i) => {
       const y = 176 + i * 54
-      return box(590, y, 440, 44, { fill: PALE, stroke: '#c7d2fe', r: 10 }) + text(612, y + 29, r, { size: 19, weight: 600 }) + check(990, y + 22, INDIGO)
+      return box(590, y, 440, 44, { fill: PALE, stroke: '#c7d2fe', r: 10 }) + text(612, y + 30, r, { size: 21, weight: 600 }) + check(990, y + 22, INDIGO)
     }).join('')
     return text(70, 156, 'A general scheduler', { size: 20, weight: 800, fill: MUTED }) + left +
       text(590, 156, 'A tool built for tutors', { size: 20, weight: 800, fill: INDIGO }) + right +
-      text(550, 590, 'Dashed = usually a separate tool you connect yourself (for example Zoom, a spreadsheet, WhatsApp).', { size: 15, fill: MUTED, anchor: 'middle' })
+      text(550, 590, 'Dashed = usually a separate tool you connect yourself (Zoom, a spreadsheet, WhatsApp).', { size: 18, fill: MUTED, anchor: 'middle' })
   })(),
 )
 
@@ -61,21 +61,21 @@ D['calendly-which-to-pick'] = frame(
   'Which kind of tool fits how you teach',
   'Start from what you need beyond picking a time.',
   (() => {
-    const start = box(380, 120, 340, 64, { fill: INDIGO, stroke: INDIGO }) + text(550, 150, 'What do you need beyond', { size: 18, weight: 700, fill: '#ffffff', anchor: 'middle' }) + text(550, 172, 'choosing a time?', { size: 18, weight: 700, fill: '#ffffff', anchor: 'middle' })
+    const start = box(380, 120, 340, 64, { fill: INDIGO, stroke: INDIGO }) + text(550, 150, 'What do you need beyond', { size: 20, weight: 700, fill: '#ffffff', anchor: 'middle' }) + text(550, 174, 'choosing a time?', { size: 20, weight: 700, fill: '#ffffff', anchor: 'middle' })
     const cols = [
       { x: 40, h: 'Nothing else', b: ['A free scheduler or', 'Google Calendar', 'appointment schedules'], c: '#ecfdf5', s: '#6ee7b7' },
       { x: 305, h: 'Payment at booking', b: ['A paid scheduler plan', 'with Stripe or PayPal,', 'or a tutor tool'], c: '#fffbeb', s: '#fcd34d' },
-      { x: 570, h: 'The whole lesson workflow', b: ['Video, homework, parents', 'and packages: a tool', 'for tutors (Tutafy, TutorBird)'], c: PALE, s: '#c7d2fe' },
-      { x: 835, h: 'Several tutors, payroll', b: ['A team tool such as', 'TutorCruncher, Teachworks', 'or Tutafy Academy'], c: '#fdf2f8', s: '#f9a8d4' },
+      { x: 570, h: 'Lesson workflow', b: ['Video, homework,', 'parents, packages:', 'a tutor-specific tool', 'such as Tutafy'], c: PALE, s: '#c7d2fe' },
+      { x: 835, h: 'Several tutors', b: ['A team tool such as', 'TutorCruncher,', 'Teachworks or', 'Tutafy Academy'], c: '#fdf2f8', s: '#f9a8d4' },
     ]
     const parts = cols.map(c => {
       const cx = c.x + 112
       return arrow(550, 184, cx, 262) +
-        box(c.x, 266, 225, 56, { fill: '#ffffff', stroke: INDIGO, r: 12 }) + text(cx, 301, c.h, { size: 17, weight: 800, fill: INDIGO, anchor: 'middle' }) +
+        box(c.x, 266, 225, 56, { fill: '#ffffff', stroke: INDIGO, r: 12 }) + text(cx, 302, c.h, { size: 20, weight: 800, fill: INDIGO, anchor: 'middle' }) +
         arrow(cx, 322, cx, 366) +
-        box(c.x, 370, 225, 130, { fill: c.c, stroke: c.s, r: 12 }) + lines(cx, 408, c.b, { size: 17, weight: 600, anchor: 'middle' })
+        box(c.x, 370, 225, 150, { fill: c.c, stroke: c.s, r: 12 }) + lines(cx, 404, c.b, { size: 19, weight: 600, anchor: 'middle' })
     }).join('')
-    return start + parts + text(550, 560, 'Match the tool to the work you would otherwise do by hand each week.', { size: 17, fill: MUTED, anchor: 'middle' })
+    return start + parts + text(550, 566, 'Match the tool to the work you would otherwise do by hand each week.', { size: 20, fill: MUTED, anchor: 'middle' })
   })(),
 )
 
@@ -93,7 +93,7 @@ D['time-zones-one-lesson-three-weeks'] = frame(
     cols.forEach((c, i) => {
       const x = x0 + labelW + i * cw
       s += box(x, 130, cw - 14, 92, { fill: i === 1 ? '#fffbeb' : PALE, stroke: i === 1 ? '#fcd34d' : '#c7d2fe', r: 12 }) +
-        text(x + (cw - 14) / 2, 166, c.h, { size: 20, weight: 800, anchor: 'middle' }) + text(x + (cw - 14) / 2, 196, c.note, { size: 15, fill: MUTED, anchor: 'middle' })
+        text(x + (cw - 14) / 2, 166, c.h, { size: 20, weight: 800, anchor: 'middle' }) + text(x + (cw - 14) / 2, 196, c.note, { size: 17, fill: MUTED, anchor: 'middle' })
     })
     rowsN.forEach((r, ri) => {
       const y = 246 + ri * 96
@@ -104,8 +104,8 @@ D['time-zones-one-lesson-three-weeks'] = frame(
           text(x + (cw - 14) / 2, y + 50, c.v[ri], { size: ri === 2 ? 24 : 30, weight: 800, fill: ri === 0 ? INDIGO : INK, anchor: 'middle' })
       })
     })
-    return s + text(550, 566, 'New York is still on summer time until 1 Nov 2026, Europe went back on 25 Oct, so the gap between them is one hour for a week.', { size: 16, fill: MUTED, anchor: 'middle' }) +
-      text(550, 592, 'Ho Chi Minh City has no clock change, so its gap to London moves by an hour twice a year.', { size: 16, fill: MUTED, anchor: 'middle' })
+    return s + text(550, 566, 'Europe went back on 25 Oct, New York on 1 Nov: one week with a 4-hour gap.', { size: 19, fill: MUTED, anchor: 'middle' }) +
+      text(550, 592, 'Ho Chi Minh City never changes, so its gap to London moves twice a year.', { size: 19, fill: MUTED, anchor: 'middle' })
   })(),
 )
 
@@ -114,19 +114,19 @@ D['time-zones-anchor-steps'] = frame(
   'Decide whose clock the lesson lives on, then show each person their own time.',
   (() => {
     const steps = [
-      ['1', 'Pick the anchor', 'The least flexible', 'clock owns the lesson'],
-      ['2', 'Fix the slot', 'in that zone, not as', 'a number of hours apart'],
-      ['3', 'Show both times', 'every confirmation says', 'tutor and student time'],
-      ['4', 'Name the dates', 'when a clock changes', 'tell students early'],
-      ['5', 'Re-check twice', 'a year, in March', 'and in autumn'],
+      ['1', 'Pick the anchor', 'The least flexible', 'clock owns it'],
+      ['2', 'Fix the slot', 'Store it by city,', 'not "hours apart"'],
+      ['3', 'Show both', 'Tutor and student', 'time, every time'],
+      ['4', 'Name the dates', 'Tell students', 'the change early'],
+      ['5', 'Re-check', 'Twice a year:', 'March and autumn'],
     ]
     return steps.map((st, i) => {
       const x = 40 + i * 205
       return box(x, 190, 185, 260, { fill: i % 2 ? '#ffffff' : PALE, stroke: i % 2 ? LINE : '#c7d2fe', r: 16 }) +
         `<circle cx="${x + 92}" cy="236" r="26" fill="${INDIGO}"/>` + text(x + 92, 246, st[0], { size: 26, weight: 800, fill: '#ffffff', anchor: 'middle' }) +
-        text(x + 92, 306, st[1], { size: 20, weight: 800, anchor: 'middle' }) + lines(x + 92, 344, [st[2], st[3]], { size: 16, fill: MUTED, anchor: 'middle' }) +
+        text(x + 92, 308, st[1], { size: 23, weight: 800, anchor: 'middle' }) + lines(x + 92, 348, [st[2], st[3]], { size: 20, fill: MUTED, anchor: 'middle' }) +
         (i < 4 ? arrow(x + 188, 320, x + 203, 320) : '')
-    }).join('') + text(550, 520, 'The anchor is the one place the lesson time is stored. Everything else is a translation of it.', { size: 18, fill: MUTED, anchor: 'middle' })
+    }).join('') + text(550, 520, 'The anchor is where the lesson time is stored. Everything else is a translation.', { size: 21, fill: MUTED, anchor: 'middle' })
   })(),
 )
 
@@ -145,10 +145,10 @@ D['packages-price-per-lesson'] = frame(
       const x = 130 + i * 300, h = b.per * scale
       return box(x, base - h, 200, h, { fill: b.c, stroke: b.c, r: 10 }) +
         text(x + 100, base - h - 40, `$${b.per} per lesson`, { size: 24, weight: 800, anchor: 'middle' }) +
-        text(x + 100, base - h - 14, `paid up front: ${b.total}`, { size: 17, fill: MUTED, anchor: 'middle' }) +
-        text(x + 100, base + 34, b.l, { size: 20, weight: 800, anchor: 'middle' }) + text(x + 100, base + 60, b.note, { size: 15, fill: MUTED, anchor: 'middle' })
+        text(x + 100, base - h - 14, `paid up front: ${b.total}`, { size: 19, fill: MUTED, anchor: 'middle' }) +
+        text(x + 100, base + 34, b.l, { size: 20, weight: 800, anchor: 'middle' }) + text(x + 100, base + 60, b.note, { size: 18, fill: MUTED, anchor: 'middle' })
     }).join('') + `<line x1="70" y1="${base}" x2="1030" y2="${base}" stroke="${LINE}" stroke-width="2"/>` +
-      text(550, 604, 'Example numbers to show the arithmetic, not a recommendation. Work out your own discount from your own rate.', { size: 15, fill: MUTED, anchor: 'middle' })
+      text(550, 604, 'Example numbers to show the arithmetic, not a recommendation.', { size: 19, fill: MUTED, anchor: 'middle' })
   })(),
 )
 
@@ -158,21 +158,21 @@ D['packages-lifecycle'] = frame(
   (() => {
     const st = [
       ['Student buys', 'A pack of lessons', 'paid up front'],
-      ['Lessons booked', 'one at a time,', 'each with a date'],
-      ['Balance drops', 'someone keeps', 'the number left'],
-      ['Reminder', 'two lessons left:', 'offer the next pack'],
-      ['Expiry or renewal', 'used up, or the', 'time limit passes'],
+      ['Lessons booked', 'One at a time,', 'each with a date'],
+      ['Balance drops', 'Someone keeps', 'the number left'],
+      ['Reminder', 'At two left,', 'offer the next'],
+      ['Expiry or renewal', 'Used up, or the', 'time limit ends'],
     ]
     return st.map((s, i) => {
       const x = 36 + i * 206
       return box(x, 200, 188, 190, { fill: i === 2 ? '#fffbeb' : PALE, stroke: i === 2 ? '#fcd34d' : '#c7d2fe', r: 16 }) +
-        text(x + 94, 244, s[0], { size: 19, weight: 800, anchor: 'middle' }) + lines(x + 94, 288, [s[1], s[2]], { size: 17, fill: MUTED, anchor: 'middle' }) +
+        text(x + 94, 246, s[0], { size: 20, weight: 800, anchor: 'middle' }) + lines(x + 94, 292, [s[1], s[2]], { size: 19, fill: MUTED, anchor: 'middle' }) +
         (i < 4 ? arrow(x + 190, 295, x + 204, 295) : '')
     }).join('') +
       `<path d="M ${36 + 4 * 206 + 94} 394 C ${36 + 4 * 206 + 94} 470, 130 470, 130 394" stroke="${INDIGO}" stroke-width="3.5" fill="none" stroke-dasharray="8 7"/>` +
       `<path d="M130 394 l-9 14 l18 0 Z" fill="${INDIGO}"/>` +
-      text(550, 516, 'A renewal starts the loop again', { size: 18, weight: 700, fill: INDIGO, anchor: 'middle' }) +
-      text(550, 580, 'The amber step is the one people skip: a balance nobody counts is an argument waiting to happen.', { size: 16, fill: MUTED, anchor: 'middle' })
+      text(550, 516, 'A renewal starts the loop again', { size: 21, weight: 700, fill: INDIGO, anchor: 'middle' }) +
+      text(550, 580, 'The amber step is the one people skip: nobody counts, then everybody argues.', { size: 19, fill: MUTED, anchor: 'middle' })
   })(),
 )
 
