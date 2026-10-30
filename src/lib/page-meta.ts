@@ -211,6 +211,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Take Card Payments With a Stripe Payment Link',
     description: 'Create a Stripe Payment Link, paste it into Tutafy so students see a Pay by card button, and learn the limits of one link before you rely on it.',
   },
+  'calendly-alternatives-for-tutors': {
+    title: 'Calendly Alternatives for Tutors (2026)',
+    description: 'Calendly books a time, but tutors also need video, payment, packages and notes. Compare Calendly alternatives for tutors and which one fits how you teach.',
+  },
 }
 
 /**

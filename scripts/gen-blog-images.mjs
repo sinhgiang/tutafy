@@ -293,10 +293,41 @@ const HEROES = {
         <rect x="64" y="40" width="92" height="46" rx="23"/>
       </g>
     </g>` }),
+
+  // Calendly alternatives (T-1141) — a calendar grid with one slot picked and three loose pieces around it
+  'calendly-alternatives-for-tutors': base({ from: '#2563eb', to: '#4f46e5', label: 'Comparison', motif: `
+    <g transform="translate(760,130)" opacity="0.95">
+      <rect x="0" y="30" width="300" height="250" rx="22" fill="#ffffff" opacity="0.93"/>
+      <rect x="0" y="30" width="300" height="58" rx="22" fill="#4f46e5" opacity="0.45"/>
+      ${[0,1,2,3,4,5,6,7,8].map(i => `<rect x="${28 + (i % 3) * 86}" y="${112 + Math.floor(i / 3) * 52}" width="70" height="38" rx="8" fill="#4f46e5" opacity="${i === 4 ? 0.95 : 0.16}"/>`).join('')}
+      <rect x="320" y="60" width="64" height="64" rx="14" fill="#ffffff" opacity="0.5"/>
+      <rect x="320" y="146" width="64" height="64" rx="14" fill="#ffffff" opacity="0.35"/>
+      <rect x="320" y="232" width="64" height="64" rx="14" fill="#ffffff" opacity="0.22"/>
+    </g>` }),
+
+  // Time zones (T-1141) — a clock face with a second, offset clock hand ring
+  'schedule-tutoring-lessons-across-time-zones': base({ from: '#0f766e', to: '#2563eb', label: 'How-to', motif: `
+    <g transform="translate(790,150)" opacity="0.95">
+      <circle cx="120" cy="150" r="120" fill="#ffffff" opacity="0.93"/>
+      <circle cx="120" cy="150" r="120" fill="none" stroke="#0f766e" stroke-width="8" opacity="0.35"/>
+      <path d="M120 150 L120 70" stroke="#0f766e" stroke-width="9" stroke-linecap="round"/>
+      <path d="M120 150 L180 180" stroke="#0f766e" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="120" cy="150" r="10" fill="#0f766e"/>
+      <circle cx="270" cy="230" r="72" fill="#ffffff" opacity="0.55"/>
+      <path d="M270 230 L270 186 M270 230 L300 246" stroke="#2563eb" stroke-width="7" stroke-linecap="round" fill="none"/>
+    </g>` }),
+
+  // Lesson packages (T-1141) — a stack of three tickets
+  'tutoring-lesson-packages-explained': base({ from: '#b45309', to: '#db2777', label: 'Pricing', motif: `
+    <g transform="translate(770,150)" opacity="0.95">
+      ${[0,1,2].map(i => `<g transform="translate(${i * 26},${i * 62})"><rect x="0" y="0" width="290" height="110" rx="16" fill="#ffffff" opacity="${[0.4,0.65,0.93][i]}"/><circle cx="0" cy="55" r="16" fill="#b45309" opacity="0.5"/><circle cx="290" cy="55" r="16" fill="#b45309" opacity="0.5"/><line x1="86" y1="14" x2="86" y2="96" stroke="#b45309" stroke-width="3" stroke-dasharray="7 6" opacity="0.5"/><rect x="112" y="38" width="130" height="14" rx="7" fill="#b45309" opacity="0.4"/><rect x="112" y="64" width="86" height="14" rx="7" fill="#b45309" opacity="0.25"/></g>`).join('')}
+    </g>` }),
 }
 
+const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
 const out = []
 for (const [slug, svg] of Object.entries(HEROES)) {
+  if (only.length && !only.includes(slug)) continue
   const buf = Buffer.from(svg)
   await sharp(buf).resize(1200, 630).avif({ quality: 58 }).toFile(`public/blog/${slug}-hero.avif`)
   await sharp(buf).resize(1200, 630).webp({ quality: 76 }).toFile(`public/blog/${slug}-hero.webp`)

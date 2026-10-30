@@ -240,6 +240,19 @@ function Block({ b }: { b: PostBlock }) {
         .
       </p>
     )
+    case 'links': return (
+      <aside className="not-prose rounded-2xl border border-gray-100 bg-gray-50 p-5" data-testid="post-links">
+        <p className="text-[12px] font-bold text-gray-600 uppercase tracking-widest mb-3">{b.title}</p>
+        <ul className="space-y-2.5">
+          {b.items.map(it => (
+            <li key={it.href} className="text-[14px] text-gray-700 leading-relaxed">
+              <Link href={it.href} className="font-semibold text-indigo-700 underline underline-offset-2 hover:text-indigo-900">{it.label}</Link>
+              {' '}&mdash; {it.text}
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )
     case 'faq': return (
       <div className="not-prose pt-2">
         <h2 className="text-[22px] font-bold text-gray-900 tracking-tight mb-4">Frequently asked questions</h2>
