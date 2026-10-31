@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 import { getPost } from '@/lib/blog'
 import { count } from '../scripts/count-post-words.mjs'
 
-const TRAFFIC_ARTICLES = ['how-to-write-a-tutor-bio', 'free-tutoring-invoice-template', 'online-whiteboard-for-tutoring', 'do-tutors-have-to-pay-taxes', 'online-tutoring-jobs', 'tutor-resume', 'ielts-speaking-part-2-topics']
+const TRAFFIC_ARTICLES = ['how-to-write-a-tutor-bio', 'free-tutoring-invoice-template', 'online-whiteboard-for-tutoring', 'do-tutors-have-to-pay-taxes', 'online-tutoring-jobs', 'tutor-resume', 'ielts-speaking-part-2-topics', 'how-to-teach-english-online']
 
 for (const slug of TRAFFIC_ARTICLES) {
   test(`${slug}: 3,500 to 4,000 words`, () => {

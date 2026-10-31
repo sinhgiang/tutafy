@@ -737,5 +737,57 @@
       "webp": 14960,
       "avif": 13139
     }
+  },
+  "teach-webcam": {
+    "file": "Fancy webcam on computer screen.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Peter Placzek",
+    "source": "https://commons.wikimedia.org/wiki/File:Fancy_webcam_on_computer_screen.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4000x2250",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 16986,
+      "avif": 15529
+    }
+  },
+  "teach-headset": {
+    "file": "Headphones with Microphone.jpg",
+    "licence": "CC BY-SA 3.0",
+    "creator": "Zephyris at English Wikipedia",
+    "source": "https://commons.wikimedia.org/wiki/File:Headphones_with_Microphone.jpg",
+    "licenceUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "original": "1024x768",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 22810,
+      "avif": 22721
+    }
+  },
+  "teach-volunteer": {
+    "file": "Haitian students learn English from Canadian volunteer.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Emma Taylor",
+    "source": "https://commons.wikimedia.org/wiki/File:Haitian_students_learn_English_from_Canadian_volunteer.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "3648x2736",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 72690,
+      "avif": 64079
+    }
+  },
+  "teach-online-class": {
+    "file": "Student attending online class in Kerala.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Kannan Shanmugam, Shanmugam Studio, Kollam",
+    "source": "https://commons.wikimedia.org/wiki/File:Student_attending_online_class_in_Kerala.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4000x3000",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 76890,
+      "avif": 63919
+    }
   }
 }

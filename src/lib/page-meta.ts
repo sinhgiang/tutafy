@@ -132,8 +132,8 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     description: 'A five-step framework for setting tutoring rates that are fair to students and profitable for you, with real numbers to anchor on.',
   },
   'how-to-teach-english-online': {
-    title: 'How to Teach English Online and Get Paid in 2026',
-    description: 'A step-by-step guide to teaching English online: qualifications, tools, finding students, pricing and getting paid without a marketplace cut.',
+    title: 'Teach English Online Without a Degree (2026 Guide)',
+    description: 'Teach English online without a degree: what Cambly, Preply, italki and Verbling ask for, what CELTA is, and how to build proof. Checked 31 Oct 2026.',
   },
   'stop-tutoring-no-shows': {
     title: 'How to Stop Tutoring No-Shows and Cancellations',
