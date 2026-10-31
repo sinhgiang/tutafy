@@ -36,6 +36,7 @@
 //  - how-to-handle-tutoring-reschedule-requests: operations/how-to · axis = one request through its moments (name the case → write the notice rule → message templates → who moves the lesson → track the pattern) · statCards + compare(3 cases, early) + compare(a month of 4 requests) + 2× own SVG diagram (five-moment flow, who-does-what table) + 5 message templates (h3 + p) + callout(warn/tip/info) + ul(checklist, situations) + prosCons + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 //  - how-to-ask-for-tutoring-payment: payments/how-to · axis = a six-step ladder with timings (terms → link → invoice → nudge → firmer → pause) · statCards + compare(ladder, early) + compare(five ways to be paid) + 2× own SVG diagram (timeline, status flow) + 7 message templates (h3 + p) + callout(tip/warn/info/tip) + ul(set-up checklist, a Friday check) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 //  - tutoring-tech-stack-for-online-tutors: software/audit · axis = the six jobs of a lesson → count the hand-offs → add up the cost → replace, link or keep → what Tutafy covers and where it stops · statCards + compare(6 jobs, early) + ul(7 hand-offs) + 2× own SVG diagram (hand-offs, replace/link/keep grid) + compare(invented stack cost) + 3 invented tutors (h3) + compare(Tutafy per job with its limit) + callout(tip/warn) + ul(two-week test, tool questions, weekend migration, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
+//  - how-to-write-a-tutor-bio: how-to · axis = who you help → what a lesson is → why you → one next step, then 15 invented example bios (by subject, student and place) · statCards + own SVG diagram (anatomy of a bio) + 3 photos + ul(rules, headlines, mistakes, steps, checklist) + compare(one bio, four places) + before/after rewrite + source + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1166)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -45,6 +46,7 @@ import { REAL_HOURLY_RATE_CONTENT } from '@/lib/blog-posts/real-hourly-rate-for-
 import { RESCHEDULE_REQUESTS_CONTENT } from '@/lib/blog-posts/how-to-handle-tutoring-reschedule-requests'
 import { ASK_FOR_PAYMENT_CONTENT } from '@/lib/blog-posts/how-to-ask-for-tutoring-payment'
 import { TECH_STACK_CONTENT } from '@/lib/blog-posts/tutoring-tech-stack-for-online-tutors'
+import { TUTOR_BIO_CONTENT } from '@/lib/blog-posts/how-to-write-a-tutor-bio'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3886,6 +3888,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: TECH_STACK_CONTENT,
   },
+  {
+    slug: 'how-to-write-a-tutor-bio',
+    title: 'Tutor Bio: How to Write One, With 15 Examples for Preply, italki, Wyzant and Your Own Site',
+    description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
+    date: '2026-10-31',
+    category: 'How-to',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_BIO_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3927,6 +3939,7 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-handle-tutoring-reschedule-requests': "Illustration of a calendar with a lesson block moving to another day, for handling reschedule requests",
   'how-to-ask-for-tutoring-payment': "Illustration of a message bubble beside a green check mark, for asking a parent to pay for tutoring",
   'tutoring-tech-stack-for-online-tutors': "Illustration of five loose app tiles gathering into one bar, for a tutor's tech stack",
+  'how-to-write-a-tutor-bio': "Illustration of a profile card with a name line, a speech bubble and a check mark, for writing a tutor bio",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

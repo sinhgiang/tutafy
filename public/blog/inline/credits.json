@@ -399,5 +399,57 @@
       "webp": 14478,
       "avif": 10950
     }
+  },
+  "bio-home-office": {
+    "file": "Woman works on laptop while holding cup of coffee in cozy home office.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_works_on_laptop_while_holding_cup_of_coffee_in_cozy_home_office.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 46204,
+      "avif": 37246
+    }
+  },
+  "bio-tutoring-math": {
+    "file": "Tutoring Math.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Preply.com Images",
+    "source": "https://commons.wikimedia.org/wiki/File:Tutoring_Math.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 31862,
+      "avif": 29445
+    }
+  },
+  "bio-online-lesson": {
+    "file": "Primary school teacher teaching online.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Basak",
+    "source": "https://commons.wikimedia.org/wiki/File:Primary_school_teacher_teaching_online.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "3024x4032",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 47226,
+      "avif": 48750
+    }
+  },
+  "bio-writing-notes": {
+    "file": "Writing notes while using a laptop at a desk.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Writing_notes_while_using_a_laptop_at_a_desk.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4032",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 25262,
+      "avif": 22136
+    }
   }
 }

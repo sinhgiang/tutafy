@@ -239,6 +239,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'How to Ask a Parent to Pay for Tutoring',
     description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
   },
+  'how-to-write-a-tutor-bio': {
+    title: 'Tutor Bio: How to Write One, 15 Examples',
+    description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
+  },
 }
 
 /**
