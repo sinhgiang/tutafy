@@ -181,6 +181,7 @@ export const PREPLY_ITALKI_WYZANT_CONTENT: PostBlock[] = [
     { label: 'Online tutoring jobs', href: '/blog/online-tutoring-jobs', text: 'Who can apply, what each route pays and how soon you hear back.' },
     { label: 'Preply, iTalki or on your own? The real math', href: '/blog/marketplace-vs-independent-the-real-math', text: 'A year of fees, side by side.' },
     { label: 'How much does Preply take from tutors?', href: '/blog/how-much-does-preply-take', text: 'The commission model in detail.' },
+    { label: 'Wyzant fees for tutors', href: '/blog/wyzant-fees-for-tutors', text: 'The 25% fee, the student fee, payout dates and how to avoid the fee.' },
     { label: 'Your real hourly rate as a tutor', href: '/blog/real-hourly-rate-for-tutors', text: 'What a lesson earns after prep, gaps and fees.' },
     { label: 'How to leave Preply', href: '/blog/how-to-leave-preply-migration-guide', text: 'Moving regular students to your own link.' },
     { label: 'How to stop tutoring no-shows', href: '/blog/stop-tutoring-no-shows', text: 'Cancellation wording that works.' },
