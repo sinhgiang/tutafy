@@ -659,5 +659,44 @@
       "webp": 23912,
       "avif": 19761
     }
+  },
+  "resume-book-stacks": {
+    "file": "Laptop on desk book stacks (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "freddie marriage fredmarriage",
+    "source": "https://commons.wikimedia.org/wiki/File:Laptop_on_desk_book_stacks_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 20880,
+      "avif": 16584
+    }
+  },
+  "resume-reading-card": {
+    "file": "Woman reading information from a card while working on a laptop.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_reading_information_from_a_card_while_working_on_a_laptop.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4912x7360",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 69174,
+      "avif": 56305
+    }
+  },
+  "resume-typing-office": {
+    "file": "Middle-aged businesswoman typing on laptop at home office.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Middle-aged_businesswoman_typing_on_laptop_at_home_office.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4229x2819",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24600,
+      "avif": 24353
+    }
   }
 }

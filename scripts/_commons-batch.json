@@ -30,5 +30,8 @@
   { "name": "jobs-video-conference", "file": "Video Conference Using Laptop.jpg" },
   { "name": "jobs-documents-table", "file": "Woman working at home with laptop and documents on a table.jpg" },
   { "name": "jobs-neat-desk", "file": "Laptop on a neat desk (Unsplash).jpg" },
-  { "name": "jobs-laptop-notepad", "file": "Working from home laptop and notepad.jpg" }
+  { "name": "jobs-laptop-notepad", "file": "Working from home laptop and notepad.jpg" },
+  { "name": "resume-book-stacks", "file": "Laptop on desk book stacks (Unsplash).jpg" },
+  { "name": "resume-reading-card", "file": "Woman reading information from a card while working on a laptop.jpg", "crop": { "top": 0.18, "height": 0.3 } },
+  { "name": "resume-typing-office", "file": "Middle-aged businesswoman typing on laptop at home office.jpg" }
 ]

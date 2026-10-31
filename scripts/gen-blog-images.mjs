@@ -434,6 +434,18 @@ const HEROES = {
       <circle cx="326" cy="20" r="22" fill="#047857"/>
       <path d="M316 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Tutor resume (T-1193) — a resume page with a header block, lines and a ticked box
+  'tutor-resume': base({ from: '#3f3f46', to: '#b45309', label: 'Growth', motif: `
+    <g transform="translate(800,90)" opacity="0.96">
+      <rect x="0" y="0" width="290" height="400" rx="18" fill="#ffffff" opacity="0.94"/>
+      <circle cx="52" cy="58" r="26" fill="#b45309" opacity="0.55"/>
+      <rect x="92" y="40" width="150" height="16" rx="8" fill="#3f3f46" opacity="0.55"/>
+      <rect x="92" y="66" width="100" height="12" rx="6" fill="#3f3f46" opacity="0.25"/>
+      ${[0,1,2,3,4,5].map(i => `<rect x="28" y="${120 + i * 40}" width="${i % 3 === 2 ? 160 : 230}" height="12" rx="6" fill="#3f3f46" opacity="${i % 2 ? 0.2 : 0.32}"/>`).join('')}
+      <circle cx="262" cy="20" r="22" fill="#047857"/>
+      <path d="M252 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

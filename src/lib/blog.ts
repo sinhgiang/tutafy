@@ -41,6 +41,7 @@
 //  - online-whiteboard-for-tutoring: comparison · axis = what a tutor needs from a whiteboard → a dated table (what each tool's own page said, with "not confirmed" where it could not be read) → the tools one by one → by subject → free-plan limits → a ten-minute test → a lesson routine → using one next to Tutafy, which has none · own SVG diagram (choose by subject) + 4 photos + compare(table) + source(8 pages) + ul(needs, limits, test, routine, mistakes) + cta + links, NO statCards/calculator/prosCons. Body in src/lib/blog-posts/ (T-1168)
 //  - do-tutors-have-to-pay-taxes: explainer · axis = is tutoring income taxable (yes, form or no form) → self-employed → the US (Schedule C, self-employment tax, estimated tax, the forms, a two-tutor worked example) → the UK trading allowance → Canada GST/HST → Australia and elsewhere (no figures, said so) → teaching across borders → deductible costs → records and a ledger → a year's routine → mistakes → what Tutafy exports · every figure from an official page read on 31 Oct 2026 · 4 photos + compare(US forms, two tutors, ledger) + callout(warn) + ul + source(10 pages) + cta + links, NO calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1170)
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
+//  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -55,6 +56,7 @@ import { INVOICE_TEMPLATE_CONTENT } from '@/lib/blog-posts/free-tutoring-invoice
 import { WHITEBOARD_CONTENT } from '@/lib/blog-posts/online-whiteboard-for-tutoring'
 import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxes'
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
+import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3946,6 +3948,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: ONLINE_TUTORING_JOBS_CONTENT,
   },
+  {
+    slug: 'tutor-resume',
+    title: 'Tutor Resume: How to Write One, With Examples by Subject and What to Do With No Experience',
+    description: 'Tutor resume guide: the sections, bullets that show results, examples by subject, what to write with no paid experience and when you do not need one.',
+    date: '2026-11-03',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_RESUME_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3992,6 +4004,7 @@ const HERO_ALTS: Record<string, string> = {
   'online-whiteboard-for-tutoring': "Illustration of a whiteboard with a drawn curve, a pen and a check mark, for an online whiteboard for tutoring",
   'do-tutors-have-to-pay-taxes': "Illustration of a tax form page with a coin and a check mark, for tutor taxes",
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
+  'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
