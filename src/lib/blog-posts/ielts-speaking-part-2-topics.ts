@@ -97,11 +97,11 @@ export const IELTS_PART2_CONTENT: PostBlock[] = [
     ['Pronunciation', 'Which words or sounds made the listener work? Was stress and rhythm clear?'],
   ] },
   { type: 'p', text: `Notice what is absent: none of the four criteria asks whether your story is true or interesting. In our advice, if you cannot think of a real detail, say a clear invented one instead of hesitating. Do not memorise a fixed answer: it tends to sound read out, and it fails when the card is different. Both points are our advice, and we did not find them on the official pages.` },
-  { type: 'h2', text: 'Part 3: practise the follow-up questions' },
-  { type: 'p', text: `Part 3 lasts 4 to 5 minutes and, per ielts.org, takes the Part 2 topic into a more general and abstract discussion. You are asked for opinions and explanations rather than a story. After our library card, a Part 3 style question might be "Why do some people find it hard to study at home?" or "How might places for studying change in the future?" (both invented by us). A good answer gives a view, a reason and an example, in about 20 to 30 seconds, then stops.` },
+  { type: 'h2', text: 'Parts 1 and 3: practise the questions around the card' },
+  { type: 'p', text: `Part 3 lasts 4 to 5 minutes and, per ielts.org, takes the Part 2 topic into a more general and abstract discussion. You are asked for opinions and explanations rather than a story. After our library card, a Part 3 style question might be "Why do some people find it hard to study at home?" or "How might places for studying change in the future?" (both invented by us). A good answer gives a view, a reason and an example, in about 20 to 30 seconds, then stops. Our guide to IELTS Speaking Part 3 sorts these questions into kinds, and our guide to Part 1 covers the opening interview.` },
   { type: 'ul', items: [
     `Answer the question asked, first: "I think it's mainly because of distractions."`,
-    `Give one reason, then one example from life or from people you know.`,
+    `Give one reason, then one example. Keep it general ("many students ...") and not a personal story: ielts.org advises a general view in Part 3, and IDP lists talking about yourself and your family as a mistake.`,
     `If you need time, buy it with a short natural phrase such as "That's an interesting question" and keep going. Do not pad every answer.`,
     `Compare, or consider both sides, when the question asks "how has it changed" or "will it change".`,
   ] },
@@ -160,6 +160,8 @@ export const IELTS_PART2_CONTENT: PostBlock[] = [
     { label: 'British Council: IELTS Speaking Part 2 practice', href: 'http://takeielts.britishcouncil.org/prepare-your-test/free-practice-tests/speaking-practice-test-1/speaking-part-2' },
   ] },
   { type: 'links', title: 'Related guides', items: [
+    { label: 'IELTS Speaking Part 1 questions', href: '/blog/ielts-speaking-part-1-questions', text: 'The opening interview: answer length, 40 practice questions and a tutor routine.' },
+    { label: 'IELTS Speaking Part 3 questions', href: '/blog/ielts-speaking-part-3-questions', text: 'Seven kinds of discussion question and how to extend your answers.' },
     { label: 'How to teach English online', href: '/blog/how-to-teach-english-online', text: 'Qualifications, tools and lesson structure for English tutors.' },
     { label: 'How to choose a tutoring niche', href: '/blog/how-to-choose-a-tutoring-niche', text: 'Decide whether test preparation suits you.' },
     { label: 'Tutoring lesson packages explained', href: '/blog/tutoring-lesson-packages-explained', text: 'Sell a course of practice sessions.' },

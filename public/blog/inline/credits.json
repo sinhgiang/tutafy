@@ -737,5 +737,83 @@
       "webp": 14960,
       "avif": 13139
     }
+  },
+  "ielts1-young-conversation": {
+    "file": "Young people in conversation (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Alexis Brown alexisrbrown",
+    "source": "https://commons.wikimedia.org/wiki/File:Young_people_in_conversation_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5760x3840",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 48948,
+      "avif": 43447
+    }
+  },
+  "ielts1-dictionary-page": {
+    "file": "Focus definition (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Romain Vignes",
+    "source": "https://commons.wikimedia.org/wiki/File:Focus_definition_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "3126x2076",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 57246,
+      "avif": 43852
+    }
+  },
+  "ielts1-empty-audience": {
+    "file": "Speaking To An Empty Audience - Public Speaking.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "delegateconnectimages",
+    "source": "https://commons.wikimedia.org/wiki/File:Speaking_To_An_Empty_Audience_-_Public_Speaking.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 13644,
+      "avif": 11225
+    }
+  },
+  "ielts3-cafe-conversation": {
+    "file": "Conversation (5556628632).jpg",
+    "licence": "CC BY-SA 2.0",
+    "creator": "Matt @ PEK from Taipei, Taiwan",
+    "source": "https://commons.wikimedia.org/wiki/File:Conversation_(5556628632).jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": "1728x1152",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 21694,
+      "avif": 20483
+    }
+  },
+  "ielts3-group-discussion": {
+    "file": "Small group conversation at a Gurteen Knowledge Cafe.jpg",
+    "licence": "CC BY-SA 3.0",
+    "creator": "Dgurteen",
+    "source": "https://commons.wikimedia.org/wiki/File:Small_group_conversation_at_a_Gurteen_Knowledge_Cafe.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "original": "3648x2736",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 75250,
+      "avif": 69001
+    }
+  },
+  "ielts3-hourglass": {
+    "file": "Hourglass 1.jpg",
+    "licence": "CC0",
+    "creator": "Suohros",
+    "source": "https://commons.wikimedia.org/wiki/File:Hourglass_1.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4080x3072",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 55948,
+      "avif": 48350
+    }
   }
 }

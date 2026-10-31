@@ -43,6 +43,8 @@
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
+//  - ielts-speaking-part-1-questions: explainer/how-to · axis = Part 1 as a habit, not a list: what Part 1 is by the official pages (4 to 5 minutes, familiar topics) → what "about 12 questions in 4 to 5 minutes" means for one answer (our arithmetic, said so) → topics and what "repeated topics" can and cannot tell you (no official list of current questions) → 40 practice questions we wrote (labelled ours) → eight question types and an answer shape for each → the three-beat answer with four invented worked examples → words and grammar → mistakes → a 40-minute session with a tutor playing the examiner → teaching it honestly → what Tutafy is not (no IELTS authority, no scoring) · ielts.org and IDP pages read on 31 Oct 2026, British Council pages timed out and are marked as search-summary only · 3 photos + 3 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1220)
+//  - ielts-speaking-part-3-questions: explainer/how-to · axis = sort the questions by what they ask you to DO: what Part 3 is by the official pages (4 to 5 minutes, general and abstract, no preparation time, depth, analysis, justified opinions) → the ladder from a Part 2 card to Part 3 (you, people like you, society, the future) → what is known about topics (no official list) → seven kinds of question with an answer shape and starter phrases (our scheme, said so) → the four-step answer ielts.org suggests with three invented worked answers → the tension with Part 2 (general, not personal) → how to extend an answer → time, pauses, not knowing the topic → mistakes → a 45-minute session with a tutor, four drills, a three-week plan → teaching it honestly → what Tutafy is not (no IELTS authority, no scoring) · ielts.org and IDP pages read on 31 Oct 2026, British Council pages timed out and are marked as search-summary only · 3 photos + 4 compare tables + ul + source(6 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1221)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -59,6 +61,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { IELTS_PART1_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-1-questions'
+import { IELTS_PART3_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-3-questions'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3970,6 +3974,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: IELTS_PART2_CONTENT,
   },
+  {
+    slug: 'ielts-speaking-part-1-questions',
+    title: 'IELTS Speaking Part 1 Questions: Topics, Model Answers and How to Practise With a Tutor',
+    description: 'IELTS Speaking Part 1 questions: what the official pages say, how long an answer should be, 40 practice questions, answer shapes by question type and a tutor routine.',
+    date: '2026-11-12',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: IELTS_PART1_CONTENT,
+  },
+  {
+    slug: 'ielts-speaking-part-3-questions',
+    title: 'IELTS Speaking Part 3: Question Types and How to Extend Your Answers',
+    description: 'IELTS Speaking Part 3: what the official pages say, seven kinds of discussion question, a four-step answer, how to extend it and a tutor routine.',
+    date: '2026-11-12',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: IELTS_PART3_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4018,6 +4042,8 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'ielts-speaking-part-1-questions': "Illustration of a short question bubble and a longer answer bubble with a check mark, for IELTS Speaking Part 1 questions",
+  'ielts-speaking-part-3-questions': "Illustration of a speech bubble branching into three connected ideas, for IELTS Speaking Part 3 questions",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

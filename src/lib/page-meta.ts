@@ -267,6 +267,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Bio: How to Write One, 15 Examples',
     description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
   },
+  'ielts-speaking-part-1-questions': {
+    title: 'IELTS Speaking Part 1 Questions and How to Answer',
+    description: 'IELTS Speaking Part 1 questions: what the official pages say, how long an answer should be, 40 practice questions, answer shapes and a tutor routine.',
+  },
+  'ielts-speaking-part-3-questions': {
+    title: 'IELTS Speaking Part 3: Question Types and Answers',
+    description: 'IELTS Speaking Part 3: what the official pages say, seven kinds of discussion question, a four-step answer, how to extend it and a tutor routine.',
+  },
 }
 
 /**

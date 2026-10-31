@@ -458,6 +458,30 @@ const HEROES = {
       <circle cx="316" cy="12" r="22" fill="#047857"/>
       <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // IELTS Speaking Part 1 (T-1220) — a short question bubble above a longer answer bubble, with a tick
+  'ielts-speaking-part-1-questions': base({ from: '#3b2a63', to: '#0e7490', label: 'Teaching', motif: `
+    <g transform="translate(770,96)" opacity="0.96">
+      <path d="M20 0 H230 a22 22 0 0 1 22 22 V84 a22 22 0 0 1 -22 22 H70 L36 140 V106 H20 a22 22 0 0 1 -22 -22 V22 A22 22 0 0 1 20 0 Z" fill="#ffffff" opacity="0.94"/>
+      <rect x="26" y="34" width="150" height="14" rx="7" fill="#3b2a63" opacity="0.4"/>
+      <rect x="26" y="60" width="96" height="12" rx="6" fill="#3b2a63" opacity="0.2"/>
+      <path d="M96 190 H330 a24 24 0 0 1 24 24 V318 a24 24 0 0 1 -24 24 H300 V380 L252 342 H96 a24 24 0 0 1 -24 -24 V214 A24 24 0 0 1 96 190 Z" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2].map(i => `<rect x="${100}" y="${222 + i * 36}" width="${i === 2 ? 130 : 220}" height="12" rx="6" fill="#0e7490" opacity="${i % 2 ? 0.22 : 0.4}"/>`).join('')}
+      <circle cx="340" cy="190" r="22" fill="#047857"/>
+      <path d="M330 190 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // IELTS Speaking Part 3 (T-1221) — one bubble branching into three connected ideas
+  'ielts-speaking-part-3-questions': base({ from: '#14532d', to: '#1e3a5f', label: 'Teaching', motif: `
+    <g transform="translate(780,96)" opacity="0.96">
+      <path d="M20 0 H200 a22 22 0 0 1 22 22 V84 a22 22 0 0 1 -22 22 H70 L36 140 V106 H20 a22 22 0 0 1 -22 -22 V22 A22 22 0 0 1 20 0 Z" fill="#ffffff" opacity="0.94"/>
+      <rect x="26" y="34" width="140" height="14" rx="7" fill="#14532d" opacity="0.4"/>
+      <rect x="26" y="60" width="90" height="12" rx="6" fill="#14532d" opacity="0.2"/>
+      <path d="M110 140 V200 M110 200 H40 V250 M110 200 V250 M110 200 H190 V250" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.85"/>
+      ${[40, 110, 190].map((x, i) => `<rect x="${x - 44}" y="250" width="88" height="${86 + i * 14}" rx="16" fill="#ffffff" opacity="${0.94 - i * 0.04}"/><rect x="${x - 28}" y="274" width="56" height="11" rx="5" fill="#1e3a5f" opacity="0.34"/><rect x="${x - 28}" y="298" width="40" height="10" rx="5" fill="#1e3a5f" opacity="0.2"/>`).join('')}
+      <circle cx="220" cy="20" r="22" fill="#047857"/>
+      <path d="M210 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
