@@ -43,6 +43,7 @@
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
+//  - how-to-get-tutoring-students: diagnostic/how-to · axis = the chain enquiry → trial → regular, counted → seven sources of students (own judgement, labelled) → work backwards from ten with an invented example → who is buying (parent, adult, school) → routes (people you know, referrals, teachers and schools, local places with the Google Business Profile rules, communities, marketplace) → five message templates → FTC reviews rule and CAN-SPAM, read on 31 Oct 2026 → a tracker → a symptom-to-step table → mistakes → an eight-week sprint → what Tutafy does and does not do (no students sent) · BLS, FTC and Google Business Profile pages read on 31 Oct 2026 · 3 photos + 7 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Links to and from get-your-first-tutoring-clients (the channel playbook). Body in src/lib/blog-posts/ (T-1218)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -59,6 +60,7 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { GET_TUTORING_STUDENTS_CONTENT } from '@/lib/blog-posts/how-to-get-tutoring-students'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -248,6 +250,9 @@ export const POSTS: Post[] = [
       { type: 'cta', title: 'Your booking link, ready in two minutes', text: 'Bookings, a built-in video classroom, payments and reminders — free, with 0% commission on your income.', button: 'Start free — no credit card', href: '/register' },
       { type: 'h2', text: 'The bottom line' },
       { type: 'p', text: `You do not need to hand a third of your income to a platform to stay busy. A frictionless booking link, warm outreach to people who know you, genuine helpfulness in the right communities, and referrals from happy students will get you to your first ten clients — and unlike a marketplace, those clients and that income are yours to keep. Set up the link today, send your first ten messages, and let the compounding begin. That is exactly what Tutafy is built to make easy, for free.` },
+      { type: 'links', title: 'Related guides', items: [
+        { label: 'How to get tutoring students: find the step that is losing them', href: '/blog/how-to-get-tutoring-students', text: 'Count conversations, enquiries, trials and regulars, and fix the thin step.' },
+      ] },
       { type: 'faq', items: [
         { q: 'Do I really need software to get my first students?', a: 'You need a frictionless way to be booked and paid. You can start with a free scheduling link, but a tutoring-specific tool like Tutafy also gives you the video classroom, payments, reminders and student notes in one place — so the whole first lesson runs itself and the experience is smooth enough to earn a second lesson.' },
         { q: 'Is it better to use a marketplace or go independent when starting out?', a: 'Marketplaces earn their commission when you are brand new and have no way to find students. Use that period to build relationships good enough that students would follow you anywhere — then move your regulars to your own booking link and keep 100%. Many tutors run both at once for a while.' },
@@ -3970,6 +3975,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: IELTS_PART2_CONTENT,
   },
+  {
+    slug: 'how-to-get-tutoring-students',
+    title: 'How to Get Tutoring Students: Where They Come From, What to Say and Which Step Is Losing Them',
+    description: 'How to get tutoring students: work backwards from ten, know who is buying, use message templates, follow the FTC and CAN-SPAM rules and find the weak step.',
+    date: '2026-11-11',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: GET_TUTORING_STUDENTS_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4018,6 +4033,7 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'how-to-get-tutoring-students': "Illustration of a funnel with four steps ending in a check mark, for getting tutoring students",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

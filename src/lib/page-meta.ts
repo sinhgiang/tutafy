@@ -255,6 +255,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'IELTS Speaking Part 2 Topics and How to Practise',
     description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
   },
+  'how-to-get-tutoring-students': {
+    title: 'How to Get Tutoring Students: Find the Weak Step',
+    description: 'How to get tutoring students: work backwards from ten, know who is buying, use message templates, follow the FTC and CAN-SPAM rules and find the weak step.',
+  },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
     description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',

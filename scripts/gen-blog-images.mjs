@@ -458,6 +458,15 @@ const HEROES = {
       <circle cx="316" cy="12" r="22" fill="#047857"/>
       <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // How to get tutoring students (T-1218) — a funnel of four narrowing bars and a tick
+  'how-to-get-tutoring-students': base({ from: '#134e4a', to: '#9a3412', label: 'Growth', motif: `
+    <g transform="translate(790,96)" opacity="0.96">
+      ${[0,1,2,3].map(i => `<rect x="${i * 28}" y="${i * 92}" width="${320 - i * 56}" height="68" rx="16" fill="#ffffff" opacity="${0.94 - i * 0.08}"/>
+      <rect x="${i * 28 + 24}" y="${i * 92 + 26}" width="${150 - i * 24}" height="14" rx="7" fill="#134e4a" opacity="0.4"/>`).join('')}
+      <circle cx="160" cy="388" r="30" fill="#047857"/>
+      <path d="M146 388 l10 12 l20 -24" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
