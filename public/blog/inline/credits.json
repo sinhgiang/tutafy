@@ -555,5 +555,57 @@
       "webp": 35258,
       "avif": 40147
     }
+  },
+  "tax-laptop-coffee": {
+    "file": "Laptop and coffee on a desk.jpg",
+    "licence": "CC0",
+    "creator": "Lauren Mancke",
+    "source": "https://commons.wikimedia.org/wiki/File:Laptop_and_coffee_on_a_desk.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4000x2660",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 52880,
+      "avif": 41370
+    }
+  },
+  "tax-hmrc-letter": {
+    "file": "HMRC Self Assessment tax return.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Images_of_Money's profile",
+    "source": "https://commons.wikimedia.org/wiki/File:HMRC_Self_Assessment_tax_return.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "3264x2448",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 43728,
+      "avif": 42748
+    }
+  },
+  "tax-overhead-desk": {
+    "file": "Overhead desktop workspace (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Jeff Sheldon ugmonk",
+    "source": "https://commons.wikimedia.org/wiki/File:Overhead_desktop_workspace_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5438x3494",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 45126,
+      "avif": 37273
+    }
+  },
+  "tax-quiet-desk": {
+    "file": "Bench Accounting 2015-12-04 (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Bench Accounting benchaccounting",
+    "source": "https://commons.wikimedia.org/wiki/File:Bench_Accounting_2015-12-04_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "3500x2333",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 7486,
+      "avif": 7091
+    }
   }
 }
