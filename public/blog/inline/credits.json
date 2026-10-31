@@ -815,5 +815,83 @@
       "webp": 24356,
       "avif": 20486
     }
+  },
+  "sat-computer-exam": {
+    "file": "Students taking computerized exam.jpg",
+    "licence": "CC BY-SA 2.0",
+    "creator": "Michael Surran",
+    "source": "https://commons.wikimedia.org/wiki/File:Students_taking_computerized_exam.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": "1280x960",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 86280,
+      "avif": 70087
+    }
+  },
+  "sat-work-table": {
+    "file": "White work table with notes, smartphone and laptop (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "JESHOOTS.COM jeshoots",
+    "source": "https://commons.wikimedia.org/wiki/File:White_work_table_with_notes,_smartphone_and_laptop_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4600x3067",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 20572,
+      "avif": 16731
+    }
+  },
+  "sat-living-room-laptop": {
+    "file": "Laptop on a living room table (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Henry McIntosh henrymcintosh",
+    "source": "https://commons.wikimedia.org/wiki/File:Laptop_on_a_living_room_table_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24916,
+      "avif": 25481
+    }
+  },
+  "reading-yellow-book": {
+    "file": "A young child is focused on reading a worn yellow book while sitting in a comfortable environment.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:A_young_child_is_focused_on_reading_a_worn_yellow_book_while_sitting_in_a_comfortable_environment.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4636x3095",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 25770,
+      "avif": 22628
+    }
+  },
+  "reading-adult-holds-book": {
+    "file": "Sweet moment between a child and adult while reading a book.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Sweet_moment_between_a_child_and_adult_while_reading_a_book.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 34422,
+      "avif": 31676
+    }
+  },
+  "reading-older-boy": {
+    "file": "Boy comfortably reading a book.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Javier Perez Montes",
+    "source": "https://commons.wikimedia.org/wiki/File:Boy_comfortably_reading_a_book.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "7200x4800",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 40700,
+      "avif": 36696
+    }
   }
 }

@@ -488,6 +488,18 @@ const HEROES = {
         <rect x="80" y="8" width="${i % 2 ? 150 : 200}" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
       </g>`).join('')}
     </g>` }),
+
+  // Reading tutor for your child (T-1242) — an open book with lines of text, a pencil and a ticked check
+  'reading-tutor-for-your-child': base({ from: '#7c2d12', to: '#0f766e', label: 'Teaching', motif: `
+    <g transform="translate(700,120)" opacity="0.96">
+      <rect x="0" y="40" width="200" height="270" rx="14" fill="#ffffff" opacity="0.94"/>
+      <rect x="210" y="40" width="200" height="270" rx="14" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2,3,4,5].map(i => `<rect x="24" y="${76 + i * 30}" width="${i % 3 === 2 ? 110 : 152}" height="10" rx="5" fill="#7c2d12" opacity="0.28"/>
+      <rect x="234" y="${76 + i * 30}" width="${i % 2 ? 120 : 152}" height="10" rx="5" fill="#0f766e" opacity="0.3"/>`).join('')}
+      <rect x="150" y="246" width="96" height="14" rx="7" fill="#b45309" opacity="0.7" transform="rotate(-24 150 246)"/>
+      <circle cx="398" cy="50" r="24" fill="#047857"/>
+      <path d="M387 50 l8 9 l15 -18" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

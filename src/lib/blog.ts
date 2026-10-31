@@ -61,6 +61,7 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { READING_TUTOR_CONTENT } from '@/lib/blog-posts/reading-tutor-for-your-child'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3992,6 +3993,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
+  {
+    slug: 'reading-tutor-for-your-child',
+    title: 'Reading Tutor for Your Child: Warning Signs by Age, What Works and What to Ask',
+    description: 'Reading tutor for your child: warning signs by age, what the research says works, what an online reading session looks like and eight questions to ask.',
+    date: '2026-11-16',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: READING_TUTOR_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4042,6 +4053,7 @@ const HERO_ALTS: Record<string, string> = {
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'reading-tutor-for-your-child': "Illustration of an open book with lines of text, a pencil and a check mark, for a reading tutor",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

@@ -263,6 +263,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'How to Find an Online Tutor: 10 Checks',
     description: 'How to find an online tutor: ten checks before you book, in the first lesson and after four lessons, with price, refund, payment and safety rules.',
   },
+  'reading-tutor-for-your-child': {
+    title: 'Reading Tutor for Your Child: Signs and Questions',
+    description: 'Reading tutor for your child: warning signs by age, what the research says works, what an online reading session looks like and eight questions to ask.',
+  },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
     description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',
