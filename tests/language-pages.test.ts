@@ -36,6 +36,7 @@ mock.module('next/navigation', { namedExports: { notFound: () => { throw new Err
 
 type PageProps = { params: Promise<{ language: string }> }
 const langPage = (await import('@/app/learn/[language]/page.tsx')) as { default: (p: PageProps) => Promise<React.ReactElement>; generateMetadata: (p: PageProps) => Promise<Record<string, unknown>> }
+const { resetDirectoryFallback } = await import('@/lib/directory-cache.ts') // the last good list stands in for a failed read (T-1144); each test starts without one
 const directoryPage = (await import('@/app/tutors/(directory)/page.tsx')).default as (p: { searchParams: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>
 const sitemap = (await import('@/app/sitemap.ts')).default as () => Promise<{ url: string }[]>
 const llmsRoute = await import('@/app/llms-languages.txt/route.ts')
@@ -56,7 +57,7 @@ function tutor(languages: string[], o: Record<string, unknown> = {}) {
 function seed(tutors: ReturnType<typeof tutor>[]) {
   db = createFakeDb({ tutors: tutors.map(t => t.row), availability: tutors.flatMap(t => t.avail), availability_exceptions: [], lessons: [] })
 }
-beforeEach(() => { seq = 0; adminFails = false })
+beforeEach(() => { seq = 0; adminFails = false; resetDirectoryFallback() })
 const render = async (language: string) => renderToStaticMarkup(await langPage.default({ params: Promise.resolve({ language }) }))
 const cardsIn = (h: string) => [...h.matchAll(/data-testid="tutor-card" data-slug="([^"]+)"/g)].map(m => m[1])
 const jsonLd = (h: string) => [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1].replace(/\\u003c/g, '<')))

@@ -19,6 +19,7 @@ const read = (rel: string) => readFileSync(path.join(SRC, rel), 'utf8').replace(
 
 let db: FakeDb
 let adminFails = false
+let adminFailsTimes = 0 // fail this many client creations, then work (a read that fails once)
 let currentUser: { id: string; email: string } | null = null
 const adminReads: { table: string; cols: string }[] = []
 let sessionCalls = 0
@@ -26,6 +27,7 @@ mock.module(pathToFileURL(path.join(SRC, 'lib/supabase/server.ts')).href, {
   namedExports: {
     createAdminClient: () => {
       if (adminFails) throw new Error('Supabase admin client is not configured')
+      if (adminFailsTimes > 0) { adminFailsTimes--; throw new Error('a read that failed once') }
       return { from: (table: string) => { const q = db.from(table); return { select: (cols: string, o?: { head?: boolean }) => { adminReads.push({ table, cols }); return q.select(cols, o) } } } }
     },
     createClient: async () => { sessionCalls++; return { from: (t: string) => db.from(t), auth: { getUser: async () => ({ data: { user: currentUser } }) } } },
@@ -38,6 +40,7 @@ mock.module('next/navigation', { namedExports: { notFound: () => { throw new Err
 const route = await import('@/app/api/tutors/public/route.ts')
 const page = (await import('@/app/tutors/(directory)/page.tsx')).default as (p: { searchParams: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>
 const dir = await import('@/lib/directory.ts')
+const dirCache = await import('@/lib/directory-cache.ts') as { resetDirectoryFallback?: () => void }
 const listing = await import('@/lib/listing-status.ts')
 const { ListingCardView } = await import('@/components/dashboard/ListingCard.tsx')
 const DashboardPage = (await import('@/app/(dashboard)/dashboard/page.tsx')).default as () => Promise<{ props: { data: { listing: ReturnType<typeof listing.buildListingCard> | null; tutorId: string } } }>
@@ -64,7 +67,7 @@ function seed(tutors: ReturnType<typeof tutor>[], extra: Record<string, Record<s
   db = createFakeDb({ tutors: tutors.map(t => t.row), availability: tutors.flatMap(t => t.avail), availability_exceptions: [], lessons: [], ...extra })
 }
 
-beforeEach(() => { adminFails = false; currentUser = null; adminReads.length = 0; sessionCalls = 0 })
+beforeEach(() => { adminFails = false; adminFailsTimes = 0; dirCache.resetDirectoryFallback?.(); currentUser = null; adminReads.length = 0; sessionCalls = 0 })
 
 const html = async (searchParams: Record<string, string | string[] | undefined> = {}) => renderToStaticMarkup(await page({ searchParams: Promise.resolve(searchParams) }))
 const cardsIn = (h: string) => [...h.matchAll(/data-testid="tutor-card" data-slug="([^"]+)"/g)].map(m => m[1])
@@ -219,6 +222,46 @@ test('a failed read draws the error state with "Try again" and the filters kept,
   seed([tutor()])
   adminFails = false
   assert.ok(!(await html()).includes('name="robots"'), 'a page with the list is left to the layout\'s own robots setting')
+})
+
+// ---- a read that fails (T-1144): one retry, the last good list for a while, and a log line --------------------------------------------------
+
+test('a read that fails once is tried again, so the page lists the tutors and not the red box', async () => {
+  seed([tutor(), tutor(), tutor(), tutor(), tutor(), tutor()]) // the directory opens at 6 listed tutors
+  adminFailsTimes = 1
+  const h = await html()
+  assert.ok(!h.includes('data-testid="directory-error"'), 'no error state after one failed read')
+  assert.equal(cardsIn(h).length, 6)
+})
+
+test('after a good read, a read that keeps failing shows the last good list (for 30 minutes at most), not the red box', async () => {
+  seed([tutor(), tutor(), tutor(), tutor(), tutor(), tutor()])
+  assert.equal(cardsIn(await html()).length, 6)
+  adminFails = true
+  const h = await html()
+  assert.ok(!h.includes('data-testid="directory-error"'), 'the last good list is shown')
+  assert.equal(cardsIn(h).length, 6)
+  const res = await route.GET()
+  assert.equal(res.status, 200, 'the public list agrees with the page')
+})
+
+test('with no good read before it, a read that keeps failing is still the error state (never an empty list)', async () => {
+  seed([tutor()])
+  adminFails = true
+  const h = await html()
+  assert.match(h, /data-testid="directory-error"/)
+  assert.deepEqual(cardsIn(h), [])
+})
+
+test('a failed read leaves a line in the log with the reason and nothing about a person', async () => {
+  seed([tutor()])
+  adminFails = true
+  const lines: string[] = []
+  const orig = console.error
+  console.error = (...a: unknown[]) => { lines.push(a.map(String).join(' ')) }
+  try { await html() } finally { console.error = orig }
+  assert.ok(lines.some(l => /directory/i.test(l) && /not configured/.test(l)), `a log line names the directory and the reason: ${JSON.stringify(lines)}`)
+  assert.ok(lines.every(l => !/@|private.tutor/.test(l)), 'no email in the log')
 })
 
 test('filters in the address: language, price, trial and search narrow the list; a state with nobody says why and how to widen it', async () => {

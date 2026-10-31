@@ -32,6 +32,7 @@ mock.module('next/cache', { namedExports: { unstable_cache: (fn: (...a: unknown[
 mock.module('next/navigation', { namedExports: { notFound: () => { throw new Error('NEXT_NOT_FOUND') }, useRouter: () => ({ push() {}, replace() {} }), useSearchParams: () => new URLSearchParams() } })
 
 const page = (await import('@/app/find-a-tutor/page.tsx')).default as (p: { searchParams: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>
+const { resetDirectoryFallback } = await import('@/lib/directory-cache.ts') // the last good list stands in for a failed read (T-1144); each test starts without one
 const find = await import('@/lib/find-tutor.ts')
 const dir = await import('@/lib/directory.ts')
 const { FIND_TUTOR_FAQ } = await import('@/lib/site-content.ts')
@@ -70,7 +71,7 @@ function market() {
   ])
 }
 
-beforeEach(() => { adminFails = false; seq = 0 })
+beforeEach(() => { adminFails = false; seq = 0; resetDirectoryFallback() })
 
 const html = async (searchParams: Record<string, string | string[] | undefined> = {}) => renderToStaticMarkup(await page({ searchParams: Promise.resolve(searchParams) }))
 const picksIn = (h: string) => [...h.matchAll(/data-testid="find-pick" data-slug="([^"]+)"/g)].map(m => m[1])
