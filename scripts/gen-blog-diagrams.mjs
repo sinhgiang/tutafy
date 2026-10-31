@@ -329,6 +329,52 @@ D['payment-status-flow'] = frame(
   })(),
 )
 
+// ---- T-1143, article 4: the hand-offs of one example lesson (invented, to show the counting) and what to replace, link or keep --------------
+D['tech-stack-handoffs'] = frame(
+  'The same lesson, seven hand-offs',
+  'An invented Tuesday lesson on a scattered stack. Each number is something you copy by hand.',
+  (() => {
+    const w = 140, h = 70
+    const T = {
+      A: { x: 50, y: 190, t: 'Scheduler' }, B: { x: 235, y: 190, t: 'Spreadsheet' }, C: { x: 420, y: 190, t: 'Messaging' },
+      D: { x: 50, y: 370, t: 'Video app' }, F: { x: 235, y: 370, t: 'Payment app' }, E: { x: 420, y: 370, t: 'Notes doc' },
+    }
+    const tiles = Object.values(T).map(o => box(o.x, o.y, w, h, { fill: '#fffbeb', stroke: '#f59e0b', r: 12 }) + text(o.x + w / 2, o.y + 43, o.t, { size: 20, weight: 700, anchor: 'middle' })).join('')
+    const badge = (cx, cy, n) => `<circle cx="${cx}" cy="${cy}" r="15" fill="${INDIGO}"/>` + text(cx, cy + 7, String(n), { size: 18, weight: 800, fill: '#ffffff', anchor: 'middle' })
+    const A = INDIGO
+    const hand =
+      arrow(190, 225, 231, 225, A) + badge(210, 208, 1) +                       // 1 scheduler -> spreadsheet
+      arrow(120, 366, 120, 264, A) + badge(142, 315, 2) +                       // 2 video -> scheduler (link into the invite)
+      `<path d="M120 190 C 120 135, 490 135, 490 186" stroke="${A}" stroke-width="3.5" fill="none"/><path d="M490 188 l-8 -14 m8 14 l8 -14" stroke="${A}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` + badge(305, 150, 3) + // 3 scheduler -> messaging (reminder)
+      `<path d="M120 440 C 120 495, 490 495, 490 444" stroke="${A}" stroke-width="3.5" fill="none"/><path d="M490 442 l-8 14 m8 -14 l8 14" stroke="${A}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` + badge(305, 483, 4) + // 4 video -> notes doc
+      arrow(490, 366, 490, 264, A) + badge(512, 315, 5) +                       // 5 notes doc -> messaging (homework)
+      arrow(305, 366, 305, 264, A) + badge(327, 315, 6) +                       // 6 payment -> spreadsheet
+      arrow(380, 225, 417, 225, A) + badge(398, 208, 7)                          // 7 spreadsheet -> messaging (parent update)
+    const right = box(660, 150, 390, 370, { fill: PALE, stroke: '#c7d2fe', r: 18 }) + text(855, 192, 'One workspace', { size: 24, weight: 800, fill: INDIGO, anchor: 'middle' }) +
+      ['Booking and calendar', 'Reminders', 'Video room or your link', 'Notes and homework', 'Payment status', 'Parent update'].map((r, i) =>
+        check(690, 242 + i * 44, GREEN) + text(724, 252 + i * 44, r, { size: 21, weight: 600 })).join('')
+    return text(50, 138, 'Six apps', { size: 22, weight: 800, fill: AMBER }) + tiles + hand + right +
+      text(550, 592, 'An example to show the counting, not a measurement. Count your own lesson.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['tech-stack-replace-link-keep'] = frame(
+  'Replace, link or keep',
+  'Sort the six jobs by how many hand-offs they cause and how much you like the tool.',
+  (() => {
+    const cols = [
+      { x: 40, h: 'Replace', c: '#eef2ff', s: '#818cf8', t: INDIGO, items: ['Getting booked', 'Reminders', 'Notes and homework', 'Parent updates'], note: 'Most hand-offs, little loss' },
+      { x: 395, h: 'Link', c: '#fffbeb', s: '#f59e0b', t: AMBER, items: ['Video: a Zoom, Meet or', 'custom link on any lesson', 'Payment: your own PayPal', 'or Stripe link, paid to you'], note: 'Keep the tool, connect it' },
+      { x: 750, h: 'Keep', c: '#f3f4f6', s: '#9ca3af', t: MUTED, items: ['Specialist tools:', 'a teaching whiteboard,', 'music notation,', 'a school platform'], note: 'No general tool matches' },
+    ]
+    return cols.map(c => box(c.x, 130, 310, 400, { fill: c.c, stroke: c.s, r: 18 }) +
+      text(c.x + 155, 182, c.h, { size: 30, weight: 800, fill: c.t, anchor: 'middle' }) +
+      lines(c.x + 28, 246, c.items, { size: 21, weight: 600 }) +
+      text(c.x + 155, 490, c.note, { size: 19, fill: MUTED, anchor: 'middle' })).join('') +
+      text(550, 590, 'In Tutafy a lesson can use the built-in room or any link, and money settles in your own account.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
 const only = process.argv.slice(2) // optional: draw only the diagrams named on the command line, so older files are not rewritten
 for (const [name, svg] of Object.entries(D)) {
   if (only.length && !only.includes(name)) continue
