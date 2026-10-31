@@ -1,0 +1,14 @@
+[
+  { "name": "pain-rate-coins", "file": "Stacks of Coins.jpg" },
+  { "name": "pain-rate-alarm-clock", "file": "Small black alarm clock on a desk.jpg" },
+  { "name": "pain-rate-home-office", "file": "Home-office-336377.jpg" },
+  { "name": "pain-reschedule-wall-calendar", "file": "WallCalendar.jpg", "crop": { "top": 0.208, "height": 0.75 } },
+  { "name": "pain-reschedule-phone", "file": "Apple-iphone-smartphone-desk-1 (24217686692).jpg" },
+  { "name": "pain-reschedule-planner", "file": "Desk-laptop-notebook-pen (23958719819).jpg" },
+  { "name": "pain-payment-card-laptop", "file": "Woman sitting at her office table and typing the number from a plastic card on the laptop. (51536551788).jpg", "crop": { "top": 0.34 } },
+  { "name": "pain-payment-banknotes", "file": "50 Eurobanknoten in der Hand aufgefaechert.JPG" },
+  { "name": "pain-payment-typing", "file": "Hand-laptop-notebook-typing (23698140194).jpg" },
+  { "name": "pain-stack-desk-devices", "file": "Gadgets on a desk (Unsplash).jpg", "crop": { "top": 0.125 } },
+  { "name": "pain-stack-video-teacher", "file": "Onlineteacher.jpg" },
+  { "name": "pain-stack-tablet", "file": "Hybrid tablet (Unsplash).jpg" }
+]

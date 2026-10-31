@@ -223,7 +223,7 @@ function Block({ b }: { b: PostBlock }) {
         </div>
         {(b.caption || b.credit) && (
           <figcaption className="text-[12px] text-gray-500 mt-2.5 text-center">
-            {b.caption}{b.caption && b.credit ? ' · ' : ''}{b.credit && <span className="text-gray-500">{b.credit}</span>}
+            {b.caption}{b.caption && b.credit ? ' · ' : ''}{b.credit && <span className="text-gray-500">{b.credit}</span>}{b.credit && b.creditHref && <>{' '}<a href={b.creditHref} target="_blank" rel="noopener noreferrer" className="underline text-gray-500 hover:text-gray-700">(source)</a></>}
           </figcaption>
         )}
       </figure>
