@@ -283,6 +283,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutoring Business Names: Pick and Check One',
     description: 'Tutoring business names: five styles, eight tests and a free five-step check of the state registry, US trademarks and domains, from official pages.',
   },
+  'superprof-review-for-tutors': {
+    title: 'Superprof for Tutors: Costs, Fees, Leads',
+    description: 'Superprof for tutors: free listing, the 10% fee on its payments, the student pass, how requests and payouts work, and a 60-day test. Checked 31 Oct 2026.',
+  },
+  'online-math-tutor': {
+    title: 'Online Math Tutor: How to Choose, Costs',
+    description: 'Online math tutor: name the problem, what the research says, what a good session looks like, seven questions to ask and the cost. Checked 31 Oct 2026.',
+  },
 }
 
 /**

@@ -893,5 +893,83 @@
       "webp": 66968,
       "avif": 40728
     }
+  },
+  "superprof-hands-keyboard": {
+    "file": "Hands on a laptop keyboard (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Fabian Irsara firsara",
+    "source": "https://commons.wikimedia.org/wiki/File:Hands_on_a_laptop_keyboard_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5046x3364",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 68836,
+      "avif": 61170
+    }
+  },
+  "math-notebook-pages": {
+    "file": "Cornell University notebook and exam pages for Math 221, Spring 1973.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Jonathan Schilling",
+    "source": "https://commons.wikimedia.org/wiki/File:Cornell_University_notebook_and_exam_pages_for_Math_221,_Spring_1973.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4032x3024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 60164,
+      "avif": 54909
+    }
+  },
+  "math-tutor-whiteboard": {
+    "file": "Maths Tutor.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Preply.com Images",
+    "source": "https://commons.wikimedia.org/wiki/File:Maths_Tutor.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 37090,
+      "avif": 31863
+    }
+  },
+  "math-precise-drawing": {
+    "file": "Precise drawing (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Tamarcus Brown tamarcusbrown",
+    "source": "https://commons.wikimedia.org/wiki/File:Precise_drawing_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5760x3840",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 33368,
+      "avif": 30341
+    }
+  },
+  "superprof-planner-notebook": {
+    "file": "Working on a planning session with stationery items, notebook, and colorful pencils on a wooden desk.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Working_on_a_planning_session_with_stationery_items,_notebook,_and_colorful_pencils_on_a_wooden_desk.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6016x4016",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 38744,
+      "avif": 37255
+    }
+  },
+  "superprof-piggy-bank": {
+    "file": "Cute piggy bank (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Fabian Blank blankerwahnsinn",
+    "source": "https://commons.wikimedia.org/wiki/File:Cute_piggy_bank_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 9662,
+      "avif": 9422
+    }
   }
 }

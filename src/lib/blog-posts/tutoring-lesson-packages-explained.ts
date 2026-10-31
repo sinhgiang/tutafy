@@ -74,6 +74,7 @@ export const LESSON_PACKAGES_CONTENT: PostBlock[] = [
     { label: 'Take card payments with a Stripe Payment Link', href: '/blog/how-to-take-card-payments-with-a-stripe-payment-link', text: 'the card side of a Buy button, and its limits.' },
     { label: 'How to price group tutoring classes', href: '/blog/group-tutoring-classes-pricing', text: 'selling a cohort as one package.' },
     { label: 'How to build a tutor referral program', href: '/blog/how-to-build-a-tutor-referral-program', text: 'use a coupon code to reward the first pack.' },
+    { label: 'Online math tutor', href: '/blog/online-math-tutor', text: 'the learner\'s side: when to buy a package, and after how many lessons.' },
   ] },
   { type: 'cta', title: 'Sell a pack without a marketplace taking a cut', text: 'Your booking page, your packages, your payment link. Free to start, Pro $12, Academy $29, 0% commission on your lessons.', button: 'See the plans', href: '/upgrade' },
   { type: 'faq', items: [
