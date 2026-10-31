@@ -16,8 +16,12 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { GET_TUTORING_STUDENTS_CONTENT } from '@/lib/blog-posts/how-to-get-tutoring-students'
 import { CHOOSE_ENGLISH_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-choose-an-online-english-tutor'
+import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-vs-wyzant-for-tutors'
+import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
+import { ONLINE_MATH_TUTOR_CONTENT } from '@/lib/blog-posts/online-math-tutor'
 import type { PostBlock } from '@/lib/blog'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
@@ -38,8 +42,12 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'ielts-speaking-part-2-topics': { blocks: IELTS_PART2_CONTENT, min: 3, max: 4 },
   'how-to-get-tutoring-students': { blocks: GET_TUTORING_STUDENTS_CONTENT, min: 3, max: 4 },
   'how-to-choose-an-online-english-tutor': { blocks: CHOOSE_ENGLISH_TUTOR_CONTENT, min: 3, max: 4 },
+  'preply-vs-italki-vs-wyzant-for-tutors': { blocks: PREPLY_ITALKI_WYZANT_CONTENT, min: 3, max: 4 },
+  'how-to-run-a-trial-lesson-tutoring': { blocks: TRIAL_LESSON_CONTENT, min: 3, max: 4 },
   'wyzant-fees-for-tutors': { blocks: WYZANT_FEES_CONTENT, min: 3, max: 4 },
   'how-to-find-an-online-tutor': { blocks: FIND_ONLINE_TUTOR_CONTENT, min: 3, max: 4 },
+  'superprof-review-for-tutors': { blocks: SUPERPROF_REVIEW_CONTENT, min: 3, max: 4 },
+  'online-math-tutor': { blocks: ONLINE_MATH_TUTOR_CONTENT, min: 3, max: 4 },
 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {

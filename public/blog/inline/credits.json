@@ -816,6 +816,84 @@
       "avif": 115928
     }
   },
+  "platforms-signpost": {
+    "file": "Signpost at crossroads - geograph.org.uk - 5952204.jpg",
+    "licence": "CC BY-SA 2.0",
+    "creator": "Gordon Hatton",
+    "source": "https://commons.wikimedia.org/wiki/File:Signpost_at_crossroads_-_geograph.org.uk_-_5952204.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": "4299x2926",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 124932,
+      "avif": 96841
+    }
+  },
+  "platforms-balance": {
+    "file": "Balance scale IMGP9722.jpg",
+    "licence": "CC BY-SA 3.0",
+    "creator": "Nikodem Nijaki",
+    "source": "https://commons.wikimedia.org/wiki/File:Balance_scale_IMGP9722.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "original": "3960x2948",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 72578,
+      "avif": 59077
+    }
+  },
+  "trial-handshake": {
+    "file": "Business agreement handshake at coffee shop.jpg",
+    "licence": "CC0",
+    "creator": "rawpixel.com",
+    "source": "https://commons.wikimedia.org/wiki/File:Business_agreement_handshake_at_coffee_shop.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "6000x4015",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 36620,
+      "avif": 31517
+    }
+  },
+  "trial-stopwatch": {
+    "file": "Stopwatch made in USSR.jpg",
+    "licence": "CC0",
+    "creator": "Liilia Moroz",
+    "source": "https://commons.wikimedia.org/wiki/File:Stopwatch_made_in_USSR.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "1665x1665",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 79024,
+      "avif": 64825
+    }
+  },
+  "trial-student-home": {
+    "file": "Young woman studying at home with a laptop and breakfast on the table.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Young_woman_studying_at_home_with_a_laptop_and_breakfast_on_the_table.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4016x6016",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 56874,
+      "avif": 47382
+    }
+  },
+  "platforms-globe": {
+    "file": "Mappamondo- Nord America.jpg",
+    "licence": "CC0",
+    "creator": "Amber Avalona",
+    "source": "https://commons.wikimedia.org/wiki/File:Mappamondo-_Nord_America.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4272x2848",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 123990,
+      "avif": 94959
+    }
+  },
   "wyzant-dollar-bills": {
     "file": "1 dollar bill.jpg",
     "licence": "CC BY 2.0",
@@ -892,6 +970,162 @@
     "bytes": {
       "webp": 24356,
       "avif": 20486
+    }
+  },
+  "contract-legal-signature": {
+    "file": "Legal Contract & Signature - Warm Tones.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Blogtrepreneur",
+    "source": "https://commons.wikimedia.org/wiki/File:Legal_Contract_%26_Signature_-_Warm_Tones.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6000x4500",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 46668,
+      "avif": 41416
+    }
+  },
+  "contract-fountain-pen": {
+    "file": "Writing with a fountain pen (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Aaron Burden aaronburden",
+    "source": "https://commons.wikimedia.org/wiki/File:Writing_with_a_fountain_pen_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4592x3448",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 27128,
+      "avif": 23775
+    }
+  },
+  "contract-coffee-notebooks": {
+    "file": "Coffee, notebooks and pen (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Freddy Castro readysetfreddy",
+    "source": "https://commons.wikimedia.org/wiki/File:Coffee,_notebooks_and_pen_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5472x3648",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 118990,
+      "avif": 89307
+    }
+  },
+  "names-signpost": {
+    "file": "Dartmoor names on a signpost - geograph.org.uk - 2303564.jpg",
+    "licence": "CC BY-SA 2.0",
+    "creator": "roger geach",
+    "source": "https://commons.wikimedia.org/wiki/File:Dartmoor_names_on_a_signpost_-_geograph.org.uk_-_2303564.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": "640x582",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 140030,
+      "avif": 99332
+    }
+  },
+  "names-cafe-menu": {
+    "file": "Cafe menu (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Peter Miranda petermiranda",
+    "source": "https://commons.wikimedia.org/wiki/File:Cafe_menu_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "3504x2336",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 42092,
+      "avif": 39076
+    }
+  },
+  "names-pen-notebook": {
+    "file": "Pen on a notebook (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Thomas Martinsen faceline",
+    "source": "https://commons.wikimedia.org/wiki/File:Pen_on_a_notebook_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4811x2844",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 66968,
+      "avif": 40728
+    }
+  },
+  "superprof-hands-keyboard": {
+    "file": "Hands on a laptop keyboard (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Fabian Irsara firsara",
+    "source": "https://commons.wikimedia.org/wiki/File:Hands_on_a_laptop_keyboard_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5046x3364",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 68836,
+      "avif": 61170
+    }
+  },
+  "math-notebook-pages": {
+    "file": "Cornell University notebook and exam pages for Math 221, Spring 1973.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Jonathan Schilling",
+    "source": "https://commons.wikimedia.org/wiki/File:Cornell_University_notebook_and_exam_pages_for_Math_221,_Spring_1973.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4032x3024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 60164,
+      "avif": 54909
+    }
+  },
+  "math-tutor-whiteboard": {
+    "file": "Maths Tutor.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Preply.com Images",
+    "source": "https://commons.wikimedia.org/wiki/File:Maths_Tutor.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 37090,
+      "avif": 31863
+    }
+  },
+  "math-precise-drawing": {
+    "file": "Precise drawing (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Tamarcus Brown tamarcusbrown",
+    "source": "https://commons.wikimedia.org/wiki/File:Precise_drawing_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5760x3840",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 33368,
+      "avif": 30341
+    }
+  },
+  "superprof-planner-notebook": {
+    "file": "Working on a planning session with stationery items, notebook, and colorful pencils on a wooden desk.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Working_on_a_planning_session_with_stationery_items,_notebook,_and_colorful_pencils_on_a_wooden_desk.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6016x4016",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 38744,
+      "avif": 37255
+    }
+  },
+  "superprof-piggy-bank": {
+    "file": "Cute piggy bank (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Fabian Blank blankerwahnsinn",
+    "source": "https://commons.wikimedia.org/wiki/File:Cute_piggy_bank_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 9662,
+      "avif": 9422
     }
   }
 }
