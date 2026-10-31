@@ -14,6 +14,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { ONLINE_TUTORING_STATISTICS_CONTENT } from '@/lib/blog-posts/online-tutoring-statistics'
+import { ESL_SPEAKING_ACTIVITIES_CONTENT } from '@/lib/blog-posts/esl-speaking-activities'
 import type { PostBlock } from '@/lib/blog'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
@@ -32,6 +34,8 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'online-tutoring-jobs': { blocks: ONLINE_TUTORING_JOBS_CONTENT, min: 3, max: 4 },
   'tutor-resume': { blocks: TUTOR_RESUME_CONTENT, min: 3, max: 4 },
   'ielts-speaking-part-2-topics': { blocks: IELTS_PART2_CONTENT, min: 3, max: 4 },
+  'online-tutoring-statistics': { blocks: ONLINE_TUTORING_STATISTICS_CONTENT, min: 3, max: 4 },
+  'esl-speaking-activities': { blocks: ESL_SPEAKING_ACTIVITIES_CONTENT, min: 3, max: 4 },
 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {

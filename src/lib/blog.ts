@@ -59,6 +59,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { ONLINE_TUTORING_STATISTICS_CONTENT } from '@/lib/blog-posts/online-tutoring-statistics'
+import { ESL_SPEAKING_ACTIVITIES_CONTENT } from '@/lib/blog-posts/esl-speaking-activities'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3970,6 +3972,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: IELTS_PART2_CONTENT,
   },
+  {
+    slug: 'online-tutoring-statistics',
+    title: 'Online Tutoring Statistics 2026: Pay, Jobs, Research and the Numbers We Would Not Print',
+    description: 'Online tutoring statistics for 2026 with the source and date of every number: tutor pay and jobs, research on whether tutoring works, and why we print no market-size forecast.',
+    date: '2026-11-05',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ONLINE_TUTORING_STATISTICS_CONTENT,
+  },
+  {
+    slug: 'esl-speaking-activities',
+    title: 'ESL Speaking Activities for One-to-One Lessons: 20 Low-Prep Tasks, Step by Step',
+    description: '20 ESL speaking activities for one student, with level, minutes, preparation and steps, adapted from British Council pages, plus how to correct without stopping the talk.',
+    date: '2026-11-05',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ESL_SPEAKING_ACTIVITIES_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4018,6 +4040,8 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'online-tutoring-statistics': "Illustration of three bars of different heights with a magnifying glass and a check mark, for online tutoring statistics",
+  'esl-speaking-activities': "Illustration of two speech bubbles and a check mark, for ESL speaking activities",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
