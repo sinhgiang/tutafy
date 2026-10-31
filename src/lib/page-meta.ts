@@ -271,6 +271,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'How to Find an Online Tutor: 10 Checks',
     description: 'How to find an online tutor: ten checks before you book, in the first lesson and after four lessons, with price, refund, payment and safety rules.',
   },
+  'tutor-certification-and-insurance': {
+    title: 'Tutor Certification and Insurance: What You Need',
+    description: 'Do independent tutors need a certificate or insurance? NTA, GOV.UK and seller pages on certificates, background checks and cover, checked 31 Oct 2026.',
+  },
+  'spanish-tutor-online': {
+    title: 'Spanish Tutor Online: How to Find the Right One',
+    description: 'How to find a Spanish tutor online: pick the Spanish you need, know your level from A1 to C2, read the trial rules and see what a lesson looks like.',
+  },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
     description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',

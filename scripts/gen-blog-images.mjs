@@ -521,6 +521,46 @@ const HEROES = {
       </g>`).join('')}
     </g>` }),
 
+  // Tutor certification and insurance (T-1240) — a certificate sheet with a seal, beside a shield with a check
+  'tutor-certification-and-insurance': base({ from: '#312e81', to: '#0f766e', label: 'Business', motif: `
+    <g transform="translate(700,110)" opacity="0.96">
+      <rect x="0" y="0" width="260" height="330" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="34" y="40" width="150" height="16" rx="8" fill="#312e81" opacity="0.5"/>
+      <rect x="34" y="72" width="190" height="10" rx="5" fill="#312e81" opacity="0.22"/>
+      <rect x="34" y="96" width="170" height="10" rx="5" fill="#312e81" opacity="0.22"/>
+      <rect x="34" y="120" width="190" height="10" rx="5" fill="#312e81" opacity="0.22"/>
+      <rect x="34" y="144" width="120" height="10" rx="5" fill="#312e81" opacity="0.22"/>
+      <circle cx="196" cy="262" r="34" fill="#b45309" opacity="0.85"/>
+      <circle cx="196" cy="262" r="22" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.8"/>
+      <rect x="34" y="252" width="90" height="3" fill="#312e81" opacity="0.3"/>
+    </g>
+    <g transform="translate(900,200)" opacity="0.98">
+      <path d="M100 0 L200 36 L200 150 C200 214 156 256 100 280 C44 256 0 214 0 150 L0 36 Z" fill="#ffffff" opacity="0.94"/>
+      <path d="M100 26 L176 54 L176 150 C176 200 144 232 100 252 C56 232 24 200 24 150 L24 54 Z" fill="#0f766e" opacity="0.85"/>
+      <path d="M62 138 l28 30 l52 -64" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Spanish tutor online (T-1241) — two speech bubbles and a booked slot
+  'spanish-tutor-online': base({ from: '#9a3412', to: '#7c2d12', label: 'Teaching', motif: `
+    <g transform="translate(700,100)" opacity="0.96">
+      <rect x="0" y="0" width="300" height="130" rx="26" fill="#ffffff" opacity="0.94"/>
+      <path d="M52 130 L40 176 L98 130 Z" fill="#ffffff" opacity="0.94"/>
+      <rect x="32" y="34" width="190" height="14" rx="7" fill="#9a3412" opacity="0.5"/>
+      <rect x="32" y="64" width="236" height="12" rx="6" fill="#9a3412" opacity="0.24"/>
+      <rect x="32" y="88" width="150" height="12" rx="6" fill="#9a3412" opacity="0.24"/>
+    </g>
+    <g transform="translate(830,260)" opacity="0.96">
+      <rect x="0" y="0" width="280" height="120" rx="26" fill="#fde68a" opacity="0.96"/>
+      <path d="M228 120 L244 162 L184 120 Z" fill="#fde68a" opacity="0.96"/>
+      <rect x="30" y="32" width="170" height="14" rx="7" fill="#7c2d12" opacity="0.5"/>
+      <rect x="30" y="62" width="210" height="12" rx="6" fill="#7c2d12" opacity="0.26"/>
+    </g>
+    <g transform="translate(700,330)" opacity="0.96">
+      <rect x="0" y="0" width="108" height="108" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="0" y="0" width="108" height="28" rx="18" fill="#9a3412" opacity="0.85"/>
+      <rect x="22" y="50" width="64" height="38" rx="9" fill="#047857" opacity="0.9"/>
+      <path d="M38 69 l10 11 l20 -23" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
   // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
   'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
     <g transform="translate(790,86)" opacity="0.96">

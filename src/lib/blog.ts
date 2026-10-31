@@ -65,6 +65,8 @@ import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { TUTOR_CERT_INSURANCE_CONTENT } from '@/lib/blog-posts/tutor-certification-and-insurance'
+import { SPANISH_TUTOR_CONTENT } from '@/lib/blog-posts/spanish-tutor-online'
 import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
 import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
@@ -4024,6 +4026,26 @@ export const POSTS: Post[] = [
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
   {
+    slug: 'tutor-certification-and-insurance',
+    title: 'Tutor Certification and Insurance: What Independent Tutors Need, What They Do Not and What It Costs',
+    description: 'Do independent tutors need a certificate or insurance? NTA, GOV.UK and seller pages on certificates, background checks and cover, checked 31 Oct 2026.',
+    date: '2026-11-15',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_CERT_INSURANCE_CONTENT,
+  },
+  {
+    slug: 'spanish-tutor-online',
+    title: 'Spanish Tutor Online: How to Find the Right One, What Lessons Look Like and How to Check Your Level',
+    description: 'How to find a Spanish tutor online: pick the Spanish you need, know your level from A1 to C2, read the trial rules and see what a lesson looks like.',
+    date: '2026-11-15',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: SPANISH_TUTOR_CONTENT,
+  },
+  {
     slug: 'tutoring-contract-template',
     title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
     description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
@@ -4115,6 +4137,8 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'tutor-certification-and-insurance': "Illustration of a certificate with a seal beside a shield with a check mark, for tutor certification and insurance",
+  'spanish-tutor-online': "Illustration of two speech bubbles and a calendar slot with a check mark, for finding a Spanish tutor online",
   'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
   'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",

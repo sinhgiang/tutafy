@@ -128,7 +128,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
   ] },
   { type: 'p', text: `One warning sign is not a verdict. Two or three together are a reason to try someone else, which is the cheapest thing you can do.` },
   { type: 'h2', text: 'What Tutafy can and cannot do for you' },
-  { type: 'p', text: `Tutafy is a set of tools that tutors use to run their own bookings: a public booking page that shows free hours in the visitor's time zone, a video classroom in the browser, reminders and payment through the tutor's own account. A tutor on Tutafy is an independent person running a small business. Here is what that means for you as a learner.` },
+  { type: 'p', text: `Tutafy is a set of tools that tutors use to run their own bookings: a public booking page that shows free hours in the visitor's time zone, a video classroom in the browser, reminders and payment through the tutor's own account. A tutor on Tutafy is an independent person running a small business. Here is what that means for you.` },
   { type: 'ul', items: [
     `The tutor directory is not open yet. Its page says it opens once six tutors are ready, and today it lists none. We would rather say so than point you at an empty page. If you know a tutor who uses Tutafy, you can book through that tutor's link.`,
     `"Find me a tutor" asks five questions, such as the language, the level, the price range and the time of day, and shows the three tutors that fit best. It is closed on the same rule as the directory, so it shows nothing yet.`,
@@ -157,6 +157,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     { label: 'How to schedule tutoring lessons across time zones', href: '/blog/schedule-tutoring-lessons-across-time-zones', text: 'The clock-change dates that move a regular slot.' },
     { label: 'IELTS Speaking Part 2 topics', href: '/blog/ielts-speaking-part-2-topics', text: 'A practice routine to use in a lesson with an IELTS tutor.' },
     { label: 'How to write a tutor bio', href: '/blog/how-to-write-a-tutor-bio', text: 'What a good profile says, written for tutors.' },
+    { label: 'Spanish tutors', href: '/blog/spanish-tutor-online', text: 'One language.' },
     { label: 'Online math tutor', href: '/blog/online-math-tutor', text: 'The math layer on top of these checks.' },
   ] },
   { type: 'faq', items: [
