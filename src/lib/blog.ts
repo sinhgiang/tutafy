@@ -37,6 +37,7 @@
 //  - how-to-ask-for-tutoring-payment: payments/how-to · axis = a six-step ladder with timings (terms → link → invoice → nudge → firmer → pause) · statCards + compare(ladder, early) + compare(five ways to be paid) + 2× own SVG diagram (timeline, status flow) + 7 message templates (h3 + p) + callout(tip/warn/info/tip) + ul(set-up checklist, a Friday check) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 //  - tutoring-tech-stack-for-online-tutors: software/audit · axis = the six jobs of a lesson → count the hand-offs → add up the cost → replace, link or keep → what Tutafy covers and where it stops · statCards + compare(6 jobs, early) + ul(7 hand-offs) + 2× own SVG diagram (hand-offs, replace/link/keep grid) + compare(invented stack cost) + 3 invented tutors (h3) + compare(Tutafy per job with its limit) + callout(tip/warn) + ul(two-week test, tool questions, weekend migration, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 //  - how-to-write-a-tutor-bio: how-to · axis = who you help → what a lesson is → why you → one next step, then 15 invented example bios (by subject, student and place) · statCards + own SVG diagram (anatomy of a bio) + 3 photos + ul(rules, headlines, mistakes, steps, checklist) + compare(one bio, four places) + before/after rewrite + source + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1166)
+//  - free-tutoring-invoice-template: how-to/template · axis = the fields of an invoice → the template line by line → three worked examples (one lesson, a package, a month) → cancellation fee wording → time zones, numbers, sending, records · statCards NO, 3 downloadable files (docx, pdf, odt in public/downloads, built by scripts/gen-invoice-templates.mjs) + 4 photos + compare(fields, 3 examples, numbering, formats, log) + ul(fee wording, mistakes) + callout(tip) + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1167)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -47,6 +48,7 @@ import { RESCHEDULE_REQUESTS_CONTENT } from '@/lib/blog-posts/how-to-handle-tuto
 import { ASK_FOR_PAYMENT_CONTENT } from '@/lib/blog-posts/how-to-ask-for-tutoring-payment'
 import { TECH_STACK_CONTENT } from '@/lib/blog-posts/tutoring-tech-stack-for-online-tutors'
 import { TUTOR_BIO_CONTENT } from '@/lib/blog-posts/how-to-write-a-tutor-bio'
+import { INVOICE_TEMPLATE_CONTENT } from '@/lib/blog-posts/free-tutoring-invoice-template'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3898,6 +3900,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: TUTOR_BIO_CONTENT,
   },
+  {
+    slug: 'free-tutoring-invoice-template',
+    title: 'Free Tutoring Invoice Template (Word, PDF and Google Docs), With Cancellation Fee Wording',
+    description: 'Download a free tutoring invoice template in Word, PDF or OpenDocument, with a late cancellation fee line and time zones. Worked examples included.',
+    date: '2026-10-31',
+    category: 'Payments',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: INVOICE_TEMPLATE_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3940,6 +3952,7 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-ask-for-tutoring-payment': "Illustration of a message bubble beside a green check mark, for asking a parent to pay for tutoring",
   'tutoring-tech-stack-for-online-tutors': "Illustration of five loose app tiles gathering into one bar, for a tutor's tech stack",
   'how-to-write-a-tutor-bio': "Illustration of a profile card with a name line, a speech bubble and a check mark, for writing a tutor bio",
+  'free-tutoring-invoice-template': "Illustration of an invoice page with line items, a total and a download arrow, for a free tutoring invoice template",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

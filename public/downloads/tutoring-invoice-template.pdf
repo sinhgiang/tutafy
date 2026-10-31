@@ -1,0 +1,131 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 5165 >>
+stream
+BT /F2 26 Tf 0.215 0.18 0.64 rg 54 726.0 Td (INVOICE) Tj ET
+BT /F2 10 Tf 0.12 g 54 702.0 Td (Invoice no.:) Tj ET
+BT /F1 10 Tf 0.12 g 130 702.0 Td ([INV-2026-001]) Tj ET
+BT /F2 10 Tf 0.12 g 54 687.0 Td (Invoice date:) Tj ET
+BT /F1 10 Tf 0.12 g 130 687.0 Td ([date]) Tj ET
+BT /F2 10 Tf 0.12 g 54 672.0 Td (Due date:) Tj ET
+BT /F1 10 Tf 0.12 g 130 672.0 Td ([date]) Tj ET
+BT /F2 10 Tf 0.215 0.18 0.64 rg 54 647.0 Td (FROM) Tj ET
+BT /F1 10 Tf 0.12 g 54 633.0 Td ([Your name or business name]) Tj ET
+BT /F1 10 Tf 0.12 g 54 620.0 Td ([Address, or city and country]) Tj ET
+BT /F1 10 Tf 0.12 g 54 607.0 Td ([Email address]) Tj ET
+BT /F1 10 Tf 0.12 g 54 594.0 Td ([Business or tax ID, only if your country) Tj ET
+BT /F1 10 Tf 0.12 g 54 581.0 Td (requires one]) Tj ET
+BT /F2 10 Tf 0.215 0.18 0.64 rg 314 647.0 Td (BILL TO) Tj ET
+BT /F1 10 Tf 0.12 g 314 633.0 Td ([Student or parent name]) Tj ET
+BT /F1 10 Tf 0.12 g 314 620.0 Td ([Email address]) Tj ET
+BT /F1 10 Tf 0.12 g 314 607.0 Td ([For a child: the parent or guardian who pays]) Tj ET
+0.933 0.949 1 rg 54 532.0 504 22 re f
+BT /F2 9 Tf 0.215 0.18 0.64 rg 59 540.0 Td (Date and time \(time zone\)) Tj ET
+BT /F2 9 Tf 0.215 0.18 0.64 rg 209 540.0 Td (Description) Tj ET
+BT /F2 9 Tf 0.215 0.18 0.64 rg 359 540.0 Td (Duration) Tj ET
+BT /F2 9 Tf 0.215 0.18 0.64 rg 419 540.0 Td (Rate) Tj ET
+BT /F2 9 Tf 0.215 0.18 0.64 rg 489 540.0 Td (Amount) Tj ET
+0.61 G 0.5 w 54 554.0 m 558 554.0 l S
+0.61 G 0.5 w 54 532.0 m 558 532.0 l S
+0.61 G 0.5 w 54 554.0 m 54 532.0 l S
+0.61 G 0.5 w 204 554.0 m 204 532.0 l S
+0.61 G 0.5 w 354 554.0 m 354 532.0 l S
+0.61 G 0.5 w 414 554.0 m 414 532.0 l S
+0.61 G 0.5 w 484 554.0 m 484 532.0 l S
+0.61 G 0.5 w 558 554.0 m 558 532.0 l S
+BT /F1 9.5 Tf 0.12 g 59 518.0 Td ([Tue 3 Nov 2026, 16:00 London) Tj ET
+BT /F1 9.5 Tf 0.12 g 59 506.0 Td (time]) Tj ET
+BT /F1 9.5 Tf 0.12 g 209 518.0 Td ([English conversation lesson]) Tj ET
+BT /F1 9.5 Tf 0.12 g 359 518.0 Td ([60 min]) Tj ET
+BT /F1 9.5 Tf 0.12 g 419 518.0 Td ([$40.00]) Tj ET
+BT /F1 9.5 Tf 0.12 g 489 518.0 Td ([$40.00]) Tj ET
+0.61 G 0.5 w 54 532.0 m 558 532.0 l S
+0.61 G 0.5 w 54 498.0 m 558 498.0 l S
+0.61 G 0.5 w 54 532.0 m 54 498.0 l S
+0.61 G 0.5 w 204 532.0 m 204 498.0 l S
+0.61 G 0.5 w 354 532.0 m 354 498.0 l S
+0.61 G 0.5 w 414 532.0 m 414 498.0 l S
+0.61 G 0.5 w 484 532.0 m 484 498.0 l S
+0.61 G 0.5 w 558 532.0 m 558 498.0 l S
+0.61 G 0.5 w 54 498.0 m 558 498.0 l S
+0.61 G 0.5 w 54 476.0 m 558 476.0 l S
+0.61 G 0.5 w 54 498.0 m 54 476.0 l S
+0.61 G 0.5 w 204 498.0 m 204 476.0 l S
+0.61 G 0.5 w 354 498.0 m 354 476.0 l S
+0.61 G 0.5 w 414 498.0 m 414 476.0 l S
+0.61 G 0.5 w 484 498.0 m 484 476.0 l S
+0.61 G 0.5 w 558 498.0 m 558 476.0 l S
+0.61 G 0.5 w 54 476.0 m 558 476.0 l S
+0.61 G 0.5 w 54 454.0 m 558 454.0 l S
+0.61 G 0.5 w 54 476.0 m 54 454.0 l S
+0.61 G 0.5 w 204 476.0 m 204 454.0 l S
+0.61 G 0.5 w 354 476.0 m 354 454.0 l S
+0.61 G 0.5 w 414 476.0 m 414 454.0 l S
+0.61 G 0.5 w 484 476.0 m 484 454.0 l S
+0.61 G 0.5 w 558 476.0 m 558 454.0 l S
+0.61 G 0.5 w 54 454.0 m 558 454.0 l S
+0.61 G 0.5 w 54 432.0 m 558 432.0 l S
+0.61 G 0.5 w 54 454.0 m 54 432.0 l S
+0.61 G 0.5 w 204 454.0 m 204 432.0 l S
+0.61 G 0.5 w 354 454.0 m 354 432.0 l S
+0.61 G 0.5 w 414 454.0 m 414 432.0 l S
+0.61 G 0.5 w 484 454.0 m 484 432.0 l S
+0.61 G 0.5 w 558 454.0 m 558 432.0 l S
+0.61 G 0.5 w 300 402.0 m 558 402.0 l S
+BT /F1 10 Tf 0.12 g 306 407.0 Td (Subtotal) Tj ET
+BT /F1 10 Tf 0.12 g 515.6 407.0 Td ([$0.00]) Tj ET
+0.61 G 0.5 w 300 384.0 m 558 384.0 l S
+BT /F1 10 Tf 0.12 g 306 389.0 Td (Late cancellation or no-show fee \(see terms\)) Tj ET
+BT /F1 10 Tf 0.12 g 515.6 389.0 Td ([$0.00]) Tj ET
+0.61 G 0.5 w 300 366.0 m 558 366.0 l S
+BT /F1 10 Tf 0.12 g 306 371.0 Td (Package credit or discount) Tj ET
+BT /F1 10 Tf 0.12 g 510.4 371.0 Td ([-$0.00]) Tj ET
+0.61 G 0.5 w 300 348.0 m 558 348.0 l S
+BT /F1 10 Tf 0.12 g 306 353.0 Td (Tax \(only if you charge it\)) Tj ET
+BT /F1 10 Tf 0.12 g 515.6 353.0 Td ([$0.00]) Tj ET
+0.61 G 0.5 w 300 330.0 m 558 330.0 l S
+BT /F2 10 Tf 0.12 g 306 335.0 Td (Total due) Tj ET
+BT /F2 10 Tf 0.12 g 515.6 335.0 Td ([$0.00]) Tj ET
+BT /F2 12 Tf 0.215 0.18 0.64 rg 54 308.0 Td (How to pay) Tj ET
+BT /F1 10 Tf 0.12 g 54 292.0 Td (Please pay by [due date] using one of these:) Tj ET
+BT /F1 10 Tf 0.12 g 54 279.0 Td (PayPal: [your PayPal link]) Tj ET
+BT /F1 10 Tf 0.12 g 54 266.0 Td (Card: [your card payment link]) Tj ET
+BT /F1 10 Tf 0.12 g 54 253.0 Td (Bank transfer: [account name, account number or IBAN, bank code]) Tj ET
+BT /F1 10 Tf 0.12 g 54 240.0 Td (Use [invoice number] as the payment reference.) Tj ET
+BT /F2 12 Tf 0.215 0.18 0.64 rg 54 215.0 Td (Terms) Tj ET
+BT /F1 10 Tf 0.12 g 54 199.0 Td (Lessons are scheduled in [your time zone, for example Europe/London].) Tj ET
+BT /F1 10 Tf 0.12 g 54 186.0 Td (A lesson moved or cancelled less than [24 hours] before it starts is charged [100%] of the lesson) Tj ET
+BT /F1 10 Tf 0.12 g 54 173.0 Td (price. A missed lesson is charged in full.) Tj ET
+BT /F1 10 Tf 0.12 g 54 160.0 Td (Packages only: prepaid lessons are valid for [number] weeks from the invoice date.) Tj ET
+BT /F1 8.5 Tf 0.42 g 54 133.0 Td (Free template from tutafy.com. Edit it as you like. This is not tax or legal advice.) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000005468 00000 n 
+0000005565 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+5667
+%%EOF

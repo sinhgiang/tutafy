@@ -451,5 +451,57 @@
       "webp": 25262,
       "avif": 22136
     }
+  },
+  "invoice-desk-calculator": {
+    "file": "Desktop with laptop and calculator (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "AnonymousUnknown author",
+    "source": "https://commons.wikimedia.org/wiki/File:Desktop_with_laptop_and_calculator_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4032x3024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 21344,
+      "avif": 18038
+    }
+  },
+  "invoice-1772": {
+    "file": "Onesimus Ustonson 1772 invoice and receipt.jpg",
+    "licence": "Public domain",
+    "creator": "Onesimus Ustonson",
+    "source": "https://commons.wikimedia.org/wiki/File:Onesimus_Ustonson_1772_invoice_and_receipt.jpg",
+    "licenceUrl": null,
+    "original": "5183x4000",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 71162,
+      "avif": 62486
+    }
+  },
+  "invoice-white-table": {
+    "file": "White work table with notes, smartphone and laptop (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "JESHOOTS.COM jeshoots",
+    "source": "https://commons.wikimedia.org/wiki/File:White_work_table_with_notes,_smartphone_and_laptop_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4600x3067",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 20572,
+      "avif": 16731
+    }
+  },
+  "invoice-person-writing": {
+    "file": "Person writing in a notebook while sitting at a desk.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Person_writing_in_a_notebook_while_sitting_at_a_desk.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4032",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24214,
+      "avif": 20344
+    }
   }
 }
