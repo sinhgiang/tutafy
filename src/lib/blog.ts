@@ -61,6 +61,8 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { TUTOR_COM_JOBS_CONTENT } from '@/lib/blog-posts/tutor-com-jobs'
+import { SINGING_LESSONS_ONLINE_CONTENT } from '@/lib/blog-posts/singing-lessons-online'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3992,6 +3994,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
+  {
+    slug: 'tutor-com-jobs',
+    title: 'Tutor.com Jobs: How to Apply, What the Pages Say You Earn and Where Independent Tutors Can Earn More',
+    description: 'Tutor.com jobs: who can apply, the steps, the $22 an hour High-Dosage rate, what its pages leave out and what independent tutors earn. Checked 31 Oct 2026.',
+    date: '2026-11-14',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_COM_JOBS_CONTENT,
+  },
+  {
+    slug: 'singing-lessons-online',
+    title: 'Singing Lessons Online: How They Work and 12 Questions to Ask a Teacher Before You Book',
+    description: 'Singing lessons online: how a lesson runs, why you cannot sing in time over video, audio set-up, voice-health warning signs and 12 questions to ask.',
+    date: '2026-11-14',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: SINGING_LESSONS_ONLINE_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4042,6 +4064,8 @@ const HERO_ALTS: Record<string, string> = {
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'tutor-com-jobs': "Illustration of a job card with a pay tag and a check mark, for Tutor.com jobs",
+  'singing-lessons-online': "Illustration of a laptop screen with sound waves and a microphone, for singing lessons online",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

@@ -815,5 +815,96 @@
       "webp": 24356,
       "avif": 20486
     }
+  },
+  "tcom-hands-laptop": {
+    "file": "Hands on a laptop keyboard (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Fabian Irsara firsara",
+    "source": "https://commons.wikimedia.org/wiki/File:Hands_on_a_laptop_keyboard_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5046x3364",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 68836,
+      "avif": 61170
+    }
+  },
+  "tcom-calendar-year": {
+    "file": "Calendar Year (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Brooke Lark brookelark",
+    "source": "https://commons.wikimedia.org/wiki/File:Calendar_Year_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5760x3840",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 21206,
+      "avif": 20501
+    }
+  },
+  "tcom-planning-coffee": {
+    "file": "Planning over coffee (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Hope House Press hopehousepress",
+    "source": "https://commons.wikimedia.org/wiki/File:Planning_over_coffee_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4096x4096",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 26060,
+      "avif": 24896
+    }
+  },
+  "sing-chorus-sheet-music": {
+    "file": "Chorus sheet music (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "David Beale davidbeale",
+    "source": "https://commons.wikimedia.org/wiki/File:Chorus_sheet_music_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 31024,
+      "avif": 29440
+    }
+  },
+  "sing-pop-filter": {
+    "file": "Condenser Microphone with Pop Filter and Reflection Filter.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Tim Sheerman-Chase",
+    "source": "https://commons.wikimedia.org/wiki/File:Condenser_Microphone_with_Pop_Filter_and_Reflection_Filter.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "3516x2344",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24868,
+      "avif": 22794
+    }
+  },
+  "sing-piano-keys": {
+    "file": "Fingers on the piano keys (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Gabriel Barletta gabebarletta",
+    "source": "https://commons.wikimedia.org/wiki/File:Fingers_on_the_piano_keys_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 29002,
+      "avif": 27483
+    }
+  },
+  "sing-tuning-fork": {
+    "file": "A tuning fork placed on sheet music.jpg",
+    "licence": "CC BY 4.0",
+    "creator": "Lukasz Kobus, European Commission",
+    "source": "https://commons.wikimedia.org/wiki/File:A_tuning_fork_placed_on_sheet_music.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+    "original": "2667x4000",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 57526,
+      "avif": 47071
+    }
   }
 }

@@ -275,6 +275,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Bio: How to Write One, 15 Examples',
     description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
   },
+  'tutor-com-jobs': {
+    title: 'Tutor.com Jobs: How to Apply and What It Pays',
+    description: 'Tutor.com jobs: who can apply, the steps, the $22 an hour High-Dosage rate, what its pages leave out and what independent tutors earn. Checked 31 Oct 2026.',
+  },
+  'singing-lessons-online': {
+    title: 'Singing Lessons Online: 12 Questions to Ask',
+    description: 'Singing lessons online: how a lesson runs, why you cannot sing in time over video, audio set-up, voice-health warning signs and 12 questions to ask.',
+  },
 }
 
 /**
