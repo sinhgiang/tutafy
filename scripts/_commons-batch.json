@@ -33,5 +33,8 @@
   { "name": "jobs-laptop-notepad", "file": "Working from home laptop and notepad.jpg" },
   { "name": "resume-book-stacks", "file": "Laptop on desk book stacks (Unsplash).jpg" },
   { "name": "resume-reading-card", "file": "Woman reading information from a card while working on a laptop.jpg", "crop": { "top": 0.18, "height": 0.3 } },
-  { "name": "resume-typing-office", "file": "Middle-aged businesswoman typing on laptop at home office.jpg" }
+  { "name": "resume-typing-office", "file": "Middle-aged businesswoman typing on laptop at home office.jpg" },
+  { "name": "ielts-pen-notes", "file": "Pen-writing-notes-studying.jpg" },
+  { "name": "ielts-microphone", "file": "Blue condenser microphone (Unsplash).jpg" },
+  { "name": "ielts-headphones", "file": "Top view of headphones hanging from a desk (Unsplash).jpg" }
 ]

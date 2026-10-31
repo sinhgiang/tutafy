@@ -251,6 +251,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Resume: How to Write One, With Examples',
     description: 'Tutor resume guide: the sections, bullets that show results, examples by subject, what to write with no paid experience and when you do not need one.',
   },
+  'ielts-speaking-part-2-topics': {
+    title: 'IELTS Speaking Part 2 Topics and How to Practise',
+    description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
+  },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
     description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',

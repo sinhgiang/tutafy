@@ -446,6 +446,18 @@ const HEROES = {
       <circle cx="262" cy="20" r="22" fill="#047857"/>
       <path d="M252 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // IELTS Speaking Part 2 (T-1194) — a speech bubble, a timer and a tick
+  'ielts-speaking-part-2-topics': base({ from: '#1e3a5f', to: '#0f766e', label: 'Teaching', motif: `
+    <g transform="translate(780,100)" opacity="0.96">
+      <path d="M20 0 H300 a24 24 0 0 1 24 24 V200 a24 24 0 0 1 -24 24 H150 L80 290 V224 H20 a24 24 0 0 1 -24 -24 V24 A24 24 0 0 1 20 0 Z" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2].map(i => `<rect x="28" y="${40 + i * 44}" width="${i === 2 ? 150 : 250}" height="12" rx="6" fill="#1e3a5f" opacity="${i % 2 ? 0.2 : 0.34}"/>`).join('')}
+      <circle cx="250" cy="340" r="54" fill="#ffffff" opacity="0.94"/>
+      <circle cx="250" cy="340" r="40" fill="none" stroke="#0f766e" stroke-width="8"/>
+      <path d="M250 340 V312 M250 340 L268 352" stroke="#1e3a5f" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="316" cy="12" r="22" fill="#047857"/>
+      <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

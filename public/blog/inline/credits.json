@@ -698,5 +698,44 @@
       "webp": 24600,
       "avif": 24353
     }
+  },
+  "ielts-pen-notes": {
+    "file": "Pen-writing-notes-studying.jpg",
+    "licence": "CC0",
+    "creator": "Tookapic",
+    "source": "https://commons.wikimedia.org/wiki/File:Pen-writing-notes-studying.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4752x3168",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 29878,
+      "avif": 28171
+    }
+  },
+  "ielts-microphone": {
+    "file": "Blue condenser microphone (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Kelly Sikkema kelsikkema",
+    "source": "https://commons.wikimedia.org/wiki/File:Blue_condenser_microphone_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "3000x1987",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 22482,
+      "avif": 16321
+    }
+  },
+  "ielts-headphones": {
+    "file": "Top view of headphones hanging from a desk (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Alex Holyoake stairhopper",
+    "source": "https://commons.wikimedia.org/wiki/File:Top_view_of_headphones_hanging_from_a_desk_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 14960,
+      "avif": 13139
+    }
   }
 }

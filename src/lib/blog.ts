@@ -42,6 +42,7 @@
 //  - do-tutors-have-to-pay-taxes: explainer · axis = is tutoring income taxable (yes, form or no form) → self-employed → the US (Schedule C, self-employment tax, estimated tax, the forms, a two-tutor worked example) → the UK trading allowance → Canada GST/HST → Australia and elsewhere (no figures, said so) → teaching across borders → deductible costs → records and a ledger → a year's routine → mistakes → what Tutafy exports · every figure from an official page read on 31 Oct 2026 · 4 photos + compare(US forms, two tutors, ledger) + callout(warn) + ul + source(10 pages) + cta + links, NO calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1170)
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
+//  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -57,6 +58,7 @@ import { WHITEBOARD_CONTENT } from '@/lib/blog-posts/online-whiteboard-for-tutor
 import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxes'
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
+import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3958,6 +3960,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: TUTOR_RESUME_CONTENT,
   },
+  {
+    slug: 'ielts-speaking-part-2-topics',
+    title: 'IELTS Speaking Part 2 Topics: How the Task Works, Practice Cards and How to Practise With a Tutor',
+    description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
+    date: '2026-11-04',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: IELTS_PART2_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4005,6 +4017,7 @@ const HERO_ALTS: Record<string, string> = {
   'do-tutors-have-to-pay-taxes': "Illustration of a tax form page with a coin and a check mark, for tutor taxes",
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
+  'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
