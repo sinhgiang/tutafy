@@ -3993,7 +3993,7 @@ export const POSTS: Post[] = [
   {
     slug: 'how-to-choose-an-online-english-tutor',
     title: 'How to Choose an Online English Tutor as an Adult: Your Goal, Your Level, a Trial Lesson and Red Flags',
-    description: 'How to choose an online English tutor as an adult: write your brief, check your level, shortlist three, score a trial lesson, pay safely and spot red flags.',
+    description: 'How to choose an online English tutor as an adult: write your brief, check your level, shortlist three, score a trial, pay safely and spot red flags.',
     date: '2026-11-11',
     category: 'Teaching',
     author: AUTHOR,

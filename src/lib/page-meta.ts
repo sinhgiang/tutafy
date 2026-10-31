@@ -261,7 +261,7 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
   },
   'how-to-choose-an-online-english-tutor': {
     title: 'How to Choose an Online English Tutor as an Adult',
-    description: 'How to choose an online English tutor as an adult: write your brief, check your level, shortlist three, score a trial lesson, pay safely and spot red flags.',
+    description: 'How to choose an online English tutor as an adult: write your brief, check your level, shortlist three, score a trial, pay safely and spot red flags.',
   },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
