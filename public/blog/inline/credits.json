@@ -764,19 +764,6 @@
       "avif": 104740
     }
   },
-  "students-tutor-and-student": {
-    "file": "A tutor and student.jpg",
-    "licence": "CC BY-SA 4.0",
-    "creator": "morrillmemoriallibrary",
-    "source": "https://commons.wikimedia.org/wiki/File:A_tutor_and_student.jpg",
-    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "original": "1024x768",
-    "checked": "2026-10-31",
-    "bytes": {
-      "webp": 68390,
-      "avif": 56717
-    }
-  },
   "english-tulane-studying": {
     "file": "Four Tulane University Students Studying January 2008.jpg",
     "licence": "CC BY 2.0",
@@ -790,17 +777,43 @@
       "avif": 49160
     }
   },
-  "english-study-group": {
-    "file": "Study Group.JPG",
-    "licence": "CC BY-SA 3.0",
-    "creator": "Tbuckley89",
-    "source": "https://commons.wikimedia.org/wiki/File:Study_Group.JPG",
-    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-    "original": "2816x2112",
+  "english-tutor-and-student": {
+    "file": "A tutor and student.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "morrillmemoriallibrary",
+    "source": "https://commons.wikimedia.org/wiki/File:A_tutor_and_student.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "1024x768",
     "checked": "2026-10-31",
     "bytes": {
-      "webp": 67144,
-      "avif": 68514
+      "webp": 49874,
+      "avif": 42407
+    }
+  },
+  "english-video-call": {
+    "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_smiling_and_using_laptop_during_video_call_in_cozy_wooden_room.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 41358,
+      "avif": 36335
+    }
+  },
+  "english-oxford-dictionary": {
+    "file": "Compact Oxford English Dictionary 2.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Cullen328",
+    "source": "https://commons.wikimedia.org/wiki/File:Compact_Oxford_English_Dictionary_2.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "3794x2595",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 164034,
+      "avif": 115928
     }
   }
 }

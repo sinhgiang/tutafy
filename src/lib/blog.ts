@@ -44,6 +44,7 @@
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
 //  - how-to-get-tutoring-students: diagnostic/how-to · axis = the chain enquiry → trial → regular, counted → seven sources of students (own judgement, labelled) → work backwards from ten with an invented example → who is buying (parent, adult, school) → routes (people you know, referrals, teachers and schools, local places with the Google Business Profile rules, communities, marketplace) → five message templates → FTC reviews rule and CAN-SPAM, read on 31 Oct 2026 → a tracker → a symptom-to-step table → mistakes → an eight-week sprint → what Tutafy does and does not do (no students sent) · BLS, FTC and Google Business Profile pages read on 31 Oct 2026 · 3 photos + 7 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Links to and from get-your-first-tutoring-clients (the channel playbook). Body in src/lib/blog-posts/ (T-1218)
+//  - how-to-choose-an-online-english-tutor: learner-facing how-to · axis = a choosing process for an adult learner (write a brief → check your level on the CEFR → what each goal changes → what certificates and experience do and do not show → four routes to a tutor → shortlist three → a scored 30-minute trial → questions before paying → price arithmetic and paying safely → red flags → a month-one checkpoint) · says plainly that Tutafy's directory opens at 6 tutors and it does not check certificates or run placement tests · Cambridge English (CEFR, Test your English, CELTA), IELTS and CFPB pages read on 31 Oct 2026 · 3 photos + 7 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Links to and from how-to-teach-english-online. Body in src/lib/blog-posts/ (T-1219)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -61,6 +62,7 @@ import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-j
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { GET_TUTORING_STUDENTS_CONTENT } from '@/lib/blog-posts/how-to-get-tutoring-students'
+import { CHOOSE_ENGLISH_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-choose-an-online-english-tutor'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -833,6 +835,9 @@ export const POSTS: Post[] = [
         'Ignoring timezones and no-shows instead of using reminders and a clear cancellation policy.',
         'Staying 100% dependent on a marketplace long after building loyal regulars who would follow them.',
         'Selling single lessons only, instead of prepaid packages that secure income and cut cancellations.',
+      ] },
+      { type: 'links', title: 'Related guides', items: [
+        { label: 'How to choose an online English tutor as an adult', href: '/blog/how-to-choose-an-online-english-tutor', text: 'The same subject from the learner side: what your future students ask before they book.' },
       ] },
       { type: 'cta', title: 'Everything you need to teach English online', text: 'A booking page, a built-in video classroom, payments and reminders in one place — free, with 0% commission so your rate is your take-home.', button: 'Start free', href: '/register' },
       { type: 'faq', items: [
@@ -3985,6 +3990,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: GET_TUTORING_STUDENTS_CONTENT,
   },
+  {
+    slug: 'how-to-choose-an-online-english-tutor',
+    title: 'How to Choose an Online English Tutor as an Adult: Your Goal, Your Level, a Trial Lesson and Red Flags',
+    description: 'How to choose an online English tutor as an adult: write your brief, check your level, shortlist three, score a trial lesson, pay safely and spot red flags.',
+    date: '2026-11-11',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: CHOOSE_ENGLISH_TUTOR_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4034,6 +4049,7 @@ const HERO_ALTS: Record<string, string> = {
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'how-to-get-tutoring-students': "Illustration of a funnel with four steps ending in a check mark, for getting tutoring students",
+  'how-to-choose-an-online-english-tutor': "Illustration of a scorecard with three ticked rows and a speech bubble, for choosing an online English tutor",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

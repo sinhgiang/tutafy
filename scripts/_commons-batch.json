@@ -36,5 +36,11 @@
   { "name": "resume-typing-office", "file": "Middle-aged businesswoman typing on laptop at home office.jpg" },
   { "name": "ielts-pen-notes", "file": "Pen-writing-notes-studying.jpg" },
   { "name": "ielts-microphone", "file": "Blue condenser microphone (Unsplash).jpg" },
-  { "name": "ielts-headphones", "file": "Top view of headphones hanging from a desk (Unsplash).jpg" }
+  { "name": "ielts-headphones", "file": "Top view of headphones hanging from a desk (Unsplash).jpg" },
+  { "name": "students-private-tuition", "file": "Private Tuition in India.jpg" },
+  { "name": "students-notice-board", "file": "Community notice board in North East Valley, Dunedin.jpg" },
+  { "name": "english-tulane-studying", "file": "Four Tulane University Students Studying January 2008.jpg" },
+  { "name": "english-tutor-and-student", "file": "A tutor and student.jpg", "crop": {"top": 0} },
+  { "name": "english-video-call", "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg" },
+  { "name": "english-oxford-dictionary", "file": "Compact Oxford English Dictionary 2.jpg" }
 ]
