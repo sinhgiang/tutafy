@@ -224,6 +224,57 @@ D['real-rate-where-the-hours-go'] = frame(
   })(),
 )
 
+// ---- T-1143, article 2: one reschedule request, and what Tutafy does when a lesson is moved (read from the code, 31 Oct 2026) -------------
+D['reschedule-request-flow'] = frame(
+  'One reschedule request, five moments',
+  'Most of the mistakes happen in the last two.',
+  (() => {
+    const st = [
+      ['1. Student asks', 'By message or in', 'the portal'],
+      ['2. You decide', 'Apply your notice', 'rule, same for all'],
+      ['3. Lesson moves', 'Calendar or portal,', 'the record changes'],
+      ['4. Tell them', 'New day, time and', 'time zone, in writing'],
+      ['5. Check reminder', 'One follows the', 'new time, not the old'],
+    ]
+    return st.map((s, i) => {
+      const x = 36 + i * 206, late = i >= 3
+      return box(x, 190, 188, 190, { fill: late ? '#fffbeb' : PALE, stroke: late ? '#fcd34d' : '#c7d2fe', r: 16 }) +
+        text(x + 94, 240, s[0], { size: 21, weight: 800, anchor: 'middle' }) + lines(x + 94, 288, [s[1], s[2]], { size: 19, fill: MUTED, anchor: 'middle' }) +
+        (i < 4 ? arrow(x + 190, 285, x + 204, 285) : '')
+    }).join('') +
+      text(550, 450, 'Amber steps are the ones people skip', { size: 22, weight: 800, fill: AMBER, anchor: 'middle' }) +
+      text(550, 490, 'A move that nobody confirms in writing is the quiet cause of the next missed lesson.', { size: 19, fill: MUTED, anchor: 'middle' }) +
+      text(550, 590, 'Notice rule example: free to move up to 24 hours before the lesson.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['reschedule-who-does-what'] = frame(
+  'What Tutafy does when a lesson is moved',
+  'Read from the code on 31 October 2026. Yes means it happens without you.',
+  (() => {
+    const rows = [
+      ['You get an email', 'Yes', 'Not needed'],
+      ['The student gets an email', 'No', 'No'],
+      ['Google Calendar event updated', 'Yes, if connected', 'No'],
+      ['Reminders reset for the new time', 'Yes', 'No'],
+      ['Clash with another lesson', 'Same start time only', 'Any overlap, with a warning'],
+    ]
+    const x0 = 60, cw = [380, 290, 290]
+    const hdr = box(x0 + cw[0], 124, cw[1] - 10, 50, { fill: INDIGO, stroke: INDIGO, r: 10 }) + text(x0 + cw[0] + (cw[1] - 10) / 2, 156, 'Student moves it (portal)', { size: 19, weight: 800, fill: '#ffffff', anchor: 'middle' }) +
+      box(x0 + cw[0] + cw[1], 124, cw[2] - 10, 50, { fill: '#0f766e', stroke: '#0f766e', r: 10 }) + text(x0 + cw[0] + cw[1] + (cw[2] - 10) / 2, 156, 'You move it (Calendar)', { size: 19, weight: 800, fill: '#ffffff', anchor: 'middle' })
+    const body = rows.map((r, i) => {
+      const y = 188 + i * 74
+      const cell = (x, w, v) => {
+        const good = v.startsWith('Yes') || v.startsWith('Any overlap'), na = v.startsWith('Not needed')
+        return box(x, y, w - 10, 62, { fill: good ? '#ecfdf5' : na ? '#f3f4f6' : '#fef2f2', stroke: good ? '#6ee7b7' : na ? LINE : '#fca5a5', r: 10 }) +
+          text(x + (w - 10) / 2, y + 38, v, { size: 19, weight: 700, fill: good ? GREEN : na ? MUTED : '#b91c1c', anchor: 'middle' })
+      }
+      return text(x0, y + 38, r[0], { size: 20, weight: 700 }) + cell(x0 + cw[0], cw[1], r[1]) + cell(x0 + cw[0] + cw[1], cw[2], r[2])
+    }).join('')
+    return hdr + body + text(550, 590, 'The No cells are yours to cover: send the new time, change Google Calendar, check the reminder.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
 const only = process.argv.slice(2) // optional: draw only the diagrams named on the command line, so older files are not rewritten
 for (const [name, svg] of Object.entries(D)) {
   if (only.length && !only.includes(name)) continue

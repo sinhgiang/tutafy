@@ -227,6 +227,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Your Real Hourly Rate as a Tutor',
     description: 'Your real hourly rate is what you keep after commission, divided by every hour you work. Use the formula and a worked example week to find your own number.',
   },
+  'how-to-handle-tutoring-reschedule-requests': {
+    title: 'How to Handle Tutoring Reschedule Requests',
+    description: 'Write one notice rule, apply it every time and confirm each new time in writing. Includes four message templates and what Tutafy does when a lesson moves.',
+  },
 }
 
 /**
