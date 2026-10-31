@@ -503,5 +503,57 @@
       "webp": 24214,
       "avif": 20344
     }
+  },
+  "wb-marker-whiteboard": {
+    "file": "Writing on the whiteboard.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Santeri Viinamäki",
+    "source": "https://commons.wikimedia.org/wiki/File:Writing_on_the_whiteboard.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4640x3480",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 17480,
+      "avif": 15420
+    }
+  },
+  "wb-blackboard-maths": {
+    "file": "Tableau noir avec maths à Thiès - 01.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "GastelEtzwane",
+    "source": "https://commons.wikimedia.org/wiki/File:Tableau_noir_avec_maths_%C3%A0_Thi%C3%A8s_-_01.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4160x3120",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 63690,
+      "avif": 59295
+    }
+  },
+  "wb-graphic-tablet": {
+    "file": "Hand drawing on a graphic tablet.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Piknuz",
+    "source": "https://commons.wikimedia.org/wiki/File:Hand_drawing_on_a_graphic_tablet.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "1600x1200",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 26988,
+      "avif": 27768
+    }
+  },
+  "wb-tablet-desk": {
+    "file": "Minimalistic workspace with tablet.jpg",
+    "licence": "CC0",
+    "creator": "Spnq",
+    "source": "https://commons.wikimedia.org/wiki/File:Minimalistic_workspace_with_tablet.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "1644x1125",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 35258,
+      "avif": 40147
+    }
   }
 }

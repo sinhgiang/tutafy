@@ -18,5 +18,9 @@
   { "name": "invoice-desk-calculator", "file": "Desktop with laptop and calculator (Unsplash).jpg" },
   { "name": "invoice-1772", "file": "Onesimus Ustonson 1772 invoice and receipt.jpg", "crop": { "top": 0.02 } },
   { "name": "invoice-white-table", "file": "White work table with notes, smartphone and laptop (Unsplash).jpg" },
-  { "name": "invoice-person-writing", "file": "Person writing in a notebook while sitting at a desk.jpg" }
+  { "name": "invoice-person-writing", "file": "Person writing in a notebook while sitting at a desk.jpg" },
+  { "name": "wb-marker-whiteboard", "file": "Writing on the whiteboard.jpg" },
+  { "name": "wb-blackboard-maths", "file": "Tableau noir avec maths à Thiès - 01.jpg" },
+  { "name": "wb-graphic-tablet", "file": "Hand drawing on a graphic tablet.jpg" },
+  { "name": "wb-tablet-desk", "file": "Minimalistic workspace with tablet.jpg" }
 ]

@@ -239,6 +239,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'How to Ask a Parent to Pay for Tutoring',
     description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
   },
+  'online-whiteboard-for-tutoring': {
+    title: 'Online Whiteboard for Tutoring: Free Options',
+    description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',
+  },
   'free-tutoring-invoice-template': {
     title: 'Free Tutoring Invoice Template: Word, PDF',
     description: 'Download a free tutoring invoice template in Word, PDF or OpenDocument, with a late cancellation fee line and time zones. Worked examples included.',

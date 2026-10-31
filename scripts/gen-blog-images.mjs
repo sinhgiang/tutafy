@@ -394,6 +394,18 @@ const HEROES = {
       <circle cx="268" cy="326" r="26" fill="#047857"/>
       <path d="M268 312 v20 m-9 -8 l9 9 l9 -9" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Online whiteboard (T-1168) — a board with a drawn curve and a pen, a check mark in the corner
+  'online-whiteboard-for-tutoring': base({ from: '#047857', to: '#1d4ed8', label: 'Software', motif: `
+    <g transform="translate(760,120)" opacity="0.95">
+      <rect x="0" y="0" width="360" height="270" rx="22" fill="#ffffff" opacity="0.93"/>
+      <path d="M40 200 C 100 60, 170 60, 200 140 S 290 210, 320 70" stroke="#1d4ed8" stroke-width="9" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M40 232 L150 232" stroke="#047857" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <rect x="230" y="248" width="120" height="14" rx="7" fill="#9ca3af" opacity="0.55"/>
+      <rect x="196" y="300" width="170" height="16" rx="8" fill="#ffffff" opacity="0.85" transform="rotate(-18 280 308)"/>
+      <circle cx="326" cy="34" r="22" fill="#047857"/>
+      <path d="M316 34 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
