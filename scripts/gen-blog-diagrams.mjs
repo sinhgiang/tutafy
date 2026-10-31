@@ -176,7 +176,57 @@ D['packages-lifecycle'] = frame(
   })(),
 )
 
+// ---- T-1143, article 1: the real hourly rate of an example week (every figure is worked out in the article's table) ---------------------
+D['real-rate-headline-vs-real'] = frame(
+  'The same week, three hourly rates',
+  'Example week: 15 paid lessons priced at $25, 8.75 unpaid hours, 23.75 hours worked in all.',
+  (() => {
+    const rows = [
+      { y: 150, label: 'Price on the profile', v: 25, t: '$25.00', fill: '#c7d2fe', stroke: '#a5b4fc', note: 'what the lesson costs' },
+      { y: 285, label: 'Real rate on a platform that keeps 25%', v: 11.84, t: '$11.84', fill: '#fcd34d', stroke: '#f59e0b', note: '$281.25 received over 23.75 hours' },
+      { y: 420, label: 'Real rate on your own link (Pro plan)', v: 15.03, t: '$15.03', fill: '#6ee7b7', stroke: '#10b981', note: '$356.85 received over 23.75 hours' },
+    ]
+    const k = 28 // pixels per dollar
+    return rows.map(r => text(70, r.y, r.label, { size: 22, weight: 800 }) +
+      `<rect x="70" y="${r.y + 16}" width="${Math.round(r.v * k)}" height="62" rx="12" fill="${r.fill}" stroke="${r.stroke}" stroke-width="2"/>` +
+      text(70 + Math.round(r.v * k) + 18, r.y + 58, r.t, { size: 30, weight: 800 }) +
+      text(70, r.y + 106, r.note, { size: 18, fill: MUTED })).join('') +
+      text(550, 596, 'Example figures to show the arithmetic. Use your own hours and your own commission.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['real-rate-where-the-hours-go'] = frame(
+  'Where the 23.75 hours of the example week go',
+  'More than a third of the hours earn nothing, on a platform or off it.',
+  (() => {
+    const parts = [
+      { h: 15, label: 'Paid lessons', fill: '#a5b4fc', stroke: '#6366f1' },
+      { h: 2, label: 'Unpaid trial lessons', fill: '#fde68a', stroke: '#f59e0b' },
+      { h: 3.75, label: 'Preparation', fill: '#fcd34d', stroke: '#d97706' },
+      { h: 2, label: 'Messages and admin', fill: '#fdba74', stroke: '#ea580c' },
+      { h: 1, label: 'Missed slot', fill: '#fca5a5', stroke: '#dc2626' },
+    ]
+    const k = 960 / 23.75
+    let x = 70
+    const bars = parts.map(p => { const w = p.h * k; const s = `<rect x="${x.toFixed(1)}" y="230" width="${w.toFixed(1)}" height="90" fill="${p.fill}" stroke="${p.stroke}" stroke-width="2"/>`; x += w; return s }).join('')
+    const xUnpaid = 70 + 15 * k
+    const bracket = `<path d="M${xUnpaid.toFixed(1)} 214 v-14 h${(8.75 * k).toFixed(1)} v14" stroke="#b45309" stroke-width="3" fill="none"/>` +
+      text(xUnpaid + (8.75 * k) / 2, 186, 'Unpaid: 8.75 hours', { size: 22, weight: 800, fill: AMBER, anchor: 'middle' }) +
+      `<path d="M70 214 v-14 h${(15 * k).toFixed(1)} v14" stroke="${INDIGO}" stroke-width="3" fill="none"/>` +
+      text(70 + (15 * k) / 2, 186, 'Paid: 15 hours', { size: 22, weight: 800, fill: INDIGO, anchor: 'middle' })
+    const legend = parts.map((p, i) => {
+      const col = i % 3, row = Math.floor(i / 3)
+      const lx = 70 + col * 330, ly = 392 + row * 62
+      return `<rect x="${lx}" y="${ly}" width="26" height="26" rx="6" fill="${p.fill}" stroke="${p.stroke}" stroke-width="2"/>` +
+        text(lx + 40, ly + 21, `${p.label}: ${p.h} h`, { size: 22, weight: 600 })
+    }).join('')
+    return bars + bracket + legend + text(550, 590, 'Example week. The hours are invented; the method is the point.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+const only = process.argv.slice(2) // optional: draw only the diagrams named on the command line, so older files are not rewritten
 for (const [name, svg] of Object.entries(D)) {
+  if (only.length && !only.includes(name)) continue
   const buf = Buffer.from(svg)
   await sharp(buf, { density: 144 }).resize(W, H).avif({ quality: 60 }).toFile(`${OUT}/${name}.avif`)
   await sharp(buf, { density: 144 }).resize(W, H).webp({ quality: 82 }).toFile(`${OUT}/${name}.webp`)

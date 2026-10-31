@@ -32,11 +32,13 @@
 //  - calendly-alternatives-for-tutors: comparison · axis = what is left after the booking (5 jobs → options → 4 questions) · statCards + 2× own SVG diagram + compare(6 tools) + 2× cta + calculator late + callout(tip/warn) + links, NO prosCons. Body in src/lib/blog-posts/ (T-1141)
 //  - schedule-tutoring-lessons-across-time-zones: how-to · axis = problem → 2026 clock-change dates → 5 steps (anchor, slot, both times, name the dates, re-check) · statCards + 2× own SVG diagram (grid, step flow) + compare(clock-change dates) + source + callout(warn/info) + ul(wording, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1141)
 //  - tutoring-lesson-packages-explained: explainer/pricing · axis = definition → formats → price arithmetic → 4 terms → counting the balance → when not to · statCards + compare(5 formats, early) + 2× own SVG diagram (price bars, lifecycle) + 3× callout(tip/warn/info) + prosCons + ul(setup steps) + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1141)
+//  - real-hourly-rate-for-tutors: pricing/explainer · axis = one formula → worked week → four levers → track your hours → leaving a platform honestly · statCards + compare(worked week, early) + 2× own SVG diagram (three bars, stacked hours) + compare(four levers) + source(rates, card fee) + calculator + ul(unpaid hours, tracking) + prosCons + links, NO callout(tip/warn)/mid-article cta. Body in src/lib/blog-posts/ (T-1143)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
 import { TIME_ZONES_CONTENT } from '@/lib/blog-posts/schedule-tutoring-lessons-across-time-zones'
 import { LESSON_PACKAGES_CONTENT } from '@/lib/blog-posts/tutoring-lesson-packages-explained'
+import { REAL_HOURLY_RATE_CONTENT } from '@/lib/blog-posts/real-hourly-rate-for-tutors'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3837,6 +3839,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: LESSON_PACKAGES_CONTENT,
   },
+  {
+    slug: 'real-hourly-rate-for-tutors',
+    title: 'Your Real Hourly Rate as a Tutor: How Commission and Unpaid Hours Shrink What You Earn',
+    description: 'Your real hourly rate is what you keep after commission, divided by every hour you work. Use the formula and a worked example week to find your own number.',
+    date: '2026-10-31',
+    category: 'Pricing',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: REAL_HOURLY_RATE_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3874,6 +3886,7 @@ const HERO_ALTS: Record<string, string> = {
   'calendly-alternatives-for-tutors': "Illustration of a booking calendar with one time slot picked and three loose tool pieces beside it",
   'schedule-tutoring-lessons-across-time-zones': "Illustration of two clocks showing different times, for scheduling lessons across time zones",
   'tutoring-lesson-packages-explained': "Illustration of a stack of lesson tickets, for tutoring lesson packages",
+  'real-hourly-rate-for-tutors': "Illustration of three bars of different heights beside a coin, for a tutor's real hourly rate",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

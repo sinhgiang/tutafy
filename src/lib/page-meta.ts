@@ -223,6 +223,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutoring Lesson Packages, Explained',
     description: 'A tutoring lesson package is a set of lessons paid for up front. See how packages work, how to price one, and the four terms to write down before you sell.',
   },
+  'real-hourly-rate-for-tutors': {
+    title: 'Your Real Hourly Rate as a Tutor',
+    description: 'Your real hourly rate is what you keep after commission, divided by every hour you work. Use the formula and a worked example week to find your own number.',
+  },
 }
 
 /**
