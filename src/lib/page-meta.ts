@@ -255,6 +255,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'IELTS Speaking Part 2 Topics and How to Practise',
     description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
   },
+  'wyzant-fees-for-tutors': {
+    title: 'Wyzant Fees for Tutors: What You Keep',
+    description: 'Wyzant fees for tutors: the 25% platform fee, the 9% student fee, what to post to take home a rate, referrals, payouts and taxes. Checked 31 Oct 2026.',
+  },
+  'how-to-find-an-online-tutor': {
+    title: 'How to Find an Online Tutor: 10 Checks',
+    description: 'How to find an online tutor: ten checks before you book, in the first lesson and after four lessons, with price, refund, payment and safety rules.',
+  },
   'how-to-become-an-online-tutor': {
     title: 'How to Become an Online Tutor: First 90 Days',
     description: 'How to become an online tutor on your own: what official pages say you need, checks and safeguarding if you teach children, and a 90-day plan.',

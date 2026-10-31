@@ -738,6 +738,84 @@
       "avif": 13139
     }
   },
+  "wyzant-dollar-bills": {
+    "file": "1 dollar bill.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Pictures of Money",
+    "source": "https://commons.wikimedia.org/wiki/File:1_dollar_bill.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4358x2449",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 106008,
+      "avif": 72114
+    }
+  },
+  "wyzant-monthly-schedule": {
+    "file": "Monthly schedule (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Eric Rothermel erothermel",
+    "source": "https://commons.wikimedia.org/wiki/File:Monthly_schedule_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "3872x2592",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 21010,
+      "avif": 22936
+    }
+  },
+  "wyzant-headphones-laptop": {
+    "file": "Macro headphones laptop (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Álvaro Bernal abn",
+    "source": "https://commons.wikimedia.org/wiki/File:Macro_headphones_laptop_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4272x2848",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 36480,
+      "avif": 32384
+    }
+  },
+  "find-video-call": {
+    "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_smiling_and_using_laptop_during_video_call_in_cozy_wooden_room.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 41358,
+      "avif": 36335
+    }
+  },
+  "find-two-at-laptop": {
+    "file": "One-on-one tutorial during the WikiTutorial Session 1.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Irvin Parco Sto. Tomas",
+    "source": "https://commons.wikimedia.org/wiki/File:One-on-one_tutorial_during_the_WikiTutorial_Session_1.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4320x2880",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 45818,
+      "avif": 41145
+    }
+  },
+  "find-taking-notes": {
+    "file": "Taking notes with a pencil (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Thought Catalog thoughtcatalog",
+    "source": "https://commons.wikimedia.org/wiki/File:Taking_notes_with_a_pencil_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5548x3699",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24356,
+      "avif": 20486
+    }
+  },
   "become-desk-laptop-notebook": {
     "file": "Desk-laptop-notebook-table (23697249344).jpg",
     "licence": "CC0",
@@ -777,17 +855,17 @@
       "avif": 37255
     }
   },
-  "become-headphones-laptop": {
-    "file": "Macro headphones laptop (Unsplash).jpg",
+  "become-laptop-notepad": {
+    "file": "Laptop picture with notepad.jpg",
     "licence": "CC0",
-    "creator": "Álvaro Bernal abn",
-    "source": "https://commons.wikimedia.org/wiki/File:Macro_headphones_laptop_(Unsplash).jpg",
+    "creator": "Eric Bailey",
+    "source": "https://commons.wikimedia.org/wiki/File:Laptop_picture_with_notepad.jpg",
     "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-    "original": "4272x2848",
+    "original": "1080x1080",
     "checked": "2026-10-31",
     "bytes": {
-      "webp": 36480,
-      "avif": 32384
+      "webp": 28298,
+      "avif": 25824
     }
   }
 }

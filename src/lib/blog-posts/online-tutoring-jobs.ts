@@ -172,6 +172,7 @@ export const ONLINE_TUTORING_JOBS_CONTENT: PostBlock[] = [
     { label: 'Your real hourly rate as a tutor', href: '/blog/real-hourly-rate-for-tutors', text: 'What a lesson earns after prep, gaps and fees.' },
     { label: 'Do tutors have to pay taxes?', href: '/blog/do-tutors-have-to-pay-taxes', text: 'What contractor income means at tax time.' },
     { label: 'How to leave Preply', href: '/blog/how-to-leave-preply-migration-guide', text: 'Moving regular students to your own link.' },
+    { label: 'Wyzant fees for tutors', href: '/blog/wyzant-fees-for-tutors', text: 'Both fees, worked out.' },
   ] },
   { type: 'faq', items: [
     { q: 'How do I get an online tutoring job with no experience?', a: `Start with platforms whose pages say no degree or experience is needed, such as Preply and Cambly, and prepare a clear subject, a short profile and a good video. The pages we read give 2 to 10 business days for an answer, so apply to two or three at once.` },

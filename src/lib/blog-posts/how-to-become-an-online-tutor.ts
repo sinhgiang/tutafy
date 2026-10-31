@@ -92,7 +92,7 @@ export const BECOME_ONLINE_TUTOR_CONTENT: PostBlock[] = [
   { type: 'p', text: `Tutafy does not provide a safeguarding policy, run checks or store certificates. Write your own policy, keep it to a page and give it to parents.` },
   { type: 'h2', text: `Week one: the minimum set-up` },
   { type: 'p', text: `You need less than you think, and more than a video call link. Have these in place before you tell anyone you are open for students.` },
-  { type: 'image', src: '/blog/inline/become-headphones-laptop', alt: 'Black over-ear headphones with a silver ear cup resting on a laptop keyboard, with a mountain wallpaper on the screen.', caption: 'Illustrative photo, not a Tutafy user. If your room echoes, a headset is the cheapest upgrade.', credit: 'Photo: Álvaro Bernal abn (CC0)', creditHref: 'https://commons.wikimedia.org/wiki/File:Macro_headphones_laptop_(Unsplash).jpg' },
+  { type: 'image', src: '/blog/inline/become-laptop-notepad', alt: 'The edge of a silver laptop beside an open grid notebook with a black pen resting on it, on a wooden desk.', caption: 'Illustrative photo, not a Tutafy user. Write the policy and the price down before you share your link.', credit: 'Photo: Eric Bailey (CC0)', creditHref: 'https://commons.wikimedia.org/wiki/File:Laptop_picture_with_notepad.jpg' },
   { type: 'ul', items: [
     `A computer with a working camera and microphone, and an internet connection you have tested for a full lesson by running a 45-minute call with a friend.`,
     `A quiet corner with a plain background.`,
