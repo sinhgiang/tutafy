@@ -61,6 +61,8 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
+import { ONLINE_MATH_TUTOR_CONTENT } from '@/lib/blog-posts/online-math-tutor'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3992,6 +3994,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
+  {
+    slug: 'superprof-review-for-tutors',
+    title: 'Superprof for Tutors: What It Costs, How Leads Work and What to Do Instead',
+    description: 'Superprof for tutors: free listing, the 10% fee on its payments, the student pass, how requests and payouts work, and a 60-day test. Checked 31 Oct 2026.',
+    date: '2026-11-13',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: SUPERPROF_REVIEW_CONTENT,
+  },
+  {
+    slug: 'online-math-tutor',
+    title: 'Online Math Tutor: How to Choose One, What a Session Looks Like and What It Costs',
+    description: 'Online math tutor: name the problem, what the research says, what a good session looks like, seven questions to ask and the cost. Checked 31 Oct 2026.',
+    date: '2026-11-13',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ONLINE_MATH_TUTOR_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4042,6 +4064,8 @@ const HERO_ALTS: Record<string, string> = {
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",
+  'online-math-tutor': "Illustration of a graph with a rising curve and one marked point, for an online math tutor",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

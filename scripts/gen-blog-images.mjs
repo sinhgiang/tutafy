@@ -488,6 +488,35 @@ const HEROES = {
         <rect x="80" y="8" width="${i % 2 ? 150 : 200}" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
       </g>`).join('')}
     </g>` }),
+
+  // Superprof review for tutors (T-1236) — a free ad card, a student pass ticket and a 10% slice
+  'superprof-review-for-tutors': base({ from: '#7c2d12', to: '#1e3a5f', label: 'Growth', motif: `
+    <g transform="translate(730,96)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      <circle cx="58" cy="64" r="28" fill="#0f766e" opacity="0.5"/>
+      <rect x="104" y="44" width="170" height="16" rx="8" fill="#7c2d12" opacity="0.5"/>
+      <rect x="104" y="72" width="110" height="12" rx="6" fill="#7c2d12" opacity="0.24"/>
+      <rect x="32" y="128" width="316" height="62" rx="12" fill="#7c2d12" opacity="0.1"/>
+      <rect x="32" y="128" width="236" height="62" rx="12" fill="#0f766e" opacity="0.55"/>
+      <rect x="268" y="128" width="80" height="62" rx="12" fill="#b45309" opacity="0.8"/>
+      <rect x="32" y="214" width="150" height="14" rx="7" fill="#7c2d12" opacity="0.34"/>
+      <rect x="32" y="244" width="220" height="12" rx="6" fill="#7c2d12" opacity="0.2"/>
+      <rect x="32" y="272" width="120" height="12" rx="6" fill="#7c2d12" opacity="0.2"/>
+      <circle cx="354" cy="20" r="22" fill="#047857"/>
+      <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Online math tutor (T-1237) — a graph with a curve and a point, beside a short checklist
+  'online-math-tutor': base({ from: '#1e3a8a', to: '#0f766e', label: 'Teaching', motif: `
+    <g transform="translate(730,96)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      <path d="M44 280 V48 M44 280 H340" stroke="#1e3a8a" stroke-width="3" opacity="0.4" fill="none"/>
+      ${[0,1,2,3,4].map(i => `<path d="M${44 + i * 59} 280 V48" stroke="#1e3a8a" stroke-width="1" opacity="0.12"/>`).join('')}
+      <path d="M52 262 C110 250 150 140 210 128 S300 86 332 64" stroke="#0f766e" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <circle cx="210" cy="128" r="11" fill="#b45309"/>
+      <circle cx="354" cy="20" r="22" fill="#047857"/>
+      <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
