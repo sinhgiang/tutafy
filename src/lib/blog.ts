@@ -36,6 +36,13 @@
 //  - how-to-handle-tutoring-reschedule-requests: operations/how-to · axis = one request through its moments (name the case → write the notice rule → message templates → who moves the lesson → track the pattern) · statCards + compare(3 cases, early) + compare(a month of 4 requests) + 2× own SVG diagram (five-moment flow, who-does-what table) + 5 message templates (h3 + p) + callout(warn/tip/info) + ul(checklist, situations) + prosCons + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 //  - how-to-ask-for-tutoring-payment: payments/how-to · axis = a six-step ladder with timings (terms → link → invoice → nudge → firmer → pause) · statCards + compare(ladder, early) + compare(five ways to be paid) + 2× own SVG diagram (timeline, status flow) + 7 message templates (h3 + p) + callout(tip/warn/info/tip) + ul(set-up checklist, a Friday check) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 //  - tutoring-tech-stack-for-online-tutors: software/audit · axis = the six jobs of a lesson → count the hand-offs → add up the cost → replace, link or keep → what Tutafy covers and where it stops · statCards + compare(6 jobs, early) + ul(7 hand-offs) + 2× own SVG diagram (hand-offs, replace/link/keep grid) + compare(invented stack cost) + 3 invented tutors (h3) + compare(Tutafy per job with its limit) + callout(tip/warn) + ul(two-week test, tool questions, weekend migration, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
+//  - how-to-write-a-tutor-bio: how-to · axis = who you help → what a lesson is → why you → one next step, then 15 invented example bios (by subject, student and place) · statCards + own SVG diagram (anatomy of a bio) + 3 photos + ul(rules, headlines, mistakes, steps, checklist) + compare(one bio, four places) + before/after rewrite + source + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1166)
+//  - free-tutoring-invoice-template: how-to/template · axis = the fields of an invoice → the template line by line → three worked examples (one lesson, a package, a month) → cancellation fee wording → time zones, numbers, sending, records · statCards NO, 3 downloadable files (docx, pdf, odt in public/downloads, built by scripts/gen-invoice-templates.mjs) + 4 photos + compare(fields, 3 examples, numbering, formats, log) + ul(fee wording, mistakes) + callout(tip) + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1167)
+//  - online-whiteboard-for-tutoring: comparison · axis = what a tutor needs from a whiteboard → a dated table (what each tool's own page said, with "not confirmed" where it could not be read) → the tools one by one → by subject → free-plan limits → a ten-minute test → a lesson routine → using one next to Tutafy, which has none · own SVG diagram (choose by subject) + 4 photos + compare(table) + source(8 pages) + ul(needs, limits, test, routine, mistakes) + cta + links, NO statCards/calculator/prosCons. Body in src/lib/blog-posts/ (T-1168)
+//  - do-tutors-have-to-pay-taxes: explainer · axis = is tutoring income taxable (yes, form or no form) → self-employed → the US (Schedule C, self-employment tax, estimated tax, the forms, a two-tutor worked example) → the UK trading allowance → Canada GST/HST → Australia and elsewhere (no figures, said so) → teaching across borders → deductible costs → records and a ledger → a year's routine → mistakes → what Tutafy exports · every figure from an official page read on 31 Oct 2026 · 4 photos + compare(US forms, two tutors, ledger) + callout(warn) + ul + source(10 pages) + cta + links, NO calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1170)
+//  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
+//  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
+//  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -45,6 +52,13 @@ import { REAL_HOURLY_RATE_CONTENT } from '@/lib/blog-posts/real-hourly-rate-for-
 import { RESCHEDULE_REQUESTS_CONTENT } from '@/lib/blog-posts/how-to-handle-tutoring-reschedule-requests'
 import { ASK_FOR_PAYMENT_CONTENT } from '@/lib/blog-posts/how-to-ask-for-tutoring-payment'
 import { TECH_STACK_CONTENT } from '@/lib/blog-posts/tutoring-tech-stack-for-online-tutors'
+import { TUTOR_BIO_CONTENT } from '@/lib/blog-posts/how-to-write-a-tutor-bio'
+import { INVOICE_TEMPLATE_CONTENT } from '@/lib/blog-posts/free-tutoring-invoice-template'
+import { WHITEBOARD_CONTENT } from '@/lib/blog-posts/online-whiteboard-for-tutoring'
+import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxes'
+import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
+import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
+import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3886,6 +3900,76 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: TECH_STACK_CONTENT,
   },
+  {
+    slug: 'how-to-write-a-tutor-bio',
+    title: 'Tutor Bio: How to Write One, With 15 Examples for Preply, italki, Wyzant and Your Own Site',
+    description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
+    date: '2026-11-01',
+    category: 'How-to',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_BIO_CONTENT,
+  },
+  {
+    slug: 'free-tutoring-invoice-template',
+    title: 'Free Tutoring Invoice Template (Word, PDF and Google Docs), With Cancellation Fee Wording',
+    description: 'Download a free tutoring invoice template in Word, PDF or OpenDocument, with a late cancellation fee line and time zones. Worked examples included.',
+    date: '2026-11-01',
+    category: 'Payments',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: INVOICE_TEMPLATE_CONTENT,
+  },
+  {
+    slug: 'online-whiteboard-for-tutoring',
+    title: 'Online Whiteboard for Tutoring: Free Options Compared (and What Tutafy Does Not Have)',
+    description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',
+    date: '2026-11-02',
+    category: 'Software',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: WHITEBOARD_CONTENT,
+  },
+  {
+    slug: 'do-tutors-have-to-pay-taxes',
+    title: 'Tutor Taxes: Do Tutors Have to Pay Taxes? Self-Employed Income, 1099 Forms and Records',
+    description: 'Do tutors have to pay taxes? A plain guide to tutoring income, US 1099-K and 1099-NEC forms, the UK trading allowance and records. Not tax advice.',
+    date: '2026-11-02',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_TAXES_CONTENT,
+  },
+  {
+    slug: 'online-tutoring-jobs',
+    title: 'Online Tutoring Jobs: Where Tutors Get Hired, What Each Pays and How to Work for Yourself',
+    description: 'Online tutoring jobs compared: who can apply to Preply, Wyzant, Varsity Tutors, Cambly and others, what each keeps or pays, checked 31 Oct 2026.',
+    date: '2026-11-03',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ONLINE_TUTORING_JOBS_CONTENT,
+  },
+  {
+    slug: 'tutor-resume',
+    title: 'Tutor Resume: How to Write One, With Examples by Subject and What to Do With No Experience',
+    description: 'Tutor resume guide: the sections, bullets that show results, examples by subject, what to write with no paid experience and when you do not need one.',
+    date: '2026-11-03',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_RESUME_CONTENT,
+  },
+  {
+    slug: 'ielts-speaking-part-2-topics',
+    title: 'IELTS Speaking Part 2 Topics: How the Task Works, Practice Cards and How to Practise With a Tutor',
+    description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
+    date: '2026-11-04',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: IELTS_PART2_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3927,6 +4011,13 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-handle-tutoring-reschedule-requests': "Illustration of a calendar with a lesson block moving to another day, for handling reschedule requests",
   'how-to-ask-for-tutoring-payment': "Illustration of a message bubble beside a green check mark, for asking a parent to pay for tutoring",
   'tutoring-tech-stack-for-online-tutors': "Illustration of five loose app tiles gathering into one bar, for a tutor's tech stack",
+  'how-to-write-a-tutor-bio': "Illustration of a profile card with a name line, a speech bubble and a check mark, for writing a tutor bio",
+  'free-tutoring-invoice-template': "Illustration of an invoice page with line items, a total and a download arrow, for a free tutoring invoice template",
+  'online-whiteboard-for-tutoring': "Illustration of a whiteboard with a drawn curve, a pen and a check mark, for an online whiteboard for tutoring",
+  'do-tutors-have-to-pay-taxes': "Illustration of a tax form page with a coin and a check mark, for tutor taxes",
+  'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
+  'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
+  'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

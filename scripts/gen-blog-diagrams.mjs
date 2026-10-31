@@ -375,6 +375,57 @@ D['tech-stack-replace-link-keep'] = frame(
   })(),
 )
 
+// ---- T-1166: the four parts of a tutor bio ----------------------------------------------------------------------------------------
+D['bio-anatomy'] = frame(
+  'The four parts of a tutor bio',
+  'Three questions and one next step. The sentences are examples; write your own.',
+  (() => {
+    const parts = [
+      ['1', 'Who you help', ['"Adults who', 'understand English', 'but freeze when', 'they speak."']],
+      ['2', 'What a lesson is', ['"You practise out', 'loud, I note your', 'three biggest', 'mistakes."']],
+      ['3', 'Why you', ['"I have taught', 'adults for [number]', 'years and I hold', '[qualification]."']],
+      ['4', 'One next step', ['"Book a trial lesson', 'and tell me what', 'you want to say', 'next month."']],
+    ]
+    const w = 236, gap = 22, x0 = 48
+    return parts.map((p, i) => {
+      const x = x0 + i * (w + gap), last = i === 3
+      return box(x, 150, w, 330, { fill: last ? '#ecfdf5' : PALE, stroke: last ? '#10b981' : '#818cf8', r: 18 }) +
+        `<circle cx="${x + 42}" cy="204" r="26" fill="${last ? GREEN : INDIGO}"/>` +
+        text(x + 42, 214, p[0], { size: 28, weight: 800, fill: '#ffffff', anchor: 'middle' }) +
+        text(x + 20, 276, p[1], { size: 24, weight: 800 }) +
+        lines(x + 20, 322, p[2], { size: 21, fill: MUTED }) +
+        (i < 3 ? arrow(x + w + 2, 315, x + w + gap - 2, 315) : '')
+    }).join('') +
+      text(550, 536, 'Put the first two parts in your first two sentences: some readers see nothing else.', { size: 22, weight: 600, anchor: 'middle' }) +
+      text(550, 584, 'Everything you claim in the bio is something you will be held to.', { size: 20, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+// ---- T-1168: choose a whiteboard by what you teach (needs, not products) ---------------------------------------------------------------
+D['wb-choose-by-subject'] = frame(
+  'Choose a whiteboard by what you teach',
+  'The columns name needs, not products. Run the ten-minute test with any tool you pick.',
+  (() => {
+    const cols = [
+      ['Maths and science', ['You need a pen', 'and room for steps.'], ['Look for:', 'a clean pen tool,', 'an endless canvas,', 'a sharp export.']],
+      ['Languages', ['You need text,', 'not drawing.'], ['Look for:', 'text boxes,', 'easy colour,', 'a link that opens fast.']],
+      ['Music', ['Notation is a job', 'for another tool.'], ['Look for:', 'a small board for', 'chords and rhythm,', 'beside a shared score.']],
+      ['Young children', ['You need big', 'buttons and pictures.'], ['Look for:', 'stickers or images,', 'a calm, simple board,', 'clear privacy terms.']],
+    ]
+    const w = 236, gap = 22, x0 = 48
+    return cols.map((c, i) => {
+      const x = x0 + i * (w + gap)
+      return box(x, 140, w, 350, { fill: PALE, stroke: '#818cf8', r: 18 }) +
+        text(x + 20, 190, c[0], { size: 24, weight: 800 }) +
+        lines(x + 20, 236, c[1], { size: 20, weight: 600, fill: INDIGO }) +
+        `<line x1="${x + 20}" y1="296" x2="${x + w - 20}" y2="296" stroke="${LINE}" stroke-width="2"/>` +
+        lines(x + 20, 332, c[2], { size: 20, fill: MUTED })
+    }).join('') +
+      text(550, 540, 'Start with the link test: can a student open it with no account?', { size: 22, weight: 600, anchor: 'middle' }) +
+      text(550, 588, 'Free plans change often; read the current page before you rely on one.', { size: 20, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
 const only = process.argv.slice(2) // optional: draw only the diagrams named on the command line, so older files are not rewritten
 for (const [name, svg] of Object.entries(D)) {
   if (only.length && !only.includes(name)) continue

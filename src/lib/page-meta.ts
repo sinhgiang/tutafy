@@ -239,6 +239,34 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'How to Ask a Parent to Pay for Tutoring',
     description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
   },
+  'do-tutors-have-to-pay-taxes': {
+    title: 'Tutor Taxes: Do Tutors Have to Pay Taxes?',
+    description: 'Do tutors have to pay taxes? A plain guide to tutoring income, US 1099-K and 1099-NEC forms, the UK trading allowance and records. Not tax advice.',
+  },
+  'online-tutoring-jobs': {
+    title: 'Online Tutoring Jobs: Where Tutors Get Hired',
+    description: 'Online tutoring jobs compared: who can apply to Preply, Wyzant, Varsity Tutors, Cambly and others, what each keeps or pays, checked 31 Oct 2026.',
+  },
+  'tutor-resume': {
+    title: 'Tutor Resume: How to Write One, With Examples',
+    description: 'Tutor resume guide: the sections, bullets that show results, examples by subject, what to write with no paid experience and when you do not need one.',
+  },
+  'ielts-speaking-part-2-topics': {
+    title: 'IELTS Speaking Part 2 Topics and How to Practise',
+    description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
+  },
+  'online-whiteboard-for-tutoring': {
+    title: 'Online Whiteboard for Tutoring: Free Options',
+    description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',
+  },
+  'free-tutoring-invoice-template': {
+    title: 'Free Tutoring Invoice Template: Word, PDF',
+    description: 'Download a free tutoring invoice template in Word, PDF or OpenDocument, with a late cancellation fee line and time zones. Worked examples included.',
+  },
+  'how-to-write-a-tutor-bio': {
+    title: 'Tutor Bio: How to Write One, 15 Examples',
+    description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
+  },
 }
 
 /**

@@ -367,6 +367,97 @@ const HEROES = {
       <rect x="150" y="250" width="200" height="60" rx="16" fill="#ffffff" opacity="0.93"/>
       <rect x="176" y="272" width="148" height="14" rx="7" fill="#6d28d9" opacity="0.45"/>
     </g>` }),
+
+  // Tutor bio (T-1166) — a profile card: a round photo spot, a name line, three text lines and a button
+  'how-to-write-a-tutor-bio': base({ from: '#0f766e', to: '#4338ca', label: 'How-to', motif: `
+    <g transform="translate(770,120)" opacity="0.95">
+      <rect x="0" y="0" width="340" height="330" rx="26" fill="#ffffff" opacity="0.93"/>
+      <circle cx="70" cy="74" r="38" fill="#0f766e" opacity="0.35"/>
+      <rect x="130" y="52" width="150" height="16" rx="8" fill="#4338ca" opacity="0.55"/>
+      <rect x="130" y="82" width="100" height="12" rx="6" fill="#4338ca" opacity="0.25"/>
+      <rect x="34" y="148" width="270" height="14" rx="7" fill="#0f766e" opacity="0.35"/>
+      <rect x="34" y="178" width="240" height="14" rx="7" fill="#0f766e" opacity="0.25"/>
+      <rect x="34" y="208" width="200" height="14" rx="7" fill="#0f766e" opacity="0.25"/>
+      <rect x="34" y="262" width="150" height="42" rx="21" fill="#4338ca" opacity="0.85"/>
+      <path d="M300 20 l8 8 l16 -18" stroke="#047857" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Invoice template (T-1167) — an invoice page: title bar, three rows, a total line and a download arrow
+  'free-tutoring-invoice-template': base({ from: '#0369a1', to: '#4338ca', label: 'Payments', motif: `
+    <g transform="translate(790,110)" opacity="0.95">
+      <rect x="0" y="0" width="300" height="360" rx="22" fill="#ffffff" opacity="0.93"/>
+      <rect x="28" y="30" width="120" height="22" rx="8" fill="#4338ca" opacity="0.6"/>
+      <rect x="28" y="80" width="244" height="12" rx="6" fill="#0369a1" opacity="0.25"/>
+      ${[0,1,2].map(i => `<rect x="28" y="${122 + i * 44}" width="244" height="30" rx="6" fill="#4338ca" opacity="0.12"/><rect x="38" y="${132 + i * 44}" width="130" height="10" rx="5" fill="#4338ca" opacity="0.4"/><rect x="214" y="${132 + i * 44}" width="48" height="10" rx="5" fill="#4338ca" opacity="0.4"/>`).join('')}
+      <rect x="150" y="272" width="122" height="14" rx="7" fill="#047857" opacity="0.55"/>
+      <rect x="28" y="306" width="90" height="30" rx="15" fill="#4338ca" opacity="0.85"/>
+      <circle cx="268" cy="326" r="26" fill="#047857"/>
+      <path d="M268 312 v20 m-9 -8 l9 9 l9 -9" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Online whiteboard (T-1168) — a board with a drawn curve and a pen, a check mark in the corner
+  'online-whiteboard-for-tutoring': base({ from: '#047857', to: '#1d4ed8', label: 'Software', motif: `
+    <g transform="translate(760,120)" opacity="0.95">
+      <rect x="0" y="0" width="360" height="270" rx="22" fill="#ffffff" opacity="0.93"/>
+      <path d="M40 200 C 100 60, 170 60, 200 140 S 290 210, 320 70" stroke="#1d4ed8" stroke-width="9" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M40 232 L150 232" stroke="#047857" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <rect x="230" y="248" width="120" height="14" rx="7" fill="#9ca3af" opacity="0.55"/>
+      <rect x="196" y="300" width="170" height="16" rx="8" fill="#ffffff" opacity="0.85" transform="rotate(-18 280 308)"/>
+      <circle cx="326" cy="34" r="22" fill="#047857"/>
+      <path d="M316 34 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Tutor taxes (T-1170) — a form page with lines, a coin and a check mark
+  'do-tutors-have-to-pay-taxes': base({ from: '#374151', to: '#0f766e', label: 'Business', motif: `
+    <g transform="translate(790,110)" opacity="0.95">
+      <rect x="0" y="0" width="300" height="370" rx="20" fill="#ffffff" opacity="0.93"/>
+      <rect x="28" y="30" width="110" height="20" rx="8" fill="#0f766e" opacity="0.6"/>
+      ${[0,1,2,3,4].map(i => `<rect x="28" y="${86 + i * 40}" width="244" height="12" rx="6" fill="#374151" opacity="${i % 2 ? 0.2 : 0.32}"/>`).join('')}
+      <rect x="28" y="304" width="120" height="30" rx="15" fill="#0f766e" opacity="0.8"/>
+      <circle cx="244" cy="320" r="34" fill="#fbbf24"/>
+      <text x="244" y="334" font-family="Segoe UI, Arial" font-size="40" font-weight="800" fill="#92400e" text-anchor="middle">$</text>
+      <circle cx="262" cy="30" r="22" fill="#047857"/>
+      <path d="M252 30 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Online tutoring jobs (T-1192) — three job cards with a pay tag and one ticked
+  'online-tutoring-jobs': base({ from: '#334155', to: '#0e7490', label: 'Growth', motif: `
+    <g transform="translate(760,96)" opacity="0.96">
+      ${[0,1,2].map(i => `<g transform="translate(0,${i * 132})">
+        <rect x="0" y="0" width="340" height="108" rx="18" fill="#ffffff" opacity="0.93"/>
+        <circle cx="48" cy="54" r="24" fill="#0e7490" opacity="${0.35 + i * 0.2}"/>
+        <rect x="92" y="34" width="120" height="14" rx="7" fill="#334155" opacity="0.5"/>
+        <rect x="92" y="60" width="170" height="12" rx="6" fill="#334155" opacity="0.22"/>
+        <rect x="256" y="28" width="64" height="30" rx="15" fill="#fbbf24"/>
+        <text x="288" y="49" font-family="Segoe UI, Arial" font-size="18" font-weight="800" fill="#92400e" text-anchor="middle">$</text>
+      </g>`).join('')}
+      <circle cx="326" cy="20" r="22" fill="#047857"/>
+      <path d="M316 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Tutor resume (T-1193) — a resume page with a header block, lines and a ticked box
+  'tutor-resume': base({ from: '#3f3f46', to: '#b45309', label: 'Growth', motif: `
+    <g transform="translate(800,90)" opacity="0.96">
+      <rect x="0" y="0" width="290" height="400" rx="18" fill="#ffffff" opacity="0.94"/>
+      <circle cx="52" cy="58" r="26" fill="#b45309" opacity="0.55"/>
+      <rect x="92" y="40" width="150" height="16" rx="8" fill="#3f3f46" opacity="0.55"/>
+      <rect x="92" y="66" width="100" height="12" rx="6" fill="#3f3f46" opacity="0.25"/>
+      ${[0,1,2,3,4,5].map(i => `<rect x="28" y="${120 + i * 40}" width="${i % 3 === 2 ? 160 : 230}" height="12" rx="6" fill="#3f3f46" opacity="${i % 2 ? 0.2 : 0.32}"/>`).join('')}
+      <circle cx="262" cy="20" r="22" fill="#047857"/>
+      <path d="M252 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // IELTS Speaking Part 2 (T-1194) — a speech bubble, a timer and a tick
+  'ielts-speaking-part-2-topics': base({ from: '#1e3a5f', to: '#0f766e', label: 'Teaching', motif: `
+    <g transform="translate(780,100)" opacity="0.96">
+      <path d="M20 0 H300 a24 24 0 0 1 24 24 V200 a24 24 0 0 1 -24 24 H150 L80 290 V224 H20 a24 24 0 0 1 -24 -24 V24 A24 24 0 0 1 20 0 Z" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2].map(i => `<rect x="28" y="${40 + i * 44}" width="${i === 2 ? 150 : 250}" height="12" rx="6" fill="#1e3a5f" opacity="${i % 2 ? 0.2 : 0.34}"/>`).join('')}
+      <circle cx="250" cy="340" r="54" fill="#ffffff" opacity="0.94"/>
+      <circle cx="250" cy="340" r="40" fill="none" stroke="#0f766e" stroke-width="8"/>
+      <path d="M250 340 V312 M250 340 L268 352" stroke="#1e3a5f" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="316" cy="12" r="22" fill="#047857"/>
+      <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
