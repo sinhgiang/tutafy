@@ -14,5 +14,9 @@
   { "name": "bio-home-office", "file": "Woman works on laptop while holding cup of coffee in cozy home office.jpg" },
   { "name": "bio-tutoring-math", "file": "Tutoring Math.jpg" },
   { "name": "bio-online-lesson", "file": "Primary school teacher teaching online.jpg", "crop": { "top": 0.3 } },
-  { "name": "bio-writing-notes", "file": "Writing notes while using a laptop at a desk.jpg" }
+  { "name": "bio-writing-notes", "file": "Writing notes while using a laptop at a desk.jpg" },
+  { "name": "invoice-desk-calculator", "file": "Desktop with laptop and calculator (Unsplash).jpg" },
+  { "name": "invoice-1772", "file": "Onesimus Ustonson 1772 invoice and receipt.jpg", "crop": { "top": 0.02 } },
+  { "name": "invoice-white-table", "file": "White work table with notes, smartphone and laptop (Unsplash).jpg" },
+  { "name": "invoice-person-writing", "file": "Person writing in a notebook while sitting at a desk.jpg" }
 ]

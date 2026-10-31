@@ -381,6 +381,19 @@ const HEROES = {
       <rect x="34" y="262" width="150" height="42" rx="21" fill="#4338ca" opacity="0.85"/>
       <path d="M300 20 l8 8 l16 -18" stroke="#047857" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Invoice template (T-1167) — an invoice page: title bar, three rows, a total line and a download arrow
+  'free-tutoring-invoice-template': base({ from: '#0369a1', to: '#4338ca', label: 'Payments', motif: `
+    <g transform="translate(790,110)" opacity="0.95">
+      <rect x="0" y="0" width="300" height="360" rx="22" fill="#ffffff" opacity="0.93"/>
+      <rect x="28" y="30" width="120" height="22" rx="8" fill="#4338ca" opacity="0.6"/>
+      <rect x="28" y="80" width="244" height="12" rx="6" fill="#0369a1" opacity="0.25"/>
+      ${[0,1,2].map(i => `<rect x="28" y="${122 + i * 44}" width="244" height="30" rx="6" fill="#4338ca" opacity="0.12"/><rect x="38" y="${132 + i * 44}" width="130" height="10" rx="5" fill="#4338ca" opacity="0.4"/><rect x="214" y="${132 + i * 44}" width="48" height="10" rx="5" fill="#4338ca" opacity="0.4"/>`).join('')}
+      <rect x="150" y="272" width="122" height="14" rx="7" fill="#047857" opacity="0.55"/>
+      <rect x="28" y="306" width="90" height="30" rx="15" fill="#4338ca" opacity="0.85"/>
+      <circle cx="268" cy="326" r="26" fill="#047857"/>
+      <path d="M268 312 v20 m-9 -8 l9 9 l9 -9" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
