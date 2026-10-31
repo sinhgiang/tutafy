@@ -159,6 +159,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     { label: 'How to write a tutor bio', href: '/blog/how-to-write-a-tutor-bio', text: 'What a good profile says, written for tutors.' },
     { label: 'Reading tutor for your child', href: '/blog/reading-tutor-for-your-child', text: 'Signs by age and session plans.' },
     { label: 'SAT and ACT tutors online', href: '/blog/sat-and-act-tutor-online', text: 'When to hire, with official dates.' },
+    { label: 'Online math tutor', href: '/blog/online-math-tutor', text: 'The math layer on top of these checks.' },
   ] },
   { type: 'faq', items: [
     { q: 'How do I find a good online tutor?', a: `Write your goal in one sentence with a date, shortlist two or three tutors who teach your exact subject and level, read their trial, cancellation and refund rules, pay by a method you can dispute, and use the first lesson as a test. After about four lessons, judge by whether you can do more of what you wanted.` },

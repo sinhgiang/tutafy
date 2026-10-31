@@ -48,5 +48,11 @@
   { "name": "reading-older-boy", "file": "Boy comfortably reading a book.jpg" },
   { "name": "sat-computer-exam", "file": "Students taking computerized exam.jpg" },
   { "name": "sat-work-table", "file": "White work table with notes, smartphone and laptop (Unsplash).jpg" },
-  { "name": "sat-living-room-laptop", "file": "Laptop on a living room table (Unsplash).jpg" }
+  { "name": "sat-living-room-laptop", "file": "Laptop on a living room table (Unsplash).jpg" },
+  { "name": "contract-legal-signature", "file": "Legal Contract & Signature - Warm Tones.jpg" },
+  { "name": "contract-fountain-pen", "file": "Writing with a fountain pen (Unsplash).jpg" },
+  { "name": "contract-coffee-notebooks", "file": "Coffee, notebooks and pen (Unsplash).jpg" },
+  { "name": "names-signpost", "file": "Dartmoor names on a signpost - geograph.org.uk - 2303564.jpg" },
+  { "name": "names-cafe-menu", "file": "Cafe menu (Unsplash).jpg" },
+  { "name": "names-pen-notebook", "file": "Pen on a notebook (Unsplash).jpg" }
 ]
