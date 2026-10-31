@@ -69,6 +69,8 @@ import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-co
 import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
 import { ONLINE_MATH_TUTOR_CONTENT } from '@/lib/blog-posts/online-math-tutor'
+import { ONLINE_VIOLIN_LESSONS_CONTENT } from '@/lib/blog-posts/online-violin-lessons'
+import { GERMAN_TUTOR_ONLINE_CONTENT } from '@/lib/blog-posts/german-tutor-online'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -4063,6 +4065,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: ONLINE_MATH_TUTOR_CONTENT,
   },
+  {
+    slug: 'online-violin-lessons',
+    title: 'Online Violin Lessons: What Video Can and Cannot Teach, Violin Size and 12 Questions to Ask a Teacher',
+    description: 'Online violin lessons: how a lesson runs, why you cannot play in time over video, camera angles, violin size by arm length, online exams and 12 questions.',
+    date: '2026-11-18',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ONLINE_VIOLIN_LESSONS_CONTENT,
+  },
+  {
+    slug: 'german-tutor-online',
+    title: 'German Tutor Online: How Many Hours Each Level Takes, What the Exams Cover and How to Pick a Tutor',
+    description: 'German tutor online: the A1 to C2 levels in plain words, hours per level from Goethe-Institut, remote exam rules, a first-month plan and 12 questions.',
+    date: '2026-11-18',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: GERMAN_TUTOR_ONLINE_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4119,6 +4141,8 @@ const HERO_ALTS: Record<string, string> = {
   'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",
   'online-math-tutor': "Illustration of a graph with a rising curve and one marked point, for an online math tutor",
+  'online-violin-lessons': "Illustration of four strings, a bow and a ruler beside a check mark, for online violin lessons",
+  'german-tutor-online': "Illustration of a staircase of three steps labelled A, B and C with a speech bubble, for learning German with an online tutor",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
