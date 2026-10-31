@@ -28,6 +28,7 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
     { value: '4 steps', label: 'decide, move, tell in writing, re-check the reminder' },
     { value: '24 h', label: 'a common free-notice window, and Tutafy\'s default' },
   ] },
+  { type: 'image', src: '/blog/inline/pain-reschedule-wall-calendar', alt: 'A paper wall calendar open at October with one date boxed in red.', caption: 'A date in the calendar is a promise to two people.', credit: 'Photo: Claudio Elias (public domain), Wikimedia Commons', creditHref: 'https://commons.wikimedia.org/wiki/File:WallCalendar.jpg' },
   { type: 'h2', text: 'Reschedule, cancel or no-show: name the case first' },
   { type: 'p', text: `A reschedule moves one lesson to another time and both of you still intend to teach and learn. A cancellation ends that lesson without a replacement. A no-show is a lesson whose start time passed with nobody there. The same student can do all three in a month, and each deserves its own response, so name the case before you answer. Our guides to cancellation policies and to no-shows cover the other two; this one is about the reschedule.` },
   { type: 'compare', caption: 'Three cases and the usual response. The notice window and the fee are your decisions, not rules.', headers: ['Case', 'What it is', 'Usual response', 'What the money does'], rows: [
@@ -51,6 +52,7 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
     ['4. Move Tuesday to Friday again', '3 hours', 'Outside the window, no late move left', 'Lesson charged, a new time offered for next week; $40 charged'],
   ] },
   { type: 'p', text: `Read the pattern as well as the outcomes. Four requests in a month from a weekly student means almost every lesson is moving, and the rule answered each one without a debate. The fourth message is the one tutors dread, and because the rule was written in advance it can be short and kind: "This lesson is inside my 24-hour notice and this month's free late move has been used, so it is charged, as in my policy. I'd like to keep your Tuesday slot, though. Shall we see whether a different weekly time would suit you better?"` },
+  { type: 'image', src: '/blog/inline/pain-reschedule-phone', alt: 'A smartphone lying on a pale wooden desk beside a laptop, connected by a white cable.', caption: 'Most requests arrive as a message, so answer from a template.', credit: 'Photo: Pixel.la Free Stock Photos (CC0), Wikimedia Commons', creditHref: 'https://commons.wikimedia.org/wiki/File:Apple-iphone-smartphone-desk-1_(24217686692).jpg' },
   { type: 'h2', text: 'Message templates that stay kind and clear' },
   { type: 'p', text: `A good reply does three things in the first sentence: it answers the question, states the new time with the time zone if you work across zones, and says what happens next. Keep it short. Here are four versions for the situations you will meet most; change the words until they sound like you.` },
   { type: 'h3', text: 'Inside the notice window: yes' },
@@ -86,6 +88,7 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
     'If a reminder was already sent for the old time, send the new time yourself, and change a Google Calendar event if you use one.',
     'Add "moved" and the date to the lesson notes if you want to count moves later.',
   ] },
+  { type: 'image', src: '/blog/inline/pain-reschedule-planner', alt: 'A laptop, a pen, sticky notes and a planner with coloured tabs on a wooden desk, a phone in the corner.', caption: 'Where you write the new time matters less than writing it down.', credit: 'Photo: Pixel.la Free Stock Photos (CC0), Wikimedia Commons', creditHref: 'https://commons.wikimedia.org/wiki/File:Desk-laptop-notebook-pen_(23958719819).jpg' },
   { type: 'h2', text: 'Tracking reschedules without a spreadsheet' },
   { type: 'p', text: `You do not need a separate system to see a pattern. The Lessons list shows each student's lessons with their status, and the Earnings page shows your cancellation rate, which is the share of lessons in the period that were cancelled. Neither counts how many times a lesson was moved, because a move changes the time and leaves no trace of the old one. If you want that count, put "moved" and the date in the lesson notes the first time, and look back once a month.` },
   { type: 'p', text: `What you are looking for is the student who moves every second lesson. It is rarely about the calendar. A student who keeps rescheduling is often a student who is losing interest, whose timetable has changed, or whose parents have started to question the cost. Our guide to retaining students lists the signals; a friendly question like the pattern message above usually surfaces the reason within a week.` },
