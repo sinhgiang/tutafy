@@ -61,6 +61,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
+import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 import { IELTS_PART1_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-1-questions'
 import { IELTS_PART3_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-3-questions'
 
@@ -3975,6 +3977,26 @@ export const POSTS: Post[] = [
     content: IELTS_PART2_CONTENT,
   },
   {
+    slug: 'wyzant-fees-for-tutors',
+    title: 'Wyzant Fees for Tutors: What Wyzant Keeps, What Students Pay and What You Take Home',
+    description: 'Wyzant fees for tutors: the 25% platform fee, the 9% student fee, what to post to take home a rate, referrals, payouts and taxes. Checked 31 Oct 2026.',
+    date: '2026-11-09',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: WYZANT_FEES_CONTENT,
+  },
+  {
+    slug: 'how-to-find-an-online-tutor',
+    title: 'How to Find a Good Online Tutor: 10 Checks Before the First Lesson',
+    description: 'How to find an online tutor: ten checks before you book, in the first lesson and after four lessons, with price, refund, payment and safety rules.',
+    date: '2026-11-09',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: FIND_ONLINE_TUTOR_CONTENT,
+  },
+  {
     slug: 'ielts-speaking-part-1-questions',
     title: 'IELTS Speaking Part 1 Questions: Topics, Model Answers and How to Practise With a Tutor',
     description: 'IELTS Speaking Part 1 questions: what the official pages say, how long an answer should be, 40 practice questions, answer shapes by question type and a tutor routine.',
@@ -4042,6 +4064,8 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
+  'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
   'ielts-speaking-part-1-questions': "Illustration of a short question bubble and a longer answer bubble with a check mark, for IELTS Speaking Part 1 questions",
   'ielts-speaking-part-3-questions': "Illustration of a speech bubble branching into three connected ideas, for IELTS Speaking Part 3 questions",
 }
