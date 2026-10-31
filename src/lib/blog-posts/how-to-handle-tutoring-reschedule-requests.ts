@@ -8,6 +8,9 @@
 //   src/components/settings/sections/BookingSection.tsx ("Cancellation notice (hours)", 0 to 168), src/app/api/bookings/route.ts (the confirmation
 //     email has a "View your booking details" link to the student's portal), src/app/api/cron/reminders/route.ts (email reminders from a daily job).
 // Tutafy does not charge a late fee or count reschedules per student; the article says so. The messages are wording suggestions, not results.
+// T-1148 (the owner wants Tutafy articles of 3,500 to 4,000 words): added a month of four requests for an invented student decided by the rule, a message for
+// when the tutor must move a lesson, a checklist, make-up lessons, six situations, a section on when to say no and three more FAQ answers. No new claim about
+// Tutafy: the only Tutafy fact added (a move on the Calendar emails nobody) is the one already read from src/app/api/lessons/reschedule/route.ts above.
 import type { PostBlock } from '@/lib/blog'
 
 export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
@@ -37,7 +40,17 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
   { type: 'h2', text: 'Write your notice rule once, in one sentence' },
   { type: 'p', text: `Your notice rule is a single sentence that you can copy into a booking page, a first message and a contract: "You can move or cancel a lesson free of charge up to 24 hours before it starts; after that the lesson is charged." Twenty-four hours is the most common choice and Tutafy's default because it is long enough for you to offer the slot to someone else and short enough that students can keep it. Weekly students on a tight timetable sometimes get 48 hours; a one-off lesson can be shorter.` },
   { type: 'p', text: `Then decide the two things the sentence leaves open. First, whether a late move can ever be free. A single grace move for a genuine emergency, with a note that it happens once, costs you little and keeps a good student. Second, whether you cap the number of free moves: "two free moves a month" stops a pattern without you having to confront anyone. Write both down in the same place as the sentence, so you are never deciding under pressure at 9:40 pm.` },
+  { type: 'p', text: `Add a reply-time promise to the same paragraph, such as "I answer within 12 hours; messages after 9 pm are answered the next morning". It protects your evenings, and a family that knows when to expect an answer stops sending the same request twice.` },
   { type: 'callout', variant: 'warn', title: 'A rule you do not apply is not a rule', text: 'If you allow a free move at 2 hours\' notice for one student and refuse another, you will be asked why, and you will not have a good answer. Decide the exceptions in advance (illness, a family emergency) and apply them to everyone.' },
+  { type: 'h2', text: 'A month of requests, decided by the rule' },
+  { type: 'p', text: `A rule is easier to trust once you have seen it applied. Take a made-up student, Jonas, who has one lesson a week at $40 and a rule of 24 hours' free notice plus one free late move a month. In October he sends four requests. The table shows what the rule says each time, so that nothing is decided on the night.` },
+  { type: 'compare', caption: 'Four requests from one student in a month, decided by the notice rule. An invented example.', headers: ['Request', 'Notice given', 'What the rule says', 'Result'], rows: [
+    ['1. Move Tuesday to Wednesday', '4 days', 'Inside the window: free', 'Moved and confirmed in writing; $40 unchanged'],
+    ['2. Move Tuesday to Thursday', '30 hours', 'Inside the window: free', 'Moved and confirmed in writing; $40 unchanged'],
+    ['3. Move Tuesday to Friday', '6 hours', 'Outside the window: use the month\'s one late move', 'Moved, and the message says the late move is now used; $40 unchanged'],
+    ['4. Move Tuesday to Friday again', '3 hours', 'Outside the window, no late move left', 'Lesson charged, a new time offered for next week; $40 charged'],
+  ] },
+  { type: 'p', text: `Read the pattern as well as the outcomes. Four requests in a month from a weekly student means almost every lesson is moving, and the rule answered each one without a debate. The fourth message is the one tutors dread, and because the rule was written in advance it can be short and kind: "This lesson is inside my 24-hour notice and this month's free late move has been used, so it is charged, as in my policy. I'd like to keep your Tuesday slot, though. Shall we see whether a different weekly time would suit you better?"` },
   { type: 'h2', text: 'Message templates that stay kind and clear' },
   { type: 'p', text: `A good reply does three things in the first sentence: it answers the question, states the new time with the time zone if you work across zones, and says what happens next. Keep it short. Here are four versions for the situations you will meet most; change the words until they sound like you.` },
   { type: 'h3', text: 'Inside the notice window: yes' },
@@ -49,6 +62,11 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
   { type: 'h3', text: 'A pattern, handled gently' },
   { type: 'p', text: `"I've noticed we've moved three lessons this month. Would a different weekly slot suit you better? I have Tuesday evening free. If a fixed time is hard to keep, we could also book week by week." Asking a question and offering an alternative is more effective than a warning, and it often reveals the real reason: a new job, a changed school timetable, or a student who has lost momentum.` },
   { type: 'callout', variant: 'tip', title: 'Always repeat the new time in writing', text: 'Agreeing a new time in a chat and not repeating it is the quiet cause of the next no-show. One line that names the day, the time and the time zone, sent after the move, is worth more than any reminder system. For lessons across time zones, see our guide to scheduling across time zones.' },
+  { type: 'h2', text: 'When you are the one who needs to move the lesson' },
+  { type: 'p', text: `The notice rule should bind you too. A tutor who moves a lesson with two hours' notice teaches the family that lessons are optional, and a family paying $40 an hour remembers it. So apply a mirror rule: if you must move a lesson, say so as early as you can, offer two concrete times instead of an open question, and settle the money before the family has to ask.` },
+  { type: 'h3', text: 'You need to move a lesson' },
+  { type: 'p', text: `"Hi Dana, I'm sorry, I have to move Thursday's lesson because I'm unwell. I can do Friday at 16:00 or Saturday at 10:00, both New York time. Tell me which you prefer and I'll confirm it in writing. If neither works I'll find another time, and this lesson is not charged."` },
+  { type: 'p', text: `Offering two times is faster than asking "when suits you?", which starts a second round of messages. On Tutafy, a move you make on the Calendar emails nobody, so this message is the only notice the student gets: send it first, then drag the lesson.` },
   { type: 'h2', text: 'How a student can move a lesson on Tutafy' },
   { type: 'p', text: `Students do not have to message you at all. The booking confirmation email carries a "View your booking details" link to the student's own portal, and every upcoming lesson there has Reschedule and Cancel buttons. A student picks a new date and a half-hour time, and Tutafy applies your rule: if the lesson is closer than the number you set under Cancellation notice (hours) in Settings, the portal refuses and tells the student to contact you. You can set that number from 0 to 168.` },
   { type: 'p', text: `When a student moves or cancels in time, Tutafy emails you, updates the lesson, and, if you have connected Google Calendar, updates or removes the event there too. After a student's own move it also resets the reminders, so the new time gets its own reminder email. That removes most of the back-and-forth for ordinary requests, and you keep the exceptions for yourself.` },
@@ -57,6 +75,17 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
   { type: 'p', text: `For a move you arrange by message, open Calendar, drag the lesson to its new day and time, or use the Move to form on a phone or a keyboard. If the new time overlaps another lesson of yours, Tutafy tells you which one and waits for you to choose Move anyway. Cancelled lessons never count as a clash.` },
   { type: 'image', src: '/blog/inline/reschedule-who-does-what', alt: 'A table of two ways a lesson is moved on Tutafy. When a student moves it from the portal: the tutor is emailed, the student is not emailed, a connected Google Calendar event is updated, reminders are reset and only an identical start time counts as a clash. When the tutor moves it on the Calendar: nobody is emailed, Google Calendar is not updated, reminders are not reset and any overlap with another lesson is flagged.', caption: 'What Tutafy does for you in each case, read from the code on 31 October 2026. The gaps in the second column are yours to fill.' },
   { type: 'callout', variant: 'info', title: 'After you drag a lesson, do three things yourself', text: 'A move on the Calendar changes the time but does not email the student, does not update a Google Calendar event, and does not reset the reminders, so a reminder already sent for the old time is not sent again. Send the student the new time, change the event in Google Calendar if you use it, and check the day before that the lesson looks right.' },
+  { type: 'h2', text: 'A checklist for every move' },
+  { type: 'ul', items: [
+    'Name the case: reschedule, cancellation or no-show.',
+    'Compare the notice given with your rule, and check whether this student has used a late move this month.',
+    'Reply within the time your terms promise, even if the reply is only "I will answer in the morning".',
+    'Offer two concrete times with the time zone, not "when suits you?".',
+    'Move the lesson, then read it back: day, time and student.',
+    'Send the new time in writing, in the channel the family uses.',
+    'If a reminder was already sent for the old time, send the new time yourself, and change a Google Calendar event if you use one.',
+    'Add "moved" and the date to the lesson notes if you want to count moves later.',
+  ] },
   { type: 'h2', text: 'Tracking reschedules without a spreadsheet' },
   { type: 'p', text: `You do not need a separate system to see a pattern. The Lessons list shows each student's lessons with their status, and the Earnings page shows your cancellation rate, which is the share of lessons in the period that were cancelled. Neither counts how many times a lesson was moved, because a move changes the time and leaves no trace of the old one. If you want that count, put "moved" and the date in the lesson notes the first time, and look back once a month.` },
   { type: 'p', text: `What you are looking for is the student who moves every second lesson. It is rarely about the calendar. A student who keeps rescheduling is often a student who is losing interest, whose timetable has changed, or whose parents have started to question the cost. Our guide to retaining students lists the signals; a friendly question like the pattern message above usually surfaces the reason within a week.` },
@@ -65,6 +94,21 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
   { type: 'h2', text: 'When a reschedule affects money' },
   { type: 'p', text: `A moved lesson that is still paid for is straightforward: the payment stays attached to the lesson. Things get untidy in two places. With a lesson package, decide whether a moved lesson uses a credit at the original date or the new one; the package guide suggests writing "3 of 10" in the lesson notes and counting by lessons taught. With a payment you asked for before the lesson, keep the payment with the lesson, not with the date. Whatever you choose, say it once in your terms.` },
   { type: 'p', text: `Tutafy does not charge a late-move fee on its own. If your rule is that a move inside 24 hours is charged, you ask for the payment yourself or mark the lesson accordingly. That is a deliberate limit: whether to be strict with a regular student is a human decision.` },
+  { type: 'h2', text: 'Make-up lessons without a second timetable' },
+  { type: 'p', text: `Most of the work in a reschedule is not the move but the make-up: where the lesson goes when the week is already full. Three habits stop it eating your calendar. Keep one or two slots a week that you do not sell, leave them out of your public availability and offer them by message, so a displaced lesson has somewhere to land. Put an expiry on make-ups, for example "a lesson moved with enough notice can be made up within 14 days; after that the credit lapses", because make-ups without an expiry pile up as a debt you owe for ever. And count them: a line such as "make-up for 12 Oct" in the lesson notes keeps the tally visible.` },
+  { type: 'p', text: `Be clear about what a make-up is not. A lesson moved inside the notice window is free to move; one cancelled outside it is charged, and offering a make-up on top of that undoes your rule. Decide which applies and write it down. If you are generous once, say that it is once.` },
+  { type: 'h2', text: 'Situations that need a different answer' },
+  { type: 'ul', items: [
+    'Illness or a family emergency: decide the exception in advance, such as one free move with a short note. Say "I hope you feel better" first and the policy second.',
+    'Siblings or a group lesson: one family\'s move cannot move the others. Offer the student who cannot come a short make-up, and keep the group time fixed.',
+    'Exam week: a student three days before IELTS or the SAT who asks to move a lesson usually needs more preparation, not less. Offer a shorter lesson at another time instead of dropping it.',
+    'A clock change: when the clocks change in your country or your student\'s, a lesson at a fixed local time can shift by an hour for one side. Confirm the time in both zones for the two weeks around the change.',
+    'A last-minute request from a student who is always on time: treat it as an emergency until you know otherwise. "Is everything all right?" costs nothing.',
+    'A week of holiday: ask for the dates once and block your calendar yourself, rather than moving lessons one by one.',
+  ] },
+  { type: 'h2', text: 'When to say no, and when yes costs more than it saves' },
+  { type: 'p', text: `Flexibility is a service, and like any service it has a price. Saying yes to every request feels kind, but it spends your evenings and teaches the family that your time is soft. Say no, kindly, in three cases: the request is inside your notice window and the family has already had a late move; the new time would leave a gap you cannot sell, such as a lone lesson at 14:00 between two free hours; or the pattern has become the point, with the same student moving every second lesson.` },
+  { type: 'p', text: `Say yes, even outside the rule, when the cost to you is small and the relationship is long: a regular student with a real emergency, a slot you could not have sold anyway, a parent who has never asked before. The test is whether you would give the same answer to any student in the same position.` },
   { type: 'links', title: 'Related guides', items: [
     { label: 'Tutoring cancellation policies and contracts', href: '/blog/tutoring-cancellation-policy-and-contracts', text: 'wording for the notice rule and the late fee.' },
     { label: 'How to stop tutoring no-shows', href: '/blog/stop-tutoring-no-shows', text: 'what to do when a lesson is missed, not moved.' },
@@ -81,6 +125,9 @@ export const RESCHEDULE_REQUESTS_CONTENT: PostBlock[] = [
     { q: 'Can students reschedule their own lessons in Tutafy?', a: 'Yes. The confirmation email links to the student\'s portal, where upcoming lessons have Reschedule and Cancel buttons. The portal refuses a change inside the notice window you set in Settings, and it emails you when a student moves or cancels in time.' },
     { q: 'Does Tutafy email the student when I move a lesson on the Calendar?', a: 'No. Moving a lesson on the Calendar changes the time only. Tell the student the new time yourself, update Google Calendar if you use it, and note that a reminder already sent for the old time is not sent again.' },
     { q: 'Does Tutafy charge a fee for late reschedules or limit how many a student can make?', a: 'No. Tutafy applies your notice window to a student\'s own move or cancellation, but it does not charge a late fee and does not count how many times a lesson has been moved. Those rules are yours to write and apply.' },
+    { q: 'How do I tell a student that I need to reschedule a lesson?', a: 'Tell them as early as you can, apologize briefly, offer two specific times with the time zone and say what happens to the money, for example "this lesson is not charged". Then confirm the chosen time in writing.' },
+    { q: 'Should I offer make-up lessons?', a: 'Offer one when the student gave enough notice or when you caused the change. Set an expiry, such as 14 days, and count make-ups in the lesson notes so that they do not build up as a debt. A lesson cancelled late is usually charged, not made up.' },
+    { q: 'How many reschedules is too many?', a: 'There is no fixed number. Many tutors allow a couple of free moves a month, or one late move, and treat anything beyond that as a pattern to talk about. Decide the limit in advance, write it in your terms and apply it to every student.' },
     { q: 'What if a student keeps rescheduling?', a: 'Treat it as a signal, not a nuisance. Ask a friendly question and offer a different weekly slot or week-by-week booking. A pattern often means a changed timetable or fading interest, and a short conversation usually brings the real reason out.' },
   ] },
 ]
