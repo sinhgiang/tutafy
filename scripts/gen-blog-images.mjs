@@ -458,6 +458,19 @@ const HEROES = {
       <circle cx="316" cy="12" r="22" fill="#047857"/>
       <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Tutoring lesson plan template (T-1212) — a plan page with a ticked list of steps and a clock
+  'tutoring-lesson-plan-template': base({ from: '#134e4a', to: '#b45309', label: 'Teaching', motif: `
+    <g transform="translate(790,80)" opacity="0.96">
+      <rect x="0" y="0" width="300" height="420" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="28" y="36" width="170" height="16" rx="8" fill="#134e4a" opacity="0.55"/>
+      ${[0,1,2,3].map(i => `<rect x="28" y="${92 + i * 62}" width="26" height="26" rx="7" fill="none" stroke="#134e4a" stroke-width="4" opacity="0.5"/><rect x="72" y="${99 + i * 62}" width="${i % 2 ? 150 : 190}" height="12" rx="6" fill="#134e4a" opacity="${i % 2 ? 0.2 : 0.34}"/>`).join('')}
+      <path d="M33 105 l7 8 l13 -15" stroke="#047857" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M33 167 l7 8 l13 -15" stroke="#047857" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="236" cy="372" r="50" fill="#b45309" opacity="0.9"/>
+      <circle cx="236" cy="372" r="36" fill="#ffffff" opacity="0.94"/>
+      <path d="M236 372 V348 M236 372 L252 382" stroke="#134e4a" stroke-width="6" stroke-linecap="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

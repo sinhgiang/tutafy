@@ -105,7 +105,8 @@ test('every post that states a platform\'s own rate has the "Rates checked" note
       assert.ok(n.text.includes(`Rates checked ${RATES_CHECKED}`), p.slug)
       assert.deepEqual(n.links.map(l => l.href), [PREPLY_RATES_URL, ITALKI_RATES_URL], p.slug)
     }
-    assert.equal(p.updated, '2026-10-25', `${p.slug}: a post whose numbers changed carries the day it was changed`)
+    // T-1212: a later edit that adds a caution but changes no number may move `updated` on, so this is a floor and not an exact day.
+    assert.ok((p.updated ?? '') >= '2026-10-25', `${p.slug}: a post whose numbers changed carries the day it was changed, or a later day`)
   }
 })
 

@@ -737,5 +737,57 @@
       "webp": 14960,
       "avif": 13139
     }
+  },
+  "plan-over-coffee": {
+    "file": "Planning over coffee (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Hope House Press hopehousepress",
+    "source": "https://commons.wikimedia.org/wiki/File:Planning_over_coffee_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4096x4096",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 26060,
+      "avif": 24896
+    }
+  },
+  "plan-taking-notes": {
+    "file": "Taking notes with a pencil (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Thought Catalog thoughtcatalog",
+    "source": "https://commons.wikimedia.org/wiki/File:Taking_notes_with_a_pencil_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5548x3699",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24356,
+      "avif": 20486
+    }
+  },
+  "plan-homework-1": {
+    "file": "Homework 01.jpg",
+    "licence": "CC0",
+    "creator": "Kwameghana(Bright Kwame Ayisi)",
+    "source": "https://commons.wikimedia.org/wiki/File:Homework_01.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "6036x4020",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 54816,
+      "avif": 51974
+    }
+  },
+  "plan-stopwatch": {
+    "file": "Stopwatch, 1810201155, ako.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Ansgar Koreng",
+    "source": "https://commons.wikimedia.org/wiki/File:Stopwatch,_1810201155,_ako.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "5472x3648",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 37764,
+      "avif": 26940
+    }
   }
 }

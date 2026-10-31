@@ -59,6 +59,7 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { LESSON_PLAN_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-lesson-plan-template'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -1083,7 +1084,7 @@ export const POSTS: Post[] = [
     title: 'How much does Preply take from tutors? (2026 commission, explained)',
     description: 'A clear breakdown of Preply\'s tutor commission — the sliding 18–33% cut, the free trial lesson, real take-home examples, how it compares to iTalki and Wyzant, and how to keep more.',
     date: '2026-07-09',
-    updated: '2026-10-25',
+    updated: '2026-10-31',
     category: 'Pricing',
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
@@ -1103,6 +1104,7 @@ export const POSTS: Post[] = [
       ] },
       { type: 'h2', text: 'How Preply\'s commission actually works' },
       { type: 'p', text: `Preply operates on a sliding-scale commission: the more hours you teach on the platform, the smaller the cut it takes. New tutors reportedly start at the highest rate — around 33% of each lesson's price — and the percentage decreases in tiers as cumulative teaching hours grow, reaching toward the high-teens (around 18%) for very high-volume tutors. The precise thresholds and percentages are set by Preply and can change, so the authoritative number is always the one shown in your own tutor dashboard. The key point for planning is that a new tutor keeps roughly two-thirds of each lesson, and even an experienced one rarely keeps more than about 82%.` },
+      { type: 'p', text: `One caution on the tiers in between. We re-checked on 31 Oct 2026: Preply's own help page still answered 403 to our script, and the tutor review sites we found disagree about the steps between 33% and 18%. Several print five tiers (33%, 28%, 25%, 22%, 18%), while one says Preply publishes only three. The three figures that every source repeats are the 33% start, the 18% floor (sources differ on how many hours reach it), and the 100% kept on a trial lesson. We do not print a tier table, because we cannot check one. Look up your own rate in your Preply tutor account.` },
       { type: 'p', text: `This model has a clear logic from Preply's side: it rewards tutors who stay and teach a lot, and it charges the most to newcomers who are benefiting most from the platform's discovery. From the tutor's side, the effect is that your effective rate is always lower than your displayed rate, and it takes a great many hours to earn your way down to the smaller cut. Understanding this is the difference between pricing on your headline rate — and quietly underpaying yourself — and pricing on what you actually take home.` },
       { type: 'h2', text: 'The trial lesson: why Preply keeps 100%' },
       { type: 'p', text: `The part that surprises many new tutors is the trial lesson. When a new student books you for the first time on Preply, that first lesson is a "trial", and Preply keeps 100% of it — you earn nothing for that hour. The rationale is that the platform found you the student and the trial is part of its customer-acquisition cost, converting a browser into a paying learner. If the student continues, you then earn your normal (post-commission) rate on subsequent lessons.` },
@@ -3970,6 +3972,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: IELTS_PART2_CONTENT,
   },
+  {
+    slug: 'tutoring-lesson-plan-template',
+    title: 'Tutoring Lesson Plan Template: A One-Page Plan, Filled In for Four Lessons',
+    description: 'A one-page tutoring lesson plan template for one student, built on the NSSA and British Council session advice, with four filled-in plans and a time budget.',
+    date: '2026-11-08',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: LESSON_PLAN_TEMPLATE_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4018,6 +4030,7 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'tutoring-lesson-plan-template': "Illustration of a plan page with ticked steps and a clock, for a tutoring lesson plan template",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
