@@ -9,6 +9,10 @@
 //   src/components/settings/sections/IntegrationsSection.tsx (Google Calendar), src/app/(dashboard)/ai (Lesson Plan, Homework, Progress Report, Flashcards, Student Feedback,
 //   Essay Corrector, Tutor Bio).
 // The seven-hand-off lesson and the monthly prices are INVENTED to show the counting and the addition; the article says so. No vendor price is stated.
+// T-1148 (the owner wants Tutafy articles of 3,500 to 4,000 words): added how to run the count, the price of the hand-offs (invented minutes and an invented $15 real
+// rate, arithmetic shown), the rule of one, three invented tutors, student-data guidance (general, not legal advice), seven questions for any tool, a weekend
+// migration with a message template, six mistakes and three more FAQ answers. The only Tutafy facts used are the ones read from the code above (Academy up to
+// five tutors, the Free plan up to 10 students, the Students CSV export and the Pro import, the confirmation email's link to the student's portal).
 import type { PostBlock } from '@/lib/blog'
 
 export const TECH_STACK_CONTENT: PostBlock[] = [
@@ -49,6 +53,7 @@ export const TECH_STACK_CONTENT: PostBlock[] = [
   ] },
   { type: 'image', src: '/blog/inline/tech-stack-handoffs', alt: 'On the left, six separate app tiles in a ring with seven numbered arrows between them for one lesson: scheduler to spreadsheet, video to calendar, messaging reminder, notes document, homework message, payment to spreadsheet and spreadsheet to parent update. On the right, one workspace box covering the same six jobs.', caption: 'The same lesson as a picture. The arrows are the hand-offs; each is a chance to forget, mistype or delay.' },
   { type: 'p', text: `Seven steps do not sound like many, until you multiply them by the lessons in a week. Each step is quick, but each also depends on you being at a computer and remembering. A forgotten reminder is a no-show; a missed payment tick is an awkward conversation; a note that never reaches the student weakens the next lesson.` },
+  { type: 'p', text: `Count it live, not from memory. At your next lesson keep a note open and add a line each time you copy something between tools, then do the same for two other kinds of lesson: a new student's first one, which has the most set-up, and the lesson nearest the end of the month, when invoices and parent updates fall due. Time a few of the steps with your phone's stopwatch. Three counts give you a range, and the range is more honest than one lucky Tuesday.` },
   { type: 'h2', text: 'Add up what the stack costs' },
   { type: 'p', text: `List every tool with its job, its monthly price and where it keeps student information. Then add the prices. The example below is invented, with round numbers, to show the addition; do not compare it with any real plan. For a few students, a stack of free tiers can legitimately cost nothing, and that is a fair choice. The exercise is to see the total and the number of logins side by side.` },
   { type: 'compare', caption: 'An invented stack, to show the addition. Fill in your own prices, including any plan you pay for only to get one feature.', headers: ['Tool (type)', 'Job', 'Monthly price (example)', 'Holds student information?'], rows: [
@@ -61,10 +66,22 @@ export const TECH_STACK_CONTENT: PostBlock[] = [
     ['Total', 'Six tools, six logins', '$33 a month, $396 a year', 'Student data in five places'],
   ] },
   { type: 'p', text: `Two columns here matter more than the price. The first is logins: six places to sign in and six places to keep secure. The second is the last column, because student information scattered across five tools means five places to correct an email address, five places to delete when a family leaves, and five places a privacy question could lead to.` },
+  { type: 'h2', text: 'Putting a price on the hand-offs' },
+  { type: 'p', text: `The subscriptions are the part of the cost you can see. The hand-offs cost time, and time has a price. Suppose each of the seven hand-offs in the example takes two minutes, an assumption to replace with a stopwatch reading of your own. That is 14 minutes a lesson. At 12 lessons a week it is 168 minutes, or 2.8 hours, and at a real hourly rate of $15 (our guide to your real hourly rate shows how to work out yours) those hours are worth $42 a week. Over 44 teaching weeks that is $1,848, against $396 a year for the invented subscriptions.` },
+  { type: 'p', text: `Do not take the number too literally. Some hand-offs take seconds, and the minutes you save are worth money only if you spend them on paid work or on rest you value. But it shows where to look: in this example the time costs nearly five times the subscriptions, so cancelling a $10 plan while keeping a hand-off that costs two minutes a lesson would be economising in the wrong place.` },
   { type: 'h2', text: 'What to replace, what to link and what to keep' },
   { type: 'p', text: `You do not have to move everything to one place. For each tool, ask three questions. Does it hold data that another tool also needs? Do you copy from it by hand every lesson? Would a student or parent notice if it disappeared? A tool that answers yes to the first two is a candidate for replacement. A tool you like and that connects with a link can stay. A specialist tool that no general product matches should stay.` },
   { type: 'image', src: '/blog/inline/tech-stack-replace-link-keep', alt: 'A grid of six lesson jobs sorted into three groups. Replace: getting booked, reminders, recording notes and homework, and parent updates. Link: video, since Tutafy accepts a Zoom, Google Meet or custom link per lesson, and payment, since money still settles in your own PayPal or Stripe account. Keep: specialist teaching tools such as a whiteboard or a music notation app.', caption: 'Replace the jobs with the most hand-offs, link the tools you like, keep the specialists.' },
+  { type: 'p', text: `Linking works best with a rule of one: each kind of information has exactly one home, and everywhere else holds a link to it, not a copy. Student contact details live in one list. The lesson link lives in the lesson, and the calendar invite points to it. Homework lives in the lesson notes, and your message says "your homework is in the notes" with the link. A tool you keep then costs one link per lesson instead of one copy.` },
   { type: 'callout', variant: 'tip', title: 'When separate tools are the better choice', text: 'If you teach a handful of students and your free tools already work, there is nothing to fix. Keep your own setup if you work inside a school or an institution that requires a particular video platform, if you run a specialist tool for your subject, such as a music notation or whiteboard app, or if you simply enjoy your system. Consolidate when the copying starts to cost you reminders, payments or evenings.' },
+  { type: 'h2', text: 'Three tutors, three different answers' },
+  { type: 'p', text: `The audit does not always end in "consolidate". Three invented tutors show how different the answers can be.` },
+  { type: 'h3', text: 'Lena: six students, free tools, nothing to fix' },
+  { type: 'p', text: `Lena teaches six students over two evenings a week. She uses a free booking page from her calendar, a video link she reuses, a notes document for each student and a PayPal link. She has about 25 lessons a month, and her audit finds three hand-offs a lesson, none of which has ever cost her a reminder. The honest result is to keep everything: the cost of moving is higher than the cost of staying.` },
+  { type: 'h3', text: 'Arjun: twenty-five students and two forgotten payments' },
+  { type: 'p', text: `Arjun teaches IELTS to twenty-five students with a scheduler, a spreadsheet, a messaging app, a video plan, a notes app and a payment link. His seven hand-offs are real, and he finds two payments in the spreadsheet that nobody has chased for a month. He replaces the scheduler, the notes and the spreadsheet first, keeps his video tool because his students already use it, and keeps the payment link.` },
+  { type: 'h3', text: 'A three-tutor centre: one shared problem' },
+  { type: 'p', text: `A centre with three tutors has three of everything, and student details in three spreadsheets. The hand-off that hurts is not the copying: it is that nobody can say which tutor teaches a student on a given day, or who has paid. For a centre the case for one system is a shared record. Tutafy's Academy plan covers up to five tutors; a larger centre, or one with several branches, should also look at software built for agencies, such as TutorCruncher.` },
   { type: 'h2', text: 'What Tutafy covers, and where it stops' },
   { type: 'p', text: `Tutafy is built around the six jobs, for independent tutors and small centers of up to five tutors, with 0% commission on every plan. This is what it does for each job, and the limit that goes with it.` },
   { type: 'compare', caption: 'The six jobs in Tutafy, with the limit of each.', headers: ['Job', 'What Tutafy has', 'Limit to know'], rows: [
@@ -87,6 +104,40 @@ export const TECH_STACK_CONTENT: PostBlock[] = [
     'Decide the date on which you will switch off the first tool, and do it.',
   ] },
   { type: 'callout', variant: 'warn', title: 'Check what you cannot easily take back', text: 'Moving student data between tools means personal information, sometimes of children, so keep to your country\'s privacy rules and your students\' agreement, and delete exports you no longer need. Do not email spreadsheets of student details to yourself or leave them in shared folders.' },
+  { type: 'h2', text: 'Student data in several places: the short version' },
+  { type: 'p', text: `Every tool that holds a student's name, email or phone number is a place you are responsible for. Keep a one-line list of where student information lives, and when a family leaves, delete it in each place on the same day. Keep only what you need: a lesson note about a child's progress is useful, a copy of their school report is rarely necessary. Rules on children's data are often stricter than for adults and differ by country, so check the rules where you and your students live. This is general guidance, not legal advice.` },
+  { type: 'h2', text: 'Questions to ask any tool before you adopt it' },
+  { type: 'p', text: `Whether you choose Tutafy or anything else, ask the same questions before you move student information into a tool.` },
+  { type: 'ul', items: [
+    'Can I export everything I put in, in a format another tool can read? Ask before you import a single student.',
+    'What happens to my students\' data if I cancel? Is it deleted, and when?',
+    'Which emails does it send to students, from which address, and can I see them before they go?',
+    'Does it show times in my student\'s time zone as well as mine?',
+    'What does a student have to do to book and to pay? Try it yourself, as a student, on a phone.',
+    'What is free, what is paid, and what happens to a paid feature I rely on if the price changes?',
+    'Who answers when something breaks the night before an exam, and how quickly?',
+  ] },
+  { type: 'p', text: `Read the answers, not the feature list. A tool that answers the first two questions plainly usually expects you to stay because it is useful, not because leaving is hard.` },
+  { type: 'h2', text: 'A migration in one weekend, in order' },
+  { type: 'p', text: `If the audit says replace, do it in a fixed order so that nothing is lost and no student is confused.` },
+  { type: 'ul', items: [
+    'Friday evening: export your student list from your spreadsheet and your scheduler, and keep a copy somewhere safe.',
+    'Saturday morning: set up the new tool with your availability, lesson length, price and notice rule, then book a lesson with yourself as a test student, from a phone.',
+    'Saturday afternoon: add two or three students and their next lessons. Leave the others where they are.',
+    'Sunday: message those students (the template below), check that each one gets a confirmation, and run the first week beside the old setup.',
+    'Two weeks later: count the hand-offs again, compare with your list and decide whether to move the rest.',
+  ] },
+  { type: 'p', text: `"Hi Sam, from next week I'm taking bookings on a new page: [link]. Your usual Tuesday lesson is already there, and you'll get a confirmation email with a link to see or move it. Nothing changes on the day: same time, same lesson. If anything looks wrong, tell me and I'll fix it."` },
+  { type: 'p', text: `Keep your old booking link alive for a month, with a note pointing to the new one, so that a student with an old bookmark does not book into a void.` },
+  { type: 'h2', text: 'Mistakes tutors make when choosing tools' },
+  { type: 'ul', items: [
+    'Buying an annual plan before a two-week test. Pay monthly until the tool has survived a month of real lessons.',
+    'Choosing for the feature you might use. Choose for the jobs you do every week, then check the rare ones.',
+    'Moving everyone at once. One bad import can cost a week of corrections across twenty students.',
+    'Copying a well-known tutor\'s stack. Their students, subject and volume are not yours.',
+    'Keeping a tool "just in case" for a year. If you have not opened it in two months, cancel it.',
+    'Forgetting the student\'s side. A tool that is quick for you and confusing for a parent costs you messages, which are hand-offs of their own.',
+  ] },
   { type: 'links', title: 'Related guides', items: [
     { label: 'Calendly alternatives for tutors', href: '/blog/calendly-alternatives-for-tutors', text: 'the booking job in detail.' },
     { label: 'Best tutor management software', href: '/blog/best-tutor-management-software', text: 'the all-in-one tools compared, from TutorCruncher to Tutafy.' },
@@ -100,6 +151,9 @@ export const TECH_STACK_CONTENT: PostBlock[] = [
     { q: 'What is a tutoring tech stack?', a: 'The set of apps a tutor uses to run lessons and the business around them, for example a scheduling app, a video tool, a notes document, a spreadsheet, a messaging app and a payment link. The word stack just means the tools you have chained together.' },
     { q: 'How many apps is too many for a tutor?', a: 'There is no fixed number. The test is the hand-offs: if you copy the same information from one app to another every lesson, and that copying costs you reminders, payments or evenings, you have too many. Count the hand-offs in one ordinary lesson.' },
     { q: 'Is an all-in-one platform better than separate tools?', a: 'Not always. For a handful of students, free separate tools work. An all-in-one makes sense when the hand-offs between your tools cost you time or cause missed reminders and unpaid lessons. Keep any specialist tool, such as a whiteboard, that a general product does not replace.' },
+    { q: 'How much should an online tutor spend on software?', a: 'There is no standard figure. Compare the monthly cost with the time the tools save: if a subscription removes hand-offs that cost you more than its price at your real hourly rate, it pays for itself. If not, a free tool is a fair choice.' },
+    { q: 'What is the cheapest way to run an online tutoring business?', a: 'For a few students, a free booking page, a free video tool, a notes document and a PayPal link cost nothing. That stops being cheap when the copying between them costs you reminders or unpaid lessons. Tutafy\'s Free plan covers up to 10 students if you want those jobs in one place.' },
+    { q: 'How do I tell my students that I am changing tools?', a: 'Message two or three students first, with the new link, their next lesson already in it and a line saying that nothing else changes. Keep the old link live for a month with a note pointing to the new one.' },
     { q: 'Can I keep using Zoom or Google Meet with Tutafy?', a: 'Yes. Each lesson can use the built-in video room, a Zoom link, a Google Meet link or any custom link. Tutafy detects the platform from the link and sends the student to it from the lesson.' },
     { q: 'Does Tutafy have a whiteboard?', a: 'No. The built-in room has audio, video, screen sharing and chat, and no whiteboard. If you teach with a whiteboard or another specialist tool, keep it and share your screen or its link.' },
     { q: 'Is Tutafy a payment processor?', a: 'No. Students pay through your own PayPal link or your own Stripe card payment link, and the money goes to your account. Tutafy records the payment status on each lesson and takes 0% commission on every plan.' },
