@@ -148,7 +148,7 @@ export const ONLINE_TUTORING_JOBS_CONTENT: PostBlock[] = [
     `Treating one platform as your whole business, with nothing of your own if its terms change.`,
     `Forgetting tax, or paying anyone to get hired.`,
   ] },
-  { type: 'source', text: 'Official pages used here, read on 31 Oct 2026. Our script could not read the Preply, Wyzant, Varsity Tutors, TutorMe, italki, Superprof and Tutor.com FAQ pages, so those figures come from search results of the official pages. Read the current page before you apply.', links: [
+  { type: 'source', text: 'Official pages used here, read on 31 Oct 2026. We could not read the Preply, Wyzant, Varsity Tutors, TutorMe, italki, Superprof and Tutor.com FAQ pages, so those figures come from search results. Read the current page before you apply.', links: [
     { label: 'US Bureau of Labor Statistics: Tutors', href: 'https://www.bls.gov/ooh/education-training-and-library/tutors.htm' },
     { label: 'US Federal Trade Commission: job scams', href: 'https://consumer.ftc.gov/articles/job-scams' },
     { label: 'Cambly: become a tutor', href: 'https://www.cambly.com/english/tutors' },
@@ -173,6 +173,7 @@ export const ONLINE_TUTORING_JOBS_CONTENT: PostBlock[] = [
     { label: 'Do tutors have to pay taxes?', href: '/blog/do-tutors-have-to-pay-taxes', text: 'What contractor income means at tax time.' },
     { label: 'How to leave Preply', href: '/blog/how-to-leave-preply-migration-guide', text: 'Moving regular students to your own link.' },
     { label: 'Wyzant fees for tutors', href: '/blog/wyzant-fees-for-tutors', text: 'Both fees, worked out.' },
+    { label: 'Tutor.com jobs', href: '/blog/tutor-com-jobs', text: 'Its pages, read closely.' },
   ] },
   { type: 'faq', items: [
     { q: 'How do I get an online tutoring job with no experience?', a: `Start with platforms whose pages say no degree or experience is needed, such as Preply and Cambly, and prepare a clear subject, a short profile and a good video. The pages we read give 2 to 10 business days for an answer, so apply to two or three at once.` },

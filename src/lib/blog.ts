@@ -65,6 +65,8 @@ import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { TUTOR_COM_JOBS_CONTENT } from '@/lib/blog-posts/tutor-com-jobs'
+import { SINGING_LESSONS_ONLINE_CONTENT } from '@/lib/blog-posts/singing-lessons-online'
 import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
 import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
@@ -4024,6 +4026,26 @@ export const POSTS: Post[] = [
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
   {
+    slug: 'tutor-com-jobs',
+    title: 'Tutor.com Jobs: How to Apply, What the Pages Say You Earn and Where Independent Tutors Can Earn More',
+    description: 'Tutor.com jobs: who can apply, the steps, the $22 an hour High-Dosage rate, what its pages leave out and what independent tutors earn. Checked 31 Oct 2026.',
+    date: '2026-11-14',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_COM_JOBS_CONTENT,
+  },
+  {
+    slug: 'singing-lessons-online',
+    title: 'Singing Lessons Online: How They Work and 12 Questions to Ask a Teacher Before You Book',
+    description: 'Singing lessons online: how a lesson runs, why you cannot sing in time over video, audio set-up, voice-health warning signs and 12 questions to ask.',
+    date: '2026-11-14',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: SINGING_LESSONS_ONLINE_CONTENT,
+  },
+  {
     slug: 'tutoring-contract-template',
     title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
     description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
@@ -4115,6 +4137,8 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'tutor-com-jobs': "Illustration of a job card with a pay tag and a check mark, for Tutor.com jobs",
+  'singing-lessons-online': "Illustration of a laptop screen with sound waves and a microphone, for singing lessons online",
   'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
   'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",

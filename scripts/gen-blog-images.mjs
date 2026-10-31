@@ -521,6 +521,29 @@ const HEROES = {
       </g>`).join('')}
     </g>` }),
 
+  // Tutor.com jobs (T-1238) — a job card with a pay tag and a ticked requirement list
+  'tutor-com-jobs': base({ from: '#14532d', to: '#1e3a5f', label: 'Growth', motif: `
+    <g transform="translate(740,100)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="330" rx="20" fill="#ffffff" opacity="0.94"/>
+      <rect x="32" y="36" width="120" height="16" rx="8" fill="#14532d" opacity="0.55"/>
+      <rect x="32" y="64" width="200" height="12" rx="6" fill="#1e3a5f" opacity="0.28"/>
+      <rect x="262" y="30" width="86" height="40" rx="20" fill="#b45309" opacity="0.88"/>
+      ${[0,1,2].map(i => `<g transform="translate(0,${120 + i * 56})">
+        <rect x="32" y="0" width="28" height="28" rx="8" fill="#047857" opacity="${0.95 - i * 0.1}"/>
+        <path d="M39 14 l6 7 l10 -13" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="78" y="8" width="${i === 1 ? 160 : 220}" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
+      </g>`).join('')}
+    </g>` }),
+
+  // Singing lessons online (T-1239) — a laptop with sound waves and a microphone
+  'singing-lessons-online': base({ from: '#4c1d95', to: '#0e7490', label: 'Teaching', motif: `
+    <g transform="translate(730,110)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="250" rx="18" fill="#ffffff" opacity="0.94"/>
+      ${[40,90,70,130,100,150,80,120,60,100,50].map((h, i) => `<rect x="${34 + i * 30}" y="${125 - h / 2}" width="14" height="${h}" rx="7" fill="#4c1d95" opacity="${0.35 + (i % 3) * 0.2}"/>`).join('')}
+      <rect x="-20" y="262" width="420" height="16" rx="8" fill="#ffffff" opacity="0.8"/>
+      <rect x="300" y="284" width="56" height="86" rx="28" fill="#ffffff" opacity="0.92"/>
+      <rect x="322" y="372" width="12" height="30" rx="6" fill="#ffffff" opacity="0.8"/>
+    </g>` }),
   // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
   'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
     <g transform="translate(790,86)" opacity="0.96">
