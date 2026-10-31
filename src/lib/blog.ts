@@ -34,6 +34,7 @@
 //  - tutoring-lesson-packages-explained: explainer/pricing · axis = definition → formats → price arithmetic → 4 terms → counting the balance → when not to · statCards + compare(5 formats, early) + 2× own SVG diagram (price bars, lifecycle) + 3× callout(tip/warn/info) + prosCons + ul(setup steps) + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1141)
 //  - real-hourly-rate-for-tutors: pricing/explainer · axis = one formula → worked week → four levers → track your hours → leaving a platform honestly · statCards + compare(worked week, early) + 2× own SVG diagram (three bars, stacked hours) + compare(four levers) + source(rates, card fee) + calculator + ul(unpaid hours, tracking) + prosCons + links, NO callout(tip/warn)/mid-article cta. Body in src/lib/blog-posts/ (T-1143)
 //  - how-to-handle-tutoring-reschedule-requests: operations/how-to · axis = one request through its moments (name the case → write the notice rule → message templates → who moves the lesson → track the pattern) · statCards + compare(3 cases, early) + 2× own SVG diagram (five-moment flow, who-does-what table) + 4 message templates (h3 + p) + callout(warn/tip/info) + prosCons + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1143)
+//  - how-to-ask-for-tutoring-payment: payments/how-to · axis = a six-step ladder with timings (terms → link → invoice → nudge → firmer → pause) · statCards + compare(ladder, early) + 2× own SVG diagram (timeline, status flow) + 4 message templates (h3 + p) + callout(tip/warn/info/tip) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -41,6 +42,7 @@ import { TIME_ZONES_CONTENT } from '@/lib/blog-posts/schedule-tutoring-lessons-a
 import { LESSON_PACKAGES_CONTENT } from '@/lib/blog-posts/tutoring-lesson-packages-explained'
 import { REAL_HOURLY_RATE_CONTENT } from '@/lib/blog-posts/real-hourly-rate-for-tutors'
 import { RESCHEDULE_REQUESTS_CONTENT } from '@/lib/blog-posts/how-to-handle-tutoring-reschedule-requests'
+import { ASK_FOR_PAYMENT_CONTENT } from '@/lib/blog-posts/how-to-ask-for-tutoring-payment'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3861,6 +3863,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: RESCHEDULE_REQUESTS_CONTENT,
   },
+  {
+    slug: 'how-to-ask-for-tutoring-payment',
+    title: 'How to Ask a Parent or Student to Pay for Tutoring (Without the Awkwardness)',
+    description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
+    date: '2026-10-31',
+    category: 'Payments',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ASK_FOR_PAYMENT_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3900,6 +3912,7 @@ const HERO_ALTS: Record<string, string> = {
   'tutoring-lesson-packages-explained': "Illustration of a stack of lesson tickets, for tutoring lesson packages",
   'real-hourly-rate-for-tutors': "Illustration of three bars of different heights beside a coin, for a tutor's real hourly rate",
   'how-to-handle-tutoring-reschedule-requests': "Illustration of a calendar with a lesson block moving to another day, for handling reschedule requests",
+  'how-to-ask-for-tutoring-payment': "Illustration of a message bubble beside a green check mark, for asking a parent to pay for tutoring",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

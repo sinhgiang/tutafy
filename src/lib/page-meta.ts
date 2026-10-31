@@ -231,6 +231,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'How to Handle Tutoring Reschedule Requests',
     description: 'Write one notice rule, apply it every time and confirm each new time in writing. Includes four message templates and what Tutafy does when a lesson moves.',
   },
+  'how-to-ask-for-tutoring-payment': {
+    title: 'How to Ask a Parent to Pay for Tutoring',
+    description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
+  },
 }
 
 /**

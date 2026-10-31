@@ -275,6 +275,60 @@ D['reschedule-who-does-what'] = frame(
   })(),
 )
 
+// ---- T-1143, article 3: asking for payment (the timings are examples; what Tutafy does is read from the code, 31 Oct 2026) -----------------
+D['payment-ladder'] = frame(
+  'A payment ladder for private tutoring',
+  'Each step has a time and a purpose. The first two prevent most of the last four.',
+  (() => {
+    const st = [
+      ['1', 'Terms', 'Before the', 'first lesson'],
+      ['2', 'Payment link', 'At booking', ''],
+      ['3', 'Invoice', 'Day of the', 'lesson'],
+      ['4', 'Friendly nudge', 'About 3 days', 'later'],
+      ['5', 'Firmer message', 'About 2 weeks', 'later'],
+      ['6', 'Pause lessons', 'After the second', 'reminder'],
+    ]
+    const x0 = 60, step = 164
+    const line = `<line x1="${x0 + 40}" y1="250" x2="${x0 + 5 * step + 40}" y2="250" stroke="${LINE}" stroke-width="6" stroke-linecap="round"/>`
+    return line + st.map((s, i) => {
+      const cx = x0 + 40 + i * step, early = i < 2, late = i >= 3
+      const fill = early ? '#ecfdf5' : late ? '#fffbeb' : PALE
+      const stroke = early ? '#10b981' : late ? '#f59e0b' : INDIGO
+      return `<circle cx="${cx}" cy="250" r="30" fill="${fill}" stroke="${stroke}" stroke-width="4"/>` +
+        text(cx, 260, s[0], { size: 26, weight: 800, anchor: 'middle' }) +
+        text(cx, 330, s[1], { size: 20, weight: 800, anchor: 'middle' }) +
+        text(cx, 362, s[2], { size: 18, fill: MUTED, anchor: 'middle' }) +
+        (s[3] ? text(cx, 386, s[3], { size: 18, fill: MUTED, anchor: 'middle' }) : '')
+    }).join('') +
+      `<path d="M${x0 + 10} 176 v-14 h${step + 60} v14" stroke="#10b981" stroke-width="3" fill="none"/>` + text(x0 + 10 + (step + 60) / 2, 148, 'Prevent', { size: 21, weight: 800, fill: GREEN, anchor: 'middle' }) +
+      `<path d="M${x0 + 3 * step + 10} 176 v-14 h${2 * step + 60} v14" stroke="#f59e0b" stroke-width="3" fill="none"/>` + text(x0 + 3 * step + 10 + (2 * step + 60) / 2, 148, 'Chase', { size: 21, weight: 800, fill: AMBER, anchor: 'middle' }) +
+      text(550, 500, 'Decide the timings once, write them in your terms, and use them for every family.', { size: 20, weight: 600, fill: INK, anchor: 'middle' }) +
+      text(550, 590, 'Times are examples, not rules. Late-fee and prepayment rules differ by country.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['payment-status-flow'] = frame(
+  'One status, four places it shows',
+  'A lesson with a price whose payment is pending. Read from the code, 31 October 2026.',
+  (() => {
+    const outs = [
+      ['You', 'Still owed on the Earnings page, and the pending filter on Lessons'],
+      ['The student', 'One automatic email, 3 to 4 days after a completed lesson'],
+      ['A parent', 'A Pending Payment alert in the portal, and a monthly email note'],
+      ['You, on demand', 'The Send Invoice button on the lesson (use it while unpaid)'],
+    ]
+    const src = box(50, 250, 200, 110, { fill: '#fffbeb', stroke: '#f59e0b', r: 16 }) + text(150, 296, 'Lesson', { size: 22, weight: 800, anchor: 'middle' }) + text(150, 330, 'payment: pending', { size: 20, weight: 700, fill: AMBER, anchor: 'middle' })
+    const rows = outs.map((o, i) => {
+      const y = 130 + i * 90
+      return arrow(250, 305, 320, y + 36, '#f59e0b') + box(324, y, 560, 72, { fill: '#ffffff', stroke: '#c7d2fe', r: 12 }) +
+        text(344, y + 30, o[0], { size: 19, weight: 800, fill: INDIGO }) + text(344, y + 58, o[1], { size: 18, fill: INK })
+    }).join('')
+    const paid = box(912, 250, 150, 110, { fill: '#ecfdf5', stroke: '#10b981', r: 16 }) + text(987, 296, 'Mark paid', { size: 21, weight: 800, anchor: 'middle' }) + text(987, 328, 'stops the first three', { size: 16, fill: GREEN, anchor: 'middle' })
+    return src + rows + arrow(886, 305, 910, 305, '#10b981') + paid +
+      text(550, 590, 'Tutafy is not told when a student pays through your own PayPal or Stripe link: you set the status.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
 const only = process.argv.slice(2) // optional: draw only the diagrams named on the command line, so older files are not rewritten
 for (const [name, svg] of Object.entries(D)) {
   if (only.length && !only.includes(name)) continue
