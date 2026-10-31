@@ -240,8 +240,8 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
   },
   'how-to-write-a-tutor-bio': {
-    title: 'How to Write a Tutor Bio: 15 Examples',
-    description: 'A good tutor bio says who you help, what a lesson is like and why you. See 15 invented examples, headline formulas, a before and after, and a checklist.',
+    title: 'Tutor Bio: How to Write One, 15 Examples',
+    description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
   },
 }
 

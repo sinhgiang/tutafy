@@ -3890,8 +3890,8 @@ export const POSTS: Post[] = [
   },
   {
     slug: 'how-to-write-a-tutor-bio',
-    title: 'How to Write a Tutor Bio: 15 Examples for Preply, italki, Wyzant and Your Own Site',
-    description: 'A good tutor bio says who you help, what a lesson is like and why you. See 15 invented examples, headline formulas, a before and after, and a checklist.',
+    title: 'Tutor Bio: How to Write One, With 15 Examples for Preply, italki, Wyzant and Your Own Site',
+    description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
     date: '2026-10-31',
     category: 'How-to',
     author: AUTHOR,

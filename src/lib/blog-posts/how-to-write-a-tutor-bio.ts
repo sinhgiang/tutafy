@@ -13,6 +13,8 @@
 // (surname, contact details and links to personal sites or social media kept out of the description; no third person; one language; a clear call to action; only the headline and
 // the first words show in search results). The page itself could not be opened by our tool that day, so the text says "check the current page" and names no limit or number.
 // Every bio in the examples is invented: names, schools, years and results are placeholders or made up, none is a real tutor, and no figure is a statistic.
+// Search term (OpenSEO, US, 31 Oct 2026, reports/chief/2026-10-31-1315-keyword-data-sapa-tutafy.md): the main phrase is "tutor bio" (2,400 searches a month, difficulty 0); "tutor bio examples" (20) is a
+// secondary phrase. So the title, the H1 and the first sentence lead with "tutor bio", and "tutor bio examples" is the heading of the examples section and in the second paragraph.
 // Length: written to 3,500 to 4,000 words (scripts/count-post-words.mjs).
 import type { PostBlock } from '@/lib/blog'
 
@@ -24,8 +26,8 @@ export const TUTOR_BIO_CONTENT: PostBlock[] = [
     'Keep one master bio and adapt it for each place: short for a marketplace, longer for your own booking page.',
     'The 15 examples below are invented. Replace every fact with your own, and read each platform\'s current rules before you paste.',
   ] },
-  { type: 'p', text: `A good tutor bio says who you help, what a lesson with you looks like and why you are the right person, in your own voice, in about 80 to 150 words, and it ends with one clear next step such as booking a trial lesson. Write it to one student, not to "students" in general, and open with the sentence that matters most.` },
-  { type: 'p', text: `Below are 15 invented examples, then headline formulas, a before and after rewrite, a list of mistakes, a 20-minute process and a checklist. If you use Tutafy, the last section covers its introduction box and four templates.` },
+  { type: 'p', text: `A tutor bio says who you help, what a lesson with you looks like and why you are the right person, in your own voice, in about 80 to 150 words, and it ends with one clear next step such as booking a trial lesson. Write it to one student, not to "students" in general, and open with the sentence that matters most.` },
+  { type: 'p', text: `Below are 15 tutor bio examples, all invented, then headline formulas, a before and after rewrite, a list of mistakes, a 20-minute process and a checklist. If you use Tutafy, the last section covers its introduction box and four templates.` },
   { type: 'statCards', cards: [
     { value: '15', label: 'invented example bios, by subject, student and place' },
     { value: '3', label: 'questions every bio answers: who, what, why you' },
