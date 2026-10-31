@@ -893,18 +893,5 @@
       "webp": 40088,
       "avif": 32354
     }
-  },
-  "phys-lab-team": {
-    "file": "Physics Lab Christ School.jpg",
-    "licence": "CC BY-SA 4.0",
-    "creator": "Christ School",
-    "source": "https://commons.wikimedia.org/wiki/File:Physics_Lab_Christ_School.jpg",
-    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-    "original": "1546x1031",
-    "checked": "2026-10-31",
-    "bytes": {
-      "webp": 95256,
-      "avif": 73457
-    }
   }
 }

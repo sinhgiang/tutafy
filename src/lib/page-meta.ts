@@ -279,6 +279,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'GRE and GMAT Tutor Online: How to Choose',
     description: 'GRE and GMAT tutor online: the two tests by official pages, free official practice, six checks for a tutor, a 12-week plan and what a retake costs.',
   },
+  'chemistry-physics-tutor-online': {
+    title: 'Chemistry and Physics Tutor Online: A Good Session',
+    description: 'Chemistry and physics tutor online: what a good session looks like, two worked examples, six signs of a good tutor, AP exam formats and home safety.',
+  },
 }
 
 /**

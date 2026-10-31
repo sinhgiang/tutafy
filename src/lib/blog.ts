@@ -62,6 +62,7 @@ import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topi
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 import { GRE_GMAT_TUTOR_CONTENT } from '@/lib/blog-posts/gre-gmat-tutor-online'
+import { CHEM_PHYSICS_TUTOR_CONTENT } from '@/lib/blog-posts/chemistry-physics-tutor-online'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -4003,6 +4004,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: GRE_GMAT_TUTOR_CONTENT,
   },
+  {
+    slug: 'chemistry-physics-tutor-online',
+    title: 'Chemistry and Physics Tutor Online: What a Good Session Looks Like and How to Choose One',
+    description: 'Chemistry and physics tutor online: what a good session looks like, two worked examples, six signs of a good tutor, AP exam formats and a rule on home experiments.',
+    date: '2026-11-17',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: CHEM_PHYSICS_TUTOR_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4054,6 +4065,7 @@ const HERO_ALTS: Record<string, string> = {
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
   'gre-gmat-tutor-online': "Illustration of a test score card with a rising line and three ticked checks, for choosing a GRE or GMAT tutor",
+  'chemistry-physics-tutor-online': "Illustration of a lab flask and a free-body diagram with a ticked check, for a chemistry and physics tutor session",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

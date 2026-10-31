@@ -9,6 +9,7 @@ import { count } from '../scripts/count-post-words.mjs'
 const TRAFFIC_ARTICLES = ['how-to-write-a-tutor-bio', 'free-tutoring-invoice-template', 'online-whiteboard-for-tutoring', 'do-tutors-have-to-pay-taxes', 'online-tutoring-jobs', 'tutor-resume', 'ielts-speaking-part-2-topics']
 TRAFFIC_ARTICLES.push('wyzant-fees-for-tutors', 'how-to-find-an-online-tutor') // T-1214, T-1215 (9 Nov 2026)
 TRAFFIC_ARTICLES.push('gre-gmat-tutor-online') // T-1244 (17 Nov 2026)
+TRAFFIC_ARTICLES.push('chemistry-physics-tutor-online') // T-1245 (17 Nov 2026)
 
 for (const slug of TRAFFIC_ARTICLES) {
   test(`${slug}: 3,500 to 4,000 words`, () => {

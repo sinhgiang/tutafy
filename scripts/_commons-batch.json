@@ -48,6 +48,5 @@
   { "name": "gre-desk-notes", "file": "A Student’s Reading Table in a home.jpg", "crop": { "top": 0.5 } },
   { "name": "chem-lab-glassware", "file": "Laboratory equipment of modern chemistry classroom.jpg" },
   { "name": "phys-spring-measure", "file": "A student calculating spring constant at NDC physics lab.jpg", "crop": { "top": 0.3 } },
-  { "name": "phys-whiteboard", "file": "Physics Tutor.jpg" },
-  { "name": "phys-lab-team", "file": "Physics Lab Christ School.jpg" }
+  { "name": "phys-whiteboard", "file": "Physics Tutor.jpg" }
 ]
