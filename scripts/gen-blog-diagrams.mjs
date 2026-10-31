@@ -375,6 +375,32 @@ D['tech-stack-replace-link-keep'] = frame(
   })(),
 )
 
+// ---- T-1166: the four parts of a tutor bio ----------------------------------------------------------------------------------------
+D['bio-anatomy'] = frame(
+  'The four parts of a tutor bio',
+  'Three questions and one next step. The sentences are examples; write your own.',
+  (() => {
+    const parts = [
+      ['1', 'Who you help', ['"Adults who', 'understand English', 'but freeze when', 'they speak."']],
+      ['2', 'What a lesson is', ['"You practise out', 'loud, I note your', 'three biggest', 'mistakes."']],
+      ['3', 'Why you', ['"I have taught', 'adults for [number]', 'years and I hold', '[qualification]."']],
+      ['4', 'One next step', ['"Book a trial lesson', 'and tell me what', 'you want to say', 'next month."']],
+    ]
+    const w = 236, gap = 22, x0 = 48
+    return parts.map((p, i) => {
+      const x = x0 + i * (w + gap), last = i === 3
+      return box(x, 150, w, 330, { fill: last ? '#ecfdf5' : PALE, stroke: last ? '#10b981' : '#818cf8', r: 18 }) +
+        `<circle cx="${x + 42}" cy="204" r="26" fill="${last ? GREEN : INDIGO}"/>` +
+        text(x + 42, 214, p[0], { size: 28, weight: 800, fill: '#ffffff', anchor: 'middle' }) +
+        text(x + 20, 276, p[1], { size: 24, weight: 800 }) +
+        lines(x + 20, 322, p[2], { size: 21, fill: MUTED }) +
+        (i < 3 ? arrow(x + w + 2, 315, x + w + gap - 2, 315) : '')
+    }).join('') +
+      text(550, 536, 'Put the first two parts in your first two sentences: some readers see nothing else.', { size: 22, weight: 600, anchor: 'middle' }) +
+      text(550, 584, 'Everything you claim in the bio is something you will be held to.', { size: 20, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
 const only = process.argv.slice(2) // optional: draw only the diagrams named on the command line, so older files are not rewritten
 for (const [name, svg] of Object.entries(D)) {
   if (only.length && !only.includes(name)) continue

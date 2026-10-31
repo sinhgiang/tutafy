@@ -367,6 +367,20 @@ const HEROES = {
       <rect x="150" y="250" width="200" height="60" rx="16" fill="#ffffff" opacity="0.93"/>
       <rect x="176" y="272" width="148" height="14" rx="7" fill="#6d28d9" opacity="0.45"/>
     </g>` }),
+
+  // Tutor bio (T-1166) — a profile card: a round photo spot, a name line, three text lines and a button
+  'how-to-write-a-tutor-bio': base({ from: '#0f766e', to: '#4338ca', label: 'How-to', motif: `
+    <g transform="translate(770,120)" opacity="0.95">
+      <rect x="0" y="0" width="340" height="330" rx="26" fill="#ffffff" opacity="0.93"/>
+      <circle cx="70" cy="74" r="38" fill="#0f766e" opacity="0.35"/>
+      <rect x="130" y="52" width="150" height="16" rx="8" fill="#4338ca" opacity="0.55"/>
+      <rect x="130" y="82" width="100" height="12" rx="6" fill="#4338ca" opacity="0.25"/>
+      <rect x="34" y="148" width="270" height="14" rx="7" fill="#0f766e" opacity="0.35"/>
+      <rect x="34" y="178" width="240" height="14" rx="7" fill="#0f766e" opacity="0.25"/>
+      <rect x="34" y="208" width="200" height="14" rx="7" fill="#0f766e" opacity="0.25"/>
+      <rect x="34" y="262" width="150" height="42" rx="21" fill="#4338ca" opacity="0.85"/>
+      <path d="M300 20 l8 8 l16 -18" stroke="#047857" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
