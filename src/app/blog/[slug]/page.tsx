@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import {
   ArrowLeft, ArrowRight, Check, X, Lightbulb, AlertTriangle, Info, ListChecks,
 } from 'lucide-react'
-import { POSTS, getPost, readingMinutes, postDates, heroFor, type PostBlock } from '@/lib/blog'
+import { publishedPosts, relatedPosts, getPublishedPost, readingMinutes, postDates, heroFor, type PostBlock } from '@/lib/blog'
 import { CommissionCalculator } from '@/components/blog/CommissionCalculator'
 import { AuthorAvatar } from '@/components/blog/AuthorAvatar'
 import { blogPostMetadata } from '@/lib/page-meta'
@@ -13,25 +13,30 @@ import { blogPostJsonLd, formatPostDate } from '@/lib/blog-seo'
 import { jsonLdScript } from '@/lib/seo'
 import { SiteLogo } from '@/components/SiteLogo'
 
+// A post before its day answers 404 (T-1222). Only the posts that are public now are built ahead; a post whose day comes later is
+// built on its first visit after the day, and the page is rebuilt about every hour, so it appears within an hour after midnight in Vietnam.
+export const revalidate = 3600
+
 export function generateStaticParams() {
-  return POSTS.map(p => ({ slug: p.slug }))
+  return publishedPosts().map(p => ({ slug: p.slug }))
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const post = getPost(slug)
+  const post = getPublishedPost(slug)
   if (!post) return { title: 'Post not found' }
   return blogPostMetadata(post.slug, heroFor(post.slug) ?? undefined)
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = getPost(slug)
+  const post = getPublishedPost(slug)
   if (!post) notFound()
 
   const hero = heroFor(post.slug)
   const jsonLd = blogPostJsonLd(post)
   const dates = postDates(post)
+  const related = relatedPosts(post.slug)
 
   return (
     <div className="min-h-screen bg-white">
@@ -91,11 +96,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         {/* Related posts */}
-        {POSTS.filter(p => p.slug !== post.slug).length > 0 && (
+        {related.length > 0 && (
           <div className="mt-12">
             <p className="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-4">Keep reading</p>
             <div className="grid sm:grid-cols-2 gap-4">
-              {POSTS.filter(p => p.slug !== post.slug).slice(0, 2).map(p => (
+              {related.map(p => (
                 <Link key={p.slug} href={`/blog/${p.slug}`} className="group bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md transition-all">
                   <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-50 rounded-full px-2 py-0.5">{p.category}</span>
                   <p className="text-[15px] font-bold text-gray-900 mt-3 leading-snug group-hover:text-indigo-600 transition-colors">{p.title}</p>

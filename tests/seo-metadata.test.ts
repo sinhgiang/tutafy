@@ -24,7 +24,7 @@ import {
 import { homeJsonLd } from '@/lib/seo'
 import { buildLlmsTxt, buildLlmsFullTxt } from '@/lib/llms'
 import { originFromRequest } from '@/lib/app-url'
-import { POSTS, heroFor } from '@/lib/blog'
+import { POSTS, publishedPosts, heroFor } from '@/lib/blog'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (rel: string) => readFileSync(path.join(ROOT, rel), 'utf8')
@@ -165,7 +165,7 @@ test('the canonical of every indexable page is the address the sitemap lists', a
     if (PAGE_SEO[k].noindex) assert.ok(!inSitemap.has(href), `${k} is noindex but is in the sitemap`)
     else assert.ok(inSitemap.has(href), `${k}: canonical ${href} is not in the sitemap`)
   }
-  for (const p of POSTS) {
+  for (const p of publishedPosts()) {
     assert.ok(inSitemap.has(new URL(canonicalOf(blogPostMetadata(p.slug))).href), p.slug)
   }
 })
@@ -290,11 +290,11 @@ test('the tutors page file moved into a route group, so a tutor profile does not
   assert.ok(existsSync(path.join(ROOT, 'src/app/tutors/[slug]/page.tsx')))
 })
 
-test('the sitemap lists exactly the indexable pages plus every blog post', async () => {
+test('the sitemap lists exactly the indexable pages plus every blog post that is public today', async () => {
   const urls = (await sitemap()).map(e => e.url).sort()
   const expected = [
     ...KEYS.filter(k => !PAGE_SEO[k].noindex).map(k => absoluteUrl(PAGE_SEO[k].path)),
-    ...POSTS.map(p => `${SITE_URL}/blog/${p.slug}`),
+    ...publishedPosts().map(p => `${SITE_URL}/blog/${p.slug}`),
   ].sort()
   assert.deepEqual(urls, expected)
   assert.equal(new Set(urls).size, urls.length, 'a URL is listed twice')

@@ -2,7 +2,7 @@
 // summary of Tutafy for AI assistants. Prices, features, FAQ and the page list come
 // from src/lib/site-content.ts and the blog list from src/lib/blog.ts, the same
 // sources the pages use, so nothing here is typed in twice.
-import { POSTS } from '@/lib/blog'
+import { publishedPosts } from '@/lib/blog'
 import {
   SITE_URL, SITE_NAME, SITE_DESCRIPTION, AUDIENCE, FEATURES, FAQ, PLANS, KEY_PAGES, LEGAL_PAGES,
 } from '@/lib/site-content'
@@ -55,7 +55,7 @@ function pages(): string[] {
 
 function blog(withDetails: boolean): string[] {
   const lines = ['## Blog posts', '']
-  for (const post of POSTS) {
+  for (const post of publishedPosts()) {
     lines.push(withDetails
       ? `- [${post.title}](${SITE_URL}/blog/${post.slug}) (${post.category}, ${post.date}): ${post.description}`
       : `- [${post.title}](${SITE_URL}/blog/${post.slug})`)

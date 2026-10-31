@@ -21,7 +21,7 @@ import {
 } from '@/lib/tutor-seo'
 import { listIndexableTutorSlugs, MAX_TUTOR_URLS, type TutorSlugClient } from '@/lib/tutor-sitemap'
 import { jsonLdScript } from '@/lib/seo'
-import { POSTS, postDates, type Post } from '@/lib/blog'
+import { POSTS, publishedPosts, postDates, type Post } from '@/lib/blog'
 import { blogPostJsonLd, formatPostDate } from '@/lib/blog-seo'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -278,7 +278,7 @@ test('the real sitemap lists a profile only for a tutor who turned the public pa
     assert.equal(q.get('booking_url_active'), 'eq.true')
     // the static pages and the posts are still there
     assert.ok(urls.includes(`${SITE_URL}/tutors`))
-    assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/blog/`)).length, POSTS.length)
+    assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/blog/`)).length, publishedPosts().length)
     // a profile carries no date: nothing records when it last changed
     assert.ok(entries.filter(e => e.url.startsWith(`${SITE_URL}/tutors/`)).every(e => e.lastModified === undefined))
   } finally {
@@ -297,7 +297,7 @@ test('with no database configured, or one that is down, the sitemap still lists 
       process.env.SUPABASE_SERVICE_ROLE_KEY = key
       const urls = (await sitemap()).map(e => e.url)
       assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/tutors/`)).length, 0, url)
-      assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/blog/`)).length, POSTS.length, url)
+      assert.equal(urls.filter(u => u.startsWith(`${SITE_URL}/blog/`)).length, publishedPosts().length, url)
       assert.ok(urls.includes(SITE_URL))
     }
   } finally {
@@ -371,7 +371,7 @@ test('the post page shows the author and the date it was last updated, and the s
   assert.match(src, /jsonLdScript\(s\)/)
   assert.equal(formatPostDate('2026-07-07'), 'July 7, 2026')
   const entries = await sitemap()
-  for (const p of POSTS) {
+  for (const p of publishedPosts()) {
     const e = entries.find(x => x.url === `${SITE_URL}/blog/${p.slug}`)!
     assert.equal(new Date(e.lastModified as Date).getTime(), new Date(postDates(p).modified + 'T00:00:00').getTime(), p.slug)
   }

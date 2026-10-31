@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { POSTS, readingMinutes, heroFor } from '@/lib/blog'
+import { blogIndexCards } from '@/lib/blog'
 import { BlogList, type BlogCard } from '@/components/blog/BlogList'
 import { pageMetadata, PAGE_SEO } from '@/lib/page-meta'
 import { jsonLdScript, pageJsonLd } from '@/lib/seo'
@@ -8,10 +8,11 @@ import { SiteLogo } from '@/components/SiteLogo'
 
 export const metadata = pageMetadata('blog')
 
+// Only posts whose day has come are listed (T-1222); the page is rebuilt about every hour so a post appears on its day.
+export const revalidate = 3600
+
 export default function BlogPage() {
-  const cards: BlogCard[] = [...POSTS]
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .map(p => ({ slug: p.slug, title: p.title, description: p.description, category: p.category, date: p.date, author: p.author, minutes: readingMinutes(p), hero: heroFor(p.slug) }))
+  const cards: BlogCard[] = blogIndexCards()
 
   return (
     <div className="min-h-screen bg-white">
