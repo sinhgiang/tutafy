@@ -15,6 +15,8 @@ import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-j
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { TEACH_ENGLISH_ONLINE_CONTENT } from '@/lib/blog-posts/how-to-teach-english-online'
+import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
+import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 import type { PostBlock } from '@/lib/blog'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
@@ -34,6 +36,8 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'tutor-resume': { blocks: TUTOR_RESUME_CONTENT, min: 3, max: 4 },
   'ielts-speaking-part-2-topics': { blocks: IELTS_PART2_CONTENT, min: 3, max: 4 },
   'how-to-teach-english-online': { blocks: TEACH_ENGLISH_ONLINE_CONTENT, min: 3, max: 4 },
+  'wyzant-fees-for-tutors': { blocks: WYZANT_FEES_CONTENT, min: 3, max: 4 },
+  'how-to-find-an-online-tutor': { blocks: FIND_ONLINE_TUTOR_CONTENT, min: 3, max: 4 },
 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {
