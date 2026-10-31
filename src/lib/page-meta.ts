@@ -255,6 +255,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'IELTS Speaking Part 2 Topics and How to Practise',
     description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
   },
+  'preply-vs-italki-vs-wyzant-for-tutors': {
+    title: 'Preply vs italki vs Wyzant for Tutors',
+    description: 'Preply vs italki vs Wyzant for tutors: fees, payouts, visibility rules and which platform fits your subject and hours, checked 31 Oct 2026.',
+  },
+  'how-to-run-a-trial-lesson-tutoring': {
+    title: 'Trial Lesson Tutoring: How to Run One That Converts',
+    description: 'How to run a trial lesson as a tutor: a message before, a 30-minute script, the close, follow-up wording and a log to count your own results.',
+  },
   'wyzant-fees-for-tutors': {
     title: 'Wyzant Fees for Tutors: What You Keep',
     description: 'Wyzant fees for tutors: the 25% platform fee, the 9% student fee, what to post to take home a rate, referrals, payouts and taxes. Checked 31 Oct 2026.',
@@ -282,6 +290,22 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
   'chemistry-physics-tutor-online': {
     title: 'Chemistry and Physics Tutor Online: A Good Session',
     description: 'Chemistry and physics tutor online: what a good session looks like, two worked examples, six signs of a good tutor, AP exam formats and home safety.',
+  },
+  'tutoring-contract-template': {
+    title: 'Tutoring Contract Template: One Page, 12 Clauses',
+    description: 'A one-page tutoring contract template: twelve fill-in clauses with the reason for each, versions for children and groups, and rules that can override it.',
+  },
+  'tutoring-business-names': {
+    title: 'Tutoring Business Names: Pick and Check One',
+    description: 'Tutoring business names: five styles, eight tests and a free five-step check of the state registry, US trademarks and domains, from official pages.',
+  },
+  'superprof-review-for-tutors': {
+    title: 'Superprof for Tutors: Costs, Fees, Leads',
+    description: 'Superprof for tutors: free listing, the 10% fee on its payments, the student pass, how requests and payouts work, and a 60-day test. Checked 31 Oct 2026.',
+  },
+  'online-math-tutor': {
+    title: 'Online Math Tutor: How to Choose, Costs',
+    description: 'Online math tutor: name the problem, what the research says, what a good session looks like, seven questions to ask and the cost. Checked 31 Oct 2026.',
   },
 }
 

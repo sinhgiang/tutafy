@@ -154,6 +154,7 @@ export const WHITEBOARD_CONTENT: PostBlock[] = [
     { label: 'Free tutor management software', href: '/blog/free-tutor-management-software', text: 'What a free plan should cover, and where a separate whiteboard still makes sense.' },
     { label: 'How to teach English online', href: '/blog/how-to-teach-english-online', text: 'A language lesson needs a shared document more than a drawing board.' },
     { label: 'Chemistry and physics tutor online', href: '/blog/chemistry-physics-tutor-online', text: 'Two subjects taught with drawings, and what a good session looks like.' },
+    { label: 'Online math tutor', href: '/blog/online-math-tutor', text: 'What a math lesson needs to write together online, and what it costs.' },
   ] },
   { type: 'faq', items: [
     { q: 'What is the best free online whiteboard for tutoring?', a: `The best one is the one your student can open from a link without an account, that does not cap your editable boards, and that exports a clear image. Excalidraw and tldraw are simple free options; Miro, Zoom Whiteboard and Canva have free plans with limits. Test with a real student first.` },
