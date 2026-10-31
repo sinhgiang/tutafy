@@ -91,12 +91,11 @@ export const CHEM_PHYSICS_TUTOR_CONTENT: PostBlock[] = [
   { type: 'compare', caption: 'The AP Chemistry and AP Physics 1 exams by the College Board pages, checked 31 Oct 2026.', headers: ['', 'AP Chemistry', 'AP Physics 1: Algebra-Based'], rows: [
     ['Multiple choice', '60 questions, 1 hour 30 minutes, 50% of the score', '42 questions, 85 minutes, 50% of the score'],
     ['Free response', '7 questions, 1 hour 45 minutes: 3 long (10 points each) and 4 short (4 points each)', '4 questions, 95 minutes: 10, 12, 10 and 8 points'],
-    ['Question types', 'Single questions and sets built on data', 'Mathematical routines; translating between representations; experimental design and analysis; qualitative and quantitative translation'],
     ['Delivery', 'Questions in the Bluebook app, free response handwritten in a paper booklet', 'The same'],
     ['Given to you', 'A periodic table and a formula sheet', 'Check the exam page for the current list'],
     ['Calculator', 'Pages disagree for Section I; newer ones recommend a scientific or graphing calculator on both sections', 'Check the exam page'],
   ] },
-  { type: 'p', text: `Two things follow for a tutor. Free response is handwritten, so you need to practise writing out a full solution on paper, with units, not only getting the number. And the physics free response includes experimental design and analysis, which means practice with graphs and measurements, not only formulas. A tutor who knows the format will use past free-response questions from the College Board and will mark you against how they are scored.` },
+  { type: 'p', text: `The four AP Physics 1 free-response questions are of four named types: mathematical routines, translation between representations, experimental design and analysis, and qualitative and quantitative translation. Two things follow for a tutor. Free response is handwritten, so you need to practise writing out a full solution on paper, with units, not only getting the number. And the physics free response includes experimental design and analysis, which means practice with graphs and measurements, not only formulas. A tutor who knows the format will use past free-response questions from the College Board and will mark you against how they are scored.` },
   { type: 'h2', text: 'What the research says about learning by doing' },
   { type: 'p', text: `We found no study of whether online tutoring improves chemistry or physics results, so we cannot tell you what a tutor will do for your grade. We found two findings about how students learn these subjects in classes, and we use them as a hint about what to look for in a tutor. They are not about tutoring, and that is our inference.` },
   { type: 'ul', items: [
