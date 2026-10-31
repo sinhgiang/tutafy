@@ -459,6 +459,38 @@ const HEROES = {
       <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
 
+  // Preply vs italki vs Wyzant for tutors (T-1216) — three profile cards side by side, a tick under the third
+  'preply-vs-italki-vs-wyzant-for-tutors': base({ from: '#1f2937', to: '#0e7490', label: 'Growth', motif: `
+    <g transform="translate(700,120)" opacity="0.96">
+      ${[0,1,2].map(i => `<g transform="translate(${i * 150},0)">
+        <rect x="0" y="0" width="130" height="300" rx="18" fill="#ffffff" opacity="0.94"/>
+        <circle cx="65" cy="62" r="30" fill="#0e7490" opacity="${0.3 + i * 0.2}"/>
+        <rect x="24" y="116" width="82" height="12" rx="6" fill="#1f2937" opacity="0.5"/>
+        <rect x="34" y="142" width="62" height="10" rx="5" fill="#1f2937" opacity="0.22"/>
+        <rect x="24" y="190" width="82" height="10" rx="5" fill="#1f2937" opacity="0.18"/>
+        <rect x="24" y="214" width="82" height="10" rx="5" fill="#1f2937" opacity="0.18"/>
+        <rect x="24" y="248" width="82" height="26" rx="13" fill="#fbbf24"/>
+      </g>`).join('')}
+      <circle cx="365" cy="330" r="26" fill="#047857"/>
+      <path d="M353 330 l9 10 l17 -20" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // How to run a trial lesson (T-1217) — a 30 minute clock beside a calendar with one booked slot and a tick
+  'how-to-run-a-trial-lesson-tutoring': base({ from: '#134e4a', to: '#9a3412', label: 'Growth', motif: `
+    <g transform="translate(720,110)" opacity="0.96">
+      <circle cx="100" cy="100" r="92" fill="#ffffff" opacity="0.94"/>
+      <circle cx="100" cy="100" r="76" fill="none" stroke="#134e4a" stroke-width="8" opacity="0.5"/>
+      <path d="M100 100 V44 M100 100 L100 156" stroke="#134e4a" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="9" fill="#9a3412"/>
+      <g transform="translate(220,10)">
+        <rect x="0" y="0" width="190" height="230" rx="16" fill="#ffffff" opacity="0.94"/>
+        <rect x="0" y="0" width="190" height="44" rx="16" fill="#134e4a" opacity="0.7"/>
+        ${[0,1,2,3,4,5,6,7,8,9,10,11].map(i => `<rect x="${16 + (i % 4) * 42}" y="${64 + Math.floor(i / 4) * 52}" width="32" height="38" rx="8" fill="${i === 6 ? '#fbbf24' : '#134e4a'}" opacity="${i === 6 ? 1 : 0.16}"/>`).join('')}
+      </g>
+      <circle cx="380" cy="244" r="26" fill="#047857"/>
+      <path d="M368 244 l9 10 l17 -20" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
   // Wyzant fees (T-1214) — one lesson price as a bar split into the tutor's share and the platform's share, with the student's extra fee on top
   'wyzant-fees-for-tutors': base({ from: '#14532d', to: '#334155', label: 'Growth', motif: `
     <g transform="translate(740,110)" opacity="0.96">
@@ -487,6 +519,63 @@ const HEROES = {
         <path d="M40 15 l7 8 l11 -14" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         <rect x="80" y="8" width="${i % 2 ? 150 : 200}" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
       </g>`).join('')}
+    </g>` }),
+
+  // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
+  'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
+    <g transform="translate(790,86)" opacity="0.96">
+      <rect x="0" y="0" width="300" height="370" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="32" y="34" width="150" height="16" rx="8" fill="#334155" opacity="0.5"/>
+      ${[0,1,2,3,4].map(i => `<rect x="32" y="${84 + i * 38}" width="${i % 2 ? 190 : 236}" height="12" rx="6" fill="#334155" opacity="${i % 2 ? 0.2 : 0.3}"/>`).join('')}
+      <rect x="32" y="300" width="150" height="3" fill="#334155" opacity="0.5"/>
+      <path d="M40 292 c14 -22 22 6 36 -12 c8 -10 14 4 24 -4" stroke="#0f766e" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="278" cy="20" r="22" fill="#047857"/>
+      <path d="M268 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Tutoring business names (T-1201) — a name tag above a signboard, with a tick
+  'tutoring-business-names': base({ from: '#4c1d95', to: '#0e7490', label: 'Business', motif: `
+    <g transform="translate(770,96)" opacity="0.96">
+      <rect x="0" y="0" width="330" height="150" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="28" y="30" width="170" height="20" rx="10" fill="#4c1d95" opacity="0.5"/>
+      <rect x="28" y="68" width="250" height="12" rx="6" fill="#4c1d95" opacity="0.22"/>
+      <rect x="28" y="96" width="190" height="12" rx="6" fill="#4c1d95" opacity="0.18"/>
+      <circle cx="306" cy="20" r="22" fill="#047857"/>
+      <path d="M296 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="150" y="150" width="30" height="40" fill="#ffffff" opacity="0.6"/>
+      <rect x="30" y="190" width="270" height="130" rx="16" fill="#ffffff" opacity="0.94"/>
+      <rect x="62" y="222" width="206" height="18" rx="9" fill="#0e7490" opacity="0.55"/>
+      <rect x="62" y="256" width="150" height="12" rx="6" fill="#4c1d95" opacity="0.2"/>
+      <rect x="62" y="280" width="110" height="12" rx="6" fill="#4c1d95" opacity="0.16"/>
+    </g>` }),
+
+  // Superprof review for tutors (T-1236) — a free ad card, a student pass ticket and a 10% slice
+  'superprof-review-for-tutors': base({ from: '#7c2d12', to: '#1e3a5f', label: 'Growth', motif: `
+    <g transform="translate(730,96)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      <circle cx="58" cy="64" r="28" fill="#0f766e" opacity="0.5"/>
+      <rect x="104" y="44" width="170" height="16" rx="8" fill="#7c2d12" opacity="0.5"/>
+      <rect x="104" y="72" width="110" height="12" rx="6" fill="#7c2d12" opacity="0.24"/>
+      <rect x="32" y="128" width="316" height="62" rx="12" fill="#7c2d12" opacity="0.1"/>
+      <rect x="32" y="128" width="236" height="62" rx="12" fill="#0f766e" opacity="0.55"/>
+      <rect x="268" y="128" width="80" height="62" rx="12" fill="#b45309" opacity="0.8"/>
+      <rect x="32" y="214" width="150" height="14" rx="7" fill="#7c2d12" opacity="0.34"/>
+      <rect x="32" y="244" width="220" height="12" rx="6" fill="#7c2d12" opacity="0.2"/>
+      <rect x="32" y="272" width="120" height="12" rx="6" fill="#7c2d12" opacity="0.2"/>
+      <circle cx="354" cy="20" r="22" fill="#047857"/>
+      <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Online math tutor (T-1237) — a graph with a curve and a point, beside a short checklist
+  'online-math-tutor': base({ from: '#1e3a8a', to: '#0f766e', label: 'Teaching', motif: `
+    <g transform="translate(730,96)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      <path d="M44 280 V48 M44 280 H340" stroke="#1e3a8a" stroke-width="3" opacity="0.4" fill="none"/>
+      ${[0,1,2,3,4].map(i => `<path d="M${44 + i * 59} 280 V48" stroke="#1e3a8a" stroke-width="1" opacity="0.12"/>`).join('')}
+      <path d="M52 262 C110 250 150 140 210 128 S300 86 332 64" stroke="#0f766e" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <circle cx="210" cy="128" r="11" fill="#b45309"/>
+      <circle cx="354" cy="20" r="22" fill="#047857"/>
+      <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
 }
 
