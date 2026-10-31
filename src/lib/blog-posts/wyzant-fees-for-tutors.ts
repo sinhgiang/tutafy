@@ -155,6 +155,7 @@ export const WYZANT_FEES_CONTENT: PostBlock[] = [
   { type: 'links', title: 'Related guides', items: [
     { label: 'How much does Preply take from tutors?', href: '/blog/how-much-does-preply-take', text: 'The same questions for Preply, with the figures and the day checked.' },
     { label: 'Online tutoring jobs', href: '/blog/online-tutoring-jobs', text: 'What each platform keeps or pays, and who can apply.' },
+    { label: 'Preply vs italki vs Wyzant for tutors', href: '/blog/preply-vs-italki-vs-wyzant-for-tutors', text: 'Which platform fits which kind of tutor, and what to do instead.' },
     { label: 'Your real hourly rate as a tutor', href: '/blog/real-hourly-rate-for-tutors', text: 'Divide what you keep by every hour you work.' },
     { label: 'Tutor taxes', href: '/blog/do-tutors-have-to-pay-taxes', text: 'Contractor income, 1099 forms and records.' },
     { label: 'How to get your first 10 tutoring clients', href: '/blog/get-your-first-tutoring-clients', text: 'Where students come from when no marketplace sends them.' },
