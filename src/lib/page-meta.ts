@@ -243,6 +243,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Taxes: Do Tutors Have to Pay Taxes?',
     description: 'Do tutors have to pay taxes? A plain guide to tutoring income, US 1099-K and 1099-NEC forms, the UK trading allowance and records. Not tax advice.',
   },
+  'online-tutoring-jobs': {
+    title: 'Online Tutoring Jobs: Where Tutors Get Hired',
+    description: 'Online tutoring jobs compared: who can apply to Preply, Wyzant, Varsity Tutors, Cambly and others, what each keeps or pays, checked 31 Oct 2026.',
+  },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
     description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',

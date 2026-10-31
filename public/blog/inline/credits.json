@@ -607,5 +607,57 @@
       "webp": 7486,
       "avif": 7091
     }
+  },
+  "jobs-video-conference": {
+    "file": "Video Conference Using Laptop.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Project Kei",
+    "source": "https://commons.wikimedia.org/wiki/File:Video_Conference_Using_Laptop.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "1440x1080",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 54100,
+      "avif": 41990
+    }
+  },
+  "jobs-documents-table": {
+    "file": "Woman working at home with laptop and documents on a table.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_working_at_home_with_laptop_and_documents_on_a_table.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4032",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 32560,
+      "avif": 31545
+    }
+  },
+  "jobs-neat-desk": {
+    "file": "Laptop on a neat desk (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Norbert Levajsics levajsics",
+    "source": "https://commons.wikimedia.org/wiki/File:Laptop_on_a_neat_desk_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5891x3927",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 23338,
+      "avif": 19007
+    }
+  },
+  "jobs-laptop-notepad": {
+    "file": "Working from home laptop and notepad.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Microbiz Mag",
+    "source": "https://commons.wikimedia.org/wiki/File:Working_from_home_laptop_and_notepad.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 23912,
+      "avif": 19761
+    }
   }
 }

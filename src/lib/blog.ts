@@ -40,6 +40,7 @@
 //  - free-tutoring-invoice-template: how-to/template · axis = the fields of an invoice → the template line by line → three worked examples (one lesson, a package, a month) → cancellation fee wording → time zones, numbers, sending, records · statCards NO, 3 downloadable files (docx, pdf, odt in public/downloads, built by scripts/gen-invoice-templates.mjs) + 4 photos + compare(fields, 3 examples, numbering, formats, log) + ul(fee wording, mistakes) + callout(tip) + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1167)
 //  - online-whiteboard-for-tutoring: comparison · axis = what a tutor needs from a whiteboard → a dated table (what each tool's own page said, with "not confirmed" where it could not be read) → the tools one by one → by subject → free-plan limits → a ten-minute test → a lesson routine → using one next to Tutafy, which has none · own SVG diagram (choose by subject) + 4 photos + compare(table) + source(8 pages) + ul(needs, limits, test, routine, mistakes) + cta + links, NO statCards/calculator/prosCons. Body in src/lib/blog-posts/ (T-1168)
 //  - do-tutors-have-to-pay-taxes: explainer · axis = is tutoring income taxable (yes, form or no form) → self-employed → the US (Schedule C, self-employment tax, estimated tax, the forms, a two-tutor worked example) → the UK trading allowance → Canada GST/HST → Australia and elsewhere (no figures, said so) → teaching across borders → deductible costs → records and a ledger → a year's routine → mistakes → what Tutafy exports · every figure from an official page read on 31 Oct 2026 · 4 photos + compare(US forms, two tutors, ledger) + callout(warn) + ul + source(10 pages) + cta + links, NO calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1170)
+//  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -53,6 +54,7 @@ import { TUTOR_BIO_CONTENT } from '@/lib/blog-posts/how-to-write-a-tutor-bio'
 import { INVOICE_TEMPLATE_CONTENT } from '@/lib/blog-posts/free-tutoring-invoice-template'
 import { WHITEBOARD_CONTENT } from '@/lib/blog-posts/online-whiteboard-for-tutoring'
 import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxes'
+import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3934,6 +3936,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: TUTOR_TAXES_CONTENT,
   },
+  {
+    slug: 'online-tutoring-jobs',
+    title: 'Online Tutoring Jobs: Where Tutors Get Hired, What Each Pays and How to Work for Yourself',
+    description: 'Online tutoring jobs compared: who can apply to Preply, Wyzant, Varsity Tutors, Cambly and others, what each keeps or pays, checked 31 Oct 2026.',
+    date: '2026-11-03',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ONLINE_TUTORING_JOBS_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3979,6 +3991,7 @@ const HERO_ALTS: Record<string, string> = {
   'free-tutoring-invoice-template': "Illustration of an invoice page with line items, a total and a download arrow, for a free tutoring invoice template",
   'online-whiteboard-for-tutoring': "Illustration of a whiteboard with a drawn curve, a pen and a check mark, for an online whiteboard for tutoring",
   'do-tutors-have-to-pay-taxes': "Illustration of a tax form page with a coin and a check mark, for tutor taxes",
+  'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

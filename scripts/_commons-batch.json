@@ -26,5 +26,9 @@
   { "name": "tax-laptop-coffee", "file": "Laptop and coffee on a desk.jpg" },
   { "name": "tax-hmrc-letter", "file": "HMRC Self Assessment tax return.jpg" },
   { "name": "tax-overhead-desk", "file": "Overhead desktop workspace (Unsplash).jpg" },
-  { "name": "tax-quiet-desk", "file": "Bench Accounting 2015-12-04 (Unsplash).jpg" }
+  { "name": "tax-quiet-desk", "file": "Bench Accounting 2015-12-04 (Unsplash).jpg" },
+  { "name": "jobs-video-conference", "file": "Video Conference Using Laptop.jpg" },
+  { "name": "jobs-documents-table", "file": "Woman working at home with laptop and documents on a table.jpg" },
+  { "name": "jobs-neat-desk", "file": "Laptop on a neat desk (Unsplash).jpg" },
+  { "name": "jobs-laptop-notepad", "file": "Working from home laptop and notepad.jpg" }
 ]

@@ -11,6 +11,7 @@ import { TUTOR_BIO_CONTENT } from '@/lib/blog-posts/how-to-write-a-tutor-bio'
 import { INVOICE_TEMPLATE_CONTENT } from '@/lib/blog-posts/free-tutoring-invoice-template'
 import { WHITEBOARD_CONTENT } from '@/lib/blog-posts/online-whiteboard-for-tutoring'
 import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxes'
+import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import type { PostBlock } from '@/lib/blog'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
@@ -26,6 +27,7 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'free-tutoring-invoice-template': { blocks: INVOICE_TEMPLATE_CONTENT, min: 3, max: 4 },
   'online-whiteboard-for-tutoring': { blocks: WHITEBOARD_CONTENT, min: 3, max: 4 },
   'do-tutors-have-to-pay-taxes': { blocks: TUTOR_TAXES_CONTENT, min: 3, max: 4 },
+  'online-tutoring-jobs': { blocks: ONLINE_TUTORING_JOBS_CONTENT, min: 3, max: 4 },
 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {

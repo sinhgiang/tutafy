@@ -419,6 +419,21 @@ const HEROES = {
       <circle cx="262" cy="30" r="22" fill="#047857"/>
       <path d="M252 30 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Online tutoring jobs (T-1192) — three job cards with a pay tag and one ticked
+  'online-tutoring-jobs': base({ from: '#334155', to: '#0e7490', label: 'Growth', motif: `
+    <g transform="translate(760,96)" opacity="0.96">
+      ${[0,1,2].map(i => `<g transform="translate(0,${i * 132})">
+        <rect x="0" y="0" width="340" height="108" rx="18" fill="#ffffff" opacity="0.93"/>
+        <circle cx="48" cy="54" r="24" fill="#0e7490" opacity="${0.35 + i * 0.2}"/>
+        <rect x="92" y="34" width="120" height="14" rx="7" fill="#334155" opacity="0.5"/>
+        <rect x="92" y="60" width="170" height="12" rx="6" fill="#334155" opacity="0.22"/>
+        <rect x="256" y="28" width="64" height="30" rx="15" fill="#fbbf24"/>
+        <text x="288" y="49" font-family="Segoe UI, Arial" font-size="18" font-weight="800" fill="#92400e" text-anchor="middle">$</text>
+      </g>`).join('')}
+      <circle cx="326" cy="20" r="22" fill="#047857"/>
+      <path d="M316 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
