@@ -43,6 +43,8 @@
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
+//  - preply-vs-italki-vs-wyzant-for-tutors: comparison/guide · axis = which kind of tutor each platform is built for (side-by-side table of what each platform's own pages said) → Preply (weekly lessons, first lesson kept, visibility rules) → italki (Professional Teacher and Community Tutor, commission by lesson type, paid trials, withdrawal) → Wyzant (own rate and cancellation policy, 25% fee, referral rule, payout dates) → what you keep from an invented $30 lesson → contact and conduct rules → which platform for which tutor → using more than one → the independent route → what Tutafy is and is not · figures from the platforms' official help pages read on 31 Oct 2026 (via search results where the page gave 403) · 3 photos + 5 compare tables + callout(warn) + ul + source(15 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1216)
+//  - how-to-run-a-trial-lesson-tutoring: how-to · axis = the three jobs of a trial → free, discounted or full price (platform rules side by side) → the message before → a 30-minute script minute by minute → one useful win → the close → the message after (three templates) → objections → when not to convert → count your own conversion → trial on a platform vs your own link → what Tutafy does and does not do for a trial · what the platforms' help pages tell their tutors, read on 31 Oct 2026 · 3 photos + 4 compare tables + callout(tip, info) + ul + source(11 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1217)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -59,6 +61,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-vs-wyzant-for-tutors'
+import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3970,6 +3974,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: IELTS_PART2_CONTENT,
   },
+  {
+    slug: 'preply-vs-italki-vs-wyzant-for-tutors',
+    title: 'Preply vs italki vs Wyzant for Tutors: Which Platform Fits Which Tutor (and What to Do Instead)',
+    description: 'Preply vs italki vs Wyzant for tutors: what each platform keeps, how you are paid, the rules that hide a profile, and which one fits your subject and hours.',
+    date: '2026-11-10',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: PREPLY_ITALKI_WYZANT_CONTENT,
+  },
+  {
+    slug: 'how-to-run-a-trial-lesson-tutoring',
+    title: 'Trial Lesson Tutoring: How to Run a First Lesson That Turns Into Regular Students',
+    description: 'How to run a trial lesson as a tutor: the message before, a 30-minute script, the close, follow-up wording, objections and a log to count your own results.',
+    date: '2026-11-10',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TRIAL_LESSON_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4018,6 +4042,8 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'preply-vs-italki-vs-wyzant-for-tutors': "Illustration of three profile cards side by side with a check mark under one, for comparing Preply, italki and Wyzant",
+  'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
