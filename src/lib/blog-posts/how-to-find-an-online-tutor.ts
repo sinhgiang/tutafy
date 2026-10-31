@@ -158,6 +158,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     { label: 'IELTS Speaking Part 2 topics', href: '/blog/ielts-speaking-part-2-topics', text: 'A practice routine to use in a lesson with an IELTS tutor.' },
     { label: 'How to write a tutor bio', href: '/blog/how-to-write-a-tutor-bio', text: 'What a good profile says, written for tutors.' },
     { label: 'Singing lessons online', href: '/blog/singing-lessons-online', text: 'One subject, twelve questions.' },
+    { label: 'Online math tutor', href: '/blog/online-math-tutor', text: 'The math layer on top of these checks.' },
   ] },
   { type: 'faq', items: [
     { q: 'How do I find a good online tutor?', a: `Write your goal in one sentence with a date, shortlist two or three tutors who teach your exact subject and level, read their trial, cancellation and refund rules, pay by a method you can dispute, and use the first lesson as a test. After about four lessons, judge by whether you can do more of what you wanted.` },
