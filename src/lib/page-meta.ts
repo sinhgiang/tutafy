@@ -211,6 +211,18 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Take Card Payments With a Stripe Payment Link',
     description: 'Create a Stripe Payment Link, paste it into Tutafy so students see a Pay by card button, and learn the limits of one link before you rely on it.',
   },
+  'calendly-alternatives-for-tutors': {
+    title: 'Calendly Alternatives for Tutors (2026)',
+    description: 'Calendly books a time, but tutors also need video, payment, packages and notes. Compare Calendly alternatives for tutors and which one fits how you teach.',
+  },
+  'schedule-tutoring-lessons-across-time-zones': {
+    title: 'Schedule Tutoring Lessons Across Time Zones',
+    description: 'Fix each lesson in one anchor time zone, show both times in every message, and plan for clock changes that hit the US and Europe on different dates.',
+  },
+  'tutoring-lesson-packages-explained': {
+    title: 'Tutoring Lesson Packages, Explained',
+    description: 'A tutoring lesson package is a set of lessons paid for up front. See how packages work, how to price one, and the four terms to write down before you sell.',
+  },
 }
 
 /**

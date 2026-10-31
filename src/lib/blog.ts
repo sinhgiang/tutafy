@@ -29,8 +29,14 @@
 //  - how-to-hire-tutors-and-build-a-team: how-to · axis = hiring stage (signal→pay→classify→vet→onboard→scale) · statCards + compare + prosCons + calculator + 2× callout(tip/warn/info) + 3 inline images
 //  - how-to-build-a-tutor-referral-program: operations/growth · axis = 5 best moments to ask · statCards + compare + calculator + 2× callout(warn/tip) + 3 inline images, NO prosCons
 //  - how-to-take-card-payments-with-a-stripe-payment-link: how-to · axis = 5 numbered steps (Stripe account → link → copy → paste → check) · statCards + compare + 2× callout(tip/info) + callout(warn) + 1 inline image (own Settings screenshot), NO calculator/prosCons
+//  - calendly-alternatives-for-tutors: comparison · axis = what is left after the booking (5 jobs → options → 4 questions) · statCards + 2× own SVG diagram + compare(6 tools) + 2× cta + calculator late + callout(tip/warn) + links, NO prosCons. Body in src/lib/blog-posts/ (T-1141)
+//  - schedule-tutoring-lessons-across-time-zones: how-to · axis = problem → 2026 clock-change dates → 5 steps (anchor, slot, both times, name the dates, re-check) · statCards + 2× own SVG diagram (grid, step flow) + compare(clock-change dates) + source + callout(warn/info) + ul(wording, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1141)
+//  - tutoring-lesson-packages-explained: explainer/pricing · axis = definition → formats → price arithmetic → 4 terms → counting the balance → when not to · statCards + compare(5 formats, early) + 2× own SVG diagram (price bars, lifecycle) + 3× callout(tip/warn/info) + prosCons + ul(setup steps) + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1141)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
+import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
+import { TIME_ZONES_CONTENT } from '@/lib/blog-posts/schedule-tutoring-lessons-across-time-zones'
+import { LESSON_PACKAGES_CONTENT } from '@/lib/blog-posts/tutoring-lesson-packages-explained'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -53,6 +59,8 @@ export type PostBlock =
   | { type: 'image'; src: string; alt: string; caption?: string; credit?: string }
   // A small note under a platform's numbers: the day they were checked and links to the official pages (T-0962).
   | { type: 'source'; text: string; links: { label: string; href: string }[] }
+  // A short list of sibling articles (internal links with a line each), so an article links into its topic cluster (T-1141).
+  | { type: 'links'; title: string; items: { label: string; href: string; text: string }[] }
 
 export interface Post {
   slug: string
@@ -3799,6 +3807,36 @@ export const POSTS: Post[] = [
   ] },
     ],
   },
+  {
+    slug: 'calendly-alternatives-for-tutors',
+    title: 'Calendly Alternatives for Tutors: What to Use When a Scheduler Is Not Enough',
+    description: 'Calendly books a time, but tutors also need video, payment, packages and notes. Compare Calendly alternatives for tutors and see which one fits how you teach.',
+    date: '2026-10-31',
+    category: 'Comparison',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: CALENDLY_ALTERNATIVES_CONTENT,
+  },
+  {
+    slug: 'schedule-tutoring-lessons-across-time-zones',
+    title: 'How to Schedule Tutoring Lessons Across Time Zones (Without Missing a Class)',
+    description: 'Fix each lesson in one anchor time zone, show both times in every message, and plan for clock changes that hit the US and Europe on different dates.',
+    date: '2026-10-31',
+    category: 'How-to',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TIME_ZONES_CONTENT,
+  },
+  {
+    slug: 'tutoring-lesson-packages-explained',
+    title: 'Tutoring Lesson Packages Explained: How They Work, How to Price Them and What to Put in the Terms',
+    description: 'A tutoring lesson package is a set of lessons paid for up front. See how packages work, how to price one, and the four terms to write down before you sell.',
+    date: '2026-10-31',
+    category: 'Pricing',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: LESSON_PACKAGES_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3833,6 +3871,9 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-hire-tutors-and-build-a-team': "Illustration of a solo tutor hiring and building a small team",
   'how-to-build-a-tutor-referral-program': "Illustration of a tutor referral program growing through word of mouth",
   'how-to-take-card-payments-with-a-stripe-payment-link': "Illustration of a payment card and a link, for taking card payments from students",
+  'calendly-alternatives-for-tutors': "Illustration of a booking calendar with one time slot picked and three loose tool pieces beside it",
+  'schedule-tutoring-lessons-across-time-zones': "Illustration of two clocks showing different times, for scheduling lessons across time zones",
+  'tutoring-lesson-packages-explained': "Illustration of a stack of lesson tickets, for tutoring lesson packages",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
