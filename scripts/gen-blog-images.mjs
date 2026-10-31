@@ -459,6 +459,38 @@ const HEROES = {
       <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
 
+  // Preply vs italki vs Wyzant for tutors (T-1216) — three profile cards side by side, a tick under the third
+  'preply-vs-italki-vs-wyzant-for-tutors': base({ from: '#1f2937', to: '#0e7490', label: 'Growth', motif: `
+    <g transform="translate(700,120)" opacity="0.96">
+      ${[0,1,2].map(i => `<g transform="translate(${i * 150},0)">
+        <rect x="0" y="0" width="130" height="300" rx="18" fill="#ffffff" opacity="0.94"/>
+        <circle cx="65" cy="62" r="30" fill="#0e7490" opacity="${0.3 + i * 0.2}"/>
+        <rect x="24" y="116" width="82" height="12" rx="6" fill="#1f2937" opacity="0.5"/>
+        <rect x="34" y="142" width="62" height="10" rx="5" fill="#1f2937" opacity="0.22"/>
+        <rect x="24" y="190" width="82" height="10" rx="5" fill="#1f2937" opacity="0.18"/>
+        <rect x="24" y="214" width="82" height="10" rx="5" fill="#1f2937" opacity="0.18"/>
+        <rect x="24" y="248" width="82" height="26" rx="13" fill="#fbbf24"/>
+      </g>`).join('')}
+      <circle cx="365" cy="330" r="26" fill="#047857"/>
+      <path d="M353 330 l9 10 l17 -20" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // How to run a trial lesson (T-1217) — a 30 minute clock beside a calendar with one booked slot and a tick
+  'how-to-run-a-trial-lesson-tutoring': base({ from: '#134e4a', to: '#9a3412', label: 'Growth', motif: `
+    <g transform="translate(720,110)" opacity="0.96">
+      <circle cx="100" cy="100" r="92" fill="#ffffff" opacity="0.94"/>
+      <circle cx="100" cy="100" r="76" fill="none" stroke="#134e4a" stroke-width="8" opacity="0.5"/>
+      <path d="M100 100 V44 M100 100 L100 156" stroke="#134e4a" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="100" cy="100" r="9" fill="#9a3412"/>
+      <g transform="translate(220,10)">
+        <rect x="0" y="0" width="190" height="230" rx="16" fill="#ffffff" opacity="0.94"/>
+        <rect x="0" y="0" width="190" height="44" rx="16" fill="#134e4a" opacity="0.7"/>
+        ${[0,1,2,3,4,5,6,7,8,9,10,11].map(i => `<rect x="${16 + (i % 4) * 42}" y="${64 + Math.floor(i / 4) * 52}" width="32" height="38" rx="8" fill="${i === 6 ? '#fbbf24' : '#134e4a'}" opacity="${i === 6 ? 1 : 0.16}"/>`).join('')}
+      </g>
+      <circle cx="380" cy="244" r="26" fill="#047857"/>
+      <path d="M368 244 l9 10 l17 -20" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
   // Wyzant fees (T-1214) — one lesson price as a bar split into the tutor's share and the platform's share, with the student's extra fee on top
   'wyzant-fees-for-tutors': base({ from: '#14532d', to: '#334155', label: 'Growth', motif: `
     <g transform="translate(740,110)" opacity="0.96">

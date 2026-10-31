@@ -255,6 +255,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'IELTS Speaking Part 2 Topics and How to Practise',
     description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
   },
+  'preply-vs-italki-vs-wyzant-for-tutors': {
+    title: 'Preply vs italki vs Wyzant for Tutors',
+    description: 'Preply vs italki vs Wyzant for tutors: fees, payouts, visibility rules and which platform fits your subject and hours, checked 31 Oct 2026.',
+  },
+  'how-to-run-a-trial-lesson-tutoring': {
+    title: 'Trial Lesson Tutoring: How to Run One That Converts',
+    description: 'How to run a trial lesson as a tutor: a message before, a 30-minute script, the close, follow-up wording and a log to count your own results.',
+  },
   'wyzant-fees-for-tutors': {
     title: 'Wyzant Fees for Tutors: What You Keep',
     description: 'Wyzant fees for tutors: the 25% platform fee, the 9% student fee, what to post to take home a rate, referrals, payouts and taxes. Checked 31 Oct 2026.',
