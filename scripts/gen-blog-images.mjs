@@ -490,6 +490,36 @@ const HEROES = {
       <circle cx="380" cy="244" r="26" fill="#047857"/>
       <path d="M368 244 l9 10 l17 -20" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Wyzant fees (T-1214) — one lesson price as a bar split into the tutor's share and the platform's share, with the student's extra fee on top
+  'wyzant-fees-for-tutors': base({ from: '#14532d', to: '#334155', label: 'Growth', motif: `
+    <g transform="translate(740,110)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="330" rx="20" fill="#ffffff" opacity="0.94"/>
+      <rect x="32" y="48" width="236" height="48" rx="10" fill="#14532d" opacity="0.8"/>
+      <rect x="268" y="48" width="80" height="48" rx="10" fill="#b45309" opacity="0.85"/>
+      <rect x="268" y="128" width="30" height="48" rx="8" fill="#334155" opacity="0.5"/>
+      <rect x="32" y="128" width="226" height="12" rx="6" fill="#334155" opacity="0.26"/>
+      <rect x="32" y="156" width="150" height="12" rx="6" fill="#334155" opacity="0.2"/>
+      <rect x="32" y="214" width="316" height="2" fill="#334155" opacity="0.18"/>
+      <rect x="32" y="244" width="190" height="14" rx="7" fill="#334155" opacity="0.34"/>
+      <rect x="32" y="272" width="120" height="12" rx="6" fill="#334155" opacity="0.2"/>
+      <circle cx="354" cy="20" r="22" fill="#047857"/>
+      <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // How to find an online tutor (T-1215) — a profile card with ticked checks
+  'how-to-find-an-online-tutor': base({ from: '#1e3a5f', to: '#0e7490', label: 'Teaching', motif: `
+    <g transform="translate(760,96)" opacity="0.96">
+      <rect x="0" y="0" width="340" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      <circle cx="56" cy="62" r="30" fill="#0e7490" opacity="0.5"/>
+      <rect x="104" y="42" width="150" height="16" rx="8" fill="#1e3a5f" opacity="0.5"/>
+      <rect x="104" y="70" width="104" height="12" rx="6" fill="#1e3a5f" opacity="0.24"/>
+      ${[0,1,2,3].map(i => `<g transform="translate(0,${128 + i * 54})">
+        <rect x="32" y="0" width="30" height="30" rx="8" fill="#047857" opacity="${0.95 - i * 0.08}"/>
+        <path d="M40 15 l7 8 l11 -14" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="80" y="8" width="${i % 2 ? 150 : 200}" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
+      </g>`).join('')}
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
