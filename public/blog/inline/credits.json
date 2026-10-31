@@ -738,6 +738,84 @@
       "avif": 13139
     }
   },
+  "students-private-tuition": {
+    "file": "Private Tuition in India.jpg",
+    "licence": "CC BY 4.0",
+    "creator": "Ikshya",
+    "source": "https://commons.wikimedia.org/wiki/File:Private_Tuition_in_India.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+    "original": "3060x4080",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 145386,
+      "avif": 106586
+    }
+  },
+  "students-notice-board": {
+    "file": "Community notice board in North East Valley, Dunedin.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Sarahlibrarina",
+    "source": "https://commons.wikimedia.org/wiki/File:Community_notice_board_in_North_East_Valley,_Dunedin.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4032x3024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 144472,
+      "avif": 104740
+    }
+  },
+  "english-tulane-studying": {
+    "file": "Four Tulane University Students Studying January 2008.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Tulane Public Relations",
+    "source": "https://commons.wikimedia.org/wiki/File:Four_Tulane_University_Students_Studying_January_2008.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "2864x1984",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 51958,
+      "avif": 49160
+    }
+  },
+  "english-tutor-and-student": {
+    "file": "A tutor and student.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "morrillmemoriallibrary",
+    "source": "https://commons.wikimedia.org/wiki/File:A_tutor_and_student.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "1024x768",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 49874,
+      "avif": 42407
+    }
+  },
+  "english-video-call": {
+    "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_smiling_and_using_laptop_during_video_call_in_cozy_wooden_room.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 41358,
+      "avif": 36335
+    }
+  },
+  "english-oxford-dictionary": {
+    "file": "Compact Oxford English Dictionary 2.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Cullen328",
+    "source": "https://commons.wikimedia.org/wiki/File:Compact_Oxford_English_Dictionary_2.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "3794x2595",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 164034,
+      "avif": 115928
+    }
+  },
   "platforms-signpost": {
     "file": "Signpost at crossroads - geograph.org.uk - 5952204.jpg",
     "licence": "CC BY-SA 2.0",

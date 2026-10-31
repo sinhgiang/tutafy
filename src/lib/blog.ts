@@ -43,6 +43,8 @@
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
+//  - how-to-get-tutoring-students: diagnostic/how-to · axis = the chain enquiry → trial → regular, counted → seven sources of students (own judgement, labelled) → work backwards from ten with an invented example → who is buying (parent, adult, school) → routes (people you know, referrals, teachers and schools, local places with the Google Business Profile rules, communities, marketplace) → five message templates → FTC reviews rule and CAN-SPAM, read on 31 Oct 2026 → a tracker → a symptom-to-step table → mistakes → an eight-week sprint → what Tutafy does and does not do (no students sent) · BLS, FTC and Google Business Profile pages read on 31 Oct 2026 · 3 photos + 7 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Links to and from get-your-first-tutoring-clients (the channel playbook). Body in src/lib/blog-posts/ (T-1218)
+//  - how-to-choose-an-online-english-tutor: learner-facing how-to · axis = a choosing process for an adult learner (write a brief → check your level on the CEFR → what each goal changes → what certificates and experience do and do not show → four routes to a tutor → shortlist three → a scored 30-minute trial → questions before paying → price arithmetic and paying safely → red flags → a month-one checkpoint) · says plainly that Tutafy's directory opens at 6 tutors and it does not check certificates or run placement tests · Cambridge English (CEFR, Test your English, CELTA), IELTS and CFPB pages read on 31 Oct 2026 · 3 photos + 7 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Links to and from how-to-teach-english-online. Body in src/lib/blog-posts/ (T-1219)
 //  - preply-vs-italki-vs-wyzant-for-tutors: comparison/guide · axis = which kind of tutor each platform is built for (side-by-side table of what each platform's own pages said) → Preply (weekly lessons, first lesson kept, visibility rules) → italki (Professional Teacher and Community Tutor, commission by lesson type, paid trials, withdrawal) → Wyzant (own rate and cancellation policy, 25% fee, referral rule, payout dates) → what you keep from an invented $30 lesson → contact and conduct rules → which platform for which tutor → using more than one → the independent route → what Tutafy is and is not · figures from the platforms' official help pages read on 31 Oct 2026 (via search results where the page gave 403) · 3 photos + 5 compare tables + callout(warn) + ul + source(15 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1216)
 //  - how-to-run-a-trial-lesson-tutoring: how-to · axis = the three jobs of a trial → free, discounted or full price (platform rules side by side) → the message before → a 30-minute script minute by minute → one useful win → the close → the message after (three templates) → objections → when not to convert → count your own conversion → trial on a platform vs your own link → what Tutafy does and does not do for a trial · what the platforms' help pages tell their tutors, read on 31 Oct 2026 · 3 photos + 4 compare tables + callout(tip, info) + ul + source(11 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1217)
 
@@ -61,6 +63,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { GET_TUTORING_STUDENTS_CONTENT } from '@/lib/blog-posts/how-to-get-tutoring-students'
+import { CHOOSE_ENGLISH_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-choose-an-online-english-tutor'
 import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-vs-wyzant-for-tutors'
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
@@ -258,6 +262,9 @@ export const POSTS: Post[] = [
       { type: 'cta', title: 'Your booking link, ready in two minutes', text: 'Bookings, a built-in video classroom, payments and reminders — free, with 0% commission on your income.', button: 'Start free — no credit card', href: '/register' },
       { type: 'h2', text: 'The bottom line' },
       { type: 'p', text: `You do not need to hand a third of your income to a platform to stay busy. A frictionless booking link, warm outreach to people who know you, genuine helpfulness in the right communities, and referrals from happy students will get you to your first ten clients — and unlike a marketplace, those clients and that income are yours to keep. Set up the link today, send your first ten messages, and let the compounding begin. That is exactly what Tutafy is built to make easy, for free.` },
+      { type: 'links', title: 'Related guides', items: [
+        { label: 'How to get tutoring students: find the step that is losing them', href: '/blog/how-to-get-tutoring-students', text: 'Count conversations, enquiries, trials and regulars, and fix the thin step.' },
+      ] },
       { type: 'faq', items: [
         { q: 'Do I really need software to get my first students?', a: 'You need a frictionless way to be booked and paid. You can start with a free scheduling link, but a tutoring-specific tool like Tutafy also gives you the video classroom, payments, reminders and student notes in one place — so the whole first lesson runs itself and the experience is smooth enough to earn a second lesson.' },
         { q: 'Is it better to use a marketplace or go independent when starting out?', a: 'Marketplaces earn their commission when you are brand new and have no way to find students. Use that period to build relationships good enough that students would follow you anywhere — then move your regulars to your own booking link and keep 100%. Many tutors run both at once for a while.' },
@@ -838,6 +845,9 @@ export const POSTS: Post[] = [
         'Ignoring timezones and no-shows instead of using reminders and a clear cancellation policy.',
         'Staying 100% dependent on a marketplace long after building loyal regulars who would follow them.',
         'Selling single lessons only, instead of prepaid packages that secure income and cut cancellations.',
+      ] },
+      { type: 'links', title: 'Related guides', items: [
+        { label: 'How to choose an online English tutor as an adult', href: '/blog/how-to-choose-an-online-english-tutor', text: 'The same subject from the learner side: what your future students ask before they book.' },
       ] },
       { type: 'cta', title: 'Everything you need to teach English online', text: 'A booking page, a built-in video classroom, payments and reminders in one place — free, with 0% commission so your rate is your take-home.', button: 'Start free', href: '/register' },
       { type: 'faq', items: [
@@ -3984,6 +3994,26 @@ export const POSTS: Post[] = [
     content: IELTS_PART2_CONTENT,
   },
   {
+    slug: 'how-to-get-tutoring-students',
+    title: 'How to Get Tutoring Students: Where They Come From, What to Say and Which Step Is Losing Them',
+    description: 'How to get tutoring students: work backwards from ten, know who is buying, use message templates, follow the FTC and CAN-SPAM rules and find the weak step.',
+    date: '2026-11-11',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: GET_TUTORING_STUDENTS_CONTENT,
+  },
+  {
+    slug: 'how-to-choose-an-online-english-tutor',
+    title: 'How to Choose an Online English Tutor as an Adult: Your Goal, Your Level, a Trial Lesson and Red Flags',
+    description: 'How to choose an online English tutor as an adult: write your brief, check your level, shortlist three, score a trial, pay safely and spot red flags.',
+    date: '2026-11-11',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: CHOOSE_ENGLISH_TUTOR_CONTENT,
+  },
+  {
     slug: 'preply-vs-italki-vs-wyzant-for-tutors',
     title: 'Preply vs italki vs Wyzant for Tutors: Which Platform Fits Which Tutor (and What to Do Instead)',
     description: 'Preply vs italki vs Wyzant for tutors: what each platform keeps, how you are paid, the rules that hide a profile, and which one fits your subject and hours.',
@@ -4111,6 +4141,8 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'how-to-get-tutoring-students': "Illustration of a funnel with four steps ending in a check mark, for getting tutoring students",
+  'how-to-choose-an-online-english-tutor': "Illustration of a scorecard with three ticked rows and a speech bubble, for choosing an online English tutor",
   'preply-vs-italki-vs-wyzant-for-tutors': "Illustration of three profile cards side by side with a check mark under one, for comparing Preply, italki and Wyzant",
   'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",

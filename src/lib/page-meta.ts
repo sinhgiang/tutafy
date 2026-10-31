@@ -255,6 +255,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'IELTS Speaking Part 2 Topics and How to Practise',
     description: 'IELTS Speaking Part 2 topics: how the task card works by the official pages, why no latest list exists, 30 practice cards and a tutor routine.',
   },
+  'how-to-get-tutoring-students': {
+    title: 'How to Get Tutoring Students: Find the Weak Step',
+    description: 'How to get tutoring students: work backwards from ten, know who is buying, use message templates, follow the FTC and CAN-SPAM rules and find the weak step.',
+  },
+  'how-to-choose-an-online-english-tutor': {
+    title: 'How to Choose an Online English Tutor as an Adult',
+    description: 'How to choose an online English tutor as an adult: write your brief, check your level, shortlist three, score a trial, pay safely and spot red flags.',
+  },
   'preply-vs-italki-vs-wyzant-for-tutors': {
     title: 'Preply vs italki vs Wyzant for Tutors',
     description: 'Preply vs italki vs Wyzant for tutors: fees, payouts, visibility rules and which platform fits your subject and hours, checked 31 Oct 2026.',

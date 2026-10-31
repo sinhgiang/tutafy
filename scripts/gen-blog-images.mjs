@@ -459,6 +459,26 @@ const HEROES = {
       <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
 
+  // How to get tutoring students (T-1218) — a funnel of four narrowing bars and a tick
+  'how-to-get-tutoring-students': base({ from: '#134e4a', to: '#9a3412', label: 'Growth', motif: `
+    <g transform="translate(790,96)" opacity="0.96">
+      ${[0,1,2,3].map(i => `<rect x="${i * 28}" y="${i * 92}" width="${320 - i * 56}" height="68" rx="16" fill="#ffffff" opacity="${0.94 - i * 0.08}"/>
+      <rect x="${i * 28 + 24}" y="${i * 92 + 26}" width="${150 - i * 24}" height="14" rx="7" fill="#134e4a" opacity="0.4"/>`).join('')}
+      <circle cx="160" cy="388" r="30" fill="#047857"/>
+      <path d="M146 388 l10 12 l20 -24" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // How to choose an online English tutor (T-1219) — a scorecard with three rows, a tick on each, and a speech bubble
+  'how-to-choose-an-online-english-tutor': base({ from: '#1e3a5f', to: '#92400e', label: 'Teaching', motif: `
+    <g transform="translate(780,92)" opacity="0.96">
+      <rect x="0" y="0" width="330" height="330" rx="20" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2].map(i => `<rect x="28" y="${44 + i * 92}" width="${200 - i * 30}" height="14" rx="7" fill="#1e3a5f" opacity="0.4"/>
+      <rect x="28" y="${70 + i * 92}" width="${140 - i * 10}" height="10" rx="5" fill="#1e3a5f" opacity="0.2"/>
+      <circle cx="282" cy="${58 + i * 92}" r="20" fill="#047857"/>
+      <path d="M272 ${58 + i * 92} l7 8 l13 -15" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}
+      <path d="M120 360 H300 a18 18 0 0 1 18 18 V430 a18 18 0 0 1 -18 18 H220 L180 480 V448 H120 a18 18 0 0 1 -18 -18 V378 a18 18 0 0 1 18 -18 Z" fill="#ffffff" opacity="0.94"/>
+    </g>` }),
+
   // Preply vs italki vs Wyzant for tutors (T-1216) — three profile cards side by side, a tick under the third
   'preply-vs-italki-vs-wyzant-for-tutors': base({ from: '#1f2937', to: '#0e7490', label: 'Growth', motif: `
     <g transform="translate(700,120)" opacity="0.96">
