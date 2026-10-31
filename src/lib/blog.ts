@@ -64,7 +64,8 @@ export type PostBlock =
   // free & commercially-licensed (Openverse/CC) and converted to AVIF by
   // scripts/fetch-inline-images.mjs. `credit` is shown as a small caption when
   // the license requires attribution. Rule: 3–7 relevant inline images per post.
-  | { type: 'image'; src: string; alt: string; caption?: string; credit?: string }
+  // `creditHref` (T-1155) links the credit to the photo's own page, so a reader can check the author and the licence.
+  | { type: 'image'; src: string; alt: string; caption?: string; credit?: string; creditHref?: string }
   // A small note under a platform's numbers: the day they were checked and links to the official pages (T-0962).
   | { type: 'source'; text: string; links: { label: string; href: string }[] }
   // A short list of sibling articles (internal links with a line each), so an article links into its topic cluster (T-1141).

@@ -243,5 +243,161 @@
     "creator": "Fruitnet.com",
     "source": "https://www.flickr.com/photos/11191108@N04/2849078727",
     "credit": "Photo: Fruitnet.com (CC BY) via Openverse"
+  },
+  "pain-rate-coins": {
+    "file": "Stacks of Coins.jpg",
+    "licence": "CC0",
+    "creator": "Kevin Schneider",
+    "source": "https://commons.wikimedia.org/wiki/File:Stacks_of_Coins.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 80442,
+      "avif": 56028
+    }
+  },
+  "pain-rate-alarm-clock": {
+    "file": "Small black alarm clock on a desk.jpg",
+    "licence": "CC BY 4.0",
+    "creator": "Solise",
+    "source": "https://commons.wikimedia.org/wiki/File:Small_black_alarm_clock_on_a_desk.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+    "original": "3264x2448",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 27148,
+      "avif": 23312
+    }
+  },
+  "pain-rate-home-office": {
+    "file": "Home-office-336377.jpg",
+    "licence": "CC0",
+    "creator": "By Free-Photos from Pixabay",
+    "source": "https://commons.wikimedia.org/wiki/File:Home-office-336377.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5616x3744",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 36408,
+      "avif": 27966
+    }
+  },
+  "pain-reschedule-wall-calendar": {
+    "file": "WallCalendar.jpg",
+    "licence": "Public domain",
+    "creator": "Claudio Elias",
+    "source": "https://commons.wikimedia.org/wiki/File:WallCalendar.jpg",
+    "licenceUrl": null,
+    "original": "2816x2112",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 32932,
+      "avif": 31976
+    }
+  },
+  "pain-reschedule-phone": {
+    "file": "Apple-iphone-smartphone-desk-1 (24217686692).jpg",
+    "licence": "CC0",
+    "creator": "www.Pixel.la Free Stock Photos",
+    "source": "https://commons.wikimedia.org/wiki/File:Apple-iphone-smartphone-desk-1_(24217686692).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "7101x4556",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 25074,
+      "avif": 23714
+    }
+  },
+  "pain-reschedule-planner": {
+    "file": "Desk-laptop-notebook-pen (23958719819).jpg",
+    "licence": "CC0",
+    "creator": "www.Pixel.la Free Stock Photos",
+    "source": "https://commons.wikimedia.org/wiki/File:Desk-laptop-notebook-pen_(23958719819).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4272x2848",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 46350,
+      "avif": 41991
+    }
+  },
+  "pain-payment-card-laptop": {
+    "file": "Woman sitting at her office table and typing the number from a plastic card on the laptop. (51536551788).jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Nenad Stojkovic",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_sitting_at_her_office_table_and_typing_the_number_from_a_plastic_card_on_the_laptop._(51536551788).jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4016x6016",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 26318,
+      "avif": 24819
+    }
+  },
+  "pain-payment-banknotes": {
+    "file": "50 Eurobanknoten in der Hand aufgefaechert.JPG",
+    "licence": "CC0",
+    "creator": "Usien",
+    "source": "https://commons.wikimedia.org/wiki/File:50_Eurobanknoten_in_der_Hand_aufgefaechert.JPG",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "3143x2418",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 69240,
+      "avif": 57924
+    }
+  },
+  "pain-payment-typing": {
+    "file": "Hand-laptop-notebook-typing (23698140194).jpg",
+    "licence": "CC0",
+    "creator": "www.Pixel.la Free Stock Photos",
+    "source": "https://commons.wikimedia.org/wiki/File:Hand-laptop-notebook-typing_(23698140194).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4928x3264",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24942,
+      "avif": 21727
+    }
+  },
+  "pain-stack-desk-devices": {
+    "file": "Gadgets on a desk (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Niklas Veenhuis niklasveenhuis",
+    "source": "https://commons.wikimedia.org/wiki/File:Gadgets_on_a_desk_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4912x7360",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 23430,
+      "avif": 22927
+    }
+  },
+  "pain-stack-video-teacher": {
+    "file": "Onlineteacher.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Phil Roeder from Des Moines, IA, USA",
+    "source": "https://commons.wikimedia.org/wiki/File:Onlineteacher.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "7416x4949",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 46706,
+      "avif": 38673
+    }
+  },
+  "pain-stack-tablet": {
+    "file": "Hybrid tablet (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Marius Masalar mariusmasalar",
+    "source": "https://commons.wikimedia.org/wiki/File:Hybrid_tablet_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4896x3264",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 14478,
+      "avif": 10950
+    }
   }
 }
