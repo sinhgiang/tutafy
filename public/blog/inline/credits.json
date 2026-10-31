@@ -737,5 +737,96 @@
       "webp": 14960,
       "avif": 13139
     }
+  },
+  "cost-tutoring-chemistry": {
+    "file": "Tutoring Chemistry.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Preply.com Images",
+    "source": "https://commons.wikimedia.org/wiki/File:Tutoring_Chemistry.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 32190,
+      "avif": 30520
+    }
+  },
+  "cost-piggy-bank": {
+    "file": "Piggy-bank-968302.jpg",
+    "licence": "CC0",
+    "creator": "stevepb",
+    "source": "https://commons.wikimedia.org/wiki/File:Piggy-bank-968302.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5472x3648",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 69010,
+      "avif": 50287
+    }
+  },
+  "cost-girl-studies-home": {
+    "file": "Girl studies at home in a cozy room.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Girl_studies_at_home_in_a_cozy_room.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 35528,
+      "avif": 31524
+    }
+  },
+  "plan-tutoring-physics": {
+    "file": "Tutoring Physics.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Preply.com Images",
+    "source": "https://commons.wikimedia.org/wiki/File:Tutoring_Physics.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 31840,
+      "avif": 26437
+    }
+  },
+  "plan-tote-organizer": {
+    "file": "Tote organizer with glue pens pencils chalk and checklist (21312803141).jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Personal Creations",
+    "source": "https://commons.wikimedia.org/wiki/File:Tote_organizer_with_glue_pens_pencils_chalk_and_checklist_(21312803141).jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 48054,
+      "avif": 41335
+    }
+  },
+  "cost-video-call-laptop": {
+    "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Woman_smiling_and_using_laptop_during_video_call_in_cozy_wooden_room.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6048x4024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 41358,
+      "avif": 36335
+    }
+  },
+  "plan-hourglasses": {
+    "file": "Multiple hourglasses.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Sauvagette",
+    "source": "https://commons.wikimedia.org/wiki/File:Multiple_hourglasses.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "2256x1496",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 21662,
+      "avif": 20095
+    }
   }
 }

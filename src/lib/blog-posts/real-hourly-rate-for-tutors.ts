@@ -132,6 +132,7 @@ export const REAL_HOURLY_RATE_CONTENT: PostBlock[] = [
     { label: 'How to price your tutoring lessons', href: '/blog/how-to-price-tutoring-lessons', text: 'the biggest lever.' },
     { label: 'How to stop tutoring no-shows', href: '/blog/stop-tutoring-no-shows', text: 'win back missed slots.' },
     { label: 'How to leave Preply: a migration guide', href: '/blog/how-to-leave-preply-migration-guide', text: 'the practical steps.' },
+    { label: 'How much does an online tutor cost?', href: '/blog/online-tutor-cost', text: 'the price a student sees.' },
   ] },
   { type: 'cta', title: 'Keep what you earn', text: 'Free for up to 10 students, Pro $12 a month, Academy $29 a month. 0% commission on every plan, no card to start, cancel anytime.', button: 'Start free — no credit card', href: '/register' },
   { type: 'faq', items: [

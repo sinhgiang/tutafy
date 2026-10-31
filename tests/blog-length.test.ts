@@ -18,6 +18,19 @@ for (const slug of TRAFFIC_ARTICLES) {
   })
 }
 
+// Articles of the 8 Nov 2026 batch (T-1212, T-1213), kept in their own list so the lanes of the other days do not edit the same line.
+const BATCH_0811 = ['online-tutor-cost', 'tutor-lesson-plan-template']
+
+for (const slug of BATCH_0811) {
+  test(`${slug}: 3,500 to 4,000 words`, () => {
+    const post = getPost(slug)
+    assert.ok(post, `${slug} is registered in src/lib/blog.ts`)
+    const { body, total } = count(post)
+    assert.ok(body >= 3500, `${body} words in the body, 3,500 needed`)
+    assert.ok(total <= 4000, `${total} words with photo captions, 4,000 at most`)
+  })
+}
+
 test('the counter counts what a reader sees and ignores what they do not', () => {
   const post = {
     content: [

@@ -458,6 +458,35 @@ const HEROES = {
       <circle cx="316" cy="12" r="22" fill="#047857"/>
       <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Online tutor cost (T-1213) — three price tags of different widths, a coin and a tick
+  'online-tutor-cost': base({ from: '#0f4c5c', to: '#7c3a1d', label: 'Pricing', motif: `
+    <g transform="translate(770,100)" opacity="0.96">
+      ${[0,1,2].map(i => `<g transform="translate(0,${i * 120})">
+        <path d="M0 40 L40 0 H${230 + i * 50} a16 16 0 0 1 16 16 V64 a16 16 0 0 1 -16 16 H40 Z" fill="#ffffff" opacity="0.94"/>
+        <circle cx="46" cy="40" r="9" fill="#0f4c5c" opacity="0.4"/>
+        <rect x="76" y="28" width="${70 + i * 30}" height="14" rx="7" fill="#0f4c5c" opacity="${0.55 - i * 0.12}"/>
+        <rect x="76" y="50" width="${50 + i * 20}" height="10" rx="5" fill="#0f4c5c" opacity="0.22"/>
+      </g>`).join('')}
+      <circle cx="330" cy="380" r="40" fill="#fbbf24"/>
+      <text x="330" y="394" font-family="Segoe UI, Arial" font-size="42" font-weight="800" fill="#92400e" text-anchor="middle">$</text>
+      <circle cx="318" cy="6" r="22" fill="#047857"/>
+      <path d="M308 6 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Tutor lesson plan template (T-1212) — a plan page cut into three timed blocks and a tick
+  'tutor-lesson-plan-template': base({ from: '#27272a', to: '#0e7490', label: 'Teaching', motif: `
+    <g transform="translate(790,90)" opacity="0.96">
+      <rect x="0" y="0" width="300" height="400" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="28" y="30" width="130" height="18" rx="8" fill="#27272a" opacity="0.55"/>
+      ${[0,1,2].map(i => `<g transform="translate(0,${86 + i * 100})">
+        <rect x="28" y="0" width="${70 + i * 20}" height="26" rx="13" fill="#0e7490" opacity="${0.8 - i * 0.18}"/>
+        <rect x="28" y="40" width="244" height="11" rx="5" fill="#27272a" opacity="0.28"/>
+        <rect x="28" y="62" width="190" height="11" rx="5" fill="#27272a" opacity="0.18"/>
+      </g>`).join('')}
+      <circle cx="270" cy="26" r="22" fill="#047857"/>
+      <path d="M260 26 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

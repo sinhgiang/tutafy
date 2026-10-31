@@ -43,6 +43,8 @@
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
+//  - online-tutor-cost: explainer/comparison for the LEARNER · axis = what dated sources say in the US → why they differ (seller, what is counted, the length of an hour, who set the price, age) → UK by level and subject (two sources that disagree) → by country (only what could be read) → what is inside the price (marketplace, agency, own) → how to read a quote (four invented quotes, a package used 10, 8, 6, 4 times) → a term of lessons → ways to pay less → red flags → what Tutafy is and is not for a learner (no directory yet) · every figure from a page read on 31 Oct 2026 with its date · 4 photos + 8 compare tables + callout(info, warn) + ul + RATES_SOURCE + source(9 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1213)
+//  - tutor-lesson-plan-template: how-to/template · axis = what a one-to-one plan is for → a ten-line one-page template (compare, early) → write the objective first (CMU Eberly Center) → Rosenshine's ten principles mapped to the template lines → retrieval warm-up (retrievalpractice.org) → time splits for 30, 45 and 60 minutes (our suggestion, said so) → three invented plans (maths, English speaking, writing) → a series plan → the five minutes after the lesson → when to throw the plan away → mistakes → what Tutafy has (notes and homework fields, emailed recap, AI summary on Pro) and lacks (no templates) · chosen at step 0 as the reserve topic because the Preply commission article already exists (how-much-does-preply-take, updated for T-1212) · 3 photos + 7 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/callout/own diagram. Body in src/lib/blog-posts/ (T-1212)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -59,6 +61,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { ONLINE_TUTOR_COST_CONTENT } from '@/lib/blog-posts/online-tutor-cost'
+import { TUTOR_LESSON_PLAN_CONTENT } from '@/lib/blog-posts/tutor-lesson-plan-template'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -718,6 +722,10 @@ export const POSTS: Post[] = [
       { type: 'p', text: `Treating pricing as a scheduled review rather than an emotional flare-up keeps you from two failure modes: the tutor who never raises rates and quietly falls behind, and the tutor who blurts out a resentful increase after months of feeling underpaid. A small, regular, evidence-based adjustment is easier for you to make and easier for students to accept than a large, overdue one. Your rate should grow with your skill and your demand — a review cadence is simply how you make sure it actually does.` },
       { type: 'h2', text: 'A worked example' },
       { type: 'p', text: `Put it together. Say the market for your subject runs $20–$40/hour and you are a qualified tutor with a couple of years of results — the framework lands you around $32. On a marketplace taking 25%, that $32 is really $24 in your pocket; to actually take home $32 you would need to charge roughly $43, near the top of the range, which is harder to sell. On your own booking link, $32 is $32 minus only the processor fee — so you can charge in the middle of the market and out-earn the marketplace tutor charging at the top. Now package it: ten lessons at $30 each (a small commitment discount) is $300 secured up front, keeping your calendar full and your income predictable. That is the whole framework in one decision — anchored to the market, adjusted for value, priced on take-home, sold as a package, and presented plainly.` },
+      { type: 'links', title: 'Related guides', items: [
+        { label: 'How much does an online tutor cost?', href: '/blog/online-tutor-cost', text: 'What students see: dated prices by level and country.' },
+        { label: 'Your real hourly rate as a tutor', href: '/blog/real-hourly-rate-for-tutors', text: 'Turn a rate into what you keep.' },
+      ] },
       { type: 'cta', title: 'Set your rate, share your link', text: 'A booking page that shows your price and takes payment — free, with 0% commission so your rate is your take-home.', button: 'Start free', href: '/register' },
       { type: 'faq', items: [
         { q: 'How do I price for students in another country?', a: 'Anchor to the value the student receives, not just your local cost of living. If you teach students in higher-income markets, you can reasonably price toward their market. Quote in a single familiar currency (often USD or EUR) so international students always know exactly what they are paying.' },
@@ -1128,6 +1136,17 @@ export const POSTS: Post[] = [
       ] },
       RATES_SOURCE,
       { type: 'p', text: `iTalki's 15–21% cut, set by lesson type, is lower than Preply's starting rate, which is why many language tutors prefer it for discovery. Wyzant, strong for US academic and test-prep, has historically taken around a quarter. Superprof works more as a lead directory. The common thread is that every marketplace trades discovery for a slice of your income and control of the relationship — the differences are only in how big the slice is and how it is dressed up.` },
+      { type: 'h2', text: 'The tiers, step by step: what is official and what is only reported (checked 31 Oct 2026)' },
+      { type: 'p', text: `Preply's own tutor commission page is the authority on the steps. It returned an access error to our script on 31 October 2026, so we could not re-read it that day. The table below separates what the search result for that page says from what one outside page reports, and the middle steps are the part to confirm in your own dashboard.` },
+      { type: 'compare', caption: 'Preply tutor commission by hours taught on Preply, as we could confirm it on 31 Oct 2026.', headers: ['Hours taught on Preply', 'Commission', 'Where it comes from'], rows: [
+        ['First (trial) lesson with each new student', 'Preply keeps 100%', 'Preply commission page, as summarised on 25 Oct 2026'],
+        ['0 to 20 hours', '33%', 'Preply commission page, as shown in search results'],
+        ['After 20 hours', '28%', 'Preply commission page, as shown in search results'],
+        ['About 50 to 200 hours', 'about 25% (reported)', 'Pensight, 23 Oct 2026, a third-party article; not confirmed'],
+        ['About 200 to 400 hours', 'about 22% (reported)', 'Pensight, 23 Oct 2026; not confirmed'],
+        ['400 hours and more', '18%', 'Reported by several outside pages, one of which ties it to 400 hours; not confirmed on the Preply page'],
+      ] },
+      { type: 'p', text: `Two things follow. A new tutor pays the top rate on the first 20 hours and gets no pay for each new student's trial lesson, so the early hours are the most expensive ones. And the lowest tier is reached only after a very large number of hours, which is why the take-home table above uses 33% and 18% as the two ends. Our guide to a tutor's real hourly rate turns the tiers into what you keep after unpaid time, and our guide to what an online tutor costs shows the same lesson from the student's side.` },
       { type: 'h2', text: 'The hidden costs beyond commission' },
       { type: 'p', text: `The headline percentage is not the whole cost of a marketplace. Several quieter costs stack on top, and ignoring them makes the platform look cheaper than it is:` },
       { type: 'ul', items: [
@@ -1201,6 +1220,11 @@ export const POSTS: Post[] = [
         { q: 'Do students pay more on Preply than by booking me directly?', a: 'Students pay the price shown on Preply; the platform then takes its cut before paying you. On your own booking link there is no middle cut, so the same price the student pays lands almost entirely with you, minus only the small payment-processor fee.' },
         { q: 'Does Preply commission apply to every lesson forever?', a: 'Yes — as long as a student books through Preply, the platform takes its commission on every lesson, not just the first paid one (and it keeps the trial entirely). Only by moving a student to your own booking link do their future lessons become commission-free.' },
         { q: 'Is there a Preply alternative with no commission?', a: 'Going independent with a flat tool like Tutafy is the commission-free route: you pay a fixed fee (or nothing on the free plan) instead of a percentage, and keep the full lesson price minus only the payment-processor fee. Keep a marketplace for discovery if you still want new-student reach.' },
+      ] },
+      { type: 'links', title: 'Related guides', items: [
+        { label: 'Your real hourly rate as a tutor', href: '/blog/real-hourly-rate-for-tutors', text: 'What you keep after commission and unpaid hours.' },
+        { label: 'How much does an online tutor cost?', href: '/blog/online-tutor-cost', text: 'The price a student sees, with dated sources.' },
+        { label: 'Online tutoring jobs', href: '/blog/online-tutoring-jobs', text: 'What each platform keeps or pays, side by side.' },
       ] },
       { type: 'cta', title: 'Stop paying a percentage of every lesson', text: 'Move your regulars to a commission-free booking link and keep what you earn — free, and we never take a cut.', button: 'Start free — no credit card', href: '/register' },
     ],
@@ -2910,7 +2934,10 @@ export const POSTS: Post[] = [
             a: `If you're under five or six students, a Google Sheet and a WhatsApp thread is genuinely fine and not worth complicating. Past that, the time spent manually tracking rebookings, chasing payments, and remembering who's due for a progress note usually costs more than a basic booking-and-reminders system would, which is why a free plan sized for that range of students is worth setting up before it becomes a real problem.`
           }
         ]
-      }
+      },
+      { type: 'links', title: 'Related guides', items: [
+        { label: 'Lesson plan template for tutors', href: '/blog/tutor-lesson-plan-template', text: 'A one-page plan, and the note that starts the next lesson.' },
+      ] },
     ],
   },
   {
@@ -3970,6 +3997,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: IELTS_PART2_CONTENT,
   },
+  {
+    slug: 'online-tutor-cost',
+    title: 'How Much Does an Online Tutor Cost in 2026? Prices by Level and Country, and How to Read a Quote',
+    description: 'Online tutors cost about $30 to $80 an hour in the US and £43 to £54 in the UK, by pages read on 31 Oct 2026. See why sources differ and how to price a quote.',
+    date: '2026-11-08',
+    category: 'Pricing',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ONLINE_TUTOR_COST_CONTENT,
+  },
+  {
+    slug: 'tutor-lesson-plan-template',
+    title: 'Lesson Plan Template for Tutors: A One-Page Plan for One Student, With Three Worked Examples',
+    description: 'A one-page tutor lesson plan template with an objective, time splits for 30, 45 and 60 minutes, Rosenshine\'s principles as a checklist and three invented plans.',
+    date: '2026-11-08',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_LESSON_PLAN_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4018,6 +4065,8 @@ const HERO_ALTS: Record<string, string> = {
   'online-tutoring-jobs': "Illustration of job cards with a check mark and a pay tag, for online tutoring jobs",
   'tutor-resume': "Illustration of a resume page with a photo block, text lines and a check mark, for a tutor resume",
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
+  'online-tutor-cost': "Illustration of three price tags of different sizes beside a coin and a check mark, for what an online tutor costs",
+  'tutor-lesson-plan-template': "Illustration of a lesson plan page cut into three timed blocks with a check mark, for a tutor lesson plan template",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {
