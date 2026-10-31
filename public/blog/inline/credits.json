@@ -894,6 +894,84 @@
       "avif": 20486
     }
   },
+  "stats-video-call": {
+    "file": "Video Conference Using Laptop.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Project Kei",
+    "source": "https://commons.wikimedia.org/wiki/File:Video_Conference_Using_Laptop.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "1440x1080",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 54100,
+      "avif": 41990
+    }
+  },
+  "stats-calculator": {
+    "file": "Calculator Office.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Anton Ehrola",
+    "source": "https://commons.wikimedia.org/wiki/File:Calculator_Office.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "4272x2848",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 15316,
+      "avif": 12703
+    }
+  },
+  "stats-magnifier": {
+    "file": "A magnifying glass.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "PLBechly",
+    "source": "https://commons.wikimedia.org/wiki/File:A_magnifying_glass.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "3202x1587",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 23506,
+      "avif": 24680
+    }
+  },
+  "esl-flashcards": {
+    "file": "Flash cards for language learning.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "bfishadow",
+    "source": "https://commons.wikimedia.org/wiki/File:Flash_cards_for_language_learning.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4032x3024",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 113640,
+      "avif": 65101
+    }
+  },
+  "esl-volunteer": {
+    "file": "Haitian students learn English from Canadian volunteer.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Emma Taylor",
+    "source": "https://commons.wikimedia.org/wiki/File:Haitian_students_learn_English_from_Canadian_volunteer.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "3648x2736",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 72690,
+      "avif": 64079
+    }
+  },
+  "esl-game-pieces": {
+    "file": "Board game pieces.jpg",
+    "licence": "CC0",
+    "creator": "Mshuang2",
+    "source": "https://commons.wikimedia.org/wiki/File:Board_game_pieces.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4608x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 70744,
+      "avif": 57138
+    }
+  },
   "contract-legal-signature": {
     "file": "Legal Contract & Signature - Warm Tones.jpg",
     "licence": "CC BY 2.0",

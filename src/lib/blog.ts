@@ -65,6 +65,8 @@ import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { ONLINE_TUTORING_STATISTICS_CONTENT } from '@/lib/blog-posts/online-tutoring-statistics'
+import { ESL_SPEAKING_ACTIVITIES_CONTENT } from '@/lib/blog-posts/esl-speaking-activities'
 import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
 import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
@@ -4024,6 +4026,26 @@ export const POSTS: Post[] = [
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
   {
+    slug: 'online-tutoring-statistics',
+    title: 'Online Tutoring Statistics 2026: Pay, Jobs, Research and the Numbers We Would Not Print',
+    description: 'Online tutoring statistics for 2026 with the source and date of every number: tutor pay and jobs, research on whether tutoring works, and why we print no market-size forecast.',
+    date: '2026-11-05',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ONLINE_TUTORING_STATISTICS_CONTENT,
+  },
+  {
+    slug: 'esl-speaking-activities',
+    title: 'ESL Speaking Activities for One-to-One Lessons: 20 Low-Prep Tasks, Step by Step',
+    description: '20 ESL speaking activities for one student, with level, minutes, preparation and steps, adapted from British Council pages, plus how to correct without stopping the talk.',
+    date: '2026-11-05',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ESL_SPEAKING_ACTIVITIES_CONTENT,
+  },
+  {
     slug: 'tutoring-contract-template',
     title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
     description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
@@ -4115,6 +4137,8 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'online-tutoring-statistics': "Illustration of three bars of different heights with a magnifying glass and a check mark, for online tutoring statistics",
+  'esl-speaking-activities': "Illustration of two speech bubbles and a check mark, for ESL speaking activities",
   'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
   'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",

@@ -8,6 +8,7 @@ import { count } from '../scripts/count-post-words.mjs'
 
 const TRAFFIC_ARTICLES = ['how-to-write-a-tutor-bio', 'free-tutoring-invoice-template', 'online-whiteboard-for-tutoring', 'do-tutors-have-to-pay-taxes', 'online-tutoring-jobs', 'tutor-resume', 'ielts-speaking-part-2-topics', 'preply-vs-italki-vs-wyzant-for-tutors', 'how-to-run-a-trial-lesson-tutoring']
 TRAFFIC_ARTICLES.push('wyzant-fees-for-tutors', 'how-to-find-an-online-tutor') // T-1214, T-1215 (9 Nov 2026)
+TRAFFIC_ARTICLES.push('online-tutoring-statistics', 'esl-speaking-activities') // T-1196, T-1197 (5 Nov 2026)
 TRAFFIC_ARTICLES.push('superprof-review-for-tutors') // T-1236 (13 Nov 2026)
 TRAFFIC_ARTICLES.push('online-math-tutor') // T-1237 (13 Nov 2026)
 

@@ -521,6 +521,31 @@ const HEROES = {
       </g>`).join('')}
     </g>` }),
 
+  // Online tutoring statistics (T-1196) — three bars of different heights, a magnifying glass and a tick
+  'online-tutoring-statistics': base({ from: '#3730a3', to: '#0f766e', label: 'Business', motif: `
+    <g transform="translate(770,90)" opacity="0.96">
+      <rect x="0" y="0" width="330" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      <rect x="40" y="200" width="56" height="100" rx="8" fill="#3730a3" opacity="0.40"/>
+      <rect x="126" y="130" width="56" height="170" rx="8" fill="#3730a3" opacity="0.60"/>
+      <rect x="212" y="70" width="56" height="230" rx="8" fill="#3730a3" opacity="0.85"/>
+      <rect x="40" y="316" width="228" height="8" rx="4" fill="#3730a3" opacity="0.25"/>
+      <circle cx="250" cy="372" r="46" fill="none" stroke="#ffffff" stroke-width="12" opacity="0.95"/>
+      <path d="M284 406 L324 446" stroke="#ffffff" stroke-width="14" stroke-linecap="round" opacity="0.95"/>
+      <circle cx="318" cy="12" r="22" fill="#047857"/>
+      <path d="M308 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // ESL speaking activities (T-1197) — two speech bubbles and a tick
+  'esl-speaking-activities': base({ from: '#0f766e', to: '#6d28d9', label: 'Teaching', motif: `
+    <g transform="translate(760,90)" opacity="0.96">
+      <path d="M20 0 H250 a22 22 0 0 1 22 22 V150 a22 22 0 0 1 -22 22 H110 L56 214 V172 H20 a22 22 0 0 1 -22 -22 V22 A22 22 0 0 1 20 0 Z" fill="#ffffff" opacity="0.94"/>
+      ${[0,1].map(i => `<rect x="26" y="${36 + i * 40}" width="${i ? 120 : 200}" height="12" rx="6" fill="#0f766e" opacity="${i ? 0.2 : 0.34}"/>`).join('')}
+      <path d="M340 220 H110 a22 22 0 0 0 -22 22 V350 a22 22 0 0 0 22 22 H160 L214 414 V372 H340 a22 22 0 0 0 22 -22 V242 A22 22 0 0 0 340 220 Z" fill="#ffffff" opacity="0.82"/>
+      ${[0,1].map(i => `<rect x="124" y="${258 + i * 40}" width="${i ? 110 : 190}" height="12" rx="6" fill="#6d28d9" opacity="${i ? 0.2 : 0.34}"/>`).join('')}
+      <circle cx="316" cy="12" r="22" fill="#047857"/>
+      <path d="M306 12 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
   // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
   'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
     <g transform="translate(790,86)" opacity="0.96">
@@ -579,7 +604,7 @@ const HEROES = {
     </g>` }),
 }
 
-const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
+const only =process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
 const out = []
 for (const [slug, svg] of Object.entries(HEROES)) {
   if (only.length && !only.includes(slug)) continue

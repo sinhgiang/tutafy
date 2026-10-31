@@ -283,6 +283,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Bio: How to Write One, 15 Examples',
     description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
   },
+  'online-tutoring-statistics': {
+    title: 'Online Tutoring Statistics 2026: Sourced Numbers',
+    description: 'Online tutoring statistics for 2026: pay, jobs, research results and market-size claims, each with its source and date, plus numbers we would not print.',
+  },
+  'esl-speaking-activities': {
+    title: 'ESL Speaking Activities for One-to-One Lessons',
+    description: '20 ESL speaking activities for one student: level, minutes and steps, adapted from British Council pages, plus how to correct speaking errors.',
+  },
   'tutoring-contract-template': {
     title: 'Tutoring Contract Template: One Page, 12 Clauses',
     description: 'A one-page tutoring contract template: twelve fill-in clauses with the reason for each, versions for children and groups, and rules that can override it.',
