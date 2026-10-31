@@ -322,6 +322,51 @@ const HEROES = {
     <g transform="translate(770,150)" opacity="0.95">
       ${[0,1,2].map(i => `<g transform="translate(${i * 26},${i * 62})"><rect x="0" y="0" width="290" height="110" rx="16" fill="#ffffff" opacity="${[0.4,0.65,0.93][i]}"/><circle cx="0" cy="55" r="16" fill="#b45309" opacity="0.5"/><circle cx="290" cy="55" r="16" fill="#b45309" opacity="0.5"/><line x1="86" y1="14" x2="86" y2="96" stroke="#b45309" stroke-width="3" stroke-dasharray="7 6" opacity="0.5"/><rect x="112" y="38" width="130" height="14" rx="7" fill="#b45309" opacity="0.4"/><rect x="112" y="64" width="86" height="14" rx="7" fill="#b45309" opacity="0.25"/></g>`).join('')}
     </g>` }),
+
+  // Real hourly rate (T-1143) — one tall bar and a shorter one beside it, with a coin
+  'real-hourly-rate-for-tutors': base({ from: '#047857', to: '#0f766e', label: 'Pricing', motif: `
+    <g transform="translate(770,130)" opacity="0.95">
+      <rect x="0" y="40" width="110" height="240" rx="14" fill="#ffffff" opacity="0.93"/>
+      <rect x="150" y="150" width="110" height="130" rx="14" fill="#ffffff" opacity="0.6"/>
+      <rect x="150" y="150" width="110" height="50" rx="14" fill="#047857" opacity="0.35"/>
+      <rect x="300" y="110" width="110" height="170" rx="14" fill="#ffffff" opacity="0.4"/>
+      <circle cx="205" cy="96" r="40" fill="#ffffff" opacity="0.9"/>
+      <circle cx="205" cy="96" r="28" fill="none" stroke="#047857" stroke-width="6" opacity="0.6"/>
+      <line x1="-20" y1="280" x2="430" y2="280" stroke="#ffffff" stroke-width="4" opacity="0.7"/>
+    </g>` }),
+
+  // Reschedule requests (T-1143) — a calendar tile with an arrow moving a lesson block to another day
+  'how-to-handle-tutoring-reschedule-requests': base({ from: '#4338ca', to: '#0e7490', label: 'Operations', motif: `
+    <g transform="translate(760,140)" opacity="0.95">
+      <rect x="0" y="20" width="400" height="250" rx="22" fill="#ffffff" opacity="0.92"/>
+      <rect x="0" y="20" width="400" height="54" rx="22" fill="#4338ca" opacity="0.4"/>
+      ${[0,1,2,3,4,5,6,7,8,9].map(i => `<rect x="${24 + (i % 5) * 72}" y="${96 + Math.floor(i / 5) * 76}" width="58" height="56" rx="10" fill="#4338ca" opacity="${i === 1 ? 0.12 : 0.16}"/>`).join('')}
+      <rect x="96" y="96" width="58" height="56" rx="10" fill="none" stroke="#4338ca" stroke-width="4" stroke-dasharray="6 5" opacity="0.7"/>
+      <rect x="312" y="172" width="58" height="56" rx="10" fill="#4338ca" opacity="0.95"/>
+      <path d="M160 112 C 230 40, 300 60, 330 160" stroke="#0e7490" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.9"/>
+      <path d="M330 160 l-14 -16 m14 16 l16 -12" stroke="#0e7490" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.9"/>
+    </g>` }),
+
+  // Asking for payment (T-1143) — a message bubble with a check mark and a small bill
+  'how-to-ask-for-tutoring-payment': base({ from: '#b45309', to: '#be123c', label: 'Payments', motif: `
+    <g transform="translate(770,130)" opacity="0.95">
+      <rect x="0" y="40" width="270" height="170" rx="24" fill="#ffffff" opacity="0.93"/>
+      <path d="M40 210 L40 262 L96 210 Z" fill="#ffffff" opacity="0.93"/>
+      <rect x="34" y="78" width="170" height="14" rx="7" fill="#b45309" opacity="0.4"/>
+      <rect x="34" y="108" width="200" height="14" rx="7" fill="#b45309" opacity="0.25"/>
+      <rect x="34" y="138" width="120" height="14" rx="7" fill="#b45309" opacity="0.25"/>
+      <rect x="250" y="150" width="170" height="130" rx="16" fill="#ffffff" opacity="0.6"/>
+      <circle cx="335" cy="205" r="30" fill="#047857" opacity="0.75"/>
+      <path d="M319 205 l11 12 l21 -25" stroke="#ffffff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Tool stack (T-1143) — five loose app tiles gathering into one
+  'tutoring-tech-stack-for-online-tutors': base({ from: '#6d28d9', to: '#2563eb', label: 'Software', motif: `
+    <g transform="translate(760,130)" opacity="0.95">
+      ${[[0,10],[110,0],[220,26],[40,130],[170,150]].map(([x, y], i) => `<rect x="${x}" y="${y}" width="86" height="86" rx="18" fill="#ffffff" opacity="${[0.5,0.4,0.6,0.35,0.5][i]}"/>`).join('')}
+      <rect x="150" y="250" width="200" height="60" rx="16" fill="#ffffff" opacity="0.93"/>
+      <rect x="176" y="272" width="148" height="14" rx="7" fill="#6d28d9" opacity="0.45"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

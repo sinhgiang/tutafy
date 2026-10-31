@@ -223,6 +223,22 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutoring Lesson Packages, Explained',
     description: 'A tutoring lesson package is a set of lessons paid for up front. See how packages work, how to price one, and the four terms to write down before you sell.',
   },
+  'real-hourly-rate-for-tutors': {
+    title: 'Your Real Hourly Rate as a Tutor',
+    description: 'Your real hourly rate is what you keep after commission, divided by every hour you work. Use the formula and a worked example week to find your own number.',
+  },
+  'how-to-handle-tutoring-reschedule-requests': {
+    title: 'How to Handle Tutoring Reschedule Requests',
+    description: 'Write one notice rule, apply it every time and confirm each new time in writing. Includes four message templates and what Tutafy does when a lesson moves.',
+  },
+  'tutoring-tech-stack-for-online-tutors': {
+    title: 'Tools for Online Tutors: Audit Your Tech Stack',
+    description: 'Map your tutoring tools to six jobs, count the copy-and-paste hand-offs in one lesson, then decide what to replace, link or keep. See what Tutafy covers.',
+  },
+  'how-to-ask-for-tutoring-payment': {
+    title: 'How to Ask a Parent to Pay for Tutoring',
+    description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
+  },
 }
 
 /**

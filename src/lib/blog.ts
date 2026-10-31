@@ -32,11 +32,19 @@
 //  - calendly-alternatives-for-tutors: comparison · axis = what is left after the booking (5 jobs → options → 4 questions) · statCards + 2× own SVG diagram + compare(6 tools) + 2× cta + calculator late + callout(tip/warn) + links, NO prosCons. Body in src/lib/blog-posts/ (T-1141)
 //  - schedule-tutoring-lessons-across-time-zones: how-to · axis = problem → 2026 clock-change dates → 5 steps (anchor, slot, both times, name the dates, re-check) · statCards + 2× own SVG diagram (grid, step flow) + compare(clock-change dates) + source + callout(warn/info) + ul(wording, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1141)
 //  - tutoring-lesson-packages-explained: explainer/pricing · axis = definition → formats → price arithmetic → 4 terms → counting the balance → when not to · statCards + compare(5 formats, early) + 2× own SVG diagram (price bars, lifecycle) + 3× callout(tip/warn/info) + prosCons + ul(setup steps) + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1141)
+//  - real-hourly-rate-for-tutors: pricing/explainer · axis = one formula → worked week → four levers → track your hours → leaving a platform honestly · statCards + compare(worked week, early) + 2× own SVG diagram (three bars, stacked hours) + compare(four levers) + compare(prep time) + source(rates, card fee) + calculator + ul(worksheet, unpaid hours, tracking, mistakes) + prosCons + links, second invented tutor + reverse formula, NO callout(tip/warn)/mid-article cta. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
+//  - how-to-handle-tutoring-reschedule-requests: operations/how-to · axis = one request through its moments (name the case → write the notice rule → message templates → who moves the lesson → track the pattern) · statCards + compare(3 cases, early) + compare(a month of 4 requests) + 2× own SVG diagram (five-moment flow, who-does-what table) + 5 message templates (h3 + p) + callout(warn/tip/info) + ul(checklist, situations) + prosCons + 2× cta + links, NO calculator. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
+//  - how-to-ask-for-tutoring-payment: payments/how-to · axis = a six-step ladder with timings (terms → link → invoice → nudge → firmer → pause) · statCards + compare(ladder, early) + compare(five ways to be paid) + 2× own SVG diagram (timeline, status flow) + 7 message templates (h3 + p) + callout(tip/warn/info/tip) + ul(set-up checklist, a Friday check) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
+//  - tutoring-tech-stack-for-online-tutors: software/audit · axis = the six jobs of a lesson → count the hand-offs → add up the cost → replace, link or keep → what Tutafy covers and where it stops · statCards + compare(6 jobs, early) + ul(7 hand-offs) + 2× own SVG diagram (hand-offs, replace/link/keep grid) + compare(invented stack cost) + 3 invented tutors (h3) + compare(Tutafy per job with its limit) + callout(tip/warn) + ul(two-week test, tool questions, weekend migration, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
 import { TIME_ZONES_CONTENT } from '@/lib/blog-posts/schedule-tutoring-lessons-across-time-zones'
 import { LESSON_PACKAGES_CONTENT } from '@/lib/blog-posts/tutoring-lesson-packages-explained'
+import { REAL_HOURLY_RATE_CONTENT } from '@/lib/blog-posts/real-hourly-rate-for-tutors'
+import { RESCHEDULE_REQUESTS_CONTENT } from '@/lib/blog-posts/how-to-handle-tutoring-reschedule-requests'
+import { ASK_FOR_PAYMENT_CONTENT } from '@/lib/blog-posts/how-to-ask-for-tutoring-payment'
+import { TECH_STACK_CONTENT } from '@/lib/blog-posts/tutoring-tech-stack-for-online-tutors'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3837,6 +3845,46 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: LESSON_PACKAGES_CONTENT,
   },
+  {
+    slug: 'real-hourly-rate-for-tutors',
+    title: 'Your Real Hourly Rate as a Tutor: How Commission and Unpaid Hours Shrink What You Earn',
+    description: 'Your real hourly rate is what you keep after commission, divided by every hour you work. Use the formula and a worked example week to find your own number.',
+    date: '2026-10-31',
+    category: 'Pricing',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: REAL_HOURLY_RATE_CONTENT,
+  },
+  {
+    slug: 'how-to-handle-tutoring-reschedule-requests',
+    title: 'How to Handle Reschedule Requests as a Tutor (Without Losing the Student or the Income)',
+    description: 'Write one notice rule, apply it every time and confirm each new time in writing. Includes four message templates and what Tutafy does when a lesson moves.',
+    date: '2026-10-31',
+    category: 'Operations',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: RESCHEDULE_REQUESTS_CONTENT,
+  },
+  {
+    slug: 'how-to-ask-for-tutoring-payment',
+    title: 'How to Ask a Parent or Student to Pay for Tutoring (Without the Awkwardness)',
+    description: 'Agree payment terms first, make paying take a minute, then follow a six-step ladder from invoice to pause. Message templates and what Tutafy automates.',
+    date: '2026-10-31',
+    category: 'Payments',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: ASK_FOR_PAYMENT_CONTENT,
+  },
+  {
+    slug: 'tutoring-tech-stack-for-online-tutors',
+    title: 'Tools for Online Tutors: How to Audit Your Tech Stack and Decide What to Replace, Link or Keep',
+    description: 'Map your tutoring tools to six jobs, count the copy-and-paste hand-offs in one lesson, then decide what to replace, link or keep. See what Tutafy covers.',
+    date: '2026-10-31',
+    category: 'Software',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TECH_STACK_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3874,6 +3922,10 @@ const HERO_ALTS: Record<string, string> = {
   'calendly-alternatives-for-tutors': "Illustration of a booking calendar with one time slot picked and three loose tool pieces beside it",
   'schedule-tutoring-lessons-across-time-zones': "Illustration of two clocks showing different times, for scheduling lessons across time zones",
   'tutoring-lesson-packages-explained': "Illustration of a stack of lesson tickets, for tutoring lesson packages",
+  'real-hourly-rate-for-tutors': "Illustration of three bars of different heights beside a coin, for a tutor's real hourly rate",
+  'how-to-handle-tutoring-reschedule-requests': "Illustration of a calendar with a lesson block moving to another day, for handling reschedule requests",
+  'how-to-ask-for-tutoring-payment': "Illustration of a message bubble beside a green check mark, for asking a parent to pay for tutoring",
+  'tutoring-tech-stack-for-online-tutors': "Illustration of five loose app tiles gathering into one bar, for a tutor's tech stack",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

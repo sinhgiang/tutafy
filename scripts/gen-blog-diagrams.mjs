@@ -176,7 +176,208 @@ D['packages-lifecycle'] = frame(
   })(),
 )
 
+// ---- T-1143, article 1: the real hourly rate of an example week (every figure is worked out in the article's table) ---------------------
+D['real-rate-headline-vs-real'] = frame(
+  'The same week, three hourly rates',
+  'Example week: 15 paid lessons priced at $25, 8.75 unpaid hours, 23.75 hours worked in all.',
+  (() => {
+    const rows = [
+      { y: 150, label: 'Price on the profile', v: 25, t: '$25.00', fill: '#c7d2fe', stroke: '#a5b4fc', note: 'what the lesson costs' },
+      { y: 285, label: 'Real rate on a platform that keeps 25%', v: 11.84, t: '$11.84', fill: '#fcd34d', stroke: '#f59e0b', note: '$281.25 received over 23.75 hours' },
+      { y: 420, label: 'Real rate on your own link (Pro plan)', v: 15.03, t: '$15.03', fill: '#6ee7b7', stroke: '#10b981', note: '$356.85 received over 23.75 hours' },
+    ]
+    const k = 28 // pixels per dollar
+    return rows.map(r => text(70, r.y, r.label, { size: 22, weight: 800 }) +
+      `<rect x="70" y="${r.y + 16}" width="${Math.round(r.v * k)}" height="62" rx="12" fill="${r.fill}" stroke="${r.stroke}" stroke-width="2"/>` +
+      text(70 + Math.round(r.v * k) + 18, r.y + 58, r.t, { size: 30, weight: 800 }) +
+      text(70, r.y + 106, r.note, { size: 18, fill: MUTED })).join('') +
+      text(550, 596, 'Example figures to show the arithmetic. Use your own hours and your own commission.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['real-rate-where-the-hours-go'] = frame(
+  'Where the 23.75 hours of the example week go',
+  'More than a third of the hours earn nothing, on a platform or off it.',
+  (() => {
+    const parts = [
+      { h: 15, label: 'Paid lessons', fill: '#a5b4fc', stroke: '#6366f1' },
+      { h: 2, label: 'Unpaid trial lessons', fill: '#fde68a', stroke: '#f59e0b' },
+      { h: 3.75, label: 'Preparation', fill: '#fcd34d', stroke: '#d97706' },
+      { h: 2, label: 'Messages and admin', fill: '#fdba74', stroke: '#ea580c' },
+      { h: 1, label: 'Missed slot', fill: '#fca5a5', stroke: '#dc2626' },
+    ]
+    const k = 960 / 23.75
+    let x = 70
+    const bars = parts.map(p => { const w = p.h * k; const s = `<rect x="${x.toFixed(1)}" y="230" width="${w.toFixed(1)}" height="90" fill="${p.fill}" stroke="${p.stroke}" stroke-width="2"/>`; x += w; return s }).join('')
+    const xUnpaid = 70 + 15 * k
+    const bracket = `<path d="M${xUnpaid.toFixed(1)} 214 v-14 h${(8.75 * k).toFixed(1)} v14" stroke="#b45309" stroke-width="3" fill="none"/>` +
+      text(xUnpaid + (8.75 * k) / 2, 186, 'Unpaid: 8.75 hours', { size: 22, weight: 800, fill: AMBER, anchor: 'middle' }) +
+      `<path d="M70 214 v-14 h${(15 * k).toFixed(1)} v14" stroke="${INDIGO}" stroke-width="3" fill="none"/>` +
+      text(70 + (15 * k) / 2, 186, 'Paid: 15 hours', { size: 22, weight: 800, fill: INDIGO, anchor: 'middle' })
+    const legend = parts.map((p, i) => {
+      const col = i % 3, row = Math.floor(i / 3)
+      const lx = 70 + col * 330, ly = 392 + row * 62
+      return `<rect x="${lx}" y="${ly}" width="26" height="26" rx="6" fill="${p.fill}" stroke="${p.stroke}" stroke-width="2"/>` +
+        text(lx + 40, ly + 21, `${p.label}: ${p.h} h`, { size: 22, weight: 600 })
+    }).join('')
+    return bars + bracket + legend + text(550, 590, 'Example week. The hours are invented; the method is the point.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+// ---- T-1143, article 2: one reschedule request, and what Tutafy does when a lesson is moved (read from the code, 31 Oct 2026) -------------
+D['reschedule-request-flow'] = frame(
+  'One reschedule request, five moments',
+  'Most of the mistakes happen in the last two.',
+  (() => {
+    const st = [
+      ['1. Student asks', 'By message or in', 'the portal'],
+      ['2. You decide', 'Apply your notice', 'rule, same for all'],
+      ['3. Lesson moves', 'Calendar or portal,', 'the record changes'],
+      ['4. Tell them', 'New day, time and', 'time zone, in writing'],
+      ['5. Check reminder', 'One follows the', 'new time, not the old'],
+    ]
+    return st.map((s, i) => {
+      const x = 36 + i * 206, late = i >= 3
+      return box(x, 190, 188, 190, { fill: late ? '#fffbeb' : PALE, stroke: late ? '#fcd34d' : '#c7d2fe', r: 16 }) +
+        text(x + 94, 240, s[0], { size: 21, weight: 800, anchor: 'middle' }) + lines(x + 94, 288, [s[1], s[2]], { size: 19, fill: MUTED, anchor: 'middle' }) +
+        (i < 4 ? arrow(x + 190, 285, x + 204, 285) : '')
+    }).join('') +
+      text(550, 450, 'Amber steps are the ones people skip', { size: 22, weight: 800, fill: AMBER, anchor: 'middle' }) +
+      text(550, 490, 'A move that nobody confirms in writing is the quiet cause of the next missed lesson.', { size: 19, fill: MUTED, anchor: 'middle' }) +
+      text(550, 590, 'Notice rule example: free to move up to 24 hours before the lesson.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['reschedule-who-does-what'] = frame(
+  'What Tutafy does when a lesson is moved',
+  'Read from the code on 31 October 2026. Yes means it happens without you.',
+  (() => {
+    const rows = [
+      ['You get an email', 'Yes', 'Not needed'],
+      ['The student gets an email', 'No', 'No'],
+      ['Google Calendar event updated', 'Yes, if connected', 'No'],
+      ['Reminders reset for the new time', 'Yes', 'No'],
+      ['Clash with another lesson', 'Same start time only', 'Any overlap, with a warning'],
+    ]
+    const x0 = 60, cw = [380, 290, 290]
+    const hdr = box(x0 + cw[0], 124, cw[1] - 10, 50, { fill: INDIGO, stroke: INDIGO, r: 10 }) + text(x0 + cw[0] + (cw[1] - 10) / 2, 156, 'Student moves it (portal)', { size: 19, weight: 800, fill: '#ffffff', anchor: 'middle' }) +
+      box(x0 + cw[0] + cw[1], 124, cw[2] - 10, 50, { fill: '#0f766e', stroke: '#0f766e', r: 10 }) + text(x0 + cw[0] + cw[1] + (cw[2] - 10) / 2, 156, 'You move it (Calendar)', { size: 19, weight: 800, fill: '#ffffff', anchor: 'middle' })
+    const body = rows.map((r, i) => {
+      const y = 188 + i * 74
+      const cell = (x, w, v) => {
+        const good = v.startsWith('Yes') || v.startsWith('Any overlap'), na = v.startsWith('Not needed')
+        return box(x, y, w - 10, 62, { fill: good ? '#ecfdf5' : na ? '#f3f4f6' : '#fef2f2', stroke: good ? '#6ee7b7' : na ? LINE : '#fca5a5', r: 10 }) +
+          text(x + (w - 10) / 2, y + 38, v, { size: 19, weight: 700, fill: good ? GREEN : na ? MUTED : '#b91c1c', anchor: 'middle' })
+      }
+      return text(x0, y + 38, r[0], { size: 20, weight: 700 }) + cell(x0 + cw[0], cw[1], r[1]) + cell(x0 + cw[0] + cw[1], cw[2], r[2])
+    }).join('')
+    return hdr + body + text(550, 590, 'The No cells are yours to cover: send the new time, change Google Calendar, check the reminder.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+// ---- T-1143, article 3: asking for payment (the timings are examples; what Tutafy does is read from the code, 31 Oct 2026) -----------------
+D['payment-ladder'] = frame(
+  'A payment ladder for private tutoring',
+  'Each step has a time and a purpose. The first two prevent most of the last four.',
+  (() => {
+    const st = [
+      ['1', 'Terms', 'Before the', 'first lesson'],
+      ['2', 'Payment link', 'At booking', ''],
+      ['3', 'Invoice', 'Day of the', 'lesson'],
+      ['4', 'Friendly nudge', 'About 3 days', 'later'],
+      ['5', 'Firmer message', 'About 2 weeks', 'later'],
+      ['6', 'Pause lessons', 'After the second', 'reminder'],
+    ]
+    const x0 = 60, step = 164
+    const line = `<line x1="${x0 + 40}" y1="250" x2="${x0 + 5 * step + 40}" y2="250" stroke="${LINE}" stroke-width="6" stroke-linecap="round"/>`
+    return line + st.map((s, i) => {
+      const cx = x0 + 40 + i * step, early = i < 2, late = i >= 3
+      const fill = early ? '#ecfdf5' : late ? '#fffbeb' : PALE
+      const stroke = early ? '#10b981' : late ? '#f59e0b' : INDIGO
+      return `<circle cx="${cx}" cy="250" r="30" fill="${fill}" stroke="${stroke}" stroke-width="4"/>` +
+        text(cx, 260, s[0], { size: 26, weight: 800, anchor: 'middle' }) +
+        text(cx, 330, s[1], { size: 20, weight: 800, anchor: 'middle' }) +
+        text(cx, 362, s[2], { size: 18, fill: MUTED, anchor: 'middle' }) +
+        (s[3] ? text(cx, 386, s[3], { size: 18, fill: MUTED, anchor: 'middle' }) : '')
+    }).join('') +
+      `<path d="M${x0 + 10} 176 v-14 h${step + 60} v14" stroke="#10b981" stroke-width="3" fill="none"/>` + text(x0 + 10 + (step + 60) / 2, 148, 'Prevent', { size: 21, weight: 800, fill: GREEN, anchor: 'middle' }) +
+      `<path d="M${x0 + 3 * step + 10} 176 v-14 h${2 * step + 60} v14" stroke="#f59e0b" stroke-width="3" fill="none"/>` + text(x0 + 3 * step + 10 + (2 * step + 60) / 2, 148, 'Chase', { size: 21, weight: 800, fill: AMBER, anchor: 'middle' }) +
+      text(550, 500, 'Decide the timings once, write them in your terms, and use them for every family.', { size: 20, weight: 600, fill: INK, anchor: 'middle' }) +
+      text(550, 590, 'Times are examples, not rules. Late-fee and prepayment rules differ by country.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['payment-status-flow'] = frame(
+  'One status, four places it shows',
+  'A lesson with a price whose payment is pending. Read from the code, 31 October 2026.',
+  (() => {
+    const outs = [
+      ['You', 'Still owed on the Earnings page, and the pending filter on Lessons'],
+      ['The student', 'One automatic email, 3 to 4 days after a completed lesson'],
+      ['A parent', 'A Pending Payment alert in the portal, and a monthly email note'],
+      ['You, on demand', 'The Send Invoice button on the lesson (use it while unpaid)'],
+    ]
+    const src = box(50, 250, 200, 110, { fill: '#fffbeb', stroke: '#f59e0b', r: 16 }) + text(150, 296, 'Lesson', { size: 22, weight: 800, anchor: 'middle' }) + text(150, 330, 'payment: pending', { size: 20, weight: 700, fill: AMBER, anchor: 'middle' })
+    const rows = outs.map((o, i) => {
+      const y = 130 + i * 90
+      return arrow(250, 305, 320, y + 36, '#f59e0b') + box(324, y, 560, 72, { fill: '#ffffff', stroke: '#c7d2fe', r: 12 }) +
+        text(344, y + 30, o[0], { size: 19, weight: 800, fill: INDIGO }) + text(344, y + 58, o[1], { size: 18, fill: INK })
+    }).join('')
+    const paid = box(912, 250, 150, 110, { fill: '#ecfdf5', stroke: '#10b981', r: 16 }) + text(987, 296, 'Mark paid', { size: 21, weight: 800, anchor: 'middle' }) + text(987, 328, 'stops the first three', { size: 16, fill: GREEN, anchor: 'middle' })
+    return src + rows + arrow(886, 305, 910, 305, '#10b981') + paid +
+      text(550, 590, 'Tutafy is not told when a student pays through your own PayPal or Stripe link: you set the status.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+// ---- T-1143, article 4: the hand-offs of one example lesson (invented, to show the counting) and what to replace, link or keep --------------
+D['tech-stack-handoffs'] = frame(
+  'The same lesson, seven hand-offs',
+  'An invented Tuesday lesson on a scattered stack. Each number is something you copy by hand.',
+  (() => {
+    const w = 140, h = 70
+    const T = {
+      A: { x: 50, y: 190, t: 'Scheduler' }, B: { x: 235, y: 190, t: 'Spreadsheet' }, C: { x: 420, y: 190, t: 'Messaging' },
+      D: { x: 50, y: 370, t: 'Video app' }, F: { x: 235, y: 370, t: 'Payment app' }, E: { x: 420, y: 370, t: 'Notes doc' },
+    }
+    const tiles = Object.values(T).map(o => box(o.x, o.y, w, h, { fill: '#fffbeb', stroke: '#f59e0b', r: 12 }) + text(o.x + w / 2, o.y + 43, o.t, { size: 20, weight: 700, anchor: 'middle' })).join('')
+    const badge = (cx, cy, n) => `<circle cx="${cx}" cy="${cy}" r="15" fill="${INDIGO}"/>` + text(cx, cy + 7, String(n), { size: 18, weight: 800, fill: '#ffffff', anchor: 'middle' })
+    const A = INDIGO
+    const hand =
+      arrow(190, 225, 231, 225, A) + badge(210, 208, 1) +                       // 1 scheduler -> spreadsheet
+      arrow(120, 366, 120, 264, A) + badge(142, 315, 2) +                       // 2 video -> scheduler (link into the invite)
+      `<path d="M120 190 C 120 135, 490 135, 490 186" stroke="${A}" stroke-width="3.5" fill="none"/><path d="M490 188 l-8 -14 m8 14 l8 -14" stroke="${A}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` + badge(305, 150, 3) + // 3 scheduler -> messaging (reminder)
+      `<path d="M120 440 C 120 495, 490 495, 490 444" stroke="${A}" stroke-width="3.5" fill="none"/><path d="M490 442 l-8 14 m8 -14 l8 14" stroke="${A}" stroke-width="3.5" fill="none" stroke-linecap="round"/>` + badge(305, 483, 4) + // 4 video -> notes doc
+      arrow(490, 366, 490, 264, A) + badge(512, 315, 5) +                       // 5 notes doc -> messaging (homework)
+      arrow(305, 366, 305, 264, A) + badge(327, 315, 6) +                       // 6 payment -> spreadsheet
+      arrow(380, 225, 417, 225, A) + badge(398, 208, 7)                          // 7 spreadsheet -> messaging (parent update)
+    const right = box(660, 150, 390, 370, { fill: PALE, stroke: '#c7d2fe', r: 18 }) + text(855, 192, 'One workspace', { size: 24, weight: 800, fill: INDIGO, anchor: 'middle' }) +
+      ['Booking and calendar', 'Reminders', 'Video room or your link', 'Notes and homework', 'Payment status', 'Parent update'].map((r, i) =>
+        check(690, 242 + i * 44, GREEN) + text(724, 252 + i * 44, r, { size: 21, weight: 600 })).join('')
+    return text(50, 138, 'Six apps', { size: 22, weight: 800, fill: AMBER }) + tiles + hand + right +
+      text(550, 592, 'An example to show the counting, not a measurement. Count your own lesson.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+D['tech-stack-replace-link-keep'] = frame(
+  'Replace, link or keep',
+  'Sort the six jobs by how many hand-offs they cause and how much you like the tool.',
+  (() => {
+    const cols = [
+      { x: 40, h: 'Replace', c: '#eef2ff', s: '#818cf8', t: INDIGO, items: ['Getting booked', 'Reminders', 'Notes and homework', 'Parent updates'], note: 'Most hand-offs, little loss' },
+      { x: 395, h: 'Link', c: '#fffbeb', s: '#f59e0b', t: AMBER, items: ['Video: a Zoom, Meet or', 'custom link on any lesson', 'Payment: your own PayPal', 'or Stripe link, paid to you'], note: 'Keep the tool, connect it' },
+      { x: 750, h: 'Keep', c: '#f3f4f6', s: '#9ca3af', t: MUTED, items: ['Specialist tools:', 'a teaching whiteboard,', 'music notation,', 'a school platform'], note: 'No general tool matches' },
+    ]
+    return cols.map(c => box(c.x, 130, 310, 400, { fill: c.c, stroke: c.s, r: 18 }) +
+      text(c.x + 155, 182, c.h, { size: 30, weight: 800, fill: c.t, anchor: 'middle' }) +
+      lines(c.x + 28, 246, c.items, { size: 21, weight: 600 }) +
+      text(c.x + 155, 490, c.note, { size: 19, fill: MUTED, anchor: 'middle' })).join('') +
+      text(550, 590, 'In Tutafy a lesson can use the built-in room or any link, and money settles in your own account.', { size: 18, fill: MUTED, anchor: 'middle' })
+  })(),
+)
+
+const only = process.argv.slice(2) // optional: draw only the diagrams named on the command line, so older files are not rewritten
 for (const [name, svg] of Object.entries(D)) {
+  if (only.length && !only.includes(name)) continue
   const buf = Buffer.from(svg)
   await sharp(buf, { density: 144 }).resize(W, H).avif({ quality: 60 }).toFile(`${OUT}/${name}.avif`)
   await sharp(buf, { density: 144 }).resize(W, H).webp({ quality: 82 }).toFile(`${OUT}/${name}.webp`)
