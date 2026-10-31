@@ -271,6 +271,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'How to Find an Online Tutor: 10 Checks',
     description: 'How to find an online tutor: ten checks before you book, in the first lesson and after four lessons, with price, refund, payment and safety rules.',
   },
+  'how-to-become-an-online-tutor': {
+    title: 'How to Become an Online Tutor: First 90 Days',
+    description: 'How to become an online tutor on your own: what official pages say you need, checks and safeguarding if you teach children, and a 90-day plan.',
+  },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
     description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',

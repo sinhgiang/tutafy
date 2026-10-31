@@ -1049,5 +1049,57 @@
       "webp": 9662,
       "avif": 9422
     }
+  },
+  "become-desk-laptop-notebook": {
+    "file": "Desk-laptop-notebook-table (23697249344).jpg",
+    "licence": "CC0",
+    "creator": "www.Pixel.la Free Stock Photos",
+    "source": "https://commons.wikimedia.org/wiki/File:Desk-laptop-notebook-table_(23697249344).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5262x3508",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 27556,
+      "avif": 22326
+    }
+  },
+  "become-planner-notes": {
+    "file": "Young person writes notes in planner while drinking coffee from above.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Young_person_writes_notes_in_planner_while_drinking_coffee_from_above.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4032x6048",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 20226,
+      "avif": 19875
+    }
+  },
+  "become-planning-stationery": {
+    "file": "Working on a planning session with stationery items, notebook, and colorful pencils on a wooden desk.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Shixart1985",
+    "source": "https://commons.wikimedia.org/wiki/File:Working_on_a_planning_session_with_stationery_items,_notebook,_and_colorful_pencils_on_a_wooden_desk.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6016x4016",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 38744,
+      "avif": 37255
+    }
+  },
+  "become-laptop-notepad": {
+    "file": "Laptop picture with notepad.jpg",
+    "licence": "CC0",
+    "creator": "Eric Bailey",
+    "source": "https://commons.wikimedia.org/wiki/File:Laptop_picture_with_notepad.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "1080x1080",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 28298,
+      "avif": 25824
+    }
   }
 }

@@ -43,6 +43,7 @@
 //  - online-tutoring-jobs: comparison/guide · axis = three kinds of tutoring job (marketplace, company contract, your own business) → what the US Bureau of Labor Statistics says → two dated tables of what each platform's own pages say (who can apply, what it keeps or pays, how soon you hear back; "not confirmed" where a page could not be read) → what you keep from an invented $30 lesson → how to apply → contractor tax and risk → job-scam signs (FTC) → working for yourself → a four-week plan → which route fits → what Tutafy is and is not (no students, directory not open) · 4 photos + 3 compare tables + callout(info, warn) + ul + source(14 pages) + RATES_SOURCE + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1192)
 //  - tutor-resume: how-to · axis = which document you are writing (resume, cover letter or tutor bio) → the five sections → a specific introduction → bullets that show results (STAR) with invented examples for four subjects → no paid tutoring yet → tailoring to a posting → length, layout and files → a one-page invented example → mistakes → do independent tutors need one · official career advice (CareerOneStop, National Careers Service, BLS) read on 31 Oct 2026 · 3 photos + 3 compare tables + callout(warn) + ul + source(10 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1193)
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
+//  - how-to-become-an-online-tutor: how-to/guide · axis = the person, not the business: what official and company pages require (BLS, MyTutor, Tutor.com, Step Up) → a one-evening readiness check → checks and safeguarding for tutors of children (GOV.UK DBS, NSPCC) → week-one set-up → a 90-day plan with a "done when" for each stretch and a minute-by-minute first lesson → an invented first-90-days money table next to BLS pay → a day-90 decision table → what Tutafy is and is not (no students, no checks) · 4 photos + 6 compare tables + callout(info) + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1195)
 //  - preply-vs-italki-vs-wyzant-for-tutors: comparison/guide · axis = which kind of tutor each platform is built for (side-by-side table of what each platform's own pages said) → Preply (weekly lessons, first lesson kept, visibility rules) → italki (Professional Teacher and Community Tutor, commission by lesson type, paid trials, withdrawal) → Wyzant (own rate and cancellation policy, 25% fee, referral rule, payout dates) → what you keep from an invented $30 lesson → contact and conduct rules → which platform for which tutor → using more than one → the independent route → what Tutafy is and is not · figures from the platforms' official help pages read on 31 Oct 2026 (via search results where the page gave 403) · 3 photos + 5 compare tables + callout(warn) + ul + source(15 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1216)
 //  - how-to-run-a-trial-lesson-tutoring: how-to · axis = the three jobs of a trial → free, discounted or full price (platform rules side by side) → the message before → a 30-minute script minute by minute → one useful win → the close → the message after (three templates) → objections → when not to convert → count your own conversion → trial on a platform vs your own link → what Tutafy does and does not do for a trial · what the platforms' help pages tell their tutors, read on 31 Oct 2026 · 3 photos + 4 compare tables + callout(tip, info) + ul + source(11 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1217)
 
@@ -65,6 +66,7 @@ import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { BECOME_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-become-an-online-tutor'
 import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
 import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
@@ -4024,6 +4026,16 @@ export const POSTS: Post[] = [
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
   {
+    slug: 'how-to-become-an-online-tutor',
+    title: 'How to Become an Online Tutor on Your Own: What You Need, What You Do Not, and Your First 90 Days',
+    description: 'How to become an online tutor on your own: what official pages say you need, checks and safeguarding if you teach children, and a 90-day plan, read 31 Oct 2026.',
+    date: '2026-11-04',
+    category: 'Getting started',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: BECOME_ONLINE_TUTOR_CONTENT,
+  },
+  {
     slug: 'tutoring-contract-template',
     title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
     description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
@@ -4115,6 +4127,7 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'how-to-become-an-online-tutor': "Illustration of three rising steps with a check mark on the top one, for the first 90 days of an online tutor",
   'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
   'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",

@@ -521,6 +521,16 @@ const HEROES = {
       </g>`).join('')}
     </g>` }),
 
+  // How to become an online tutor (T-1195) — three rising steps, the top one ticked
+  'how-to-become-an-online-tutor': base({ from: '#1e40af', to: '#0e7490', label: 'Getting started', motif: `
+    <g transform="translate(740,110)" opacity="0.96">
+      ${[0,1,2].map(i => `<rect x="${i * 118}" y="${250 - i * 90}" width="108" height="${150 + i * 90}" rx="14" fill="#ffffff" opacity="${0.55 + i * 0.2}"/>
+      <rect x="${i * 118 + 18}" y="${270 - i * 90}" width="72" height="12" rx="6" fill="#1e40af" opacity="0.4"/>
+      <rect x="${i * 118 + 18}" y="${296 - i * 90}" width="48" height="10" rx="5" fill="#1e40af" opacity="0.22"/>`).join('')}
+      <circle cx="296" cy="40" r="26" fill="#047857"/>
+      <path d="M284 40 l9 10 l17 -20" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
   // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
   'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
     <g transform="translate(790,86)" opacity="0.96">
