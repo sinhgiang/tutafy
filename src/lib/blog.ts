@@ -38,6 +38,8 @@
 //  - tutoring-tech-stack-for-online-tutors: software/audit · axis = the six jobs of a lesson → count the hand-offs → add up the cost → replace, link or keep → what Tutafy covers and where it stops · statCards + compare(6 jobs, early) + ul(7 hand-offs) + 2× own SVG diagram (hand-offs, replace/link/keep grid) + compare(invented stack cost) + 3 invented tutors (h3) + compare(Tutafy per job with its limit) + callout(tip/warn) + ul(two-week test, tool questions, weekend migration, mistakes) + 2× cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1143, lengthened to 3,500-4,000 words in T-1148)
 //  - how-to-write-a-tutor-bio: how-to · axis = who you help → what a lesson is → why you → one next step, then 15 invented example bios (by subject, student and place) · statCards + own SVG diagram (anatomy of a bio) + 3 photos + ul(rules, headlines, mistakes, steps, checklist) + compare(one bio, four places) + before/after rewrite + source + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1166)
 //  - free-tutoring-invoice-template: how-to/template · axis = the fields of an invoice → the template line by line → three worked examples (one lesson, a package, a month) → cancellation fee wording → time zones, numbers, sending, records · statCards NO, 3 downloadable files (docx, pdf, odt in public/downloads, built by scripts/gen-invoice-templates.mjs) + 4 photos + compare(fields, 3 examples, numbering, formats, log) + ul(fee wording, mistakes) + callout(tip) + cta + links, NO calculator/prosCons. Body in src/lib/blog-posts/ (T-1167)
+//  - online-whiteboard-for-tutoring: comparison · axis = what a tutor needs from a whiteboard → a dated table (what each tool's own page said, with "not confirmed" where it could not be read) → the tools one by one → by subject → free-plan limits → a ten-minute test → a lesson routine → using one next to Tutafy, which has none · own SVG diagram (choose by subject) + 4 photos + compare(table) + source(8 pages) + ul(needs, limits, test, routine, mistakes) + cta + links, NO statCards/calculator/prosCons. Body in src/lib/blog-posts/ (T-1168)
+//  - do-tutors-have-to-pay-taxes: explainer · axis = is tutoring income taxable (yes, form or no form) → self-employed → the US (Schedule C, self-employment tax, estimated tax, the forms, a two-tutor worked example) → the UK trading allowance → Canada GST/HST → Australia and elsewhere (no figures, said so) → teaching across borders → deductible costs → records and a ledger → a year's routine → mistakes → what Tutafy exports · every figure from an official page read on 31 Oct 2026 · 4 photos + compare(US forms, two tutors, ledger) + callout(warn) + ul + source(10 pages) + cta + links, NO calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1170)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -49,6 +51,8 @@ import { ASK_FOR_PAYMENT_CONTENT } from '@/lib/blog-posts/how-to-ask-for-tutorin
 import { TECH_STACK_CONTENT } from '@/lib/blog-posts/tutoring-tech-stack-for-online-tutors'
 import { TUTOR_BIO_CONTENT } from '@/lib/blog-posts/how-to-write-a-tutor-bio'
 import { INVOICE_TEMPLATE_CONTENT } from '@/lib/blog-posts/free-tutoring-invoice-template'
+import { WHITEBOARD_CONTENT } from '@/lib/blog-posts/online-whiteboard-for-tutoring'
+import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxes'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3910,6 +3914,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: INVOICE_TEMPLATE_CONTENT,
   },
+  {
+    slug: 'online-whiteboard-for-tutoring',
+    title: 'Online Whiteboard for Tutoring: Free Options Compared (and What Tutafy Does Not Have)',
+    description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',
+    date: '2026-10-31',
+    category: 'Software',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: WHITEBOARD_CONTENT,
+  },
+  {
+    slug: 'do-tutors-have-to-pay-taxes',
+    title: 'Tutor Taxes: Do Tutors Have to Pay Taxes? Self-Employed Income, 1099 Forms and Records',
+    description: 'Do tutors have to pay taxes? A plain guide to tutoring income, US 1099-K and 1099-NEC forms, the UK trading allowance and records. Not tax advice.',
+    date: '2026-10-31',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_TAXES_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -3953,6 +3977,8 @@ const HERO_ALTS: Record<string, string> = {
   'tutoring-tech-stack-for-online-tutors': "Illustration of five loose app tiles gathering into one bar, for a tutor's tech stack",
   'how-to-write-a-tutor-bio': "Illustration of a profile card with a name line, a speech bubble and a check mark, for writing a tutor bio",
   'free-tutoring-invoice-template': "Illustration of an invoice page with line items, a total and a download arrow, for a free tutoring invoice template",
+  'online-whiteboard-for-tutoring': "Illustration of a whiteboard with a drawn curve, a pen and a check mark, for an online whiteboard for tutoring",
+  'do-tutors-have-to-pay-taxes': "Illustration of a tax form page with a coin and a check mark, for tutor taxes",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

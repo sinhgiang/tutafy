@@ -9,6 +9,8 @@ import { ASK_FOR_PAYMENT_CONTENT } from '@/lib/blog-posts/how-to-ask-for-tutorin
 import { TECH_STACK_CONTENT } from '@/lib/blog-posts/tutoring-tech-stack-for-online-tutors'
 import { TUTOR_BIO_CONTENT } from '@/lib/blog-posts/how-to-write-a-tutor-bio'
 import { INVOICE_TEMPLATE_CONTENT } from '@/lib/blog-posts/free-tutoring-invoice-template'
+import { WHITEBOARD_CONTENT } from '@/lib/blog-posts/online-whiteboard-for-tutoring'
+import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxes'
 import type { PostBlock } from '@/lib/blog'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
@@ -22,6 +24,8 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'tutoring-tech-stack-for-online-tutors': { blocks: TECH_STACK_CONTENT, min: 2, max: 3 },
   'how-to-write-a-tutor-bio': { blocks: TUTOR_BIO_CONTENT, min: 3, max: 4 },
   'free-tutoring-invoice-template': { blocks: INVOICE_TEMPLATE_CONTENT, min: 3, max: 4 },
+  'online-whiteboard-for-tutoring': { blocks: WHITEBOARD_CONTENT, min: 3, max: 4 },
+  'do-tutors-have-to-pay-taxes': { blocks: TUTOR_TAXES_CONTENT, min: 3, max: 4 },
 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {
