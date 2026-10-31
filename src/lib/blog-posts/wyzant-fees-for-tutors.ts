@@ -159,6 +159,7 @@ export const WYZANT_FEES_CONTENT: PostBlock[] = [
     { label: 'Tutor taxes', href: '/blog/do-tutors-have-to-pay-taxes', text: 'Contractor income, 1099 forms and records.' },
     { label: 'How to get your first 10 tutoring clients', href: '/blog/get-your-first-tutoring-clients', text: 'Where students come from when no marketplace sends them.' },
     { label: 'How to find a good online tutor', href: '/blog/how-to-find-an-online-tutor', text: 'The student\'s side: ten checks before the first lesson.' },
+    { label: 'Superprof for tutors', href: '/blog/superprof-review-for-tutors', text: 'A directory where the student pays a pass and the tutor lists free.' },
   ] },
   { type: 'faq', items: [
     { q: 'How much does Wyzant take from tutors?', a: `Wyzant keeps a flat 25% Platform Fee, so the tutor keeps 75% of their posted hourly rate. Its help pages say the flat rate has applied to lessons submitted since 15 January 2019. Students pay a separate 9% service fee on top, which does not come out of the tutor's pay.` },
