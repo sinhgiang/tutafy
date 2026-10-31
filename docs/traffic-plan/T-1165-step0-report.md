@@ -9,6 +9,13 @@ Ticket T-1165, ngày 31/10/2026. Kế hoạch gốc: `reports/chief/2026-10-31-1
 3. **Đề xuất:** làm 10 bài, thay #8 bằng bài dự phòng "mẫu giáo án" (nối với công cụ tạo giáo án AI có thật của Tutafy) và xử lý #8 bằng một lần cập nhật bài cũ; viết lại góc của #3 và #7. Thứ tự ở mục 4.
 4. **Việc cần chủ quyết:** đồng ý thứ tự này hay giữ nguyên 10 bài gốc (một việc chờ, mục 5), và nối Search Console (một việc chờ, mục 1).
 
+## Luật của chủ áp dụng cho MỌI bài của kế hoạch (W-3755)
+
+- Mỗi bài dài 3.500 đến 4.000 từ, không dưới 3.500; phần dài thêm là ví dụ làm tính, mẫu, bảng, danh sách kiểm, tình huống, hỏi đáp, không độn chữ.
+- Mỗi bài có 3 đến 4 ảnh chụp thật miễn phí (luật mới thay 2 đến 3), có giấy phép rõ, chú thích tác giả, dưới 200 KB, ảnh có người ghi là ảnh minh hoạ.
+- Chỗ lệch cần sửa ở ticket viết bài đầu tiên: `CLAUDE.md` của repo và `tests/blog-photos.test.ts` (cả hai nằm trong pull request #124, chưa gộp) vẫn ghi 2 đến 3 ảnh. Khi #124 vào master, đổi thành 3 đến 4 ảnh cho bài mới và thêm bài mới vào test.
+- Bài #2 (mẫu hoá đơn) thêm tệp tải về; bài #5 và #9 cần nguồn chính thức; bài #4 và #6 cần kiểm tên công cụ và số liệu ngày viết.
+
 ## 1. Số liệu của chính site
 
 | Nguồn | Kết quả | Ghi chú |
