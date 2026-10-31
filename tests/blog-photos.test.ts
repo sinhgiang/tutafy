@@ -14,6 +14,8 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
+import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 import type { PostBlock } from '@/lib/blog'
 import { ONLINE_TUTOR_COST_CONTENT } from '@/lib/blog-posts/online-tutor-cost'
 import { TUTOR_LESSON_PLAN_CONTENT } from '@/lib/blog-posts/tutor-lesson-plan-template'
@@ -34,6 +36,8 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'online-tutoring-jobs': { blocks: ONLINE_TUTORING_JOBS_CONTENT, min: 3, max: 4 },
   'tutor-resume': { blocks: TUTOR_RESUME_CONTENT, min: 3, max: 4 },
   'ielts-speaking-part-2-topics': { blocks: IELTS_PART2_CONTENT, min: 3, max: 4 },
+  'wyzant-fees-for-tutors': { blocks: WYZANT_FEES_CONTENT, min: 3, max: 4 },
+  'how-to-find-an-online-tutor': { blocks: FIND_ONLINE_TUTOR_CONTENT, min: 3, max: 4 },
 }
 // Articles of the 8 Nov 2026 batch (T-1212, T-1213), added apart from the object above so the lanes of the other days do not edit the same lines.
 ARTICLES['online-tutor-cost'] = { blocks: ONLINE_TUTOR_COST_CONTENT, min: 3, max: 4 }
