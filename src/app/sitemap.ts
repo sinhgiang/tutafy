@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
-import { POSTS, postDates } from '@/lib/blog'
+import { publishedPosts, postDates } from '@/lib/blog'
 import { SITE_URL as SITE } from '@/lib/site-url'
 import { newestUpdateDate } from '@/lib/updates'
 import { listIndexableTutorSlugs, type TutorSlugClient } from '@/lib/tutor-sitemap'
@@ -49,7 +49,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/terms', priority: 0.3, freq: 'yearly' },
   ]
   const postDate = (date: string) => new Date(date + 'T00:00:00')
-  const newestPost = POSTS.reduce<Date | undefined>((latest, p) => (!latest || postDate(postDates(p).modified) > latest ? postDate(postDates(p).modified) : latest), undefined)
+  const posts = publishedPosts()
+  const newestPost = posts.reduce<Date | undefined>((latest, p) => (!latest || postDate(postDates(p).modified) > latest ? postDate(postDates(p).modified) : latest), undefined)
   const newestUpdate = newestUpdateDate()
   const staticUrls = pages.map(p => ({
     url: `${SITE}${p.path}`,
@@ -58,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: p.freq,
     priority: p.priority,
   }))
-  const postUrls = POSTS.map(p => ({ url: `${SITE}/blog/${p.slug}`, lastModified: postDate(postDates(p).modified), changeFrequency: 'monthly' as const, priority: 0.6 }))
+  const postUrls = posts.map(p => ({ url: `${SITE}/blog/${p.slug}`, lastModified: postDate(postDates(p).modified), changeFrequency: 'monthly' as const, priority: 0.6 }))
   // Only profiles worth listing (src/lib/profile-index.ts, T-1032): a real introduction, not a test account, one profile for each name.
   const tutorUrls = (await listIndexableTutorSlugs(serverClient())).map(slug => ({ url: tutorProfileUrl(slug), changeFrequency: 'weekly' as const, priority: 0.5 }))
   // A language page is listed only while it exists (src/lib/language-pages.ts): a language with too few tutors has no page and no entry.

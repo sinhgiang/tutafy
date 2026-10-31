@@ -18,7 +18,7 @@ import { homeJsonLd, jsonLdScript, type JsonLd } from '@/lib/seo'
 import { SITE_URL, PLANS, FAQ, FEATURES, KEY_PAGES } from '@/lib/site-content'
 import { PAGE_SEO, pageMetadata } from '@/lib/page-meta'
 import { PLAN_PRICE } from '@/lib/plans'
-import { POSTS, postDates as modifiedDates } from '@/lib/blog'
+import { POSTS, publishedPosts, postDates as modifiedDates } from '@/lib/blog'
 import { loadUpdates } from '@/lib/updates'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -70,9 +70,9 @@ test('/llms.txt links the six key pages and every blog post, and each link is a 
     assert.ok(KEY_PAGES.some(p => p.path === wanted), `KEY_PAGES lacks ${wanted}`)
   }
   assert.equal(POSTS.length > 0, true)
-  for (const post of POSTS) assert.ok(urls.includes(`${SITE_URL}/blog/${post.slug}`), `missing post ${post.slug}`)
+  for (const post of publishedPosts()) assert.ok(urls.includes(`${SITE_URL}/blog/${post.slug}`), `missing post ${post.slug}`)
 
-  const slugs = new Set(POSTS.map(p => p.slug))
+  const slugs = new Set(publishedPosts().map(p => p.slug))
   for (const url of urls) {
     assert.ok(url.startsWith(SITE_URL), `link off-site: ${url}`)
     const route = url.slice(SITE_URL.length) || '/'
@@ -97,7 +97,7 @@ test('/llms-full.txt carries the plan contents, the feature texts, the FAQ and e
   for (const p of PLANS) for (const feat of p.features) assert.ok(body.includes(feat), `${p.name}: ${feat}`)
   for (const f of FEATURES) assert.ok(body.includes(f.desc), f.title)
   for (const f of FAQ) assert.ok(body.includes(f.q) && body.includes(f.a), f.q)
-  for (const post of POSTS) assert.ok(body.includes(post.description), post.slug)
+  for (const post of publishedPosts()) assert.ok(body.includes(post.description), post.slug)
 })
 
 test('the llms files contain no email address or phone number', async () => {
@@ -201,7 +201,7 @@ test('the page check does catch a page that types its own FAQ or price', () => {
 test('the sitemap puts no date on static pages and the posts carry the day they were last changed (the publish day until a post is edited)', async () => {
   const entries = (await sitemap())
   const prefix = `${SITE_URL}/blog/`
-  const postDates = new Map(POSTS.map(p => [`${prefix}${p.slug}`, new Date(modifiedDates(p).modified + 'T00:00:00').getTime()]))
+  const postDates = new Map(publishedPosts().map(p => [`${prefix}${p.slug}`, new Date(modifiedDates(p).modified + 'T00:00:00').getTime()]))
 
   for (const e of entries) {
     if (postDates.has(e.url)) {
@@ -216,16 +216,16 @@ test('the sitemap puts no date on static pages and the posts carry the day they 
       assert.equal(e.lastModified, undefined, `static page ${e.url} must not carry a date`)
     }
   }
-  assert.equal(entries.filter(e => postDates.has(e.url)).length, POSTS.length)
+  assert.equal(entries.filter(e => postDates.has(e.url)).length, publishedPosts().length)
 
   const urls = entries.map(e => e.url)
   for (const p of KEY_PAGES) assert.ok(urls.includes(`${SITE_URL}${p.path === '/' ? '' : p.path}`), p.path)
 })
 
-test('the sitemap does not change when the clock does', async () => {
-  mock.timers.enable({ apis: ['Date'], now: Date.UTC(2026, 0, 5) })
+test('the sitemap does not change when the clock does, once every post is public (a post joins it on its own day, T-1222)', async () => {
+  mock.timers.enable({ apis: ['Date'], now: Date.UTC(2030, 0, 5) })
   const earlier = JSON.stringify((await sitemap()))
-  mock.timers.setTime(Date.UTC(2027, 6, 20))
+  mock.timers.setTime(Date.UTC(2031, 6, 20))
   const later = JSON.stringify((await sitemap()))
   mock.timers.reset()
   assert.equal(earlier, later)
