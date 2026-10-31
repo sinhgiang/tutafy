@@ -20,6 +20,8 @@ import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
 import { ONLINE_MATH_TUTOR_CONTENT } from '@/lib/blog-posts/online-math-tutor'
+import { ONLINE_VIOLIN_LESSONS_CONTENT } from '@/lib/blog-posts/online-violin-lessons'
+import { GERMAN_TUTOR_ONLINE_CONTENT } from '@/lib/blog-posts/german-tutor-online'
 import type { PostBlock } from '@/lib/blog'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
@@ -44,6 +46,8 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'how-to-find-an-online-tutor': { blocks: FIND_ONLINE_TUTOR_CONTENT, min: 3, max: 4 },
   'superprof-review-for-tutors': { blocks: SUPERPROF_REVIEW_CONTENT, min: 3, max: 4 },
   'online-math-tutor': { blocks: ONLINE_MATH_TUTOR_CONTENT, min: 3, max: 4 },
+  'online-violin-lessons': { blocks: ONLINE_VIOLIN_LESSONS_CONTENT, min: 3, max: 4 },
+  'german-tutor-online': { blocks: GERMAN_TUTOR_ONLINE_CONTENT, min: 3, max: 4 },
 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {

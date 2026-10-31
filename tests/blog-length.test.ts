@@ -10,6 +10,7 @@ const TRAFFIC_ARTICLES = ['how-to-write-a-tutor-bio', 'free-tutoring-invoice-tem
 TRAFFIC_ARTICLES.push('wyzant-fees-for-tutors', 'how-to-find-an-online-tutor') // T-1214, T-1215 (9 Nov 2026)
 TRAFFIC_ARTICLES.push('superprof-review-for-tutors') // T-1236 (13 Nov 2026)
 TRAFFIC_ARTICLES.push('online-math-tutor') // T-1237 (13 Nov 2026)
+TRAFFIC_ARTICLES.push('online-violin-lessons', 'german-tutor-online') // T-1262 (18 Nov 2026)
 
 for (const slug of TRAFFIC_ARTICLES) {
   test(`${slug}: 3,500 to 4,000 words`, () => {

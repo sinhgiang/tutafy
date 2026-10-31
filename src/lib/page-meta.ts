@@ -299,6 +299,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Online Math Tutor: How to Choose, Costs',
     description: 'Online math tutor: name the problem, what the research says, what a good session looks like, seven questions to ask and the cost. Checked 31 Oct 2026.',
   },
+  'online-violin-lessons': {
+    title: 'Online Violin Lessons: 12 Questions to Ask',
+    description: 'Online violin lessons: how a lesson runs, why you cannot play in time over video, camera angles, violin size by arm length, online exams and 12 questions.',
+  },
+  'german-tutor-online': {
+    title: 'German Tutor Online: Levels, Hours, 12 Questions',
+    description: 'German tutor online: the A1 to C2 levels in plain words, hours per level from Goethe-Institut, remote exam rules, a first-month plan and 12 questions.',
+  },
 }
 
 /**

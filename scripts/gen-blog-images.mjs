@@ -577,6 +577,33 @@ const HEROES = {
       <circle cx="354" cy="20" r="22" fill="#047857"/>
       <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+  // Online violin lessons (T-1262) — four strings, a bow and a ruler beside a check mark
+  'online-violin-lessons': base({ from: '#7c2d12', to: '#134e4a', label: 'Teaching', motif: `
+    <g transform="translate(730,96)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2,3].map(i => `<path d="M${96 + i * 48} 40 V300" stroke="#7c2d12" stroke-width="${5 - i * 0.8}" opacity="0.62" stroke-linecap="round"/>`).join('')}
+      <path d="M40 270 L340 70" stroke="#134e4a" stroke-width="9" stroke-linecap="round" opacity="0.8"/>
+      <rect x="40" y="304" width="300" height="12" rx="6" fill="#b45309" opacity="0.7"/>
+      ${[0,1,2,3,4,5].map(i => `<rect x="${46 + i * 50}" y="296" width="3" height="${i % 2 ? 10 : 16}" fill="#7c2d12" opacity="0.5"/>`).join('')}
+      <circle cx="354" cy="20" r="22" fill="#047857"/>
+      <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // German tutor online (T-1262) — three steps of a level staircase and a speech bubble
+  'german-tutor-online': base({ from: '#0f172a', to: '#9a3412', label: 'Teaching', motif: `
+    <g transform="translate(730,96)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="340" rx="20" fill="#ffffff" opacity="0.94"/>
+      <rect x="36" y="220" width="96" height="70" rx="10" fill="#0f172a" opacity="0.5"/>
+      <rect x="142" y="160" width="96" height="130" rx="10" fill="#9a3412" opacity="0.62"/>
+      <rect x="248" y="96" width="96" height="194" rx="10" fill="#b45309" opacity="0.82"/>
+      <rect x="52" y="244" width="40" height="12" rx="6" fill="#ffffff" opacity="0.9"/>
+      <rect x="158" y="184" width="40" height="12" rx="6" fill="#ffffff" opacity="0.9"/>
+      <rect x="264" y="120" width="40" height="12" rx="6" fill="#ffffff" opacity="0.9"/>
+      <rect x="36" y="36" width="190" height="52" rx="26" fill="#0f172a" opacity="0.18"/>
+      <rect x="62" y="56" width="110" height="12" rx="6" fill="#0f172a" opacity="0.4"/>
+      <circle cx="354" cy="20" r="22" fill="#047857"/>
+      <path d="M344 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

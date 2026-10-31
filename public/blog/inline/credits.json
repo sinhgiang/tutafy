@@ -1049,5 +1049,96 @@
       "webp": 9662,
       "avif": 9422
     }
+  },
+  "violin-outdoor-practice": {
+    "file": "Outdoors violin practice (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Elijah Henderson elijahhenderson",
+    "source": "https://commons.wikimedia.org/wiki/File:Outdoors_violin_practice_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 47024,
+      "avif": 44193
+    }
+  },
+  "violin-teaching-class": {
+    "file": "Keman öğretim sınıfı.jpg",
+    "licence": "CC0",
+    "creator": "Satirdan kahraman",
+    "source": "https://commons.wikimedia.org/wiki/File:Keman_%C3%B6%C4%9Fretim_s%C4%B1n%C4%B1f%C4%B1.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4160x3120",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 31296,
+      "avif": 28346
+    }
+  },
+  "violin-sheet-music-studio": {
+    "file": "Sheet music and Violin.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Peachyeung316",
+    "source": "https://commons.wikimedia.org/wiki/File:Sheet_music_and_Violin.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "5184x3888",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 67318,
+      "avif": 50050
+    }
+  },
+  "german-marienplatz-street": {
+    "file": "Street life at Marienplatz, Munich - Images from Munich Project 49.jpg",
+    "licence": "CC0",
+    "creator": "Wilfredor",
+    "source": "https://commons.wikimedia.org/wiki/File:Street_life_at_Marienplatz,_Munich_-_Images_from_Munich_Project_49.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "8256x5504",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 85892,
+      "avif": 67508
+    }
+  },
+  "german-brandenburg-morning": {
+    "file": "Brandenburger Tor morgens.jpg",
+    "licence": "CC BY-SA 3.0",
+    "creator": "Thomas Wolf, www.foto-tw.de",
+    "source": "https://commons.wikimedia.org/wiki/File:Brandenburger_Tor_morgens.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "original": "5009x3347",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 67056,
+      "avif": 52559
+    }
+  },
+  "german-ubahn-platform": {
+    "file": "Platform of the Marienplatz U-Bahn station in Munich.jpg",
+    "licence": "CC0",
+    "creator": "Wilfredor",
+    "source": "https://commons.wikimedia.org/wiki/File:Platform_of_the_Marienplatz_U-Bahn_station_in_Munich.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "6721x4665",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 50490,
+      "avif": 46630
+    }
+  },
+  "violin-strings-closeup": {
+    "file": "Violin strings in close-up (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Providence Doucet providence",
+    "source": "https://commons.wikimedia.org/wiki/File:Violin_strings_in_close-up_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "6016x4000",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 52350,
+      "avif": 45791
+    }
   }
 }

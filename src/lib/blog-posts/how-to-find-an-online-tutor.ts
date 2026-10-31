@@ -34,7 +34,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     'Tutafy is where tutors run their own bookings. Its tutor directory is not open yet and lists no tutors today, so this guide works with any platform.',
   ] },
   { type: 'p', text: `To find a good online tutor, decide what you want to be able to do and by when, shortlist tutors who teach exactly that, test one in a trial lesson, and judge by what happens in the first four lessons rather than by the profile. That is simple to say and easy to skip. It is easy to choose on a photo, a star rating and a price, and find out the rest after you have paid.` },
-  { type: 'p', text: `The ten checks below put the questions in the order you can answer them. Seven need only a profile and a few minutes, two need a lesson and one needs a month. For each we say what it rests on, from official pages read on 31 October 2026, and where we found no evidence we say so. We make Tutafy, a tool tutors use to run their own bookings, so near the end we say what it does and does not do for a learner. Rules and prices change, so read the current page of any platform you use.` },
+  { type: 'p', text: `The ten checks below put the questions in the order you can answer them. Seven need only a profile and a few minutes, two need a lesson and one needs a month. For each we say what it rests on, from official pages read on 31 October 2026, and where we found no evidence we say so. We make Tutafy, a tool tutors use to run their own bookings, so near the end we say what it does and does not do for a learner.` },
   { type: 'image', src: '/blog/inline/find-video-call', alt: 'A smiling woman with long dark hair talking and gesturing toward an open laptop on a wooden table in a bright room with bookshelves behind her.', caption: 'Illustrative photo, not a Tutafy user. A trial lesson is a video call, so test the call too.', credit: 'Photo: Shixart1985 (CC BY 2.0)', creditHref: 'https://commons.wikimedia.org/wiki/File:Woman_smiling_and_using_laptop_during_video_call_in_cozy_wooden_room.jpg' },
   { type: 'h2', text: 'Where tutors are found, and what each place is good for' },
   { type: 'p', text: `You can look in four places, and the checks work in all of them. The place changes who has already done some of the checking for you, and who you can complain to.` },
@@ -137,7 +137,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     `A tutor on Tutafy keeps the whole lesson fee, because Tutafy takes 0% commission. That may let a tutor charge less than on a marketplace, but we do not promise it.`,
   ] },
   { type: 'p', text: `If you are a tutor and want learners to find you, there are two honest routes: a marketplace, which finds students and keeps a share, or your own page with your own students. Our guides on online tutoring jobs and on Wyzant fees do the sums.` },
-  { type: 'source', text: 'Official pages used here, read on 31 Oct 2026. The pages below answered 403 or 404 to our script, so each figure comes from the search result of the official page, not the page opened in a browser. Read the current page before you decide.', links: [
+  { type: 'source', text: 'Official pages used here, read on 31 Oct 2026. The pages below answered 403 or 404 to our script, so each figure comes from the search result of the official page.', links: [
     { label: 'Education Endowment Foundation: one to one tuition', href: 'https://educationendowmentfoundation.org.uk/education-evidence/teaching-learning-toolkit/one-to-one-tuition' },
     { label: 'US Federal Trade Commission: a way to spot scams, how someone asks you to pay', href: 'https://consumer.ftc.gov/consumer-alerts/2026/07/way-spot-scams-how-someone-asks-you-pay' },
     { label: 'NSPCC: finding a tutor for your child', href: 'https://www.nspcc.org.uk/keeping-children-safe/outside-the-home/find-tutor-child/' },
@@ -158,6 +158,8 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     { label: 'IELTS Speaking Part 2 topics', href: '/blog/ielts-speaking-part-2-topics', text: 'A practice routine to use in a lesson with an IELTS tutor.' },
     { label: 'How to write a tutor bio', href: '/blog/how-to-write-a-tutor-bio', text: 'What a good profile says, written for tutors.' },
     { label: 'Online math tutor', href: '/blog/online-math-tutor', text: 'The math layer on top of these checks.' },
+    { label: 'Online violin lessons', href: '/blog/online-violin-lessons', text: 'Violin size, two camera angles and 12 questions.' },
+    { label: 'German tutor online', href: '/blog/german-tutor-online', text: 'Hours per level and what exams say about remote tests.' },
   ] },
   { type: 'faq', items: [
     { q: 'How do I find a good online tutor?', a: `Write your goal in one sentence with a date, shortlist two or three tutors who teach your exact subject and level, read their trial, cancellation and refund rules, pay by a method you can dispute, and use the first lesson as a test. After about four lessons, judge by whether you can do more of what you wanted.` },
