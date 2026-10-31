@@ -406,6 +406,19 @@ const HEROES = {
       <circle cx="326" cy="34" r="22" fill="#047857"/>
       <path d="M316 34 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // Tutor taxes (T-1170) — a form page with lines, a coin and a check mark
+  'do-tutors-have-to-pay-taxes': base({ from: '#374151', to: '#0f766e', label: 'Business', motif: `
+    <g transform="translate(790,110)" opacity="0.95">
+      <rect x="0" y="0" width="300" height="370" rx="20" fill="#ffffff" opacity="0.93"/>
+      <rect x="28" y="30" width="110" height="20" rx="8" fill="#0f766e" opacity="0.6"/>
+      ${[0,1,2,3,4].map(i => `<rect x="28" y="${86 + i * 40}" width="244" height="12" rx="6" fill="#374151" opacity="${i % 2 ? 0.2 : 0.32}"/>`).join('')}
+      <rect x="28" y="304" width="120" height="30" rx="15" fill="#0f766e" opacity="0.8"/>
+      <circle cx="244" cy="320" r="34" fill="#fbbf24"/>
+      <text x="244" y="334" font-family="Segoe UI, Arial" font-size="40" font-weight="800" fill="#92400e" text-anchor="middle">$</text>
+      <circle cx="262" cy="30" r="22" fill="#047857"/>
+      <path d="M252 30 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
