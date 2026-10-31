@@ -48,5 +48,11 @@
   { "name": "stats-magnifier", "file": "A magnifying glass.jpg" },
   { "name": "esl-flashcards", "file": "Flash cards for language learning.jpg" },
   { "name": "esl-volunteer", "file": "Haitian students learn English from Canadian volunteer.jpg" },
-  { "name": "esl-game-pieces", "file": "Board game pieces.jpg" }
+  { "name": "esl-game-pieces", "file": "Board game pieces.jpg" },
+  { "name": "contract-legal-signature", "file": "Legal Contract & Signature - Warm Tones.jpg" },
+  { "name": "contract-fountain-pen", "file": "Writing with a fountain pen (Unsplash).jpg" },
+  { "name": "contract-coffee-notebooks", "file": "Coffee, notebooks and pen (Unsplash).jpg" },
+  { "name": "names-signpost", "file": "Dartmoor names on a signpost - geograph.org.uk - 2303564.jpg" },
+  { "name": "names-cafe-menu", "file": "Cafe menu (Unsplash).jpg" },
+  { "name": "names-pen-notebook", "file": "Pen on a notebook (Unsplash).jpg" }
 ]

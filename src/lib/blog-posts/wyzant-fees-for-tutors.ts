@@ -155,10 +155,12 @@ export const WYZANT_FEES_CONTENT: PostBlock[] = [
   { type: 'links', title: 'Related guides', items: [
     { label: 'How much does Preply take from tutors?', href: '/blog/how-much-does-preply-take', text: 'The same questions for Preply, with the figures and the day checked.' },
     { label: 'Online tutoring jobs', href: '/blog/online-tutoring-jobs', text: 'What each platform keeps or pays, and who can apply.' },
+    { label: 'Preply vs italki vs Wyzant for tutors', href: '/blog/preply-vs-italki-vs-wyzant-for-tutors', text: 'Which platform fits which kind of tutor, and what to do instead.' },
     { label: 'Your real hourly rate as a tutor', href: '/blog/real-hourly-rate-for-tutors', text: 'Divide what you keep by every hour you work.' },
     { label: 'Tutor taxes', href: '/blog/do-tutors-have-to-pay-taxes', text: 'Contractor income, 1099 forms and records.' },
     { label: 'How to get your first 10 tutoring clients', href: '/blog/get-your-first-tutoring-clients', text: 'Where students come from when no marketplace sends them.' },
     { label: 'How to find a good online tutor', href: '/blog/how-to-find-an-online-tutor', text: 'The student\'s side: ten checks before the first lesson.' },
+    { label: 'Superprof for tutors', href: '/blog/superprof-review-for-tutors', text: 'A directory where the student pays a pass and the tutor lists free.' },
   ] },
   { type: 'faq', items: [
     { q: 'How much does Wyzant take from tutors?', a: `Wyzant keeps a flat 25% Platform Fee, so the tutor keeps 75% of their posted hourly rate. Its help pages say the flat rate has applied to lessons submitted since 15 January 2019. Students pay a separate 9% service fee on top, which does not come out of the tutor's pay.` },
