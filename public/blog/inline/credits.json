@@ -815,5 +815,83 @@
       "webp": 24356,
       "avif": 20486
     }
+  },
+  "contract-legal-signature": {
+    "file": "Legal Contract & Signature - Warm Tones.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Blogtrepreneur",
+    "source": "https://commons.wikimedia.org/wiki/File:Legal_Contract_%26_Signature_-_Warm_Tones.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6000x4500",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 46668,
+      "avif": 41416
+    }
+  },
+  "contract-fountain-pen": {
+    "file": "Writing with a fountain pen (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Aaron Burden aaronburden",
+    "source": "https://commons.wikimedia.org/wiki/File:Writing_with_a_fountain_pen_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4592x3448",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 27128,
+      "avif": 23775
+    }
+  },
+  "contract-coffee-notebooks": {
+    "file": "Coffee, notebooks and pen (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Freddy Castro readysetfreddy",
+    "source": "https://commons.wikimedia.org/wiki/File:Coffee,_notebooks_and_pen_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5472x3648",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 118990,
+      "avif": 89307
+    }
+  },
+  "names-signpost": {
+    "file": "Dartmoor names on a signpost - geograph.org.uk - 2303564.jpg",
+    "licence": "CC BY-SA 2.0",
+    "creator": "roger geach",
+    "source": "https://commons.wikimedia.org/wiki/File:Dartmoor_names_on_a_signpost_-_geograph.org.uk_-_2303564.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": "640x582",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 140030,
+      "avif": 99332
+    }
+  },
+  "names-cafe-menu": {
+    "file": "Cafe menu (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Peter Miranda petermiranda",
+    "source": "https://commons.wikimedia.org/wiki/File:Cafe_menu_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "3504x2336",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 42092,
+      "avif": 39076
+    }
+  },
+  "names-pen-notebook": {
+    "file": "Pen on a notebook (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "Thomas Martinsen faceline",
+    "source": "https://commons.wikimedia.org/wiki/File:Pen_on_a_notebook_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4811x2844",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 66968,
+      "avif": 40728
+    }
   }
 }

@@ -61,6 +61,8 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
+import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -2587,6 +2589,9 @@ export const POSTS: Post[] = [
       { type: `p`, text: `This is the gap a dedicated booking tool for independent tutors is built for: a booking page with a cancellation policy and buffer time you configure once — say, 24 hours' notice, a 50% late fee, 15 minutes between sessions — and it applies automatically every time a student tries to reschedule or cancel, without you having to police it. Lessons can recur on a schedule, students can hold prepaid lesson packages or credits, and reminders go out by email and SMS ahead of each session, which is the single biggest lever for reducing no-shows in the first place. Payments run through Stripe or PayPal, so a late-cancellation fee is charged the same way any other invoice is, rather than requiring you to ask for money separately.` },
       { type: `cta`, title: `Run Your Whole Policy Automatically`, text: `Whether you're one tutor or running a small team, Tutafy's Academy plan adds up to 5 tutors and payroll for $29/mo, with the same 0% commission and no credit card required to start.`, button: `Start free — no credit card`, href: `/register` },
       { type: `p`, text: `None of this replaces having the policy written down in your contract — the automation enforces what the contract already says, it doesn't substitute for it. But once the two are working together, the conversation you used to dread having every few weeks mostly stops happening, because the system has it before you do.` },
+      { type: `links`, title: `Related guide`, items: [
+        { label: `A tutoring contract template`, href: `/blog/tutoring-contract-template`, text: `The twelve clauses written out, to copy and fill in.` },
+      ] },
 
       { type: `faq`, items: [
         { q: `What's a fair cancellation policy for a new independent tutor?`, a: `Most new tutors do well starting with a Moderate policy: 24 hours' notice, a 50% fee for late cancellations, and a full fee for no-shows, plus one discounted trial lesson. It's stricter than doing nothing, but not so rigid that it scares off students who haven't worked with you yet. You can tighten it later once your calendar is consistently full.` },
@@ -3992,6 +3997,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
+  {
+    slug: 'tutoring-contract-template',
+    title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
+    description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
+    date: '2026-11-06',
+    category: 'Operations',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTORING_CONTRACT_TEMPLATE_CONTENT,
+  },
+  {
+    slug: 'tutoring-business-names',
+    title: 'Tutoring Business Names: How to Pick One and Check It Is Free to Use',
+    description: 'Tutoring business names: five naming styles, eight tests and a five-step check of the state registry, US trademarks and domains, from official pages.',
+    date: '2026-11-06',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTORING_BUSINESS_NAMES_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4042,6 +4067,8 @@ const HERO_ALTS: Record<string, string> = {
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
+  'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

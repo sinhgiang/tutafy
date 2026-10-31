@@ -488,6 +488,34 @@ const HEROES = {
         <rect x="80" y="8" width="${i % 2 ? 150 : 200}" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
       </g>`).join('')}
     </g>` }),
+
+  // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
+  'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
+    <g transform="translate(790,86)" opacity="0.96">
+      <rect x="0" y="0" width="300" height="370" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="32" y="34" width="150" height="16" rx="8" fill="#334155" opacity="0.5"/>
+      ${[0,1,2,3,4].map(i => `<rect x="32" y="${84 + i * 38}" width="${i % 2 ? 190 : 236}" height="12" rx="6" fill="#334155" opacity="${i % 2 ? 0.2 : 0.3}"/>`).join('')}
+      <rect x="32" y="300" width="150" height="3" fill="#334155" opacity="0.5"/>
+      <path d="M40 292 c14 -22 22 6 36 -12 c8 -10 14 4 24 -4" stroke="#0f766e" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="278" cy="20" r="22" fill="#047857"/>
+      <path d="M268 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // Tutoring business names (T-1201) — a name tag above a signboard, with a tick
+  'tutoring-business-names': base({ from: '#4c1d95', to: '#0e7490', label: 'Business', motif: `
+    <g transform="translate(770,96)" opacity="0.96">
+      <rect x="0" y="0" width="330" height="150" rx="18" fill="#ffffff" opacity="0.94"/>
+      <rect x="28" y="30" width="170" height="20" rx="10" fill="#4c1d95" opacity="0.5"/>
+      <rect x="28" y="68" width="250" height="12" rx="6" fill="#4c1d95" opacity="0.22"/>
+      <rect x="28" y="96" width="190" height="12" rx="6" fill="#4c1d95" opacity="0.18"/>
+      <circle cx="306" cy="20" r="22" fill="#047857"/>
+      <path d="M296 20 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="150" y="150" width="30" height="40" fill="#ffffff" opacity="0.6"/>
+      <rect x="30" y="190" width="270" height="130" rx="16" fill="#ffffff" opacity="0.94"/>
+      <rect x="62" y="222" width="206" height="18" rx="9" fill="#0e7490" opacity="0.55"/>
+      <rect x="62" y="256" width="150" height="12" rx="6" fill="#4c1d95" opacity="0.2"/>
+      <rect x="62" y="280" width="110" height="12" rx="6" fill="#4c1d95" opacity="0.16"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

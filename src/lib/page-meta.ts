@@ -275,6 +275,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Bio: How to Write One, 15 Examples',
     description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
   },
+  'tutoring-contract-template': {
+    title: 'Tutoring Contract Template: One Page, 12 Clauses',
+    description: 'A one-page tutoring contract template: twelve fill-in clauses with the reason for each, versions for children and groups, and rules that can override it.',
+  },
+  'tutoring-business-names': {
+    title: 'Tutoring Business Names: Pick and Check One',
+    description: 'Tutoring business names: five styles, eight tests and a free five-step check of the state registry, US trademarks and domains, from official pages.',
+  },
 }
 
 /**
