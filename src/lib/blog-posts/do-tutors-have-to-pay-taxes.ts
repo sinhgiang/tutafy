@@ -154,6 +154,7 @@ export const TUTOR_TAXES_CONTENT: PostBlock[] = [
     { label: 'Your real hourly rate as a tutor', href: '/blog/real-hourly-rate-for-tutors', text: 'Work out what you keep before tax, then plan for the tax.' },
     { label: 'Free tutoring invoice template', href: '/blog/free-tutoring-invoice-template', text: 'Invoices and a log you can keep for your records.' },
     { label: 'How to hire tutors and grow from solo to a small team', href: '/blog/how-to-hire-tutors-and-build-a-team', text: 'The 1099 against W-2 question, seen from the side of the person hiring.' },
+    { label: 'Tutor certification and insurance', href: '/blog/tutor-certification-and-insurance', text: 'The other paperwork: what independent tutors need, what they do not and what it costs.' },
   ] },
   { type: 'faq', items: [
     { q: 'Do tutors have to pay taxes?', a: `In most countries, yes. Money you earn from private lessons is taxable income whether or not a platform or payment app sends you a form. In the US the IRS says all income is taxable even if you do not receive a Form 1099-K. Check your own country's rules.` },

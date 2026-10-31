@@ -815,5 +815,83 @@
       "webp": 24356,
       "avif": 20486
     }
+  },
+  "cert-contract-signature": {
+    "file": "Legal Contract & Signature - Warm Tones.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Blogtrepreneur",
+    "source": "https://commons.wikimedia.org/wiki/File:Legal_Contract_%26_Signature_-_Warm_Tones.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "6000x4500",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 46668,
+      "avif": 41416
+    }
+  },
+  "cert-clear-umbrella": {
+    "file": "Clear Umbrella Rain Liverpool (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "freddie marriage fredmarriage",
+    "source": "https://commons.wikimedia.org/wiki/File:Clear_Umbrella_Rain_Liverpool_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4896x3264",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 55588,
+      "avif": 48259
+    }
+  },
+  "spanish-headphones-madrid": {
+    "file": "Headphone Microphone Madrid (Unsplash).jpg",
+    "licence": "CC0",
+    "creator": "WillSpirit SBLN willspirit",
+    "source": "https://commons.wikimedia.org/wiki/File:Headphone_Microphone_Madrid_(Unsplash).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5860x3820",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 77840,
+      "avif": 56308
+    }
+  },
+  "cert-paper-checklist": {
+    "file": "Paperlist.jpg",
+    "licence": "CC0",
+    "creator": "Glenn Carstens-Peters",
+    "source": "https://commons.wikimedia.org/wiki/File:Paperlist.jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "4256x2832",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 24436,
+      "avif": 20980
+    }
+  },
+  "spanish-plaza-mayor": {
+    "file": "Plaza Mayor, Madrid 20180720.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Suicasmo",
+    "source": "https://commons.wikimedia.org/wiki/File:Plaza_Mayor,_Madrid_20180720.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "5184x3456",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 79486,
+      "avif": 58386
+    }
+  },
+  "spanish-buenos-aires-bus": {
+    "file": "Buenos Aires, Argentina (Unsplash 7i6nAWPiDhI).jpg",
+    "licence": "CC0",
+    "creator": "Dan Gold danielcgold",
+    "source": "https://commons.wikimedia.org/wiki/File:Buenos_Aires,_Argentina_(Unsplash_7i6nAWPiDhI).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "5751x3236",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 72852,
+      "avif": 61762
+    }
   }
 }

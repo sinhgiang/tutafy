@@ -61,6 +61,8 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { TUTOR_CERT_INSURANCE_CONTENT } from '@/lib/blog-posts/tutor-certification-and-insurance'
+import { SPANISH_TUTOR_CONTENT } from '@/lib/blog-posts/spanish-tutor-online'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -3992,6 +3994,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
+  {
+    slug: 'tutor-certification-and-insurance',
+    title: 'Tutor Certification and Insurance: What Independent Tutors Need, What They Do Not and What It Costs',
+    description: 'Do independent tutors need a certificate or insurance? NTA, GOV.UK and seller pages on certificates, background checks and cover, checked 31 Oct 2026.',
+    date: '2026-11-15',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTOR_CERT_INSURANCE_CONTENT,
+  },
+  {
+    slug: 'spanish-tutor-online',
+    title: 'Spanish Tutor Online: How to Find the Right One, What Lessons Look Like and How to Check Your Level',
+    description: 'How to find a Spanish tutor online: pick the Spanish you need, know your level from A1 to C2, read the trial rules and see what a lesson looks like.',
+    date: '2026-11-15',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: SPANISH_TUTOR_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4042,6 +4064,8 @@ const HERO_ALTS: Record<string, string> = {
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'tutor-certification-and-insurance': "Illustration of a certificate with a seal beside a shield with a check mark, for tutor certification and insurance",
+  'spanish-tutor-online': "Illustration of two speech bubbles and a calendar slot with a check mark, for finding a Spanish tutor online",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

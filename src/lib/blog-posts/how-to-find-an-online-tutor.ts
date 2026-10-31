@@ -157,7 +157,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     { label: 'How to schedule tutoring lessons across time zones', href: '/blog/schedule-tutoring-lessons-across-time-zones', text: 'The clock-change dates that move a regular slot.' },
     { label: 'IELTS Speaking Part 2 topics', href: '/blog/ielts-speaking-part-2-topics', text: 'A practice routine to use in a lesson with an IELTS tutor.' },
     { label: 'How to write a tutor bio', href: '/blog/how-to-write-a-tutor-bio', text: 'What a good profile says, written for tutors.' },
-  ] },
+    { label: 'Spanish tutor online', href: '/blog/spanish-tutor-online', text: 'The checks applied to one language.' },  ] },
   { type: 'faq', items: [
     { q: 'How do I find a good online tutor?', a: `Write your goal in one sentence with a date, shortlist two or three tutors who teach your exact subject and level, read their trial, cancellation and refund rules, pay by a method you can dispute, and use the first lesson as a test. After about four lessons, judge by whether you can do more of what you wanted.` },
     { q: 'How do I know if an online tutor is legit?', a: `Check that the profile makes specific claims you can check, that payment goes through the platform, and that they will do a trial lesson and explain a refund. A profile cannot prove a qualification, so ask to see one if it matters. Be wary of a promised grade or a request to pay outside the platform.` },
