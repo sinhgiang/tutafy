@@ -21,6 +21,8 @@ import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-onlin
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
 import { ONLINE_MATH_TUTOR_CONTENT } from '@/lib/blog-posts/online-math-tutor'
 import type { PostBlock } from '@/lib/blog'
+import { ONLINE_TUTOR_COST_CONTENT } from '@/lib/blog-posts/online-tutor-cost'
+import { TUTOR_LESSON_PLAN_CONTENT } from '@/lib/blog-posts/tutor-lesson-plan-template'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
 const credits: Record<string, { licence?: string; source?: string; checked?: string }> =
@@ -45,6 +47,9 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'superprof-review-for-tutors': { blocks: SUPERPROF_REVIEW_CONTENT, min: 3, max: 4 },
   'online-math-tutor': { blocks: ONLINE_MATH_TUTOR_CONTENT, min: 3, max: 4 },
 }
+// Articles of the 8 Nov 2026 batch (T-1212, T-1213), added apart from the object above so the lanes of the other days do not edit the same lines.
+ARTICLES['online-tutor-cost'] = { blocks: ONLINE_TUTOR_COST_CONTENT, min: 3, max: 4 }
+ARTICLES['tutor-lesson-plan-template'] = { blocks: TUTOR_LESSON_PLAN_CONTENT, min: 3, max: 4 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {
   // A photo is an image block with a credit line; the diagrams drawn for the articles have none.
