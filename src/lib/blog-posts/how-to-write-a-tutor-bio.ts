@@ -185,6 +185,7 @@ export const TUTOR_BIO_CONTENT: PostBlock[] = [
     { label: 'How to build a tutor website that gets bookings', href: '/blog/how-to-build-a-tutor-website', text: 'Where your bio sits on a page of your own.' },
     { label: 'How to choose a tutoring niche', href: '/blog/how-to-choose-a-tutoring-niche', text: 'The student in your first sentence is your niche. Choose it first.' },
     { label: 'How to price your tutoring lessons', href: '/blog/how-to-price-tutoring-lessons', text: 'Whether to show a price in your bio, and how to choose one.' },
+    { label: 'How to find a good online tutor', href: '/blog/how-to-find-an-online-tutor', text: 'The checks a learner makes on a profile like yours.' },
   ] },
   { type: 'faq', items: [
     { q: 'How long should a tutor bio be?', a: `For a marketplace, roughly 80 to 150 words is a good range to test. For your own booking page, 150 to 250 words works. Check each platform's own limits, which differ and change.` },

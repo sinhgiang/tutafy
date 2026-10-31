@@ -63,6 +63,8 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { GET_TUTORING_STUDENTS_CONTENT } from '@/lib/blog-posts/how-to-get-tutoring-students'
 import { CHOOSE_ENGLISH_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-choose-an-online-english-tutor'
+import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
+import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -4000,6 +4002,26 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: CHOOSE_ENGLISH_TUTOR_CONTENT,
   },
+  {
+    slug: 'wyzant-fees-for-tutors',
+    title: 'Wyzant Fees for Tutors: What Wyzant Keeps, What Students Pay and What You Take Home',
+    description: 'Wyzant fees for tutors: the 25% platform fee, the 9% student fee, what to post to take home a rate, referrals, payouts and taxes. Checked 31 Oct 2026.',
+    date: '2026-11-09',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: WYZANT_FEES_CONTENT,
+  },
+  {
+    slug: 'how-to-find-an-online-tutor',
+    title: 'How to Find a Good Online Tutor: 10 Checks Before the First Lesson',
+    description: 'How to find an online tutor: ten checks before you book, in the first lesson and after four lessons, with price, refund, payment and safety rules.',
+    date: '2026-11-09',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: FIND_ONLINE_TUTOR_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4050,6 +4072,8 @@ const HERO_ALTS: Record<string, string> = {
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'how-to-get-tutoring-students': "Illustration of a funnel with four steps ending in a check mark, for getting tutoring students",
   'how-to-choose-an-online-english-tutor': "Illustration of a scorecard with three ticked rows and a speech bubble, for choosing an online English tutor",
+  'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
+  'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

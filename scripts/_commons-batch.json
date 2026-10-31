@@ -42,5 +42,11 @@
   { "name": "english-tulane-studying", "file": "Four Tulane University Students Studying January 2008.jpg" },
   { "name": "english-tutor-and-student", "file": "A tutor and student.jpg", "crop": {"top": 0} },
   { "name": "english-video-call", "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg" },
-  { "name": "english-oxford-dictionary", "file": "Compact Oxford English Dictionary 2.jpg" }
+  { "name": "english-oxford-dictionary", "file": "Compact Oxford English Dictionary 2.jpg" },
+  { "name": "wyzant-dollar-bills", "file": "1 dollar bill.jpg" },
+  { "name": "wyzant-monthly-schedule", "file": "Monthly schedule (Unsplash).jpg" },
+  { "name": "wyzant-headphones-laptop", "file": "Macro headphones laptop (Unsplash).jpg" },
+  { "name": "find-video-call", "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg" },
+  { "name": "find-two-at-laptop", "file": "One-on-one tutorial during the WikiTutorial Session 1.jpg" },
+  { "name": "find-taking-notes", "file": "Taking notes with a pencil (Unsplash).jpg" }
 ]
