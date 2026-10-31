@@ -521,6 +521,37 @@ const HEROES = {
       </g>`).join('')}
     </g>` }),
 
+  // GRE and GMAT tutor online (T-1244) — a score card with a rising line and three ticked checks
+  'gre-gmat-tutor-online': base({ from: '#1e3a5f', to: '#4338ca', label: 'Teaching', motif: `
+    <g transform="translate(740,100)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="350" rx="20" fill="#ffffff" opacity="0.94"/>
+      <rect x="32" y="36" width="130" height="16" rx="8" fill="#1e3a5f" opacity="0.5"/>
+      <path d="M32 190 L100 150 L160 168 L230 106 L300 84 L348 64" stroke="#4338ca" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="348" cy="64" r="11" fill="#4338ca"/>
+      <rect x="32" y="206" width="316" height="2" fill="#1e3a5f" opacity="0.16"/>
+      ${[0,1,2].map(i => `<g transform="translate(0,${232 + i * 36})">
+        <rect x="32" y="0" width="24" height="24" rx="7" fill="#047857" opacity="${0.95 - i * 0.1}"/>
+        <path d="M38 12 l5 6 l9 -11" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="72" y="6" width="${i === 1 ? 160 : 210}" height="11" rx="5.5" fill="#1e3a5f" opacity="0.3"/>
+      </g>`).join('')}
+    </g>` }),
+
+  // Chemistry and physics tutor online (T-1245) — a flask, a block on a slope with a force arrow, and a tick
+  'chemistry-physics-tutor-online': base({ from: '#134e4a', to: '#1e3a5f', label: 'Teaching', motif: `
+    <g transform="translate(740,96)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="350" rx="20" fill="#ffffff" opacity="0.94"/>
+      <path d="M92 40 H128 V104 L164 176 a16 16 0 0 1 -14 24 H70 a16 16 0 0 1 -14 -24 L92 104 Z" fill="#0f766e" opacity="0.2" stroke="#0f766e" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M66 156 H154" stroke="#0f766e" stroke-width="5" opacity="0.6"/>
+      <circle cx="104" cy="178" r="7" fill="#0f766e" opacity="0.6"/>
+      <circle cx="128" cy="170" r="5" fill="#0f766e" opacity="0.6"/>
+      <path d="M210 190 L340 120 V190 Z" fill="#1e3a5f" opacity="0.2" stroke="#1e3a5f" stroke-width="6" stroke-linejoin="round"/>
+      <rect x="252" y="128" width="40" height="30" rx="5" transform="rotate(-28 272 143)" fill="#1e3a5f" opacity="0.6"/>
+      <path d="M262 124 L224 146" stroke="#b45309" stroke-width="6" stroke-linecap="round"/>
+      <path d="M224 146 l12 -2 l-6 -10" stroke="#b45309" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="32" y="240" width="316" height="2" fill="#1e3a5f" opacity="0.16"/>
+      <rect x="32" y="266" width="220" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
+      <rect x="32" y="292" width="150" height="12" rx="6" fill="#1e3a5f" opacity="0.2"/>
+    </g>` }),
   // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
   'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
     <g transform="translate(790,86)" opacity="0.96">

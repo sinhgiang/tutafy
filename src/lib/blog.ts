@@ -65,6 +65,8 @@ import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { GRE_GMAT_TUTOR_CONTENT } from '@/lib/blog-posts/gre-gmat-tutor-online'
+import { CHEM_PHYSICS_TUTOR_CONTENT } from '@/lib/blog-posts/chemistry-physics-tutor-online'
 import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
 import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
@@ -4024,6 +4026,26 @@ export const POSTS: Post[] = [
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
   {
+    slug: 'gre-gmat-tutor-online',
+    title: 'GRE and GMAT Tutor Online: How to Choose One and Plan Your Prep',
+    description: 'GRE and GMAT tutor online: the two tests by the official pages, free official practice, six checks for a tutor, a twelve-week plan and what a retake costs.',
+    date: '2026-11-17',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: GRE_GMAT_TUTOR_CONTENT,
+  },
+  {
+    slug: 'chemistry-physics-tutor-online',
+    title: 'Chemistry and Physics Tutor Online: What a Good Session Looks Like and How to Choose One',
+    description: 'Chemistry and physics tutor online: what a good session looks like, two worked examples, six signs of a good tutor, AP exam formats and a rule on home experiments.',
+    date: '2026-11-17',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: CHEM_PHYSICS_TUTOR_CONTENT,
+  },
+  {
     slug: 'tutoring-contract-template',
     title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
     description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
@@ -4115,6 +4137,8 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'gre-gmat-tutor-online': "Illustration of a test score card with a rising line and three ticked checks, for choosing a GRE or GMAT tutor",
+  'chemistry-physics-tutor-online': "Illustration of a lab flask and a free-body diagram with a ticked check, for a chemistry and physics tutor session",
   'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
   'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",

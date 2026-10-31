@@ -153,6 +153,7 @@ export const WHITEBOARD_CONTENT: PostBlock[] = [
     { label: 'Tools for online tutors: audit your tech stack', href: '/blog/tutoring-tech-stack-for-online-tutors', text: 'Where a whiteboard sits among the other tools of a lesson.' },
     { label: 'Free tutor management software', href: '/blog/free-tutor-management-software', text: 'What a free plan should cover, and where a separate whiteboard still makes sense.' },
     { label: 'How to teach English online', href: '/blog/how-to-teach-english-online', text: 'A language lesson needs a shared document more than a drawing board.' },
+    { label: 'Chemistry and physics tutor online', href: '/blog/chemistry-physics-tutor-online', text: 'Two subjects taught with drawings, and what a good session looks like.' },
     { label: 'Online math tutor', href: '/blog/online-math-tutor', text: 'What a math lesson needs to write together online, and what it costs.' },
   ] },
   { type: 'faq', items: [

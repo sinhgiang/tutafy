@@ -1049,5 +1049,83 @@
       "webp": 9662,
       "avif": 9422
     }
+  },
+  "gre-essay-computers": {
+    "file": "Lab 338 (413772254).jpg",
+    "licence": "CC0",
+    "creator": "Dennis Sylvester Hurd from Minuwangoda, WP, Sri Lanka, Canada",
+    "source": "https://commons.wikimedia.org/wiki/File:Lab_338_(413772254).jpg",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "original": "1998x1470",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 55420,
+      "avif": 59112
+    }
+  },
+  "gre-exam-computer-lab": {
+    "file": "Students taking computerized exam.jpg",
+    "licence": "CC BY-SA 2.0",
+    "creator": "Michael Surran",
+    "source": "https://commons.wikimedia.org/wiki/File:Students_taking_computerized_exam.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "original": "1280x960",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 86280,
+      "avif": 70087
+    }
+  },
+  "gre-desk-notes": {
+    "file": "A Student’s Reading Table in a home.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "BabyBen98",
+    "source": "https://commons.wikimedia.org/wiki/File:A_Student%E2%80%99s_Reading_Table_in_a_home.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "3024x4032",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 92260,
+      "avif": 74534
+    }
+  },
+  "chem-lab-glassware": {
+    "file": "Laboratory equipment of modern chemistry classroom.jpg",
+    "licence": "CC BY 4.0",
+    "creator": "Belikov Maxim",
+    "source": "https://commons.wikimedia.org/wiki/File:Laboratory_equipment_of_modern_chemistry_classroom.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+    "original": "5555x3163",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 40156,
+      "avif": 41760
+    }
+  },
+  "phys-spring-measure": {
+    "file": "A student calculating spring constant at NDC physics lab.jpg",
+    "licence": "CC BY-SA 4.0",
+    "creator": "Notre Dame English Club",
+    "source": "https://commons.wikimedia.org/wiki/File:A_student_calculating_spring_constant_at_NDC_physics_lab.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "original": "1280x1920",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 78162,
+      "avif": 65577
+    }
+  },
+  "phys-whiteboard": {
+    "file": "Physics Tutor.jpg",
+    "licence": "CC BY 2.0",
+    "creator": "Preply.com Images",
+    "source": "https://commons.wikimedia.org/wiki/File:Physics_Tutor.jpg",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "original": "4000x2667",
+    "checked": "2026-10-31",
+    "bytes": {
+      "webp": 40088,
+      "avif": 32354
+    }
   }
 }

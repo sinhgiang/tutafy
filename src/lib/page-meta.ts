@@ -283,6 +283,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Bio: How to Write One, 15 Examples',
     description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
   },
+  'gre-gmat-tutor-online': {
+    title: 'GRE and GMAT Tutor Online: How to Choose',
+    description: 'GRE and GMAT tutor online: the two tests by official pages, free official practice, six checks for a tutor, a 12-week plan and what a retake costs.',
+  },
+  'chemistry-physics-tutor-online': {
+    title: 'Chemistry and Physics Tutor Online: A Good Session',
+    description: 'Chemistry and physics tutor online: what a good session looks like, two worked examples, six signs of a good tutor, AP exam formats and home safety.',
+  },
   'tutoring-contract-template': {
     title: 'Tutoring Contract Template: One Page, 12 Clauses',
     description: 'A one-page tutoring contract template: twelve fill-in clauses with the reason for each, versions for children and groups, and rules that can override it.',
