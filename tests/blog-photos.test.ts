@@ -17,6 +17,7 @@ import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topi
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 import { READING_TUTOR_CONTENT } from '@/lib/blog-posts/reading-tutor-for-your-child'
+import { SAT_ACT_TUTOR_CONTENT } from '@/lib/blog-posts/sat-and-act-tutor-online'
 import type { PostBlock } from '@/lib/blog'
 
 type Photo = Extract<PostBlock, { type: 'image' }>
@@ -38,6 +39,7 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'wyzant-fees-for-tutors': { blocks: WYZANT_FEES_CONTENT, min: 3, max: 4 },
   'how-to-find-an-online-tutor': { blocks: FIND_ONLINE_TUTOR_CONTENT, min: 3, max: 4 },
   'reading-tutor-for-your-child': { blocks: READING_TUTOR_CONTENT, min: 3, max: 4 },
+  'sat-and-act-tutor-online': { blocks: SAT_ACT_TUTOR_CONTENT, min: 3, max: 4 },
 }
 
 for (const [slug, { blocks, min, max }] of Object.entries(ARTICLES)) {

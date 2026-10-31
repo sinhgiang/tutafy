@@ -267,6 +267,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Reading Tutor for Your Child: Signs and Questions',
     description: 'Reading tutor for your child: warning signs by age, what the research says works, what an online reading session looks like and eight questions to ask.',
   },
+  'sat-and-act-tutor-online': {
+    title: 'SAT and ACT Tutor Online: When to Hire One',
+    description: 'SAT and ACT tutor online: when to hire one, the exams in numbers from the official pages, free practice to use first, a timeline and ten questions to ask.',
+  },
   'online-whiteboard-for-tutoring': {
     title: 'Online Whiteboard for Tutoring: Free Options',
     description: 'Free online whiteboards for tutoring compared on limits, sharing with a student and saving the board, checked 31 Oct 2026. Says what Tutafy lacks.',

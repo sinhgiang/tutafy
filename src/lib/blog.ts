@@ -62,6 +62,7 @@ import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topi
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
 import { READING_TUTOR_CONTENT } from '@/lib/blog-posts/reading-tutor-for-your-child'
+import { SAT_ACT_TUTOR_CONTENT } from '@/lib/blog-posts/sat-and-act-tutor-online'
 
 export type PostBlock =
   | { type: 'p'; text: string }
@@ -4003,6 +4004,16 @@ export const POSTS: Post[] = [
     authorBio: AUTHOR_BIO,
     content: READING_TUTOR_CONTENT,
   },
+  {
+    slug: 'sat-and-act-tutor-online',
+    title: 'SAT and ACT Tutor Online: When to Hire One, What to Ask and a Timeline From the Real Test Dates',
+    description: 'SAT and ACT tutor online: when to hire one, the exams in numbers from the official pages, free practice to use first, a timeline and ten questions to ask.',
+    date: '2026-11-16',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: SAT_ACT_TUTOR_CONTENT,
+  },
 ]
 
 export function getPost(slug: string): Post | undefined {
@@ -4054,6 +4065,7 @@ const HERO_ALTS: Record<string, string> = {
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
   'reading-tutor-for-your-child': "Illustration of an open book with lines of text, a pencil and a check mark, for a reading tutor",
+  'sat-and-act-tutor-online': "Illustration of a test sheet with answer bubbles, a clock and a check mark, for an SAT and ACT tutor",
 }
 
 export function heroFor(slug: string): { avif: string; webp: string; alt: string } | null {

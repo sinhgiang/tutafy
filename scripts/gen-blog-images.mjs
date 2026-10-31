@@ -500,6 +500,21 @@ const HEROES = {
       <circle cx="398" cy="50" r="24" fill="#047857"/>
       <path d="M387 50 l8 9 l15 -18" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </g>` }),
+
+  // SAT and ACT tutor online (T-1243) — a test sheet with answer bubbles, a clock and a ticked check
+  'sat-and-act-tutor-online': base({ from: '#1e3a8a', to: '#7c3aed', label: 'Teaching', motif: `
+    <g transform="translate(730,100)" opacity="0.96">
+      <rect x="0" y="0" width="300" height="350" rx="18" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2,3].map(i => `<g transform="translate(30,${40 + i * 64})">
+        <rect x="0" y="6" width="70" height="10" rx="5" fill="#1e3a8a" opacity="0.3"/>
+        ${[0,1,2,3].map(j => `<circle cx="${116 + j * 40}" cy="11" r="13" fill="${(i + j) % 4 === 1 ? '#1e3a8a' : 'none'}" stroke="#1e3a8a" stroke-width="3" opacity="0.6"/>`).join('')}
+      </g>`).join('')}
+      <circle cx="300" cy="350" r="62" fill="#ffffff" opacity="0.96"/>
+      <circle cx="300" cy="350" r="48" fill="none" stroke="#7c3aed" stroke-width="6"/>
+      <path d="M300 318 v34 l22 14" stroke="#7c3aed" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="276" cy="14" r="22" fill="#047857"/>
+      <path d="M266 14 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched

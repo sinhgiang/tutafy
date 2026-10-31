@@ -34,7 +34,7 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     'Tutafy is where tutors run their own bookings. Its tutor directory is not open yet and lists no tutors today, so this guide works with any platform.',
   ] },
   { type: 'p', text: `To find a good online tutor, decide what you want to be able to do and by when, shortlist tutors who teach exactly that, test one in a trial lesson, and judge by what happens in the first four lessons rather than by the profile. That is simple to say and easy to skip. It is easy to choose on a photo, a star rating and a price, and find out the rest after you have paid.` },
-  { type: 'p', text: `The ten checks below put the questions in the order you can answer them. Seven need only a profile and a few minutes, two need a lesson and one needs a month. For each we say what it rests on, from official pages read on 31 October 2026, and where we found no evidence we say so. We make Tutafy, a tool tutors use to run their own bookings, so near the end we say what it does and does not do for a learner. Rules and prices change, so read the current page of any platform you use.` },
+  { type: 'p', text: `The ten checks below put the questions in the order you can answer them. Seven need only a profile and a few minutes, two need a lesson and one needs a month. For each we say what it rests on, from official pages read on 31 October 2026, and where we found no evidence we say so. We make Tutafy, a tool tutors use to run their own bookings, so near the end we say what it does and does not do for a learner.` },
   { type: 'image', src: '/blog/inline/find-video-call', alt: 'A smiling woman with long dark hair talking and gesturing toward an open laptop on a wooden table in a bright room with bookshelves behind her.', caption: 'Illustrative photo, not a Tutafy user. A trial lesson is a video call, so test the call too.', credit: 'Photo: Shixart1985 (CC BY 2.0)', creditHref: 'https://commons.wikimedia.org/wiki/File:Woman_smiling_and_using_laptop_during_video_call_in_cozy_wooden_room.jpg' },
   { type: 'h2', text: 'Where tutors are found, and what each place is good for' },
   { type: 'p', text: `You can look in four places, and the checks work in all of them. The place changes who has already done some of the checking for you, and who you can complain to.` },
@@ -157,6 +157,8 @@ export const FIND_ONLINE_TUTOR_CONTENT: PostBlock[] = [
     { label: 'How to schedule tutoring lessons across time zones', href: '/blog/schedule-tutoring-lessons-across-time-zones', text: 'The clock-change dates that move a regular slot.' },
     { label: 'IELTS Speaking Part 2 topics', href: '/blog/ielts-speaking-part-2-topics', text: 'A practice routine to use in a lesson with an IELTS tutor.' },
     { label: 'How to write a tutor bio', href: '/blog/how-to-write-a-tutor-bio', text: 'What a good profile says, written for tutors.' },
+    { label: 'Reading tutor for your child', href: '/blog/reading-tutor-for-your-child', text: 'Signs by age and session plans.' },
+    { label: 'SAT and ACT tutors online', href: '/blog/sat-and-act-tutor-online', text: 'When to hire, with official dates.' },
   ] },
   { type: 'faq', items: [
     { q: 'How do I find a good online tutor?', a: `Write your goal in one sentence with a date, shortlist two or three tutors who teach your exact subject and level, read their trial, cancellation and refund rules, pay by a method you can dispute, and use the first lesson as a test. After about four lessons, judge by whether you can do more of what you wanted.` },
