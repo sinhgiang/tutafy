@@ -45,6 +45,8 @@
 //  - ielts-speaking-part-2-topics: explainer/how-to · axis = what Part 2 is by the official pages (one minute to prepare, about two minutes to speak) → where topics come from and why a 'latest topics' list cannot be checked (none official found) → IDP's 20 popular topics, grouped → 30 practice cards we wrote (labelled ours) → how to answer a card with a worked invented example → the four scoring criteria → a 45-minute practice session with a tutor → teaching it honestly → mistakes → what Tutafy is not (no IELTS authority, no scoring) · official IELTS, IDP and British Council pages read on 31 Oct 2026 · 3 photos + 2 compare tables + ul + source(7 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1194)
 //  - online-tutor-cost: explainer/comparison for the LEARNER · axis = what dated sources say in the US → why they differ (seller, what is counted, the length of an hour, who set the price, age) → UK by level and subject (two sources that disagree) → by country (only what could be read) → what is inside the price (marketplace, agency, own) → how to read a quote (four invented quotes, a package used 10, 8, 6, 4 times) → a term of lessons → ways to pay less → red flags → what Tutafy is and is not for a learner (no directory yet) · every figure from a page read on 31 Oct 2026 with its date · 4 photos + 8 compare tables + callout(info, warn) + ul + RATES_SOURCE + source(9 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1213)
 //  - tutor-lesson-plan-template: how-to/template · axis = what a one-to-one plan is for → a ten-line one-page template (compare, early) → write the objective first (CMU Eberly Center) → Rosenshine's ten principles mapped to the template lines → retrieval warm-up (retrievalpractice.org) → time splits for 30, 45 and 60 minutes (our suggestion, said so) → three invented plans (maths, English speaking, writing) → a series plan → the five minutes after the lesson → when to throw the plan away → mistakes → what Tutafy has (notes and homework fields, emailed recap, AI summary on Pro) and lacks (no templates) · chosen at step 0 as the reserve topic because the Preply commission article already exists (how-much-does-preply-take, updated for T-1212) · 3 photos + 7 compare tables + ul + source(5 pages) + cta + links, NO statCards/calculator/prosCons/callout/own diagram. Body in src/lib/blog-posts/ (T-1212)
+//  - preply-vs-italki-vs-wyzant-for-tutors: comparison/guide · axis = which kind of tutor each platform is built for (side-by-side table of what each platform's own pages said) → Preply (weekly lessons, first lesson kept, visibility rules) → italki (Professional Teacher and Community Tutor, commission by lesson type, paid trials, withdrawal) → Wyzant (own rate and cancellation policy, 25% fee, referral rule, payout dates) → what you keep from an invented $30 lesson → contact and conduct rules → which platform for which tutor → using more than one → the independent route → what Tutafy is and is not · figures from the platforms' official help pages read on 31 Oct 2026 (via search results where the page gave 403) · 3 photos + 5 compare tables + callout(warn) + ul + source(15 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1216)
+//  - how-to-run-a-trial-lesson-tutoring: how-to · axis = the three jobs of a trial → free, discounted or full price (platform rules side by side) → the message before → a 30-minute script minute by minute → one useful win → the close → the message after (three templates) → objections → when not to convert → count your own conversion → trial on a platform vs your own link → what Tutafy does and does not do for a trial · what the platforms' help pages tell their tutors, read on 31 Oct 2026 · 3 photos + 4 compare tables + callout(tip, info) + ul + source(11 pages) + cta + links, NO statCards/calculator/prosCons/own diagram. Body in src/lib/blog-posts/ (T-1217)
 
 import { RATES_SOURCE } from '@/lib/marketplace-rates'
 import { CALENDLY_ALTERNATIVES_CONTENT } from '@/lib/blog-posts/calendly-alternatives-for-tutors'
@@ -63,8 +65,12 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { ONLINE_TUTOR_COST_CONTENT } from '@/lib/blog-posts/online-tutor-cost'
 import { TUTOR_LESSON_PLAN_CONTENT } from '@/lib/blog-posts/tutor-lesson-plan-template'
+import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-vs-wyzant-for-tutors'
+import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
+import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
 import { ONLINE_MATH_TUTOR_CONTENT } from '@/lib/blog-posts/online-math-tutor'
 
@@ -2613,6 +2619,9 @@ export const POSTS: Post[] = [
       { type: `p`, text: `This is the gap a dedicated booking tool for independent tutors is built for: a booking page with a cancellation policy and buffer time you configure once — say, 24 hours' notice, a 50% late fee, 15 minutes between sessions — and it applies automatically every time a student tries to reschedule or cancel, without you having to police it. Lessons can recur on a schedule, students can hold prepaid lesson packages or credits, and reminders go out by email and SMS ahead of each session, which is the single biggest lever for reducing no-shows in the first place. Payments run through Stripe or PayPal, so a late-cancellation fee is charged the same way any other invoice is, rather than requiring you to ask for money separately.` },
       { type: `cta`, title: `Run Your Whole Policy Automatically`, text: `Whether you're one tutor or running a small team, Tutafy's Academy plan adds up to 5 tutors and payroll for $29/mo, with the same 0% commission and no credit card required to start.`, button: `Start free — no credit card`, href: `/register` },
       { type: `p`, text: `None of this replaces having the policy written down in your contract — the automation enforces what the contract already says, it doesn't substitute for it. But once the two are working together, the conversation you used to dread having every few weeks mostly stops happening, because the system has it before you do.` },
+      { type: `links`, title: `Related guide`, items: [
+        { label: `A tutoring contract template`, href: `/blog/tutoring-contract-template`, text: `The twelve clauses written out, to copy and fill in.` },
+      ] },
 
       { type: `faq`, items: [
         { q: `What's a fair cancellation policy for a new independent tutor?`, a: `Most new tutors do well starting with a Moderate policy: 24 hours' notice, a 50% fee for late cancellations, and a full fee for no-shows, plus one discounted trial lesson. It's stricter than doing nothing, but not so rigid that it scares off students who haven't worked with you yet. You can tighten it later once your calendar is consistently full.` },
@@ -4022,6 +4031,26 @@ export const POSTS: Post[] = [
     content: TUTOR_LESSON_PLAN_CONTENT,
   },
   {
+    slug: 'preply-vs-italki-vs-wyzant-for-tutors',
+    title: 'Preply vs italki vs Wyzant for Tutors: Which Platform Fits Which Tutor (and What to Do Instead)',
+    description: 'Preply vs italki vs Wyzant for tutors: what each platform keeps, how you are paid, the rules that hide a profile, and which one fits your subject and hours.',
+    date: '2026-11-10',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: PREPLY_ITALKI_WYZANT_CONTENT,
+  },
+  {
+    slug: 'how-to-run-a-trial-lesson-tutoring',
+    title: 'Trial Lesson Tutoring: How to Run a First Lesson That Turns Into Regular Students',
+    description: 'How to run a trial lesson as a tutor: the message before, a 30-minute script, the close, follow-up wording, objections and a log to count your own results.',
+    date: '2026-11-10',
+    category: 'Growth',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TRIAL_LESSON_CONTENT,
+  },
+  {
     slug: 'wyzant-fees-for-tutors',
     title: 'Wyzant Fees for Tutors: What Wyzant Keeps, What Students Pay and What You Take Home',
     description: 'Wyzant fees for tutors: the 25% platform fee, the 9% student fee, what to post to take home a rate, referrals, payouts and taxes. Checked 31 Oct 2026.',
@@ -4040,6 +4069,26 @@ export const POSTS: Post[] = [
     author: AUTHOR,
     authorBio: AUTHOR_BIO,
     content: FIND_ONLINE_TUTOR_CONTENT,
+  },
+  {
+    slug: 'tutoring-contract-template',
+    title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
+    description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
+    date: '2026-11-06',
+    category: 'Operations',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTORING_CONTRACT_TEMPLATE_CONTENT,
+  },
+  {
+    slug: 'tutoring-business-names',
+    title: 'Tutoring Business Names: How to Pick One and Check It Is Free to Use',
+    description: 'Tutoring business names: five naming styles, eight tests and a five-step check of the state registry, US trademarks and domains, from official pages.',
+    date: '2026-11-06',
+    category: 'Business',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: TUTORING_BUSINESS_NAMES_CONTENT,
   },
   {
     slug: 'superprof-review-for-tutors',
@@ -4111,8 +4160,12 @@ const HERO_ALTS: Record<string, string> = {
   'ielts-speaking-part-2-topics': "Illustration of a speech bubble with a timer and a check mark, for IELTS Speaking Part 2 topics",
   'online-tutor-cost': "Illustration of three price tags of different sizes beside a coin and a check mark, for what an online tutor costs",
   'tutor-lesson-plan-template': "Illustration of a lesson plan page cut into three timed blocks with a check mark, for a tutor lesson plan template",
+  'preply-vs-italki-vs-wyzant-for-tutors': "Illustration of three profile cards side by side with a check mark under one, for comparing Preply, italki and Wyzant",
+  'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
+  'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",
   'online-math-tutor': "Illustration of a graph with a rising curve and one marked point, for an online math tutor",
 }
