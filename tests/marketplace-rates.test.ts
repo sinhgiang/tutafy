@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { renderToStaticMarkup } from 'react-dom/server'
 import type React from 'react'
 
-import { POSTS, getFaq, type Post, type PostBlock } from '@/lib/blog'
+import { POSTS, getFaq, postDates, type Post, type PostBlock } from '@/lib/blog'
 import { blogPostJsonLd } from '@/lib/blog-seo'
 import {
   HOME_MARKETPLACE_SENTENCE, ITALKI_RANGE, ITALKI_RATES_URL, MARKETPLACE_RANGE, PREPLY_RANGE, PREPLY_RATES_URL, RATES_CHECKED, RATES_SOURCE,
@@ -100,12 +100,16 @@ test('every post that states a platform\'s own rate has the "Rates checked" note
   for (const slug of [...NAMED, ...OTHER]) assert.ok(stating.some(p => p.slug === slug), `${slug} states a platform rate`)
   for (const p of stating) {
     const notes = p.content.filter((b): b is Extract<PostBlock, { type: 'source' }> => b.type === 'source')
-    assert.ok(notes.length >= 1, `${p.slug} has no rates note`)
-    for (const n of notes) {
+    // T-1200: a post may carry other source blocks (a list of the official pages it read); only the rates note is held to the rule below.
+    const rateNotes = notes.filter(n => n.text.startsWith('Rates checked'))
+    assert.ok(rateNotes.length >= 1, `${p.slug} has no rates note`)
+    for (const n of rateNotes) {
       assert.ok(n.text.includes(`Rates checked ${RATES_CHECKED}`), p.slug)
       assert.deepEqual(n.links.map(l => l.href), [PREPLY_RATES_URL, ITALKI_RATES_URL], p.slug)
     }
-    assert.equal(p.updated, '2026-10-25', `${p.slug}: a post whose numbers changed carries the day it was changed`)
+    // T-1212, T-1200: a later edit that adds a caution but changes no number may move the day on, and a post rewritten for its calendar day
+    // (T-1200, dated 7 Nov) carries that day as its date and no `updated`, so this reads the modified day and treats it as a floor, not an exact day.
+    assert.ok(postDates(p).modified >= '2026-10-25', `${p.slug}: a post whose numbers changed carries the day it was changed, or a later day`)
   }
 })
 

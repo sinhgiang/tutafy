@@ -14,6 +14,7 @@ import { TUTOR_TAXES_CONTENT } from '@/lib/blog-posts/do-tutors-have-to-pay-taxe
 import { ONLINE_TUTORING_JOBS_CONTENT } from '@/lib/blog-posts/online-tutoring-jobs'
 import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
+import { TEACH_ENGLISH_ONLINE_CONTENT } from '@/lib/blog-posts/how-to-teach-english-online'
 import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-vs-wyzant-for-tutors'
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
@@ -38,6 +39,7 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'online-tutoring-jobs': { blocks: ONLINE_TUTORING_JOBS_CONTENT, min: 3, max: 4 },
   'tutor-resume': { blocks: TUTOR_RESUME_CONTENT, min: 3, max: 4 },
   'ielts-speaking-part-2-topics': { blocks: IELTS_PART2_CONTENT, min: 3, max: 4 },
+  'how-to-teach-english-online': { blocks: TEACH_ENGLISH_ONLINE_CONTENT, min: 3, max: 4 },
   'preply-vs-italki-vs-wyzant-for-tutors': { blocks: PREPLY_ITALKI_WYZANT_CONTENT, min: 3, max: 4 },
   'how-to-run-a-trial-lesson-tutoring': { blocks: TRIAL_LESSON_CONTENT, min: 3, max: 4 },
   'wyzant-fees-for-tutors': { blocks: WYZANT_FEES_CONTENT, min: 3, max: 4 },
