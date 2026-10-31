@@ -167,6 +167,7 @@ export const IELTS_PART2_CONTENT: PostBlock[] = [
     { label: 'How to price tutoring lessons', href: '/blog/how-to-price-tutoring-lessons', text: 'Set a rate for specialist preparation.' },
     { label: 'Online tutoring jobs', href: '/blog/online-tutoring-jobs', text: 'Which platforms hire English and test-prep tutors.' },
     { label: 'How to find a good online tutor', href: '/blog/how-to-find-an-online-tutor', text: 'Ten checks a learner can make before booking an IELTS tutor.' },
+    { label: 'SAT and ACT tutors online', href: '/blog/sat-and-act-tutor-online', text: 'Another exam: when a tutor helps and what to try first.' },
   ] },
   { type: 'faq', items: [
     { q: 'How long is IELTS Speaking Part 2?', a: `According to ielts.org, Part 2 lasts 3 to 4 minutes including preparation: one minute to prepare with pencil and paper, then about two minutes of speaking. The whole Speaking test takes 11 to 14 minutes.` },

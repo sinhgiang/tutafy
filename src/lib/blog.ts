@@ -65,6 +65,8 @@ import { PREPLY_ITALKI_WYZANT_CONTENT } from '@/lib/blog-posts/preply-vs-italki-
 import { TRIAL_LESSON_CONTENT } from '@/lib/blog-posts/how-to-run-a-trial-lesson-tutoring'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { READING_TUTOR_CONTENT } from '@/lib/blog-posts/reading-tutor-for-your-child'
+import { SAT_ACT_TUTOR_CONTENT } from '@/lib/blog-posts/sat-and-act-tutor-online'
 import { TUTORING_CONTRACT_TEMPLATE_CONTENT } from '@/lib/blog-posts/tutoring-contract-template'
 import { TUTORING_BUSINESS_NAMES_CONTENT } from '@/lib/blog-posts/tutoring-business-names'
 import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
@@ -4024,6 +4026,26 @@ export const POSTS: Post[] = [
     content: FIND_ONLINE_TUTOR_CONTENT,
   },
   {
+    slug: 'reading-tutor-for-your-child',
+    title: 'Reading Tutor for Your Child: Warning Signs by Age, What Works and What to Ask',
+    description: 'Reading tutor for your child: warning signs by age, what the research says works, what an online reading session looks like and eight questions to ask.',
+    date: '2026-11-16',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: READING_TUTOR_CONTENT,
+  },
+  {
+    slug: 'sat-and-act-tutor-online',
+    title: 'SAT and ACT Tutor Online: When to Hire One, What to Ask and a Timeline From the Real Test Dates',
+    description: 'SAT and ACT tutor online: when to hire one, the exams in numbers from the official pages, free practice to use first, a timeline and ten questions to ask.',
+    date: '2026-11-16',
+    category: 'Teaching',
+    author: AUTHOR,
+    authorBio: AUTHOR_BIO,
+    content: SAT_ACT_TUTOR_CONTENT,
+  },
+  {
     slug: 'tutoring-contract-template',
     title: 'Tutoring Contract Template: A One-Page Agreement, Clause by Clause',
     description: 'A copyable one-page tutoring contract with twelve clauses, why each is there, versions for adults, children and groups, and the rules that can override it.',
@@ -4115,6 +4137,8 @@ const HERO_ALTS: Record<string, string> = {
   'how-to-run-a-trial-lesson-tutoring': "Illustration of a clock showing half past beside a calendar with a booked slot and a check mark, for running a trial lesson",
   'wyzant-fees-for-tutors': "Illustration of a lesson price split into a tutor share, a platform share and a student fee, for Wyzant fees",
   'how-to-find-an-online-tutor': "Illustration of a tutor profile card with four ticked checks, for finding an online tutor",
+  'reading-tutor-for-your-child': "Illustration of an open book with lines of text, a pencil and a check mark, for a reading tutor",
+  'sat-and-act-tutor-online': "Illustration of a test sheet with answer bubbles, a clock and a check mark, for an SAT and ACT tutor",
   'tutoring-contract-template': "Illustration of an agreement page with text lines, a signature line and a check mark, for a tutoring contract template",
   'tutoring-business-names': "Illustration of a name tag and a signboard with a check mark, for choosing a tutoring business name",
   'superprof-review-for-tutors': "Illustration of a tutor ad card with a bar split into a large tutor share and a small fee slice, for Superprof fees",

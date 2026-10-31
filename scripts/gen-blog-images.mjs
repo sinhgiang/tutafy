@@ -521,6 +521,32 @@ const HEROES = {
       </g>`).join('')}
     </g>` }),
 
+  // Reading tutor for your child (T-1242) — an open book with lines of text, a pencil and a ticked check
+  'reading-tutor-for-your-child': base({ from: '#7c2d12', to: '#0f766e', label: 'Teaching', motif: `
+    <g transform="translate(700,120)" opacity="0.96">
+      <rect x="0" y="40" width="200" height="270" rx="14" fill="#ffffff" opacity="0.94"/>
+      <rect x="210" y="40" width="200" height="270" rx="14" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2,3,4,5].map(i => `<rect x="24" y="${76 + i * 30}" width="${i % 3 === 2 ? 110 : 152}" height="10" rx="5" fill="#7c2d12" opacity="0.28"/>
+      <rect x="234" y="${76 + i * 30}" width="${i % 2 ? 120 : 152}" height="10" rx="5" fill="#0f766e" opacity="0.3"/>`).join('')}
+      <rect x="150" y="246" width="96" height="14" rx="7" fill="#b45309" opacity="0.7" transform="rotate(-24 150 246)"/>
+      <circle cx="398" cy="50" r="24" fill="#047857"/>
+      <path d="M387 50 l8 9 l15 -18" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
+
+  // SAT and ACT tutor online (T-1243) — a test sheet with answer bubbles, a clock and a ticked check
+  'sat-and-act-tutor-online': base({ from: '#0c4a6e', to: '#92400e', label: 'Teaching', motif: `
+    <g transform="translate(730,100)" opacity="0.96">
+      <rect x="0" y="0" width="300" height="350" rx="18" fill="#ffffff" opacity="0.94"/>
+      ${[0,1,2,3].map(i => `<g transform="translate(30,${40 + i * 64})">
+        <rect x="0" y="6" width="70" height="10" rx="5" fill="#0c4a6e" opacity="0.3"/>
+        ${[0,1,2,3].map(j => `<circle cx="${116 + j * 40}" cy="11" r="13" fill="${(i + j) % 4 === 1 ? '#0c4a6e' : 'none'}" stroke="#0c4a6e" stroke-width="3" opacity="0.6"/>`).join('')}
+      </g>`).join('')}
+      <circle cx="300" cy="350" r="62" fill="#ffffff" opacity="0.96"/>
+      <circle cx="300" cy="350" r="48" fill="none" stroke="#b45309" stroke-width="6"/>
+      <path d="M300 318 v34 l22 14" stroke="#b45309" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="276" cy="14" r="22" fill="#047857"/>
+      <path d="M266 14 l7 8 l14 -16" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>` }),
   // Tutoring contract template (T-1199) — an agreement page with text lines, a signature line and a tick
   'tutoring-contract-template': base({ from: '#334155', to: '#0f766e', label: 'Operations', motif: `
     <g transform="translate(790,86)" opacity="0.96">
