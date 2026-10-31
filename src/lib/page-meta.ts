@@ -275,6 +275,10 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Tutor Bio: How to Write One, 15 Examples',
     description: 'A tutor bio says who you help, what a lesson is like and why you. Read 15 tutor bio examples, headline formulas, a before and after and a checklist.',
   },
+  'gre-gmat-tutor-online': {
+    title: 'GRE and GMAT Tutor Online: How to Choose',
+    description: 'GRE and GMAT tutor online: the two tests by official pages, free official practice, six checks for a tutor, a 12-week plan and what a retake costs.',
+  },
 }
 
 /**

@@ -42,5 +42,12 @@
   { "name": "wyzant-headphones-laptop", "file": "Macro headphones laptop (Unsplash).jpg" },
   { "name": "find-video-call", "file": "Woman smiling and using laptop during video call in cozy wooden room.jpg" },
   { "name": "find-two-at-laptop", "file": "One-on-one tutorial during the WikiTutorial Session 1.jpg" },
-  { "name": "find-taking-notes", "file": "Taking notes with a pencil (Unsplash).jpg" }
+  { "name": "find-taking-notes", "file": "Taking notes with a pencil (Unsplash).jpg" },
+  { "name": "gre-essay-computers", "file": "Lab 338 (413772254).jpg" },
+  { "name": "gre-exam-computer-lab", "file": "Students taking computerized exam.jpg" },
+  { "name": "gre-desk-notes", "file": "A Student’s Reading Table in a home.jpg", "crop": { "top": 0.5 } },
+  { "name": "chem-lab-glassware", "file": "Laboratory equipment of modern chemistry classroom.jpg" },
+  { "name": "phys-spring-measure", "file": "A student calculating spring constant at NDC physics lab.jpg", "crop": { "top": 0.3 } },
+  { "name": "phys-whiteboard", "file": "Physics Tutor.jpg" },
+  { "name": "phys-lab-team", "file": "Physics Lab Christ School.jpg" }
 ]

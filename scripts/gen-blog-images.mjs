@@ -488,6 +488,21 @@ const HEROES = {
         <rect x="80" y="8" width="${i % 2 ? 150 : 200}" height="12" rx="6" fill="#1e3a5f" opacity="0.3"/>
       </g>`).join('')}
     </g>` }),
+
+  // GRE and GMAT tutor online (T-1244) — a score card with a rising line and three ticked checks
+  'gre-gmat-tutor-online': base({ from: '#1e3a5f', to: '#4338ca', label: 'Teaching', motif: `
+    <g transform="translate(740,100)" opacity="0.96">
+      <rect x="0" y="0" width="380" height="350" rx="20" fill="#ffffff" opacity="0.94"/>
+      <rect x="32" y="36" width="130" height="16" rx="8" fill="#1e3a5f" opacity="0.5"/>
+      <path d="M32 190 L100 150 L160 168 L230 106 L300 84 L348 64" stroke="#4338ca" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="348" cy="64" r="11" fill="#4338ca"/>
+      <rect x="32" y="206" width="316" height="2" fill="#1e3a5f" opacity="0.16"/>
+      ${[0,1,2].map(i => `<g transform="translate(0,${232 + i * 36})">
+        <rect x="32" y="0" width="24" height="24" rx="7" fill="#047857" opacity="${0.95 - i * 0.1}"/>
+        <path d="M38 12 l5 6 l9 -11" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="72" y="6" width="${i === 1 ? 160 : 210}" height="11" rx="5.5" fill="#1e3a5f" opacity="0.3"/>
+      </g>`).join('')}
+    </g>` }),
 }
 
 const only = process.argv.slice(2) // optional: draw only the heroes named on the command line, so the older files are not touched
