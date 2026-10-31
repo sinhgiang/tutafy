@@ -16,6 +16,8 @@ import { TUTOR_RESUME_CONTENT } from '@/lib/blog-posts/tutor-resume'
 import { IELTS_PART2_CONTENT } from '@/lib/blog-posts/ielts-speaking-part-2-topics'
 import { WYZANT_FEES_CONTENT } from '@/lib/blog-posts/wyzant-fees-for-tutors'
 import { FIND_ONLINE_TUTOR_CONTENT } from '@/lib/blog-posts/how-to-find-an-online-tutor'
+import { SUPERPROF_REVIEW_CONTENT } from '@/lib/blog-posts/superprof-review-for-tutors'
+import { ONLINE_MATH_TUTOR_CONTENT } from '@/lib/blog-posts/online-math-tutor'
 import type { PostBlock } from '@/lib/blog'
 import { ONLINE_TUTOR_COST_CONTENT } from '@/lib/blog-posts/online-tutor-cost'
 import { TUTOR_LESSON_PLAN_CONTENT } from '@/lib/blog-posts/tutor-lesson-plan-template'
@@ -38,6 +40,8 @@ const ARTICLES: Record<string, { blocks: PostBlock[]; min: number; max: number }
   'ielts-speaking-part-2-topics': { blocks: IELTS_PART2_CONTENT, min: 3, max: 4 },
   'wyzant-fees-for-tutors': { blocks: WYZANT_FEES_CONTENT, min: 3, max: 4 },
   'how-to-find-an-online-tutor': { blocks: FIND_ONLINE_TUTOR_CONTENT, min: 3, max: 4 },
+  'superprof-review-for-tutors': { blocks: SUPERPROF_REVIEW_CONTENT, min: 3, max: 4 },
+  'online-math-tutor': { blocks: ONLINE_MATH_TUTOR_CONTENT, min: 3, max: 4 },
 }
 // Articles of the 8 Nov 2026 batch (T-1212, T-1213), added apart from the object above so the lanes of the other days do not edit the same lines.
 ARTICLES['online-tutor-cost'] = { blocks: ONLINE_TUTOR_COST_CONTENT, min: 3, max: 4 }

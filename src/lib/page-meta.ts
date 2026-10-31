@@ -283,6 +283,14 @@ const BLOG_SEO_BASE: Record<string, { title: string; description: string }> = {
     title: 'Lesson Plan Template for Tutors (One Page)',
     description: 'A one-page tutor lesson plan template: objective first, time splits for 30, 45 and 60 minutes, Rosenshine\'s principles as a checklist, three worked plans.',
   },
+  'superprof-review-for-tutors': {
+    title: 'Superprof for Tutors: Costs, Fees, Leads',
+    description: 'Superprof for tutors: free listing, the 10% fee on its payments, the student pass, how requests and payouts work, and a 60-day test. Checked 31 Oct 2026.',
+  },
+  'online-math-tutor': {
+    title: 'Online Math Tutor: How to Choose, Costs',
+    description: 'Online math tutor: name the problem, what the research says, what a good session looks like, seven questions to ask and the cost. Checked 31 Oct 2026.',
+  },
 }
 
 /**
